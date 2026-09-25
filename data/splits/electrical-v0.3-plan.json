@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.1.0",
+  "suite": "electrical",
+  "status": "pre_holdout_collection",
+  "development_calibration_episodes": [
+    "electrical-bongabon-generator-001",
+    "electrical-national-museum-lighting-002",
+    "electrical-neust-cable-003",
+    "electrical-dla-breaker-004",
+    "electrical-barrie-transformer-005",
+    "electrical-bfar-generator-006",
+    "electrical-negros-wire-007",
+    "electrical-burauen-generator-008",
+    "electrical-highpoint-transformer-009",
+    "electrical-painesville-switchgear-010",
+    "electrical-sagada-generator-011",
+    "electrical-dla-relay-012",
+    "electrical-dla-transformer-013",
+    "electrical-dla-battery-supply-014",
+    "electrical-dla-battery-charger-015",
+    "electrical-dla-power-supply-016",
+    "electrical-dla-qpl-breaker-017",
+    "electrical-highpoint-cable-018",
+    "electrical-usaf-ups-019",
+    "electrical-vre-generator-020"
+  ],
+  "development_rationale": "Episodes 001-020 were used while building the runtime, auditing checkpoint fairness, designing Evaluator v0.2, and inspecting model trajectories. They are therefore development/calibration data rather than an untouched final test set.",
+  "held_out_test": {
+    "target_count": 10,
+    "episode_ids": [],
+    "reserved_numeric_suffixes": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "freeze_rule": "Each held-out episode must use a distinct newly collected real public initial state. After the held-out slice is frozen, evaluator semantics and agent architecture choices must not be tuned against its results."
+  },
+  "collection_gate": {
+    "distinct_real_public_initial_state_per_episode": true,
+    "field_level_provenance_required": true,
+    "unknown_public_fields_remain_null": true,
+    "synthetic_supplier_behavior_must_be_labeled": true,
+    "future_events_hidden_until_trigger": true,
+    "oracle_hidden_from_policy": true
+  }
+}
