@@ -67,6 +67,14 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Token, latency, model-call, and estimated cost metrics captured in results.
 - See [`docs/reactive-llm-baseline.md`](docs/reactive-llm-baseline.md).
 
+### Reactive Baseline Pilot v0.1
+
+- Repeated multi-model experiment harness for the reactive baseline.
+- Intended matrix: 3 models × 5 pilot episodes × 3 repeats = 45 runs.
+- Preserves every raw replicate and emits summary.json plus runs.csv.
+- Aggregates failure modes without introducing a weighted score or ranking.
+- See [`docs/reactive-pilot.md`](docs/reactive-pilot.md).
+
 ## Repository map
 
 - `longprocurebench/runtime.py` — deterministic benchmark environment.
@@ -90,6 +98,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/validate_dataset.py` — initial-state validation.
 - `scripts/validate_episodes.py` — episode validation.
 - `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
+- `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
 
 ## Validate
 
