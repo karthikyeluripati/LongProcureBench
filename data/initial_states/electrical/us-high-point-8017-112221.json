@@ -1,0 +1,285 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-high-point-8017-112221",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of High Point, Warehouse Division",
+    "project_name": "Transformer stock 832; bid 8017-112221",
+    "project_description": "Electrical equipment/material supply for the Electric Department.",
+    "location": "657 E Russell Avenue, High Point, NC 27260, USA"
+  },
+  "package_subscope": "All equipment/material lines in the original unpriced schedule; technical summaries are selective.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2021-10-29",
+    "boundary": "Buyer-authored requirements only. Exclude supplier responses, offered lead times, negotiations, awards, and later amendments. Public solicitation is a proxy for internal pre-RFQ knowledge."
+  },
+  "line_items": [
+    {
+      "item_id": "832",
+      "description": "300 kVA pad-mounted three-phase transformer",
+      "quantity": 5,
+      "quantity_basis": "estimated",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "60 Hz; 65 C rise; primary 12470 GRDY/7200 V; secondary 480Y/277 V; BIL HV 95 kV, LV 30 kV.",
+          "verbatim_excerpt": null,
+          "source_locator": "PDF p. 6 / stock 832: ratings, high and low voltage"
+        },
+        {
+          "summary": "Six 200 A HV wells; loop-feed deadfront; compatible with Elastimold 1602A3R or equivalent.",
+          "verbatim_excerpt": null,
+          "source_locator": "PDF p. 6 / High Voltage Bushings"
+        },
+        {
+          "summary": "Internal fault indication/pressure relief: IFD Corporation device or approved equal.",
+          "verbatim_excerpt": null,
+          "source_locator": "PDF p. 7 / Other Features, item 1"
+        },
+        {
+          "summary": "Non-PCB fluid labeling.",
+          "verbatim_excerpt": "PCB content less than 1 ppm at the time of manufacture.",
+          "source_locator": "PDF p. 8 / Other Features, item 22"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": [
+        "Component equivalents allowed as specified; whole-unit substitution remains subject to conflicting general clauses."
+      ],
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2021-11-22 14:00 (timezone not stated)"
+  },
+  "supplier_eligibility_constraints": [
+    "Three comparable references; City vendor registration; successful incorporated/LLC bidder must register with NC Secretary of State."
+  ],
+  "certifications_compliance": [
+    "ANSI C57.12.34; ANSI C57.12.00 loss tolerance; DOE 10 CFR Part 431; certified individual loss tests; ASTM A240 skirt."
+  ],
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Transformer stock 832; bid 8017-112221",
+      "url": "https://www.highpointnc.gov/DocumentCenter/View/18243/ITB-8017-112221-XFMR-Transformer-832?bidId=",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2021-10-29",
+      "retrieved_date": "2026-09-25",
+      "sha256": "2a0abd119be2c8327cdffc7aa15e1327ce9778341351664b08688b90e5c8fcb7",
+      "snapshot_policy": "URL and retrieved-byte hash retained; full source bytes excluded from dataset. Retrieve independently for audit; HTML may contain later status metadata."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / SCOPE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / FOB Destination delivery address",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / DATE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: sole stock 832 row",
+      "interpretation": "Curator scope statement identifying included source rows and services."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / stock 832: ratings, high and low voltage",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/1/summary",
+        "/line_items/0/technical_specifications/1/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / High Voltage Bushings",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/2/summary",
+        "/line_items/0/technical_specifications/2/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 7 / Other Features, item 1",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/3/summary",
+        "/line_items/0/technical_specifications/3/verbatim_excerpt",
+        "/line_items/0/technical_specifications/3/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 8 / Other Features, item 22",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/acceptable_alternates/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / High Voltage Bushings; p. 7 / Other Features item 1; p. 4 / MAKE AND MODEL; p. 10 / SPECIFICATIONS",
+      "interpretation": "Preserve source-specific allowances and conflicting general terms; no conflict resolved by inference."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / BIDS DUE NO LATER THAN",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/supplier_eligibility_constraints/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / REFERENCES; p. 5 / VENDOR REGISTRATION and NC SECRETARY of STATE REGISTRATION",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/certifications_compliance/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / Bushing Arrangement; p. 7 / Other Features items 9,14-16; p. 8 / item 18",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "conflicting_source",
+      "detail": "General make/model clause permits comparable products (p. 4); p. 10 calls named products specific unless equivalents allowed. Preserve component-specific equivalents; seek buyer clarification for whole-unit substitutions."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "bidder_to_provide",
+      "detail": "Unpriced solicitation; blank price cells are not buyer estimates."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "bidder_to_provide",
+      "detail": "Unpriced solicitation; blank price cells are not buyer estimates."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Buyer budget is not stated in the reviewed solicitation; blank bidder price cells do not establish it."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "bidder_to_provide",
+      "detail": "Bid form leaves days after order blank; closing date is not delivery deadline."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "bidder_to_provide",
+      "detail": "Bid form leaves days after order blank; closing date is not delivery deadline."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "All goods lines included, but technical and contractual clauses are summarized selectively. Consult cited original pages for complete requirements."
+    }
+  ]
+}

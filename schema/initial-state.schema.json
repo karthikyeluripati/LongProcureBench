@@ -1,0 +1,556 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "LongProcureBench electrical procurement initial state.",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of this data contract.",
+      "const": "0.1.0"
+    },
+    "package_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Curator-assigned stable package ID.",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "procurement_category": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Milestone category.",
+      "const": "electrical"
+    },
+    "project": {
+      "type": "object",
+      "description": "Project context.",
+      "properties": {
+        "source_organization": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Buyer organization establishes authority and context."
+        },
+        "project_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Source procurement title or clearly descriptive package label."
+        },
+        "project_description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Buyer need and intended use."
+        },
+        "location": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Delivery/project location, not a bid-submission address."
+        }
+      },
+      "required": [
+        "source_organization",
+        "project_name",
+        "project_description",
+        "location"
+      ],
+      "additionalProperties": false
+    },
+    "package_subscope": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Included goods/services and extraction boundary."
+    },
+    "initial_state": {
+      "type": "object",
+      "description": "Temporal boundary prevents outcome leakage.",
+      "properties": {
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "These are requirement reconstructions, not observed internal pre-RFQ snapshots.",
+          "const": "reconstructed_from_solicitation"
+        },
+        "source_issue_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Requirement baseline date; not a claim of historical immutability.",
+          "format": "date"
+        },
+        "boundary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Information inclusion rule and excluded later-stage information."
+        }
+      },
+      "required": [
+        "basis",
+        "source_issue_date",
+        "boundary"
+      ],
+      "additionalProperties": false
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "A complete requested line item, with unknown attributes explicit.",
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable source line/stock identifier, or explicitly curator-assigned identifier."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Equipment/material identity enables matching."
+          },
+          "quantity": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Requested quantity; null if unknown."
+          },
+          "quantity_basis": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Distinguishes estimates from firm demand.",
+            "enum": [
+              "estimated",
+              "specified",
+              null
+            ]
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Original unit token; avoids silent conversion."
+          },
+          "technical_specifications": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "description": "One technical requirement or closely related group.",
+              "properties": {
+                "summary": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Concise factual specification summary; not a replacement for the source."
+                },
+                "verbatim_excerpt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 1,
+                  "description": "Optional short exact wording for a critical requirement."
+                },
+                "source_locator": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Page/section containing the requirement for verification."
+                }
+              },
+              "required": [
+                "summary",
+                "verbatim_excerpt",
+                "source_locator"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Known technical constraints; null if unavailable."
+          },
+          "manufacturer": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Buyer-specified whole-item manufacturer, not a future winning supplier."
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Buyer-specified whole-item model; stock IDs are not models."
+          },
+          "acceptable_alternates": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Source-backed substitution condition."
+            },
+            "minItems": 1,
+            "description": "Optional substitution rules; null means unknown, not prohibited."
+          },
+          "estimated_unit_cost": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional known buyer cost; null when unavailable.",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Buyer estimate or budget amount; never a supplier quote."
+              },
+              "currency": {
+                "type": "string",
+                "minLength": 1,
+                "description": "ISO 4217 currency prevents ambiguous cost comparisons.",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "basis": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Estimate basis and inclusions; distinguishes budget ceilings from prices."
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "estimated_total_cost": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional known buyer cost; null when unavailable.",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Buyer estimate or budget amount; never a supplier quote."
+              },
+              "currency": {
+                "type": "string",
+                "minLength": 1,
+                "description": "ISO 4217 currency prevents ambiguous cost comparisons.",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "basis": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Estimate basis and inclusions; distinguishes budget ceilings from prices."
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "basis"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "item_id",
+          "description",
+          "quantity",
+          "quantity_basis",
+          "unit",
+          "technical_specifications",
+          "manufacturer",
+          "model",
+          "acceptable_alternates",
+          "estimated_unit_cost",
+          "estimated_total_cost"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "All goods lines within the stated package scope."
+    },
+    "total_estimated_budget": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Optional known buyer cost; null when unavailable.",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Buyer estimate or budget amount; never a supplier quote."
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ISO 4217 currency prevents ambiguous cost comparisons.",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Estimate basis and inclusions; distinguishes budget ceilings from prices."
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "schedule": {
+      "type": "object",
+      "description": "Schedule constraints.",
+      "properties": {
+        "need_by_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Calendar delivery deadline only; never bid closing date.",
+          "format": "date"
+        },
+        "delivery_requirement": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Relative delivery term or schedule when no absolute date is known."
+        },
+        "bid_submission_deadline": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Source-stated bidding deadline retained separately as context."
+        }
+      },
+      "required": [
+        "need_by_date",
+        "delivery_requirement",
+        "bid_submission_deadline"
+      ],
+      "additionalProperties": false
+    },
+    "supplier_eligibility_constraints": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Buyer-stated eligibility or qualification condition."
+      },
+      "minItems": 1,
+      "description": "Known eligibility requirements; null if unavailable."
+    },
+    "certifications_compliance": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Source-stated standard or compliance obligation; historical, not legal advice."
+      },
+      "minItems": 1,
+      "description": "Known compliance requirements; not a certification of any supplier."
+    },
+    "supporting_documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Source document catalog.",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Local identifier used by provenance references."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source title."
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Original primary-source location.",
+            "format": "uri"
+          },
+          "document_type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Source medium.",
+            "enum": [
+              "solicitation_pdf",
+              "notice_html"
+            ]
+          },
+          "issued_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Original issue/publication date, not retrieval date.",
+            "format": "date"
+          },
+          "retrieved_date": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Date source bytes were retrieved.",
+            "format": "date"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "description": "SHA-256 of retrieved bytes for detecting source changes.",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "snapshot_policy": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Explains what was retained and why; source bytes are not agent input."
+          }
+        },
+        "required": [
+          "document_id",
+          "title",
+          "url",
+          "document_type",
+          "issued_date",
+          "retrieved_date",
+          "sha256",
+          "snapshot_policy"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "Primary-source document catalog."
+    },
+    "source_provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Evidence for sourced fields.",
+        "properties": {
+          "field_paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "JSON Pointer to one scalar field; container/subtree references are rejected."
+            },
+            "minItems": 1,
+            "description": "Fields supported by this evidence."
+          },
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Supporting document identifier."
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1,
+            "description": "One-based PDF pages or HTML section; reproducible evidence location."
+          },
+          "interpretation": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Extraction decisions, scope, and caveats."
+          }
+        },
+        "required": [
+          "field_paths",
+          "document_id",
+          "locator",
+          "interpretation"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "Field-level evidence; metadata and missing-information notes are curator-authored."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "An actionable information gap.",
+        "properties": {
+          "field_path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "JSON Pointer to an unknown, incomplete, or conflicting field."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Why information is missing or unreliable.",
+            "enum": [
+              "not_stated",
+              "bidder_to_provide",
+              "conflicting_source",
+              "partial_extraction",
+              "retrospective_source"
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Specific limitation; prevents treating null as absence of a requirement."
+          }
+        },
+        "required": [
+          "field_path",
+          "reason",
+          "detail"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Every null field plus material extraction gaps; empty only if none are known."
+    }
+  },
+  "required": [
+    "schema_version",
+    "package_id",
+    "procurement_category",
+    "project",
+    "package_subscope",
+    "initial_state",
+    "line_items",
+    "total_estimated_budget",
+    "schedule",
+    "supplier_eligibility_constraints",
+    "certifications_compliance",
+    "supporting_documents",
+    "source_provenance",
+    "missing_information"
+  ],
+  "additionalProperties": false
+}
