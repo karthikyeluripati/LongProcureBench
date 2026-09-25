@@ -1,6 +1,6 @@
 # LongProcureBench field guide
 
-All keys are required for a stable record shape. **Required** means a non-null value is necessary; **Optional value** means the key stays present but may be `null`. Never invent missing facts. Empty arrays are allowed only for `missing_information`; unknown lists use `null`.
+All established v0.1 keys are required for a stable record shape. **Required** means a non-null value is necessary; **Optional value** means the key stays present but may be `null`. `line_items[].award_requirement` is a backward-compatible optional key; omission means `required`. Never invent missing facts. Empty arrays are allowed only for `missing_information`; unknown lists use `null`.
 
 Provenance pointers identify scalar fields, not whole objects or arrays. Related
 fields may share a precise page/row/section locator. Every populated procurement
@@ -28,6 +28,7 @@ missing-information note. URI validation checks syntax offline, not link reachab
 | `line_items` | Required | All goods lines within the stated package scope. |
 | `line_items[].item_id` | Required | Stable source line/stock identifier, or explicitly curator-assigned identifier. |
 | `line_items[].description` | Required | Equipment/material identity enables matching. |
+| `line_items[].award_requirement` | Optional key | `required` or `optional`; omitted means required. Use `optional` for additive alternates that may correctly remain unawarded. |
 | `line_items[].quantity` | Optional value | Requested quantity; null if unknown. |
 | `line_items[].quantity_basis` | Optional value | Distinguishes estimates from firm demand. |
 | `line_items[].unit` | Optional value | Original unit token; avoids silent conversion. |
