@@ -35,5 +35,7 @@ jobs:
         run: python scripts/validate_episodes.py
       - name: Validate evaluation configs
         run: python scripts/validate_evaluation.py
+      - name: Validate benchmark observability contract
+        run: python scripts/validate_benchmark_contract.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference
