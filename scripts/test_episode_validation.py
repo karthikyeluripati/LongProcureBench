@@ -177,5 +177,52 @@ class EpisodeValidationTests(unittest.TestCase):
         self.assertIn("o2", ids)
         self.assertEqual(record["oracle"]["economic_objective"]["preferred_outcome_ids"], ["o1"])
 
+    def test_economic_preference_must_match_lowest_package_price(self):
+        record = copy.deepcopy(self.episode)
+        revision = next(
+            event
+            for event in record["events"]
+            if event["event_id"] == "e5"
+        )
+        revision["details"]["total_price"] = 390000
+        with self.assertRaisesRegex(
+            ValueError,
+            "preferred outcomes do not match minimum-price",
+        ):
+            validate_episode(record)
+
+    def test_economic_preference_uses_sum_of_multi_lot_prices(self):
+        record = self.load_episode("electrical-national-museum-lighting-002")
+        lot1_a = next(
+            event
+            for event in record["events"]
+            if event["event_id"] == "e1"
+        )
+        lot1_a["details"]["lots"]["1"]["price"] = 2400000
+        with self.assertRaisesRegex(
+            ValueError,
+            "preferred outcomes do not match minimum-price",
+        ):
+            validate_episode(record)
+
+    def test_economic_preference_includes_all_minimum_price_ties(self):
+        record = copy.deepcopy(self.episode)
+        supplier_a = next(
+            event
+            for event in record["events"]
+            if event["event_id"] == "e1"
+        )
+        supplier_c = next(
+            event
+            for event in record["events"]
+            if event["event_id"] == "e5"
+        )
+        supplier_a["details"]["total_price"] = supplier_c["details"]["total_price"]
+        with self.assertRaisesRegex(
+            ValueError,
+            "preferred outcomes do not match minimum-price",
+        ):
+            validate_episode(record)
+
 if __name__ == "__main__":
     unittest.main()
