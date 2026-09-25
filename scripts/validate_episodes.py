@@ -1,4 +1,4 @@
-"""Validate the five-episode LongProcureBench episode-model v0.1 milestone."""
+"""Validate the LongProcureBench electrical episode suite."""
 import json
 from pathlib import Path
 
@@ -198,8 +198,11 @@ def validate_action(action):
 
 def main():
     files = sorted((ROOT / "data/episodes/electrical").glob("*.json"))
-    if len(files) != 5:
-        raise ValueError(f"Episode-model v0.1 requires exactly 5 episodes; found {len(files)}")
+    if len(files) < 5:
+        raise ValueError(
+            f"Episode suite must retain at least the original 5 episodes; "
+            f"found {len(files)}"
+        )
     episode_ids = set()
     package_ids = set()
     all_event_types = set()
@@ -214,8 +217,11 @@ def main():
         package_ids.add(record["initial_state_ref"]["package_id"])
         all_event_types.update(event["type"] for event in record["events"])
         print(f"PASS {file.name}")
-    if len(package_ids) != 5:
-        raise ValueError("The first five episodes must use five distinct initial states")
+    if len(package_ids) < 5:
+        raise ValueError(
+            "Episode suite must remain grounded in at least five distinct "
+            "real initial states"
+        )
     if len(all_event_types) < 8:
         raise ValueError("Episode suite does not exercise enough event-type diversity")
     print(f"Validated {len(files)} episodes across {len(package_ids)} initial states.")

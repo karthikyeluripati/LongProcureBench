@@ -1,4 +1,4 @@
-# LongProcureBench episode model v0.1
+# LongProcureBench episode model
 
 This layer converts real public procurement starting states into controlled,
 semi-synthetic long-horizon episodes. It does **not** claim that the synthetic
@@ -97,7 +97,7 @@ Terminal outcomes now carry an explicit `decision`:
 | `lead_time_change` | Schedule risk |
 | `supplier_withdrawal` | Recovery after a viable option disappears |
 
-## First five episodes
+## Original five episodes
 
 1. **Bongabon generator** — non-response, lead-time conflict, warranty revision.
 2. **National Museum lighting** — two lots, partial offers, accelerated revision.
@@ -117,6 +117,4 @@ These references justify the event classes; they are not governing law for every
 
 ## Not built yet
 
-There is still **no runtime simulator, agent baseline, scoring implementation, or
-leaderboard**. This milestone freezes the episode data contract and provides five
-reviewable episodes before runtime behavior is implemented.
+The original five episodes froze the v0.1 data contract. The suite is now designed to expand while preserving the same real/synthetic boundary, deterministic runtime, evaluator semantics, and reference-control sanity checks.

@@ -19,13 +19,27 @@ class EpisodeValidationTests(unittest.TestCase):
     def test_valid_episode(self):
         validate_episode(self.episode)
 
-    def test_v01_has_five_distinct_real_initial_states(self):
+    def test_suite_retains_original_grounding_and_can_expand(self):
         paths = sorted((ROOT / "data/episodes/electrical").glob("*.json"))
-        self.assertEqual(len(paths), 5)
-        records = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
-        self.assertEqual(len({r["episode_id"] for r in records}), 5)
-        self.assertEqual(len({r["initial_state_ref"]["package_id"] for r in records}), 5)
-        self.assertTrue(all(r["initial_state_ref"]["grounding"] == "real_public" for r in records))
+        self.assertGreaterEqual(len(paths), 5)
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in paths
+        ]
+        self.assertEqual(
+            len({r["episode_id"] for r in records}),
+            len(records),
+        )
+        self.assertGreaterEqual(
+            len({r["initial_state_ref"]["package_id"] for r in records}),
+            5,
+        )
+        self.assertTrue(
+            all(
+                r["initial_state_ref"]["grounding"] == "real_public"
+                for r in records
+            )
+        )
 
     def test_unknown_initial_state_rejected(self):
         record = copy.deepcopy(self.episode)

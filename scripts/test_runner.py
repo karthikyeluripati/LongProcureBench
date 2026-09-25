@@ -59,7 +59,7 @@ class RunnerTests(unittest.TestCase):
     def setUp(self):
         self.runner = BenchmarkRunner()
 
-    def test_reference_control_passes_all_five_episodes(self):
+    def test_reference_control_passes_all_frozen_episodes(self):
         for episode_id in ScriptedReferencePolicy.episode_ids():
             with self.subTest(episode_id=episode_id):
                 result = self.runner.run(ScriptedReferencePolicy(), episode_id)
