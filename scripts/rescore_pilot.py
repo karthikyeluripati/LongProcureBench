@@ -106,6 +106,7 @@ def flatten_audited_result(
 ) -> dict[str, Any]:
     if result.get("audit_status") == "success":
         row = flatten_result(result, model=model, repeat=repeat)
+        row.pop("status", None)
     else:
         metrics = result.get("policy_metrics") or {}
         row = {
@@ -268,7 +269,9 @@ def failure_taxonomy(rows: list[dict[str, Any]]) -> dict[str, Any]:
     constraint_counts: dict[str, int] = {}
 
     audited_rows = [
-        row for row in rows if row["audit_status"] == "success"
+        row
+        for row in rows
+        if row.get("audit_status", "success") == "success"
     ]
 
     for row in audited_rows:

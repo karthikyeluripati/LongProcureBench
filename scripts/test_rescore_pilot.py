@@ -314,5 +314,34 @@ class RescoreTests(unittest.TestCase):
         )
 
 
+    def test_successful_audit_row_writes_csv_without_status_collision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw = root / "raw"
+            run = raw / "fake-model" / "episode" / "run-001.json"
+            run.parent.mkdir(parents=True)
+            run.write_text(json.dumps(raw_result()), encoding="utf-8")
+            output = root / "audit"
+            rows, _, _ = rescore_directory(
+                raw,
+                output,
+                evaluator=StubEvaluator(),
+            )
+            self.assertNotIn("status", rows[0])
+            self.assertTrue((output / "runs.csv").is_file())
+
+    def test_taxonomy_legacy_rows_default_to_successful_audit(self):
+        rows = [{
+            "terminal_feasible": True,
+            "feasible_process_success": True,
+            "economic_objective_satisfied": True,
+            "episode_success": True,
+            "constraint_violations": [],
+            "incomplete_checkpoints": [],
+        }]
+        taxonomy = failure_taxonomy(rows)
+        self.assertEqual(taxonomy["audited_runs"], 1)
+        self.assertEqual(taxonomy["strict_success_runs"], 1)
+
 if __name__ == "__main__":
     unittest.main()

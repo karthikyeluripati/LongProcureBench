@@ -8,9 +8,13 @@ on:
         required: true
         default: '36159375317'
       source_run_attempt:
-        description: Optional run attempt; leave empty to discover the latest artifact
+        description: Optional run attempt; leave empty to discover the latest complete artifact
         required: false
         default: ''
+      expected_runs:
+        description: Expected number of raw pilot run JSON files
+        required: false
+        default: '45'
   push:
     branches:
       - main
@@ -34,6 +38,7 @@ jobs:
     env:
       SOURCE_RUN_ID: ${{ github.event.inputs.source_run_id || '36159375317' }}
       SOURCE_RUN_ATTEMPT: ${{ github.event.inputs.source_run_attempt || '' }}
+      EXPECTED_RUNS: ${{ github.event.inputs.expected_runs || '45' }}
       RAW_DIR: raw-pilot
       AUDIT_DIR: audited-pilot
 
@@ -56,28 +61,65 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          validate_artifact() {
+            local artifact="$1"
+            rm -rf "$RAW_DIR"
+            mkdir -p "$RAW_DIR"
+
+            echo "Checking artifact: $artifact"
+            if ! gh run download "$SOURCE_RUN_ID" --name "$artifact" --dir "$RAW_DIR"; then
+              rm -rf "$RAW_DIR"
+              return 1
+            fi
+
+            local count
+            count="$(find "$RAW_DIR" -type f -name 'run-*.json' | wc -l | tr -d ' ')"
+            echo "Artifact $artifact contains $count raw run JSON files."
+
+            if [ "$count" -ne "$EXPECTED_RUNS" ]; then
+              echo "Skipping incomplete artifact: expected $EXPECTED_RUNS runs."
+              rm -rf "$RAW_DIR"
+              return 1
+            fi
+
+            echo "Selected complete artifact: $artifact"
+            return 0
+          }
+
           if [ -n "$SOURCE_RUN_ATTEMPT" ]; then
             artifact="openai-reactive-pilot-${SOURCE_RUN_ID}-${SOURCE_RUN_ATTEMPT}"
+            if ! validate_artifact "$artifact"; then
+              echo "Requested artifact is missing or incomplete."
+              exit 1
+            fi
           else
             prefix="openai-reactive-pilot-${SOURCE_RUN_ID}-"
-            artifact="$(
+            mapfile -t artifacts < <(
               gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" \
                 --paginate \
                 --jq ".artifacts[] | select(.name | startswith(\"$prefix\")) | [.created_at, .name] | @tsv" \
-              | sort \
-              | tail -n 1 \
+              | sort -r \
               | cut -f2-
-            )"
-          fi
+            )
 
-          if [ -z "$artifact" ]; then
-            echo "No OpenAI pilot artifact found for run $SOURCE_RUN_ID."
-            exit 1
-          fi
+            if [ "${#artifacts[@]}" -eq 0 ]; then
+              echo "No OpenAI pilot artifact found for run $SOURCE_RUN_ID."
+              exit 1
+            fi
 
-          echo "Downloading artifact: $artifact"
-          mkdir -p "$RAW_DIR"
-          gh run download "$SOURCE_RUN_ID" --name "$artifact" --dir "$RAW_DIR"
+            selected=""
+            for artifact in "${artifacts[@]}"; do
+              if validate_artifact "$artifact"; then
+                selected="$artifact"
+                break
+              fi
+            done
+
+            if [ -z "$selected" ]; then
+              echo "No complete $EXPECTED_RUNS-run artifact found for run $SOURCE_RUN_ID."
+              exit 1
+            fi
+          fi
 
       - name: Rescore saved trajectories
         run: |
