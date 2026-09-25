@@ -58,9 +58,7 @@ Invalid actions do not increment `step` or enter `action_history`.
 
 `send_rfq`, `send_follow_up`, `answer_supplier_question`, and
 `request_quote_revision` require a known supplier and require the supplier
-directory to have been revealed first. In addition, `request_quote_revision`
-is valid only after at least one quote from that supplier has already been
-revealed; a revision cannot be requested before an initial offer exists.
+directory to have been revealed first. In addition, `request_quote_revision` is valid only after a revisable supplier offer has already been revealed. A `quote_received`, prior `quote_revision`, or `substitution_proposed` response counts as such an offer; a revision cannot be requested before any supplier response exists.
 
 `request_buyer_clarification`, `identify_suppliers`, `issue_amendment`,
 `evaluate_quotes`, and `no_award` require `supplier_id: null`.

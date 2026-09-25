@@ -395,7 +395,7 @@ class RuntimeTests(unittest.TestCase):
                 )
                 with self.assertRaisesRegex(
                     EnvironmentError,
-                    "requires a previously revealed quote",
+                    "requires a previously revealed offer",
                 ):
                     env.step(
                         self.action(
@@ -407,6 +407,37 @@ class RuntimeTests(unittest.TestCase):
                     )
                 self.assertEqual(env.state["step"], 1)
                 self.assertEqual(env.state["revealed_events"], [])
+
+
+    def test_priced_substitution_can_be_revised(self):
+        episode_id = "electrical-neust-cable-003"
+        env = LongProcureBenchEnv()
+        env.reset(episode_id)
+        env.step(self.action(1, episode_id, "identify_suppliers"))
+        state = env.step(
+            self.action(
+                2,
+                episode_id,
+                "send_rfq",
+                supplier_id="syn-wire-b",
+            )
+        )
+        self.assertEqual(
+            [event["type"] for event in state["observations"]],
+            ["substitution_proposed"],
+        )
+        state = env.step(
+            self.action(
+                3,
+                episode_id,
+                "request_quote_revision",
+                supplier_id="syn-wire-b",
+            )
+        )
+        self.assertEqual(
+            [event["event_id"] for event in state["observations"]],
+            ["e6"],
+        )
 
 if __name__ == "__main__":
     unittest.main()
