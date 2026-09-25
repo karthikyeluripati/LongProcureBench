@@ -1,0 +1,290 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-greenport-transformers-2025",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Village of Greenport",
+    "project_name": "Purchase of Transformers 2025",
+    "project_description": "Purchase of ten single-phase pad-mounted distribution transformers in four capacity groups.",
+    "location": "Greenport, New York, USA"
+  },
+  "package_subscope": "Ten reconditioned single-phase pad-mounted transformers: two 167 kVA, two 100 kVA, three 50 kVA, and three 25 kVA units.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2025-11-06",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "167 kVA 120/240 V single-phase pad-mounted transformer",
+      "quantity": 2,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Reconditioned single-phase pad-mounted transformer; 4160 GRDY/2400 high voltage, 120/240 V low voltage, specified taps and accessories.",
+          "verbatim_excerpt": null,
+          "source_locator": "Bid package pp. 10 and 21"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "2",
+      "description": "100 kVA 120/240 V single-phase pad-mounted transformer",
+      "quantity": 2,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Reconditioned single-phase pad-mounted transformer; 4160 GRDY/2400 high voltage, 120/240 V low voltage, specified taps and accessories.",
+          "verbatim_excerpt": null,
+          "source_locator": "Bid package pp. 10 and 21"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "3",
+      "description": "50 kVA 120/240 V single-phase pad-mounted transformer",
+      "quantity": 3,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Reconditioned single-phase pad-mounted transformer; 4160 GRDY/2400 high voltage, 120/240 V low voltage, specified taps and accessories.",
+          "verbatim_excerpt": null,
+          "source_locator": "Bid package pp. 10 and 21"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "4",
+      "description": "25 kVA 120/240 V single-phase pad-mounted transformer",
+      "quantity": 3,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Reconditioned single-phase pad-mounted transformer; 4160 GRDY/2400 high voltage, 120/240 V low voltage, specified taps and accessories.",
+          "verbatim_excerpt": null,
+          "source_locator": "Bid package pp. 10 and 21"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": "Contract work must start within one month and be completed within four months of Notice of Commencement.",
+    "bid_submission_deadline": "2025-11-26 10:30 ET"
+  },
+  "supplier_eligibility_constraints": [
+    "Bidder must possess necessary licenses, permits, insurance, equipment, trained personnel, and experience.",
+    "Bidder must have successfully provided similar equipment at no fewer than five municipal or commercial locations within the past five years."
+  ],
+  "certifications_compliance": [
+    "Transformer testing requirements include turns-ratio, polarity/phase-relation, DC hipot, core-loss/excitation, load/no-load, and induced-potential tests."
+  ],
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Village of Greenport Purchase of Transformers 2025 - Bid Package and Specifications",
+      "url": "https://villageofgreenport.org/forms-bid-frp-request/2025-Transformer-Bid-Purchase-TEMPLATE.pdf",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2025-11-06",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Official Village bid-package URL and retrieval date retained; raw source bytes were not captured in this collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/unit",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/line_items/1/item_id",
+        "/line_items/1/description",
+        "/line_items/1/quantity",
+        "/line_items/1/quantity_basis",
+        "/line_items/1/unit",
+        "/line_items/1/technical_specifications/0/summary",
+        "/line_items/1/technical_specifications/0/source_locator",
+        "/line_items/2/item_id",
+        "/line_items/2/description",
+        "/line_items/2/quantity",
+        "/line_items/2/quantity_basis",
+        "/line_items/2/unit",
+        "/line_items/2/technical_specifications/0/summary",
+        "/line_items/2/technical_specifications/0/source_locator",
+        "/line_items/3/item_id",
+        "/line_items/3/description",
+        "/line_items/3/quantity",
+        "/line_items/3/quantity_basis",
+        "/line_items/3/unit",
+        "/line_items/3/technical_specifications/0/summary",
+        "/line_items/3/technical_specifications/0/source_locator",
+        "/schedule/delivery_requirement",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1",
+        "/certifications_compliance/0"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation source; see per-field source_locator values where provided.",
+      "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    }
+  ]
+}
