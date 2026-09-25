@@ -384,7 +384,10 @@ def _load_frozen_gzip(path=None):
                     raise ValueError(
                         f"Input JSONL gzip line {line_number} has invalid trajectory"
                     )
-                if not isinstance(record["evaluation"], dict):
+                if (
+                    record["evaluation"] is not None
+                    and not isinstance(record["evaluation"], dict)
+                ):
                     raise ValueError(
                         f"Input JSONL gzip line {line_number} has invalid evaluation"
                     )
