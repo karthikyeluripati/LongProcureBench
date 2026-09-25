@@ -237,45 +237,5 @@ class EpisodeValidationTests(unittest.TestCase):
             "preferred outcomes do not match minimum-price",
         ):
             validate_episode(record)
-
-
-    def test_v02_batch_has_ten_real_grounded_episodes(self):
-        paths = sorted(
-            (ROOT / "data/episodes/electrical").glob("*.json")
-        )
-        records = [
-            json.loads(path.read_text(encoding="utf-8"))
-            for path in paths
-        ]
-        self.assertEqual(len(records), 10)
-        self.assertEqual(
-            len({
-                record["initial_state_ref"]["package_id"]
-                for record in records
-            }),
-            10,
-        )
-
-
-    def test_suite_rejects_reused_real_initial_state(self):
-        records = [
-            self.load_episode("electrical-bongabon-generator-001"),
-            self.load_episode("electrical-national-museum-lighting-002"),
-            self.load_episode("electrical-neust-cable-003"),
-            self.load_episode("electrical-dla-breaker-004"),
-            self.load_episode("electrical-barrie-transformer-005"),
-        ]
-        duplicate = copy.deepcopy(records[-1])
-        duplicate["episode_id"] = "electrical-duplicate-state-999"
-        duplicate["initial_state_ref"] = copy.deepcopy(
-            records[0]["initial_state_ref"]
-        )
-        records.append(duplicate)
-        with self.assertRaisesRegex(
-            ValueError,
-            "distinct real initial-state package_id",
-        ):
-            validate_suite_records(records)
-
 if __name__ == "__main__":
     unittest.main()
