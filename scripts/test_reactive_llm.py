@@ -265,5 +265,62 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         ):
             resolve_sampling_options(0.2, True, None)
 
+
+    def test_action_schema_constrains_award_scope_to_visible_episode_ids(self):
+        state = {
+            "initial_state": {
+                "line_items": [
+                    {"item_id": "1"},
+                    {"item_id": "2"},
+                ]
+            }
+        }
+        schema = ReactiveLLMPolicy._action_schema(state)
+        scope = (
+            schema["properties"]["arguments"]["properties"]["awards"]
+            ["items"]["properties"]["scope"]
+        )
+        self.assertEqual(
+            scope["enum"],
+            ["package", "lot-1", "lot-2"],
+        )
+
+    def test_action_schema_does_not_mutate_global_schema(self):
+        ReactiveLLMPolicy._action_schema({
+            "initial_state": {"line_items": [{"item_id": "1"}]}
+        })
+        self.assertNotIn(
+            "enum",
+            SEMANTIC_ACTION_SCHEMA["properties"]["arguments"]
+            ["properties"]["awards"]["items"]["properties"]["scope"],
+        )
+
+    def test_prompt_exposes_exact_allowed_award_scopes(self):
+        client = FakeActionClient([
+            {"type":"identify_suppliers","supplier_id":None,"arguments":{}},
+        ])
+        policy = ReactiveLLMPolicy("fake/test-model", client=client)
+        state = {
+            "episode_id": "episode",
+            "initial_state": {
+                "line_items": [
+                    {"item_id": "1"},
+                    {"item_id": "2"},
+                ]
+            },
+        }
+        policy.reset(state)
+        policy.act(state)
+        prompt = client.calls[0]["messages"][1]["content"]
+        self.assertIn(
+            "Allowed award scope values this episode: package, lot-1, lot-2",
+            prompt,
+        )
+        scope = (
+            client.calls[0]["action_schema"]["properties"]["arguments"]
+            ["properties"]["awards"]["items"]["properties"]["scope"]
+        )
+        self.assertEqual(scope["enum"], ["package", "lot-1", "lot-2"])
+
 if __name__ == "__main__":
     unittest.main()

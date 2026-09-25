@@ -86,10 +86,12 @@ Action contract:
 - send_rfq, send_follow_up, answer_supplier_question, and
   request_quote_revision require a supplier_id that is currently visible.
 - award_supplier requires arguments.awards to be a non-empty list. Each award
-  must contain exactly scope, supplier_id, and quote_event_id. quote_event_id
-  must refer to a revealed quote/revision from that supplier and cover the
-  award scope. For one award, top-level supplier_id may name that supplier;
-  for multiple awards, top-level supplier_id must be null.
+  must contain exactly scope, supplier_id, and quote_event_id. scope must be
+  exactly one of the allowed award-scope values supplied with the current
+  state; never write a descriptive scope. quote_event_id must refer to a
+  revealed quote/revision from that supplier and cover the award scope. For
+  one award, top-level supplier_id may name that supplier; for multiple
+  awards, top-level supplier_id must be null.
 - no_award may put a short explanation in arguments.reason.
 - For every non-award action, set arguments.awards = null.
 - When reason is irrelevant, set arguments.reason = null.
@@ -119,6 +121,38 @@ Return only the structured action. Do not include reasoning or prose."""
         self._calls = []
 
     @staticmethod
+    def _allowed_award_scopes(state: dict[str, Any]) -> list[str]:
+        scopes = ["package"]
+        initial = state.get("initial_state")
+        if not isinstance(initial, dict):
+            return scopes
+        line_items = initial.get("line_items")
+        if not isinstance(line_items, list):
+            return scopes
+        for item in line_items:
+            if not isinstance(item, dict):
+                continue
+            item_id = item.get("item_id")
+            if isinstance(item_id, str) and item_id:
+                scope = f"lot-{item_id}"
+                if scope not in scopes:
+                    scopes.append(scope)
+        return scopes
+
+    @classmethod
+    def _action_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
+        schema = deepcopy(SEMANTIC_ACTION_SCHEMA)
+        scopes = cls._allowed_award_scopes(state)
+        award = (
+            schema["properties"]["arguments"]["properties"]["awards"]["items"]
+        )
+        award["properties"]["scope"] = {
+            "type": "string",
+            "enum": scopes,
+        }
+        return schema
+
+    @staticmethod
     def _runtime_decision(decision: dict[str, Any]) -> dict[str, Any]:
         arguments = decision.get("arguments")
         if not isinstance(arguments, dict):
@@ -137,12 +171,16 @@ Return only the structured action. Do not include reasoning or prose."""
         }
 
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
+        allowed_scopes = self._allowed_award_scopes(state)
+        action_schema = self._action_schema(state)
         messages = [
             {"role": "system", "content": self.SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": (
-                    "Current agent-visible benchmark state:\n"
+                    "Allowed award scope values this episode: "
+                    + ", ".join(allowed_scopes)
+                    + "\n\nCurrent agent-visible benchmark state:\n"
                     + json.dumps(state, sort_keys=True)
                 ),
             },
@@ -152,7 +190,7 @@ Return only the structured action. Do not include reasoning or prose."""
         try:
             decision, metrics = self._client.generate_action(
                 messages=messages,
-                action_schema=SEMANTIC_ACTION_SCHEMA,
+                action_schema=action_schema,
             )
         except ModelCallError as exc:
             self._calls.append(deepcopy(exc.metrics))

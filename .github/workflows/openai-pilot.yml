@@ -56,18 +56,43 @@ jobs:
           if not runs_path.is_file():
               raise SystemExit("Pilot did not produce runs.csv")
 
-          execution_errors = {
-              "policy_error",
+          infrastructure_errors = {
               "environment_error",
               "setup_error",
               "evaluation_error",
               "metadata_error",
           }
+          measured_policy_errors = {
+              "EnvironmentError",
+              "ValidationError",
+              "RunnerError",
+          }
 
           with runs_path.open(newline="", encoding="utf-8") as handle:
               rows = list(csv.DictReader(handle))
 
-          bad = [row for row in rows if row["status"] in execution_errors]
+          bad = [
+              row
+              for row in rows
+              if row["status"] in infrastructure_errors
+              or (
+                  row["status"] == "policy_error"
+                  and row["error_type"] not in measured_policy_errors
+              )
+          ]
+          measured_rejections = [
+              row
+              for row in rows
+              if row["status"] == "policy_error"
+              and row["error_type"] in measured_policy_errors
+          ]
+
+          if measured_rejections:
+              print(
+                  f"{len(measured_rejections)} run(s) ended with measured "
+                  "agent-action rejection(s); retaining them as benchmark results."
+              )
+
           if bad:
               print(f"{len(bad)} pilot run(s) had execution errors:")
               for row in bad:
