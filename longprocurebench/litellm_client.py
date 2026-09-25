@@ -8,6 +8,14 @@ from typing import Any
 import litellm
 
 
+class ModelCallError(RuntimeError):
+    """Model/provider/parse failure with the call metrics captured so far."""
+
+    def __init__(self, message: str, *, metrics: dict[str, Any]):
+        super().__init__(message)
+        self.metrics = metrics
+
+
 class LiteLLMClient:
     """One provider-neutral structured model call through LiteLLM."""
 
@@ -23,40 +31,15 @@ class LiteLLMClient:
             return obj.get(key, default)
         return getattr(obj, key, default)
 
-    def generate_action(
+    def _metrics(
         self,
         *,
-        messages: list[dict[str, str]],
-        action_schema: dict[str, Any],
-    ) -> tuple[dict[str, Any], dict[str, Any]]:
-        started = perf_counter()
-        response = litellm.completion(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "longprocurebench_action",
-                    "strict": True,
-                    "schema": action_schema,
-                },
-            },
-        )
-        latency_ms = (perf_counter() - started) * 1000.0
-
-        choice = self._value(response, "choices")[0]
-        message = self._value(choice, "message")
-        parsed = self._value(message, "parsed")
-        if parsed is not None:
-            decision = dict(parsed)
-        else:
-            content = self._value(message, "content")
-            if not isinstance(content, str):
-                raise ValueError("LiteLLM response did not contain structured content")
-            decision = json.loads(content)
-
-        usage = self._value(response, "usage", {})
+        response: Any,
+        latency_ms: float,
+        success: bool,
+        error: Exception | None,
+    ) -> dict[str, Any]:
+        usage = self._value(response, "usage", {}) if response is not None else {}
         prompt_tokens = self._value(usage, "prompt_tokens", 0) or 0
         completion_tokens = self._value(usage, "completion_tokens", 0) or 0
         total_tokens = self._value(
@@ -64,13 +47,17 @@ class LiteLLMClient:
         ) or (prompt_tokens + completion_tokens)
 
         cost_usd = None
-        try:
-            cost_usd = litellm.completion_cost(completion_response=response)
-        except Exception:
-            cost_usd = None
+        if response is not None:
+            try:
+                cost_usd = litellm.completion_cost(
+                    completion_response=response
+                )
+            except Exception:
+                cost_usd = None
 
-        return decision, {
+        return {
             "model": self.model,
+            "success": success,
             "latency_ms": latency_ms,
             "prompt_tokens": int(prompt_tokens),
             "completion_tokens": int(completion_tokens),
@@ -78,4 +65,67 @@ class LiteLLMClient:
             "cost_usd": (
                 float(cost_usd) if cost_usd is not None else None
             ),
+            "usage_available": response is not None,
+            "error": (
+                {
+                    "type": type(error).__name__,
+                    "message": str(error),
+                }
+                if error is not None
+                else None
+            ),
         }
+
+    def generate_action(
+        self,
+        *,
+        messages: list[dict[str, str]],
+        action_schema: dict[str, Any],
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        started = perf_counter()
+        response = None
+        try:
+            response = litellm.completion(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "longprocurebench_action",
+                        "strict": True,
+                        "schema": action_schema,
+                    },
+                },
+            )
+
+            choice = self._value(response, "choices")[0]
+            message = self._value(choice, "message")
+            parsed = self._value(message, "parsed")
+            if parsed is not None:
+                decision = dict(parsed)
+            else:
+                content = self._value(message, "content")
+                if not isinstance(content, str):
+                    raise ValueError(
+                        "LiteLLM response did not contain structured content"
+                    )
+                decision = json.loads(content)
+        except Exception as exc:
+            metrics = self._metrics(
+                response=response,
+                latency_ms=(perf_counter() - started) * 1000.0,
+                success=False,
+                error=exc,
+            )
+            raise ModelCallError(
+                f"Model action call failed: {exc}",
+                metrics=metrics,
+            ) from exc
+
+        return decision, self._metrics(
+            response=response,
+            latency_ms=(perf_counter() - started) * 1000.0,
+            success=True,
+            error=None,
+        )
