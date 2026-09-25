@@ -465,7 +465,7 @@
             "items": {
               "type": "string",
               "minLength": 1,
-              "description": "JSON Pointer to a supported field/subtree."
+              "description": "JSON Pointer to one scalar field; container/subtree references are rejected."
             },
             "minItems": 1,
             "description": "Fields supported by this evidence."

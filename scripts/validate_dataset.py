@@ -2,11 +2,21 @@
 import json
 from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
+from rfc3986_validator import validate_rfc3986
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / 'schema/initial-state.schema.json').read_text(encoding='utf-8'))
 Draft202012Validator.check_schema(SCHEMA)
-VALIDATOR = Draft202012Validator(SCHEMA, format_checker=FormatChecker())
+FORMAT_CHECKER = FormatChecker()
+
+
+@FORMAT_CHECKER.checks('uri')
+def valid_uri(value):
+    # Explicit dependency and registration prevent silently skipped URI checks.
+    return not isinstance(value, str) or bool(validate_rfc3986(value, rule='URI'))
+
+
+VALIDATOR = Draft202012Validator(SCHEMA, format_checker=FORMAT_CHECKER)
 
 
 def pointer(record, path):
@@ -43,11 +53,14 @@ def validate_record(record):
         if evidence['document_id'] not in docs:
             raise ValueError('Unresolved provenance document')
         for path in evidence['field_paths']:
-            pointer(record, path)
+            if isinstance(pointer(record, path), (dict, list)):
+                raise ValueError(f'Evidence must identify a scalar field: {path}')
             evidence_paths.append(path)
     missing = {entry['field_path'] for entry in record['missing_information']}
-    for path in missing:
-        pointer(record, path)
+    for entry in record['missing_information']:
+        value = pointer(record, entry['field_path'])
+        if entry['reason'] in ('not_stated', 'bidder_to_provide') and value is not None:
+            raise ValueError(f"Absence reason requires null: {entry['field_path']}")
     sourced = ('/project/', '/package_subscope', '/line_items/',
                '/total_estimated_budget', '/schedule/',
                '/supplier_eligibility_constraints', '/certifications_compliance',
@@ -56,7 +69,7 @@ def validate_record(record):
         if value is None and not path.endswith('/verbatim_excerpt') and path not in missing:
             raise ValueError(f'Unexplained null: {path}')
         if value is not None and path.startswith(sourced):
-            if not any(path == p or path.startswith(p + '/') for p in evidence_paths):
+            if path not in evidence_paths:
                 raise ValueError(f'Unsupported field: {path}')
     for item in record['line_items']:
         unit, total = item['estimated_unit_cost'], item['estimated_total_cost']

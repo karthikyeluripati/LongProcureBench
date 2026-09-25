@@ -25,12 +25,12 @@
         {
           "summary": "15 kV; 220 mil EPR; full neutral 16 x #14 AWG; 2500 ft/reel.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF pp. 6-8, 13"
+          "source_locator": "PDF p. 6 / stock 2904 SCOPE and p. 13 / ITEM 2904 description"
         },
         {
           "summary": "Substitutions restricted for stock 2904.",
           "verbatim_excerpt": "NO SUBS",
-          "source_locator": "PDF p. 13"
+          "source_locator": "PDF p. 13 / ITEM 2904: NO SUBS"
         }
       ],
       "manufacturer": null,
@@ -51,7 +51,7 @@
         {
           "summary": "600 V; 1000 ft/reel; code Converse/Hi-Score/YES.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF pp. 9, 13"
+          "source_locator": "PDF p. 13 / ITEM 79 description"
         }
       ],
       "manufacturer": null,
@@ -70,7 +70,7 @@
         {
           "summary": "600 V; 1000 ft/reel; code Sweetbriar/Hi-Score.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF pp. 10, 13"
+          "source_locator": "PDF p. 13 / ITEM 80 description"
         }
       ],
       "manufacturer": null,
@@ -89,7 +89,7 @@
         {
           "summary": "600 V; code Erskine/VIP/YES/Super Tuff.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF pp. 11, 13"
+          "source_locator": "PDF p. 13 / ITEM 4523 description"
         }
       ],
       "manufacturer": null,
@@ -108,7 +108,7 @@
         {
           "summary": "600 V; 1000 ft/reel; code Ramapo/YES/Hi-Score.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF pp. 12-13"
+          "source_locator": "PDF p. 13 / ITEM 59 description"
         }
       ],
       "manufacturer": null,
@@ -145,38 +145,338 @@
   "source_provenance": [
     {
       "field_paths": [
-        "/project",
-        "/initial_state/source_issue_date",
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / SCOPE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / FOB Destination delivery address",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / DATE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / PROPOSAL: all five goods rows",
+      "interpretation": "Curator scope statement identifying included source rows and services."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 2904 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 2904 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 2904 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 2904 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / stock 2904 SCOPE and p. 13 / ITEM 2904 description",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/1/summary",
+        "/line_items/0/technical_specifications/1/verbatim_excerpt",
+        "/line_items/0/technical_specifications/1/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 2904: NO SUBS",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/acceptable_alternates/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 2904: NO SUBS; p. 5 / MAKE AND MODEL",
+      "interpretation": "Preserve source-specific allowances and conflicting general terms; no conflict resolved by inference."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 79 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 79 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 79 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 79 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/technical_specifications/0/summary",
+        "/line_items/1/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 79 description",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 80 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 80 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 80 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 80 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/technical_specifications/0/summary",
+        "/line_items/2/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 80 description",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 4523 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 4523 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 4523 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 4523 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/technical_specifications/0/summary",
+        "/line_items/3/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 4523 description",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 59 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 59 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 59 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / bid schedule: ITEM 59 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/technical_specifications/0/summary",
+        "/line_items/4/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 13 / ITEM 59 description",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
         "/schedule/bid_submission_deadline"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 1, 4",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
+      "locator": "PDF p. 1 / BIDS DUE NO LATER THAN",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     },
     {
       "field_paths": [
-        "/package_subscope",
-        "/line_items"
+        "/supplier_eligibility_constraints/0"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 4, 6-13",
-      "interpretation": "Five complete schedule rows; estimated quantities. Code names are cable designations, not manufacturer models."
+      "locator": "PDF p. 4 / REFERENCES; p. 8 / MISCELLANEOUS sample clause",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     },
     {
       "field_paths": [
-        "/supplier_eligibility_constraints"
+        "/certifications_compliance/0"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 4, 8",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
-    },
-    {
-      "field_paths": [
-        "/certifications_compliance"
-      ],
-      "document_id": "source-1",
-      "locator": "PDF pp. 6-10",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
+      "locator": "PDF p. 6 / STANDARDS; p. 8 / TESTS; pp. 9-10 / Specification",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     }
   ],
   "missing_information": [

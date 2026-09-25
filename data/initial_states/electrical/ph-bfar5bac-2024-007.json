@@ -25,17 +25,17 @@
         {
           "summary": "60 Hz; 230 V AC; single-phase; electric start; 7.8 h continuous operation; 16 L tank; air-cooled vertical single-cylinder four-stroke direct-injection diesel.",
           "verbatim_excerpt": null,
-          "source_locator": "HTML Description / Specifications"
+          "source_locator": "HTML Description / Specifications: frequency through fuel-tank capacity"
         },
         {
           "summary": "DC output retained without interpreting ambiguous current units.",
           "verbatim_excerpt": "DC output (V) 12V/8.3",
-          "source_locator": "HTML Description / Specifications"
+          "source_locator": "HTML Description / Specifications: DC output (V) line"
         },
         {
           "summary": "Testing/commissioning; one-year parts/service warranty; free quarterly maintenance checks.",
           "verbatim_excerpt": null,
-          "source_locator": "HTML Description / Conditions"
+          "source_locator": "HTML Description / Conditions: items 1-3"
         }
       ],
       "manufacturer": null,
@@ -84,25 +84,181 @@
   "source_provenance": [
     {
       "field_paths": [
-        "/project",
-        "/package_subscope",
-        "/line_items",
-        "/total_estimated_budget",
-        "/schedule",
-        "/supplier_eligibility_constraints",
-        "/certifications_compliance"
+        "/project/source_organization"
       ],
       "document_id": "source-1",
-      "locator": "HTML Description: quantity/cost row, Specifications, Conditions, submission requirements, ABC paragraph; Line Items",
-      "interpretation": "Extract buyer-authored RFQ only; omit live status and all post-publication outcome metadata."
+      "locator": "HTML Description / Request for Quotation, opening paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Request for Quotation, opening paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Request for Quotation, opening paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Conditions, item 4 (delivery destination)",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     },
     {
       "field_paths": [
         "/initial_state/source_issue_date"
       ],
       "document_id": "source-1",
-      "locator": "HTML Date Published",
-      "interpretation": "Creation date is 2024-01-18; publication date is 2024-01-20. Publication used as baseline."
+      "locator": "HTML Date Published: 20/01/2024",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / opening paragraph and Conditions items 1-4",
+      "interpretation": "Curator scope statement identifying included source rows and services."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Line Items / Item No. 1",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Specifications: frequency through fuel-tank capacity",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/1/summary",
+        "/line_items/0/technical_specifications/1/verbatim_excerpt",
+        "/line_items/0/technical_specifications/1/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Specifications: DC output (V) line",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/2/summary",
+        "/line_items/0/technical_specifications/2/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Conditions: items 1-3",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_unit_cost/amount",
+        "/line_items/0/estimated_unit_cost/currency",
+        "/line_items/0/estimated_unit_cost/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row; HTML Approved Budget for the Contract (PHP)",
+      "interpretation": "Buyer RFQ amounts and currency; not supplier prices."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_total_cost/amount",
+        "/line_items/0/estimated_total_cost/currency",
+        "/line_items/0/estimated_total_cost/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / quantity and cost table: 5 kva Generator Set row; HTML Approved Budget for the Contract (PHP)",
+      "interpretation": "Buyer RFQ amounts and currency; not supplier prices."
+    },
+    {
+      "field_paths": [
+        "/total_estimated_budget/amount",
+        "/total_estimated_budget/currency",
+        "/total_estimated_budget/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Approved Budget for the Contract (ABC) paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/schedule/delivery_requirement"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Conditions item 4",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / All quotations shall be submitted paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/supplier_eligibility_constraints/0"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / participating prospective suppliers requirements, items 1-2",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/certifications_compliance/0"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description / Alternative Mode of Procurement paragraph",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     }
   ],
   "missing_information": [

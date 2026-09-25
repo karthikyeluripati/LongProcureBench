@@ -19,6 +19,44 @@ class ValidationTests(unittest.TestCase):
     def test_valid_record(self):
         validate_record(self.record)
 
+    def test_malformed_source_url_rejected(self):
+        from jsonschema import ValidationError
+        for url in ['not a URL', 'https://example.com/a b', 'https://[broken']:
+            with self.subTest(url=url):
+                record = copy.deepcopy(self.record)
+                record['supporting_documents'][0]['url'] = url
+                with self.assertRaises(ValidationError):
+                    validate_record(record)
+
+    def test_absence_reasons_require_null(self):
+        for reason in ['not_stated', 'bidder_to_provide']:
+            with self.subTest(reason=reason):
+                self.reject(lambda r: r['missing_information'].append(dict(
+                    field_path='/line_items/0/quantity', reason=reason,
+                    detail='Must not claim a populated quantity is absent.')))
+
+    def test_qualifying_notes_allow_populated_fields(self):
+        for reason in ['conflicting_source', 'partial_extraction', 'retrospective_source']:
+            with self.subTest(reason=reason):
+                record = copy.deepcopy(self.record)
+                record['missing_information'].append(dict(
+                    field_path='/line_items', reason=reason, detail='Known limitation.'))
+                validate_record(record)
+
+    def test_composite_evidence_rejected(self):
+        self.reject(lambda r: r['source_provenance'].append(dict(
+            field_paths=['/line_items'], document_id='source-1',
+            locator='Entire schedule', interpretation='Too broad to audit.')))
+
+    def test_all_examples_have_scalar_evidence_paths(self):
+        from validate_dataset import pointer
+        for path in (ROOT / 'data/initial_states/electrical').glob('*.json'):
+            record = json.loads(path.read_text(encoding='utf-8'))
+            for evidence in record['source_provenance']:
+                for field in evidence['field_paths']:
+                    with self.subTest(package=path.name, field=field):
+                        self.assertNotIsInstance(pointer(record, field), (dict, list))
+
     def test_unresolved_document(self):
         self.reject(lambda r: r['source_provenance'][0].update(document_id='absent'))
 

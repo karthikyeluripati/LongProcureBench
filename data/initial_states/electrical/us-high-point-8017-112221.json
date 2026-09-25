@@ -25,22 +25,22 @@
         {
           "summary": "60 Hz; 65 C rise; primary 12470 GRDY/7200 V; secondary 480Y/277 V; BIL HV 95 kV, LV 30 kV.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF p. 6"
+          "source_locator": "PDF p. 6 / stock 832: ratings, high and low voltage"
         },
         {
           "summary": "Six 200 A HV wells; loop-feed deadfront; compatible with Elastimold 1602A3R or equivalent.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF p. 6"
+          "source_locator": "PDF p. 6 / High Voltage Bushings"
         },
         {
           "summary": "Internal fault indication/pressure relief: IFD Corporation device or approved equal.",
           "verbatim_excerpt": null,
-          "source_locator": "PDF p. 7"
+          "source_locator": "PDF p. 7 / Other Features, item 1"
         },
         {
           "summary": "Non-PCB fluid labeling.",
           "verbatim_excerpt": "PCB content less than 1 ppm at the time of manufacture.",
-          "source_locator": "PDF p. 8"
+          "source_locator": "PDF p. 8 / Other Features, item 22"
         }
       ],
       "manufacturer": null,
@@ -79,38 +79,160 @@
   "source_provenance": [
     {
       "field_paths": [
-        "/project",
-        "/schedule/bid_submission_deadline",
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / cover: buyer and procurement title",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / SCOPE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / FOB Destination delivery address",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
         "/initial_state/source_issue_date"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 1, 4",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
+      "locator": "PDF p. 1 / DATE",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     },
     {
       "field_paths": [
-        "/line_items",
         "/package_subscope"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 4, 6-9",
-      "interpretation": "One unpriced goods row. Quantity explicitly estimated. Component brands are not whole-transformer manufacturers."
+      "locator": "PDF p. 9 / bid schedule: sole stock 832 row",
+      "interpretation": "Curator scope statement identifying included source rows and services."
     },
     {
       "field_paths": [
-        "/supplier_eligibility_constraints"
+        "/line_items/0/item_id"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 4-5",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     },
     {
       "field_paths": [
-        "/certifications_compliance"
+        "/line_items/0/description"
       ],
       "document_id": "source-1",
-      "locator": "PDF pp. 6-8",
-      "interpretation": "Direct extraction; summaries paraphrase the source."
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 9 / bid schedule: ITEM 832 row",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / QUANTITY: estimates of needs",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / stock 832: ratings, high and low voltage",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/1/summary",
+        "/line_items/0/technical_specifications/1/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / High Voltage Bushings",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/2/summary",
+        "/line_items/0/technical_specifications/2/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 7 / Other Features, item 1",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/3/summary",
+        "/line_items/0/technical_specifications/3/verbatim_excerpt",
+        "/line_items/0/technical_specifications/3/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 8 / Other Features, item 22",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/acceptable_alternates/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / High Voltage Bushings; p. 7 / Other Features item 1; p. 4 / MAKE AND MODEL; p. 10 / SPECIFICATIONS",
+      "interpretation": "Preserve source-specific allowances and conflicting general terms; no conflict resolved by inference."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 1 / BIDS DUE NO LATER THAN",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/supplier_eligibility_constraints/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 4 / REFERENCES; p. 5 / VENDOR REGISTRATION and NC SECRETARY of STATE REGISTRATION",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
+    },
+    {
+      "field_paths": [
+        "/certifications_compliance/0"
+      ],
+      "document_id": "source-1",
+      "locator": "PDF p. 6 / Bushing Arrangement; p. 7 / Other Features items 9,14-16; p. 8 / item 18",
+      "interpretation": "Buyer requirement; direct extraction or stated paraphrase."
     }
   ],
   "missing_information": [

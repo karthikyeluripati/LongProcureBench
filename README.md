@@ -32,6 +32,19 @@ python -m unittest discover -s scripts -p "test_*.py"
 
 Validation is offline. It checks structure and internal consistency, not source truth.
 
+## Development and CI
+
+Use TDD for behavioral fixes: add a regression test, run it to demonstrate the
+failure, implement the correction, then rerun tests and dataset validation.
+See [AGENTS.md](AGENTS.md) for the repository workflow.
+
+GitHub Actions runs `Dataset checks` on pushes and pull requests, using fresh
+dependency installs on Python 3.10 and 3.12. It checks dependency compatibility,
+regression tests, and all three dataset records. URI syntax validation has an
+explicit dependency; source reachability is not checked by the offline suite.
+These checks do not deploy anything. Making them mandatory for merging requires
+repository branch protection or rulesets; the workflow alone does not enforce that.
+
 ## Initial-state policy
 
 These are **reconstructions from buyer-authored solicitation requirements**, not

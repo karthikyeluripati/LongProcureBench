@@ -2,6 +2,14 @@
 
 All keys are required for a stable record shape. **Required** means a non-null value is necessary; **Optional value** means the key stays present but may be `null`. Never invent missing facts. Empty arrays are allowed only for `missing_information`; unknown lists use `null`.
 
+Provenance pointers identify scalar fields, not whole objects or arrays. Related
+fields may share a precise page/row/section locator. Every populated procurement
+fact needs an exact pointer in the evidence list. `not_stated` and
+`bidder_to_provide` notes require a null target; `conflicting_source`,
+`partial_extraction`, and `retrospective_source` may qualify populated fields.
+An omitted optional verbatim excerpt is a curator choice and does not require a
+missing-information note. URI validation checks syntax offline, not link reachability.
+
 | Field | Requirement | Meaning / why it matters |
 |---|---|---|
 | `schema_version` | Required | Version of this data contract. |
