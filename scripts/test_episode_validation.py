@@ -159,6 +159,23 @@ class EpisodeValidationTests(unittest.TestCase):
                 "arguments":{}
             })
 
+    def test_economic_preferred_outcomes_must_be_acceptable(self):
+        record = copy.deepcopy(self.episode)
+        record["oracle"]["economic_objective"]["preferred_outcome_ids"] = ["o999"]
+        with self.assertRaisesRegex(ValueError, "unknown acceptable outcomes"):
+            validate_episode(record)
+
+    def test_economic_objective_is_required(self):
+        record = copy.deepcopy(self.episode)
+        record["oracle"].pop("economic_objective")
+        with self.assertRaises(ValidationError):
+            EPISODE_VALIDATOR.validate(record)
+
+    def test_bongabon_has_feasible_nonpreferred_outcome(self):
+        record = self.load_episode("electrical-bongabon-generator-001")
+        ids = {o["outcome_id"] for o in record["oracle"]["acceptable_terminal_outcomes"]}
+        self.assertIn("o2", ids)
+        self.assertEqual(record["oracle"]["economic_objective"]["preferred_outcome_ids"], ["o1"])
 
 if __name__ == "__main__":
     unittest.main()

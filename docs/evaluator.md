@@ -8,14 +8,14 @@ auditable report. It does not use an LLM judge.
 The evaluator deliberately does **not** collapse everything into one weighted
 magic score. It reports:
 
-- terminal outcome correctness;
+- terminal feasibility / acceptable-outcome match;
+- economic objective satisfaction;
 - hard constraints passed / total;
 - required checkpoints completed / total;
 - constraint violation IDs;
 - accepted action count.
 
-`episode_success` requires a correct terminal outcome, all hard constraints, and
-all required checkpoints.
+`feasible_process_success` requires a feasible terminal outcome, all hard constraints, and all required checkpoints. `episode_success` additionally requires the episode economic objective to be satisfied.
 
 ## Replay-first
 
@@ -63,3 +63,14 @@ No weighted score is introduced in v0.1.
 - token/latency/cost metrics;
 - OpenTelemetry / Arize trace export;
 - leaderboard.
+
+## Feasibility versus economic optimality
+
+Pilot audit v0.1 separates terminal feasibility from economic preference.
+
+- Terminal feasibility means the terminal award/no-award decision matches any explicitly acceptable feasible outcome.
+- Economic objective means the matched feasible outcome belongs to the preferred outcome set. The current pilot objective is minimum feasible total price.
+
+A higher-price compliant award is therefore reported as feasible but economically suboptimal, rather than as an incorrect terminal decision.
+
+The episode oracle stores economic_objective.preferred_outcome_ids, which must reference a subset of acceptable_terminal_outcomes.

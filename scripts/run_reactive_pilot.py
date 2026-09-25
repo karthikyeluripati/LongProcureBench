@@ -79,7 +79,9 @@ def flatten_result(result, model, repeat):
         "run_id": result["run_id"],
         "status": result["status"],
         "episode_success": bool(evaluation.get("episode_success", False)),
-        "terminal_correct": bool((evaluation.get("terminal_outcome") or {}).get("correct", False)),
+        "feasible_process_success": bool(evaluation.get("feasible_process_success", False)),
+        "terminal_feasible": bool((evaluation.get("terminal_outcome") or {}).get("correct", False)),
+        "economic_objective_satisfied": bool((evaluation.get("economic_objective") or {}).get("satisfied", False)),
         "hard_constraints_passed": hard.get("passed"),
         "hard_constraints_total": hard.get("total"),
         "checkpoints_completed": checkpoints.get("completed"),
@@ -109,12 +111,16 @@ def summarize(rows):
         checkpoints = Counter(x for r in subset for x in r["incomplete_checkpoints"])
         statuses = Counter(r["status"] for r in subset)
         successes = sum(r["episode_success"] for r in subset)
-        terminal = sum(r["terminal_correct"] for r in subset)
+        terminal = sum(r["terminal_feasible"] for r in subset)
+        process = sum(r["feasible_process_success"] for r in subset)
+        economic = sum(r["economic_objective_satisfied"] for r in subset)
         by_model[model] = {
             "runs": len(subset),
             "episode_successes": successes,
             "episode_success_rate": successes / len(subset),
-            "terminal_correct_rate": terminal / len(subset),
+            "terminal_feasible_rate": terminal / len(subset),
+            "feasible_process_success_rate": process / len(subset),
+            "economic_objective_rate": economic / len(subset),
             "status_counts": dict(sorted(statuses.items())),
             "constraint_failure_counts": dict(sorted(constraints.items())),
             "checkpoint_failure_counts": dict(sorted(checkpoints.items())),
@@ -136,7 +142,7 @@ def summarize(rows):
 
 def write_csv(rows, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model","episode_id","repeat","run_id","status","episode_success","terminal_correct","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","error_type"]
+    fields = ["model","episode_id","repeat","run_id","status","episode_success","feasible_process_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","error_type"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()

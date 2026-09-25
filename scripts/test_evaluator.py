@@ -259,6 +259,36 @@ class EvaluatorTests(unittest.TestCase):
         ):
             validate_config(config)
 
+    def test_feasible_but_more_expensive_bongabon_award_is_not_terminally_wrong(self):
+        eid = "electrical-bongabon-generator-001"
+        actions = self._actions(
+            eid,
+            [
+                ("identify_suppliers", None),
+                ("send_rfq", "syn-gen-a"),
+                ("send_rfq", "syn-gen-b"),
+                ("send_rfq", "syn-gen-c"),
+                ("send_follow_up", "syn-gen-c"),
+                ("request_quote_revision", "syn-gen-c"),
+                ("evaluate_quotes", None),
+            ],
+            [{"scope":"package","supplier_id":"syn-gen-a","quote_event_id":"e1"}],
+        )
+        report = self.evaluator.evaluate_actions(eid, actions)
+        self.assertTrue(report["terminal_outcome"]["correct"])
+        self.assertEqual(report["terminal_outcome"]["matched_outcome_id"], "o2")
+        self.assertTrue(report["hard_constraints"]["all_passed"])
+        self.assertTrue(report["required_checkpoints"]["all_completed"])
+        self.assertTrue(report["feasible_process_success"])
+        self.assertFalse(report["economic_objective"]["satisfied"])
+        self.assertFalse(report["episode_success"])
+
+    def test_reference_trace_satisfies_economic_objective(self):
+        eid = "electrical-bongabon-generator-001"
+        report = self.evaluator.evaluate_actions(eid, self.reference_traces()[eid])
+        self.assertTrue(report["economic_objective"]["satisfied"])
+        self.assertTrue(report["feasible_process_success"])
+        self.assertTrue(report["episode_success"])
 
 if __name__ == "__main__":
     unittest.main()
