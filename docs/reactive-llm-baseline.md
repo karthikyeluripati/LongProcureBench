@@ -39,3 +39,16 @@ A completed benchmark measurement may legitimately have `episode_success=false`;
 ## Failed calls
 
 Attempted model calls are counted even when the provider request or structured-response parsing fails. When usage/cost information is unavailable, the call remains in the metrics with `usage_available=false` rather than disappearing from the run record.
+
+
+## Collision-resistant result directories
+
+Model directories combine a readable sanitized model name with a stable SHA-256
+prefix derived from the exact model identifier. Distinct identifiers therefore do
+not overwrite each other even when their sanitized names are identical.
+
+## Usage completeness
+
+Token totals are considered complete only when the provider response actually
+contains token-usage fields. A normal response without usage metadata is recorded
+with `usage_available=false`, causing aggregate `usage_incomplete=true`.

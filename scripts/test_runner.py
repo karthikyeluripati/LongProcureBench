@@ -218,8 +218,8 @@ class RunnerTests(unittest.TestCase):
             "electrical-bongabon-generator-001",
             max_actions=1,
         )
-        self.assertEqual(result["status"], "max_actions")
-        self.assertIsNone(result["error"])
+        self.assertEqual(result["status"], "metadata_error")
+        self.assertEqual(result["error"]["type"], "RuntimeError")
         self.assertEqual(
             result["policy_metrics"]["metadata_error"]["type"],
             "RuntimeError",

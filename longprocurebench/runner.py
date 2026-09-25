@@ -271,8 +271,8 @@ class BenchmarkRunner:
             except Exception as exc:
                 metadata_error = self._error(exc)
                 policy_metrics = {"metadata_error": metadata_error}
-                if status == "completed":
-                    status = "policy_error"
+                if status in {"completed", "max_actions"}:
+                    status = "metadata_error"
                     run_error = deepcopy(metadata_error)
 
         result = self._build_result(

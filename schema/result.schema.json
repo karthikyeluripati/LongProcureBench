@@ -58,7 +58,8 @@
         "policy_error",
         "environment_error",
         "setup_error",
-        "evaluation_error"
+        "evaluation_error",
+        "metadata_error"
       ]
     },
     "max_actions": {

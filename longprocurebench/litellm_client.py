@@ -39,7 +39,18 @@ class LiteLLMClient:
         success: bool,
         error: Exception | None,
     ) -> dict[str, Any]:
-        usage = self._value(response, "usage", {}) if response is not None else {}
+        usage = self._value(response, "usage", None) if response is not None else None
+        usage_available = (
+            usage is not None
+            and any(
+                self._value(usage, key, None) is not None
+                for key in (
+                    "prompt_tokens",
+                    "completion_tokens",
+                    "total_tokens",
+                )
+            )
+        )
         prompt_tokens = self._value(usage, "prompt_tokens", 0) or 0
         completion_tokens = self._value(usage, "completion_tokens", 0) or 0
         total_tokens = self._value(
@@ -65,7 +76,7 @@ class LiteLLMClient:
             "cost_usd": (
                 float(cost_usd) if cost_usd is not None else None
             ),
-            "usage_available": response is not None,
+            "usage_available": usage_available,
             "error": (
                 {
                     "type": type(error).__name__,

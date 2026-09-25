@@ -3,7 +3,8 @@ import unittest
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 from longprocurebench.reactive_llm import SEMANTIC_ACTION_SCHEMA
-from longprocurebench.litellm_client import ModelCallError
+from longprocurebench.litellm_client import LiteLLMClient, ModelCallError
+from run_reactive_llm import model_slug
 
 
 class FakeActionClient:
@@ -133,6 +134,33 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         self.assertEqual(metrics["model_calls_failed"], 1)
         self.assertEqual(metrics["total_tokens"], 12)
         self.assertEqual(metrics["latency_ms"], 50.0)
+
+
+    def test_model_slug_is_collision_resistant(self):
+        first = model_slug("provider/model")
+        second = model_slug("provider-model")
+        self.assertNotEqual(first, second)
+        self.assertTrue(first.startswith("provider-model--"))
+        self.assertTrue(second.startswith("provider-model--"))
+
+    def test_missing_usage_is_marked_incomplete(self):
+        client = LiteLLMClient("fake/model")
+        metrics = client._metrics(
+            response={"choices": []},
+            latency_ms=1.0,
+            success=True,
+            error=None,
+        )
+        self.assertFalse(metrics["usage_available"])
+        self.assertEqual(metrics["total_tokens"], 0)
+
+        policy = ReactiveLLMPolicy(
+            "fake/model",
+            client=FakeActionClient([]),
+        )
+        policy._calls = [metrics]
+        aggregate = policy.get_run_metadata()
+        self.assertTrue(aggregate["usage_incomplete"])
 
 if __name__ == "__main__":
     unittest.main()

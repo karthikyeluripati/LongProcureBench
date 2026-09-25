@@ -1,5 +1,6 @@
 """Run the reactive LLM baseline on LongProcureBench episodes."""
 import argparse
+from hashlib import sha256
 from pathlib import Path
 import re
 import sys
@@ -11,8 +12,9 @@ if str(ROOT) not in sys.path:
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 
 def model_slug(model):
-    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-")
-    return slug or "model"
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-") or "model"
+    digest = sha256(model.encode("utf-8")).hexdigest()[:10]
+    return f"{slug}--{digest}"
 
 
 DEFAULT_EPISODES = [
