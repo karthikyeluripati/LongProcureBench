@@ -83,6 +83,13 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Aggregates failure modes without introducing a weighted score or ranking.
 - See [`docs/reactive-pilot.md`](docs/reactive-pilot.md).
 
+### Checkpoint fairness audit v0.1
+
+- Audits whether required-checkpoint failures were actually agent-visible and actionable.
+- On the 60-run Luna diagnostic, 50 current failures were non-applicable, 2 had no post-trigger action opportunity, and 19 came from proxy checkpoints.
+- The current `feasible_process_success` metric is therefore not frozen as the paper's primary obligation metric yet.
+- See [`docs/checkpoint-fairness-v0.1-results.md`](docs/checkpoint-fairness-v0.1-results.md).
+
 ### Pilot v0.1 audited evidence
 
 - First frozen 45-run audited reactive-agent pilot.
