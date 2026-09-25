@@ -17,6 +17,31 @@ SUPPLIER_EVENT_TYPES = {"supplier_non_response","supplier_question","quote_recei
 BUYER_EVENT_TYPES = {"buyer_clarification","requirement_change","quantity_change"}
 QUOTE_EVENT_TYPES = {"quote_received","quote_revision"}
 
+
+def _covered_item_ids(event, initial_item_ids):
+    scope = event.get("offer_scope")
+    if scope is None:
+        raise ValueError(f"Quote event missing offer_scope: {event['event_id']}")
+    if scope["kind"] == "package":
+        return set(initial_item_ids)
+    item_ids = set(scope["item_ids"])
+    unknown = item_ids - set(initial_item_ids)
+    if unknown:
+        raise ValueError(f"Quote event covers unknown initial-state items: {sorted(unknown)}")
+    return item_ids
+
+
+def _required_item_ids_for_award(scope, initial_item_ids):
+    if scope == "package":
+        return set(initial_item_ids)
+    if scope.startswith("lot-"):
+        item_id = scope[len("lot-"):]
+        if item_id not in initial_item_ids:
+            raise ValueError(f"Award scope references unknown initial-state item: {scope}")
+        return {item_id}
+    raise ValueError(f"Unsupported award scope in v0.1: {scope}")
+
+
 def validate_episode(record):
     EPISODE_VALIDATOR.validate(record)
     initial_path = ROOT / record["initial_state_ref"]["path"]
@@ -25,6 +50,7 @@ def validate_episode(record):
     initial = json.loads(initial_path.read_text(encoding="utf-8"))
     if initial["package_id"] != record["initial_state_ref"]["package_id"]:
         raise ValueError("Initial-state package_id mismatch")
+    initial_item_ids = {item["item_id"] for item in initial["line_items"]}
 
     suppliers = [s["supplier_id"] for s in record["suppliers"]]
     if len(suppliers) != len(set(suppliers)):
@@ -36,6 +62,7 @@ def validate_episode(record):
     if len(event_ids) != len(set(event_ids)):
         raise ValueError("Duplicate event_id")
     by_event = {e["event_id"]: e for e in events}
+    quote_coverage = {}
 
     for event in events:
         supplier_id = event["supplier_id"]
@@ -45,6 +72,11 @@ def validate_episode(record):
             raise ValueError(f"Supplier event missing supplier_id: {event['event_id']}")
         if event["type"] in BUYER_EVENT_TYPES and supplier_id is not None:
             raise ValueError(f"Buyer event unexpectedly has supplier_id: {event['event_id']}")
+
+        if event["type"] in QUOTE_EVENT_TYPES:
+            quote_coverage[event["event_id"]] = _covered_item_ids(event, initial_item_ids)
+        elif "offer_scope" in event:
+            raise ValueError(f"Non-quote event must not declare offer_scope: {event['event_id']}")
 
         trigger = event["trigger"]
         trigger_supplier = trigger["supplier_id"]
@@ -57,14 +89,16 @@ def validate_episode(record):
             if trigger["step"] is None or trigger["action_type"] is not None or trigger["supplier_id"] is not None:
                 raise ValueError(f"Invalid at_step trigger: {event['event_id']}")
 
+    expected_decision = "award" if record["objective"]["terminal_state"] == "award_ready" else "no_award"
     for outcome in record["oracle"]["acceptable_terminal_outcomes"]:
+        if outcome["decision"] != expected_decision:
+            raise ValueError("Outcome decision does not match objective terminal_state")
+        if outcome["decision"] == "no_award":
+            continue
+
         for award in outcome["awards"]:
             supplier_id = award["supplier_id"]
             quote_event_id = award["quote_event_id"]
-            if supplier_id is None:
-                if quote_event_id is not None:
-                    raise ValueError("No-award outcome cannot reference a quote event")
-                continue
             if supplier_id not in supplier_ids:
                 raise ValueError(f"Unknown awarded supplier: {supplier_id}")
             if quote_event_id not in by_event:
@@ -74,12 +108,16 @@ def validate_episode(record):
                 raise ValueError("Award must reference quote_received or quote_revision")
             if event["supplier_id"] != supplier_id:
                 raise ValueError("Award supplier does not match quote event supplier")
+            required_items = _required_item_ids_for_award(award["scope"], initial_item_ids)
+            if not required_items.issubset(quote_coverage[quote_event_id]):
+                raise ValueError(
+                    f"Award scope {award['scope']} is not covered by quote event {quote_event_id}"
+                )
 
-    if len({event["type"] for event in events}) < 3:
-        raise ValueError("Episode must exercise at least three event types")
 
 def validate_action(action):
     ACTION_VALIDATOR.validate(action)
+
 
 def main():
     files = sorted((ROOT / "data/episodes/electrical").glob("*.json"))
@@ -87,6 +125,7 @@ def main():
         raise ValueError(f"Episode-model v0.1 requires exactly 5 episodes; found {len(files)}")
     episode_ids = set()
     package_ids = set()
+    all_event_types = set()
     for file in files:
         record = json.loads(file.read_text(encoding="utf-8"))
         validate_episode(record)
@@ -96,10 +135,14 @@ def main():
             raise ValueError("Duplicate episode_id")
         episode_ids.add(record["episode_id"])
         package_ids.add(record["initial_state_ref"]["package_id"])
+        all_event_types.update(event["type"] for event in record["events"])
         print(f"PASS {file.name}")
     if len(package_ids) != 5:
         raise ValueError("The first five episodes must use five distinct initial states")
+    if len(all_event_types) < 8:
+        raise ValueError("Episode suite does not exercise enough event-type diversity")
     print(f"Validated {len(files)} episodes across {len(package_ids)} initial states.")
+
 
 if __name__ == "__main__":
     main()

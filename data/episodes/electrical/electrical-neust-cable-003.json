@@ -94,6 +94,9 @@
         "wire_material": "copper",
         "wire_quantity_lm": 700,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -171,6 +174,9 @@
         "wire_material": "copper",
         "wire_quantity_lm": 750,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -192,6 +198,9 @@
         "wire_material": "aluminum",
         "wire_quantity_lm": 750,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -213,6 +222,9 @@
         "wire_material": "copper",
         "wire_quantity_lm": 750,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     }
   ],
@@ -259,7 +271,8 @@
             "quote_event_id": "e7"
           }
         ],
-        "rationale": "Supplier C is the only revealed offer that matches the amended 750 LM copper requirement, remains under the real budget, and meets the real delivery window."
+        "rationale": "Supplier C is the only revealed offer that matches the amended 750 LM copper requirement, remains under the real budget, and meets the real delivery window.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [

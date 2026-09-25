@@ -92,6 +92,9 @@
         "lead_time_days": 120,
         "quantity": 652,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -112,6 +115,9 @@
         "lead_time_days": 100,
         "quantity": 652,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -132,6 +138,9 @@
         "lead_time_days": 140,
         "quantity": 652,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -168,6 +177,9 @@
         "lead_time_days": 130,
         "quantity": 652,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     }
   ],
@@ -213,7 +225,8 @@
             "quote_event_id": "e5"
           }
         ],
-        "rationale": "After A withdraws, C's revision is the only remaining eligible revealed offer that meets the real 134-day delivery requirement."
+        "rationale": "After A withdraws, C's revision is the only remaining eligible revealed offer that meets the real 134-day delivery requirement.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [

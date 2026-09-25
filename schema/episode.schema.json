@@ -266,7 +266,8 @@
                 "enum": [
                   "after_action",
                   "at_step"
-                ]
+                ],
+                "description": "after_action fires on a matching accepted action; at_step fires by accepted-action count using the root $comment ordering."
               },
               "action_type": {
                 "type": [
@@ -299,7 +300,8 @@
                   "integer",
                   "null"
                 ],
-                "minimum": 1
+                "minimum": 1,
+                "description": "For at_step only: 1-based count of accepted agent actions. The event fires after matching after_action events for that action and before the agent may submit the next action."
               }
             },
             "required": [
@@ -317,6 +319,47 @@
           "details": {
             "type": "object",
             "additionalProperties": true
+          },
+          "offer_scope": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "package"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "items"
+                  },
+                  "item_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "item_ids"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Required by the validator for quote_received and quote_revision events. Declares which real initial-state items the quoted offer covers."
           }
         },
         "required": [
@@ -398,7 +441,7 @@
               },
               "awards": {
                 "type": "array",
-                "minItems": 1,
+                "minItems": 0,
                 "items": {
                   "type": "object",
                   "properties": {
@@ -407,17 +450,11 @@
                       "minLength": 1
                     },
                     "supplier_id": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
+                      "type": "string",
                       "pattern": "^syn-[a-z0-9-]+$"
                     },
                     "quote_event_id": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
+                      "type": "string",
                       "pattern": "^e[0-9]+$"
                     }
                   },
@@ -427,19 +464,68 @@
                     "quote_event_id"
                   ],
                   "additionalProperties": false
-                }
+                },
+                "description": "Award entries for an award decision; must be empty for a no_award decision."
               },
               "rationale": {
                 "type": "string",
                 "minLength": 1
+              },
+              "decision": {
+                "type": "string",
+                "enum": [
+                  "award",
+                  "no_award"
+                ]
               }
             },
             "required": [
               "outcome_id",
+              "decision",
               "awards",
               "rationale"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "award"
+                    }
+                  },
+                  "required": [
+                    "decision"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "awards": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "no_award"
+                    }
+                  },
+                  "required": [
+                    "decision"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "awards": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              }
+            ]
           }
         },
         "failure_conditions": {
@@ -472,5 +558,6 @@
     "events",
     "oracle"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$comment": "Runtime timing is normative: step is the 1-based count of accepted agent actions. For action n, apply the action, emit matching after_action events in episode-file order, then emit at_step events with step=n in episode-file order, then return all resulting observations. Events/observations do not increment the step counter, and the agent cannot act between events emitted in the same step."
 }

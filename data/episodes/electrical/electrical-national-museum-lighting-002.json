@@ -96,6 +96,12 @@
           "2": null
         },
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1"
+        ]
       }
     },
     {
@@ -123,6 +129,13 @@
           }
         },
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1",
+          "2"
+        ]
       }
     },
     {
@@ -147,6 +160,12 @@
           }
         },
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
       }
     },
     {
@@ -171,6 +190,12 @@
           }
         },
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
       }
     }
   ],
@@ -219,7 +244,8 @@
             "quote_event_id": "e4"
           }
         ],
-        "rationale": "A is the lowest compliant Lot 1 offer. B exceeds the real Lot 2 budget, while C's accelerated revision meets both the Lot 2 budget and 30-day delivery requirement."
+        "rationale": "A is the lowest compliant Lot 1 offer. B exceeds the real Lot 2 budget, while C's accelerated revision meets both the Lot 2 budget and 30-day delivery requirement.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [

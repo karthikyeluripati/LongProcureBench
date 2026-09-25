@@ -93,6 +93,9 @@
         "warranty_months": 12,
         "iso_documentation": true,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -114,6 +117,9 @@
         "warranty_months": 12,
         "iso_documentation": true,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -151,6 +157,9 @@
         "warranty_months": 6,
         "iso_documentation": true,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -172,6 +181,9 @@
         "warranty_months": 12,
         "iso_documentation": true,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     }
   ],
@@ -217,7 +229,8 @@
             "quote_event_id": "e5"
           }
         ],
-        "rationale": "Supplier C's revision is compliant, within the real budget and delivery window, and cheaper than Supplier A's compliant offer."
+        "rationale": "Supplier C's revision is compliant, within the real budget and delivery window, and cheaper than Supplier A's compliant offer.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [

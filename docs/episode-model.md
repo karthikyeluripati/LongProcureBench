@@ -28,8 +28,40 @@ Previously revealed events and the agent's own action history remain observable.
 
 The benchmark does not prescribe one exact action sequence. The oracle defines
 hard constraints, required checkpoints, acceptable terminal outcomes, and failure
-conditions. Different agent architectures can therefore solve the same task using
+conditions. Timing, quote scope, and terminal-outcome representation are normative
+parts of the episode contract. Different agent architectures can therefore solve the same task using
 different planning and memory strategies.
+
+
+## Runtime timing semantics
+
+Timing is deterministic and **steps count accepted agent actions only**. Events and
+observations do not increment the counter.
+
+For accepted action number `n`, the environment must:
+
+1. validate and apply action `n`;
+2. emit matching `after_action` events in the order they appear in the episode file;
+3. emit every `at_step` event whose `step == n`, again in episode-file order;
+4. return all observations from that step to the agent;
+5. only then accept the next agent action.
+
+The agent cannot act between two events emitted during the same step. Thus an
+`at_step: 4` quantity amendment is visible **after the fourth accepted action and
+before the fifth action**.
+
+## Quote and award scope
+
+Every `quote_received` and `quote_revision` event declares `offer_scope`.
+`package` covers every real initial-state line item; `items` lists the exact
+initial-state `item_id` values covered. Oracle awards use `package` or
+`lot-<item_id>` scope in v0.1, and validation rejects an award whose cited quote
+does not cover that scope.
+
+Terminal outcomes now carry an explicit `decision`:
+
+- `award` requires at least one award entry.
+- `no_award` requires `awards: []`.
 
 ## v0.1 action space
 

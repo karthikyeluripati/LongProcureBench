@@ -24,7 +24,7 @@
     "supplier_profiles": "synthetic",
     "quotes_and_messages": "synthetic",
     "event_timeline": "synthetic",
-    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers. The synthetic 60-month delivery ceiling is a controlled scenario requirement and is not an interpretation of the public listing's 61-month duration field.",
     "calibration_sources": [
       {
         "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
@@ -85,12 +85,12 @@
         "supplier_id": null,
         "step": null
       },
-      "observation": "Buyer clarification: quantity is 1 EA, delivery is to Barrie, Ontario; the package must include the neutral grounding resistor and monitoring relay; required delivery is no later than 61 months after award.",
+      "observation": "Synthetic buyer clarification: quantity is 1 EA, delivery is to Barrie, Ontario; the package must include the neutral grounding resistor and monitoring relay; for this benchmark scenario the buyer requires delivery no later than 60 months after award.",
       "details": {
         "quantity": 1,
         "unit": "EA",
         "delivery_location": "Barrie, Ontario, Canada",
-        "max_lead_time_months": 61,
+        "max_lead_time_months": 60,
         "required_components": [
           "44 kV pad-mounted transformer",
           "neutral grounding resistor",
@@ -117,6 +117,9 @@
         "includes_ngr": true,
         "includes_monitoring_relay": true,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -138,6 +141,9 @@
         "includes_ngr": true,
         "includes_monitoring_relay": false,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -175,6 +181,9 @@
         "includes_ngr": true,
         "includes_monitoring_relay": true,
         "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     },
     {
@@ -196,6 +205,9 @@
         "includes_ngr": true,
         "includes_monitoring_relay": true,
         "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
       }
     }
   ],
@@ -214,7 +226,7 @@
       {
         "constraint_id": "c3",
         "basis": "synthetic_scenario",
-        "description": "Maximum delivery after clarification is 61 months, matching the duration exposed in the real public listing."
+        "description": "Synthetic benchmark requirement: after buyer clarification, delivery must be no later than 60 months after award. This ceiling is not inferred from the public listing's 61-month duration field."
       },
       {
         "constraint_id": "c4",
@@ -242,7 +254,8 @@
             "quote_event_id": "e5"
           }
         ],
-        "rationale": "After revision, Supplier B is complete, within the clarified delivery window, and cheaper than the other complete offers."
+        "rationale": "After revision, Supplier B is complete, within the clarified delivery window, and cheaper than the other complete offers.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [
