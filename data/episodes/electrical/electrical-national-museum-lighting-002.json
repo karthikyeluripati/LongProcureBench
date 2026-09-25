@@ -250,12 +250,36 @@
         ],
         "rationale": "A is the lowest compliant Lot 1 offer. B exceeds the real Lot 2 budget, while C's accelerated revision meets both the Lot 2 budget and 30-day delivery requirement.",
         "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-light-b",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-2",
+            "supplier_id": "syn-light-c",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "Supplier B's Lot 1 offer and Supplier C's revised Lot 2 offer are both feasible, but Supplier A is cheaper than B for Lot 1.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [
       "Treating a partial quotation as if it covered both lots.",
       "Awarding Supplier C's original 35-day Lot 2 quote.",
       "Using only the overall package budget and ignoring the real per-lot budget ceilings."
-    ]
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible lot assignments, prefer the combination with the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
   }
 }

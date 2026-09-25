@@ -29,7 +29,9 @@ class StubRunner:
             "evaluation": {
                 "episode_id": episode_id,
                 "episode_success": success,
+                "feasible_process_success": success,
                 "terminal_outcome": {"correct": success},
+                "economic_objective": {"satisfied": success},
                 "hard_constraints": {"passed": 4 if success else 3, "total": 4},
                 "required_checkpoints": {"completed": 3 if success else 2, "total": 3, "results": [{"checkpoint": "evaluate_quotes", "complete": success}]},
                 "constraint_violations": [] if success else ["c2"],
@@ -62,11 +64,14 @@ class PilotTests(unittest.TestCase):
 
     def test_summary_preserves_failure_counts(self):
         rows = [
-            {"model":"m","episode_success":True,"terminal_correct":True,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":5,"total_tokens":100,"latency_ms":20.0,"cost_usd":0.01,"usage_incomplete":False},
-            {"model":"m","episode_success":False,"terminal_correct":False,"status":"completed","constraint_violations":["c2"],"incomplete_checkpoints":["evaluate_quotes"],"accepted_actions":7,"total_tokens":200,"latency_ms":40.0,"cost_usd":0.02,"usage_incomplete":False},
+            {"model":"m","episode_success":True,"feasible_process_success":True,"terminal_feasible":True,"economic_objective_satisfied":True,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":5,"total_tokens":100,"latency_ms":20.0,"cost_usd":0.01,"usage_incomplete":False},
+            {"model":"m","episode_success":False,"feasible_process_success":False,"terminal_feasible":False,"economic_objective_satisfied":False,"status":"completed","constraint_violations":["c2"],"incomplete_checkpoints":["evaluate_quotes"],"accepted_actions":7,"total_tokens":200,"latency_ms":40.0,"cost_usd":0.02,"usage_incomplete":False},
         ]
         s = summarize(rows)["by_model"]["m"]
         self.assertEqual(s["episode_success_rate"], 0.5)
+        self.assertEqual(s["terminal_feasible_rate"], 0.5)
+        self.assertEqual(s["feasible_process_success_rate"], 0.5)
+        self.assertEqual(s["economic_objective_rate"], 0.5)
         self.assertEqual(s["constraint_failure_counts"], {"c2": 1})
         self.assertEqual(s["checkpoint_failure_counts"], {"evaluate_quotes": 1})
         self.assertEqual(s["mean_accepted_actions"], 6.0)
@@ -100,8 +105,8 @@ class PilotTests(unittest.TestCase):
 
     def test_summary_keeps_known_cost_when_some_costs_are_missing(self):
         rows = [
-            {"model":"m","episode_success":True,"terminal_correct":True,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":5,"total_tokens":100,"latency_ms":20.0,"cost_usd":0.01,"usage_incomplete":False},
-            {"model":"m","episode_success":False,"terminal_correct":False,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":6,"total_tokens":120,"latency_ms":25.0,"cost_usd":None,"usage_incomplete":False},
+            {"model":"m","episode_success":True,"feasible_process_success":True,"terminal_feasible":True,"economic_objective_satisfied":True,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":5,"total_tokens":100,"latency_ms":20.0,"cost_usd":0.01,"usage_incomplete":False},
+            {"model":"m","episode_success":False,"feasible_process_success":False,"terminal_feasible":False,"economic_objective_satisfied":False,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":6,"total_tokens":120,"latency_ms":25.0,"cost_usd":None,"usage_incomplete":False},
         ]
         s = summarize(rows)["by_model"]["m"]
         self.assertAlmostEqual(s["total_known_cost_usd"], 0.01)

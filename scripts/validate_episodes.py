@@ -42,6 +42,69 @@ def _required_item_ids_for_award(scope, initial_item_ids):
     raise ValueError(f"Unsupported award scope in v0.1: {scope}")
 
 
+def _award_price(award, event):
+    details = event["details"]
+    scope = award["scope"]
+
+    if scope == "package":
+        price = details.get("total_price")
+    elif scope.startswith("lot-"):
+        item_id = scope[len("lot-"):]
+        lots = details.get("lots")
+        lot = lots.get(item_id) if isinstance(lots, dict) else None
+        price = lot.get("price") if isinstance(lot, dict) else None
+    else:
+        raise ValueError(
+            f"Unsupported award scope for economic objective: {scope}"
+        )
+
+    if not isinstance(price, (int, float)) or isinstance(price, bool):
+        raise ValueError(
+            f"Missing numeric award price for {award['quote_event_id']} "
+            f"scope {scope}"
+        )
+    return price
+
+
+def _validate_economic_objective(record, outcomes, by_event):
+    objective = record["oracle"]["economic_objective"]
+    if objective["kind"] != "minimize_total_price":
+        raise ValueError(
+            f"Unsupported economic objective kind: {objective['kind']}"
+        )
+
+    if record["objective"]["terminal_state"] == "no_award":
+        return
+
+    totals = {}
+    for outcome in outcomes:
+        if outcome["decision"] != "award":
+            continue
+        totals[outcome["outcome_id"]] = sum(
+            _award_price(award, by_event[award["quote_event_id"]])
+            for award in outcome["awards"]
+        )
+
+    if not totals:
+        raise ValueError(
+            "minimize_total_price requires at least one award outcome"
+        )
+
+    minimum = min(totals.values())
+    expected = {
+        outcome_id
+        for outcome_id, total in totals.items()
+        if total == minimum
+    }
+    preferred = set(objective["preferred_outcome_ids"])
+    if preferred != expected:
+        raise ValueError(
+            "Economic preferred outcomes do not match minimum-price "
+            f"feasible outcomes: expected={sorted(expected)}, "
+            f"preferred={sorted(preferred)}, totals={totals}"
+        )
+
+
 def validate_episode(record):
     EPISODE_VALIDATOR.validate(record)
     initial_path = ROOT / record["initial_state_ref"]["path"]
@@ -90,7 +153,19 @@ def validate_episode(record):
                 raise ValueError(f"Invalid at_step trigger: {event['event_id']}")
 
     expected_decision = "award" if record["objective"]["terminal_state"] == "award_ready" else "no_award"
-    for outcome in record["oracle"]["acceptable_terminal_outcomes"]:
+    outcomes = record["oracle"]["acceptable_terminal_outcomes"]
+    outcome_ids = [outcome["outcome_id"] for outcome in outcomes]
+    if len(outcome_ids) != len(set(outcome_ids)):
+        raise ValueError("Duplicate acceptable outcome_id")
+
+    preferred = record["oracle"]["economic_objective"]["preferred_outcome_ids"]
+    unknown_preferred = set(preferred) - set(outcome_ids)
+    if unknown_preferred:
+        raise ValueError(
+            f"Economic objective references unknown acceptable outcomes: {sorted(unknown_preferred)}"
+        )
+
+    for outcome in outcomes:
         if outcome["decision"] != expected_decision:
             raise ValueError("Outcome decision does not match objective terminal_state")
         if outcome["decision"] == "no_award":
@@ -113,6 +188,8 @@ def validate_episode(record):
                 raise ValueError(
                     f"Award scope {award['scope']} is not covered by quote event {quote_event_id}"
                 )
+
+    _validate_economic_objective(record, outcomes, by_event)
 
 
 def validate_action(action):

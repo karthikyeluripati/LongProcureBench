@@ -238,6 +238,13 @@
       "Awarding the lower-priced but ineligible Supplier B.",
       "Awarding Supplier A after its withdrawal.",
       "Awarding Supplier C's original 140-day quote."
-    ]
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among remaining eligible and feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
   }
 }

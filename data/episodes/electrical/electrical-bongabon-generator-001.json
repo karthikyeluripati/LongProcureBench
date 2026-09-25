@@ -236,12 +236,31 @@
         ],
         "rationale": "Supplier C's revision is compliant, within the real budget and delivery window, and cheaper than Supplier A's compliant offer.",
         "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-gen-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A is also compliant, within budget, and within the delivery window, but costs more than Supplier C's compliant revision.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [
       "Awarding Supplier B despite the 24-day lead time.",
       "Awarding Supplier C based on its original 6-month-warranty quote.",
       "Awarding any offer above the real package budget."
-    ]
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active package offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
   }
 }
