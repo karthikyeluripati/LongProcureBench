@@ -1,6 +1,7 @@
 """Run the reactive LLM baseline on LongProcureBench episodes."""
 import argparse
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -8,6 +9,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
+
+def model_slug(model):
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-")
+    return slug or "model"
 
 
 DEFAULT_EPISODES = [
@@ -32,13 +37,14 @@ def main():
     parser.add_argument(
         "--output-dir",
         default="results/reactive-llm-v0.1",
+        help="Root result directory; a model-specific subdirectory is added.",
     )
     args = parser.parse_args()
 
     runner = BenchmarkRunner()
     episodes = args.episodes or DEFAULT_EPISODES
-    output_dir = Path(args.output_dir)
-    failures = 0
+    output_dir = Path(args.output_dir) / model_slug(args.model)
+    execution_failures = 0
 
     for episode_id in episodes:
         policy = ReactiveLLMPolicy(args.model)
@@ -50,7 +56,8 @@ def main():
         )
         evaluation = result.get("evaluation")
         success = bool(evaluation and evaluation.get("episode_success"))
-        failures += 0 if success else 1
+        if result["status"] not in {"completed", "max_actions"}:
+            execution_failures += 1
         metrics = result.get("policy_metrics") or {}
         print(
             f"{episode_id}: status={result['status']} "
@@ -59,8 +66,10 @@ def main():
             f"cost_usd={metrics.get('cost_usd')}"
         )
 
-    if failures:
-        raise SystemExit(f"{failures} episode(s) did not succeed.")
+    if execution_failures:
+        raise SystemExit(
+            f"{execution_failures} episode(s) had execution errors."
+        )
 
 
 if __name__ == "__main__":

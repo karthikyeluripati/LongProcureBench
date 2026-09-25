@@ -48,6 +48,13 @@ class BogusActionPolicy:
         return {"type": "bogus", "supplier_id": None, "arguments": {}}
 
 
+
+class MetadataFailPolicy(LoopPolicy):
+    policy_id = "metadata-fail"
+    def get_run_metadata(self):
+        raise RuntimeError("metadata exploded")
+
+
 class RunnerTests(unittest.TestCase):
     def setUp(self):
         self.runner = BenchmarkRunner()
@@ -204,6 +211,19 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(stub.calls, episode_ids)
         self.assertEqual(failures, 1)
 
+
+    def test_metadata_failure_does_not_escape_runner(self):
+        result = self.runner.run(
+            MetadataFailPolicy(),
+            "electrical-bongabon-generator-001",
+            max_actions=1,
+        )
+        self.assertEqual(result["status"], "max_actions")
+        self.assertIsNone(result["error"])
+        self.assertEqual(
+            result["policy_metrics"]["metadata_error"]["type"],
+            "RuntimeError",
+        )
 
 if __name__ == "__main__":
     unittest.main()

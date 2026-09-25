@@ -9,7 +9,7 @@ The current electrical-procurement slice is deliberately real-data-centric:
   one fixed reasoning trace;
 - a deterministic runtime now executes the frozen episode contract without an LLM.
 
-There is still no agent baseline, scoring implementation, or leaderboard.
+The repository now includes a deterministic evaluator and a first non-oracle reactive LLM baseline; there is still no leaderboard.
 
 ## Current milestones
 
@@ -72,7 +72,9 @@ There is still no agent baseline, scoring implementation, or leaderboard.
 - `longprocurebench/runtime.py` — deterministic benchmark environment.
 - `longprocurebench/evaluator.py` — deterministic trajectory evaluator.
 - `longprocurebench/runner.py` — standard policy execution and result generation.
-- `longprocurebench/reference.py` — oracle-aware reference control.\n- `longprocurebench/reactive_llm.py` — naive reactive model baseline.\n- `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
+- `longprocurebench/reference.py` — oracle-aware reference control.
+- `longprocurebench/reactive_llm.py` — naive reactive model baseline.
+- `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
 - `data/evaluation/electrical/` — hard-constraint rules for all 5 episodes.

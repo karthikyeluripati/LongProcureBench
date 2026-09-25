@@ -28,3 +28,14 @@ Use `--episode <episode-id>` to run a subset. Results default to `results/reacti
 ## CI
 
 CI does not call an external model. Tests inject a deterministic fake model client to validate prompting, statelessness, structured decisions, usage aggregation, and runner integration.
+
+
+## Result isolation and command status
+
+The CLI writes under a model-specific subdirectory derived from the model name, so running multiple models with the same root output directory does not overwrite earlier results.
+
+A completed benchmark measurement may legitimately have `episode_success=false`; that does not make the command fail. The CLI exits nonzero only for execution-layer statuses such as policy/setup/environment/evaluation errors, not for the model's benchmark score.
+
+## Failed calls
+
+Attempted model calls are counted even when the provider request or structured-response parsing fails. When usage/cost information is unavailable, the call remains in the metrics with `usage_available=false` rather than disappearing from the run record.

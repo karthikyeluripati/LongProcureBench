@@ -259,13 +259,21 @@ class BenchmarkRunner:
                     run_error = deepcopy(evaluation_error)
 
         metadata_fn = getattr(policy, "get_run_metadata", None)
-        policy_metrics = (
-            deepcopy(metadata_fn())
-            if callable(metadata_fn)
-            else {}
-        )
-        if not isinstance(policy_metrics, dict):
-            raise RunnerError("get_run_metadata() must return an object")
+        policy_metrics: dict[str, Any] = {}
+        if callable(metadata_fn):
+            try:
+                metadata = metadata_fn()
+                if not isinstance(metadata, dict):
+                    raise RunnerError(
+                        "get_run_metadata() must return an object"
+                    )
+                policy_metrics = deepcopy(metadata)
+            except Exception as exc:
+                metadata_error = self._error(exc)
+                policy_metrics = {"metadata_error": metadata_error}
+                if status == "completed":
+                    status = "policy_error"
+                    run_error = deepcopy(metadata_error)
 
         result = self._build_result(
             run_id=resolved_run_id,

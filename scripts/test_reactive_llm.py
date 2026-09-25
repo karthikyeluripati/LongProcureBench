@@ -2,6 +2,8 @@
 import unittest
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
+from longprocurebench.reactive_llm import SEMANTIC_ACTION_SCHEMA
+from longprocurebench.litellm_client import ModelCallError
 
 
 class FakeActionClient:
@@ -80,6 +82,57 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         self.assertEqual(result["policy_metrics"]["model"], "fake/test-model")
         self.assertEqual(result["policy_metrics"]["model_calls"], 8)
 
+
+    def test_structured_schema_is_strict_compatible(self):
+        self.assertFalse(SEMANTIC_ACTION_SCHEMA["additionalProperties"])
+        arguments = SEMANTIC_ACTION_SCHEMA["properties"]["arguments"]
+        self.assertFalse(arguments["additionalProperties"])
+        self.assertEqual(
+            set(arguments["required"]), {"awards", "reason"}
+        )
+        award = arguments["properties"]["awards"]["items"]
+        self.assertFalse(award["additionalProperties"])
+        self.assertEqual(
+            set(award["required"]),
+            {"scope", "supplier_id", "quote_event_id"},
+        )
+
+    def test_runtime_decision_removes_null_argument_placeholders(self):
+        decision = ReactiveLLMPolicy._runtime_decision({
+            "type": "evaluate_quotes",
+            "supplier_id": None,
+            "arguments": {"awards": None, "reason": None},
+        })
+        self.assertEqual(decision["arguments"], {})
+
+    def test_failed_model_call_is_counted(self):
+        class FailingClient:
+            model = "fake/failing"
+            def generate_action(self, *, messages, action_schema):
+                raise ModelCallError(
+                    "boom",
+                    metrics={
+                        "model": self.model,
+                        "success": False,
+                        "latency_ms": 50.0,
+                        "prompt_tokens": 12,
+                        "completion_tokens": 0,
+                        "total_tokens": 12,
+                        "cost_usd": 0.0001,
+                        "usage_available": True,
+                        "error": {"type": "ProviderError", "message": "boom"},
+                    },
+                )
+
+        policy = ReactiveLLMPolicy("fake/failing", client=FailingClient())
+        policy.reset({})
+        with self.assertRaises(ModelCallError):
+            policy.act({"step": 0})
+        metrics = policy.get_run_metadata()
+        self.assertEqual(metrics["model_calls_attempted"], 1)
+        self.assertEqual(metrics["model_calls_failed"], 1)
+        self.assertEqual(metrics["total_tokens"], 12)
+        self.assertEqual(metrics["latency_ms"], 50.0)
 
 if __name__ == "__main__":
     unittest.main()
