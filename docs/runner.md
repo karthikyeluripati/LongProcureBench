@@ -61,3 +61,11 @@ remain unchanged and the evaluator failure is stored separately in
 
 The reference-control batch treats a missing evaluation as a failed episode,
 prints it, and continues through the remaining episodes.
+
+
+## Metadata failures
+
+If policy metadata collection fails after a normally completed or max-action run,
+the final status becomes `metadata_error`. This makes metrics loss visible to
+batch automation instead of allowing the command to appear successful. Earlier
+policy/environment/setup failures remain the primary status.

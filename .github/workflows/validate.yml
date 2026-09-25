@@ -27,7 +27,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Check dependency compatibility
         run: python -m pip check
-      - name: Run unit, runtime, evaluator, and runner regression tests
+      - name: Run benchmark and LLM-baseline regression tests
         run: python -m unittest discover -s scripts -p 'test_*.py' -v
       - name: Validate initial states
         run: python scripts/validate_dataset.py

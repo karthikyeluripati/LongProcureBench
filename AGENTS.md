@@ -22,3 +22,4 @@
 - Do not merge unless the user explicitly requests it.
 - Reference policies are oracle-aware integration controls, not competitive baselines; label them `reference_control` and never report them as model performance.
 - Benchmark runner policies receive only agent-visible state. The runner owns `action_id`, `episode_id`, execution, and evaluation.
+- LLM baselines must not access episode oracle data or hidden synthetic state. Tests may inject fake model clients; CI must not require external model credentials.
