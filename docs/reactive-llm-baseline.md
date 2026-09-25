@@ -83,3 +83,26 @@ The OpenAI smoke workflow still triggers on relevant main-branch changes, but th
 live model step is optional. If OPENAI_API_KEY is absent, it records a skip and
 exits successfully after the offline tests. The repository's normal CI therefore
 does not require external credentials.
+
+
+## Episode-specific award scope contract
+
+Award scope is a machine identifier, not free text. The reactive policy now
+derives the strict scope enum from the visible initial-state line-item IDs on
+every step:
+
+- package
+- lot-<item_id> for each visible line item
+
+The same allowed values are included in the model prompt. This is interface
+information already implied by the runtime and visible initial state; it does
+not expose oracle outcomes.
+
+## Policy rejection versus infrastructure failure
+
+A runtime-rejected semantic action is part of agent performance and remains a
+saved benchmark result. The OpenAI pilot workflow therefore does not fail the
+entire experiment solely because a policy action is rejected with
+EnvironmentError, ValidationError, or RunnerError. Provider/model-call failures,
+setup/runtime faults, evaluator failures, and metadata failures still fail the
+workflow.
