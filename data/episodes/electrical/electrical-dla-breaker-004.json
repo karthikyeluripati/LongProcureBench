@@ -95,7 +95,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e2",
@@ -118,7 +119,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e3",
@@ -141,7 +143,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e4",
@@ -157,7 +160,8 @@
       "observation": "Supplier A withdraws its quotation before award.",
       "details": {
         "status": "withdrawn"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e5",
@@ -180,7 +184,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     }
   ],
   "oracle": {

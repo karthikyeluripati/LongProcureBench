@@ -96,7 +96,8 @@
           "neutral grounding resistor",
           "monitoring relay"
         ]
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e2",
@@ -120,7 +121,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e3",
@@ -144,7 +146,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e4",
@@ -160,7 +163,8 @@
       "observation": "Supplier B asks whether the monitoring relay must be included in its scope.",
       "details": {
         "question": "Must the monitoring relay be included in the supplier scope?"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e5",
@@ -184,7 +188,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e6",
@@ -208,7 +213,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     }
   ],
   "oracle": {

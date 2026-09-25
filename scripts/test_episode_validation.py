@@ -4,7 +4,7 @@ import json
 import unittest
 
 from jsonschema import ValidationError
-from validate_episodes import EPISODE_SCHEMA, ROOT, validate_action, validate_episode
+from validate_episodes import EPISODE_SCHEMA, EPISODE_VALIDATOR, ROOT, validate_action, validate_episode
 
 
 class EpisodeValidationTests(unittest.TestCase):
@@ -58,11 +58,29 @@ class EpisodeValidationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_episode(record)
 
-    def test_quote_event_requires_offer_scope(self):
+    def test_quote_event_requires_offer_scope_in_schema(self):
         record = copy.deepcopy(self.episode)
         record["events"][0].pop("offer_scope")
-        with self.assertRaises(ValueError):
-            validate_episode(record)
+        with self.assertRaises(ValidationError):
+            EPISODE_VALIDATOR.validate(record)
+
+    def test_nonquote_event_rejects_offer_scope_in_schema(self):
+        record = copy.deepcopy(self.episode)
+        nonquote = next(event for event in record["events"] if event["type"] == "supplier_non_response")
+        nonquote["offer_scope"] = {"kind": "package"}
+        with self.assertRaises(ValidationError):
+            EPISODE_VALIDATOR.validate(record)
+
+    def test_event_emission_policy_is_one_shot(self):
+        record = copy.deepcopy(self.episode)
+        record["events"][0]["emission_policy"] = "repeat"
+        with self.assertRaises(ValidationError):
+            EPISODE_VALIDATOR.validate(record)
+
+        record = copy.deepcopy(self.episode)
+        record["events"][0].pop("emission_policy")
+        with self.assertRaises(ValidationError):
+            EPISODE_VALIDATOR.validate(record)
 
     def test_no_award_outcome_is_representable(self):
         record = copy.deepcopy(self.episode)

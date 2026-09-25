@@ -96,7 +96,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e2",
@@ -120,7 +121,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e3",
@@ -136,7 +138,8 @@
       "observation": "Supplier C has not responded after the normal response window.",
       "details": {
         "status": "no_response"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e4",
@@ -160,7 +163,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e5",
@@ -184,7 +188,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     }
   ],
   "oracle": {

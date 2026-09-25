@@ -97,7 +97,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e2",
@@ -118,7 +119,8 @@
         "wire_material": "aluminum",
         "wire_quantity_lm": 700,
         "revision": 0
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e3",
@@ -134,7 +136,8 @@
       "observation": "Supplier C does not respond to the original RFQ.",
       "details": {
         "status": "no_response"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e4",
@@ -153,7 +156,8 @@
         "old_quantity": 700,
         "new_quantity": 750,
         "unit": "LM"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e5",
@@ -177,7 +181,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e6",
@@ -201,7 +206,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     },
     {
       "event_id": "e7",
@@ -225,7 +231,8 @@
       },
       "offer_scope": {
         "kind": "package"
-      }
+      },
+      "emission_policy": "once"
     }
   ],
   "oracle": {

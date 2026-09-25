@@ -50,6 +50,12 @@ The agent cannot act between two events emitted during the same step. Thus an
 `at_step: 4` quantity amendment is visible **after the fourth accepted action and
 before the fifth action**.
 
+Every event is **one-shot**. Once an event is emitted, its `event_id` is consumed
+for the rest of the episode. Repeating an action that matches the same
+`after_action` trigger does not emit that event again, and an `at_step` event can
+fire only once. Implementations must retain the consumed-event set as part of the
+environment state.
+
 ## Quote and award scope
 
 Every `quote_received` and `quote_revision` event declares `offer_scope`.
