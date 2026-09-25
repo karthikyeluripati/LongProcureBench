@@ -1,0 +1,141 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-san-bruno-ev-chargers-51035",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of San Bruno",
+    "project_name": "San Bruno Corporation Yard EV Chargers Phase 2",
+    "project_description": "Installation of nine new electric vehicle charging stations and associated electrical equipment at the City corporation yard.",
+    "location": "San Bruno, California, USA"
+  },
+  "package_subscope": "Nine new EV charging stations and associated electrical equipment under City plans and specifications.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-03-10",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Electric vehicle charging stations and associated electrical equipment",
+      "quantity": 9,
+      "quantity_basis": "specified",
+      "unit": "station",
+      "technical_specifications": [
+        {
+          "summary": "Install nine new electric vehicle charging stations with associated electrical equipment in accordance with City plans and specifications.",
+          "verbatim_excerpt": null,
+          "source_locator": "City bid posting > Description"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-04-07 09:00 PT"
+  },
+  "supplier_eligibility_constraints": [
+    "A California Class A or C-10 contractor license is required to bid."
+  ],
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "San Bruno Corporation Yard EV Chargers Phase 2 - Bid No. 51035",
+      "url": "https://www.sanbruno.ca.gov/bids.aspx?PRINT=YES&bidID=98",
+      "document_type": "notice_html",
+      "issued_date": "2026-03-10",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Official City bid-posting URL and retrieval date retained; raw source bytes were not captured in this collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/unit",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation source; see per-field source_locator values where provided.",
+      "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    }
+  ]
+}
