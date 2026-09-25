@@ -6,10 +6,10 @@ The current electrical-procurement slice is deliberately real-data-centric:
 - real public procurement requirements form the starting state;
 - private supplier interactions are synthesized and explicitly labeled;
 - benchmark oracles define constraints and acceptable outcomes without requiring
-  one fixed reasoning trace.
+  one fixed reasoning trace;
+- a deterministic runtime now executes the frozen episode contract without an LLM.
 
-There is still no executable simulator, agent baseline, scoring implementation,
-or leaderboard.
+There is still no agent baseline, scoring implementation, or leaderboard.
 
 ## Current milestones
 
@@ -29,8 +29,19 @@ or leaderboard.
   supplier withdrawal, multi-lot evaluation, and budget conflicts.
 - See [`docs/episode-model.md`](docs/episode-model.md).
 
+### Deterministic Runtime v0.1
+
+- `reset(episode)` and `step(action)` execution environment.
+- Accepted-action step counting and contract-defined event ordering.
+- One-shot event consumption and hidden-event non-leakage.
+- Supplier-directory reveal through `identify_suppliers`.
+- Single- and multi-award terminal actions plus `no_award`.
+- Scripted end-to-end execution tests for all 5 frozen episodes.
+- See [`docs/runtime.md`](docs/runtime.md).
+
 ## Repository map
 
+- `longprocurebench/runtime.py` — deterministic benchmark environment.
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
@@ -39,8 +50,10 @@ or leaderboard.
 - `docs/fields.md` — initial-state field guide.
 - `docs/initial-state-v0.1-report.md` — initial-state coverage and limitations.
 - `docs/episode-model.md` — reality boundary, action space, event ontology, and first five episodes.
+- `docs/runtime.md` — runtime state, transition order, and terminal semantics.
 - `scripts/validate_dataset.py` — initial-state validation.
 - `scripts/validate_episodes.py` — episode validation.
+- `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
 
 ## Validate
 
@@ -71,6 +84,5 @@ presented as historical actors.
 
 ## Development and CI
 
-Use TDD for behavioral fixes. GitHub Actions runs regression tests plus both
-initial-state and episode validators on Python 3.10 and 3.12. See
-[`AGENTS.md`](AGENTS.md) for repository workflow and review rules.
+Use TDD for behavioral fixes. GitHub Actions runs the full unit/runtime regression suite plus both data validators on Python 3.10 and 3.12. See [`AGENTS.md`](AGENTS.md) for
+repository workflow and review rules.

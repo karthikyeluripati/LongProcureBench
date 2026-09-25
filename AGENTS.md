@@ -9,6 +9,10 @@
 - Preserve the real/synthetic boundary in episodes. Real public facts come only
   through `initial_state_ref`; suppliers, messages, quotes, and event timing in
   v0.1 episodes are synthetic and must be labeled as such.
+- The runtime must never expose pending events, the oracle, or synthetic suppliers
+  before their contract-defined reveal point.
+- Invalid runtime actions must not advance the accepted-action step or mutate
+  visible history. Emitted events are one-shot and permanently consumed.
 - Do not use a real supplier name to represent synthetic behavior.
 - Cite initial-state scalar fields with specific document pages, rows, or sections.
   Related scalar fields may share a locator when they come from the same passage.
