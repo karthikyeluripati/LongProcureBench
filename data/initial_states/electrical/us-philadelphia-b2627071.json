@@ -35,11 +35,7 @@
       "estimated_total_cost": null
     }
   ],
-  "total_estimated_budget": {
-    "amount": 3500000,
-    "currency": "USD",
-    "basis": "Midpoint of the City-posted estimated range of USD 3,000,000 to 4,000,000; retained as a derived planning estimate, not a supplier price."
-  },
+  "total_estimated_budget": null,
   "schedule": {
     "need_by_date": null,
     "delivery_requirement": null,
@@ -77,9 +73,6 @@
         "/line_items/0/unit",
         "/line_items/0/technical_specifications/0/summary",
         "/line_items/0/technical_specifications/0/source_locator",
-        "/total_estimated_budget/amount",
-        "/total_estimated_budget/currency",
-        "/total_estimated_budget/basis",
         "/schedule/bid_submission_deadline",
         "/supplier_eligibility_constraints/0",
         "/supplier_eligibility_constraints/1"
@@ -90,6 +83,11 @@
     }
   ],
   "missing_information": [
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "partial_extraction",
+      "detail": "The City publishes an estimated range of USD 3,000,000 to 4,000,000, while the current schema accepts one exact amount. No midpoint or exact budget is inferred."
+    },
     {
       "field_path": "/project/location",
       "reason": "not_stated",
