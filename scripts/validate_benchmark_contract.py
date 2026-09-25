@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "OBSERVABILITY_MATRIX.csv"
@@ -37,6 +38,43 @@ CONTROLLED_REQUIREMENT_EVENT_TYPES = {
 }
 VALID_SPLITS = {"development_calibration", "held_out_test"}
 
+# These episodes were already used to build/debug the runtime, fairness audit,
+# Evaluator v0.2, and model diagnostics. They can never become untouched test
+# data through an edit to the split metadata.
+FROZEN_DEVELOPMENT_EPISODES = {
+    "electrical-bongabon-generator-001",
+    "electrical-national-museum-lighting-002",
+    "electrical-neust-cable-003",
+    "electrical-dla-breaker-004",
+    "electrical-barrie-transformer-005",
+    "electrical-bfar-generator-006",
+    "electrical-negros-wire-007",
+    "electrical-burauen-generator-008",
+    "electrical-highpoint-transformer-009",
+    "electrical-painesville-switchgear-010",
+    "electrical-sagada-generator-011",
+    "electrical-dla-relay-012",
+    "electrical-dla-transformer-013",
+    "electrical-dla-battery-supply-014",
+    "electrical-dla-battery-charger-015",
+    "electrical-dla-power-supply-016",
+    "electrical-dla-qpl-breaker-017",
+    "electrical-highpoint-cable-018",
+    "electrical-usaf-ups-019",
+    "electrical-vre-generator-020",
+}
+
+# Reviewed provenance mapping. New source hosts must be added intentionally
+# rather than silently accepting an arbitrary matrix label.
+SOURCE_FAMILY_BY_HOST = {
+    "notices.philgeps.gov.ph": "PhilGEPS",
+    "sam.gov": "SAM.gov",
+    "barrie.bidsandtenders.ca": "Barrie Bids & Tenders",
+    "www.highpointnc.gov": "High Point municipal PDF",
+    "www.painesville.com": "Painesville municipal portal",
+    "www.vre.org": "VRE procurement portal",
+}
+
 
 def load_matrix(path: Path = MATRIX_PATH) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8") as handle:
@@ -65,6 +103,37 @@ def load_episodes(root: Path = EPISODE_DIR) -> dict[str, dict]:
     return episodes
 
 
+def _expected_source_family(episode: dict) -> str:
+    initial_path = ROOT / episode["initial_state_ref"]["path"]
+    initial = json.loads(initial_path.read_text(encoding="utf-8"))
+    documents = initial.get("supporting_documents") or []
+    if not documents:
+        raise ValueError(
+            f"Initial state has no supporting documents: {episode['episode_id']}"
+        )
+
+    families = set()
+    for document in documents:
+        url = document.get("url")
+        if not isinstance(url, str):
+            raise ValueError(
+                f"Supporting document lacks URL: {episode['episode_id']}"
+            )
+        host = (urlparse(url).hostname or "").lower()
+        family = SOURCE_FAMILY_BY_HOST.get(host)
+        if family is None:
+            raise ValueError(
+                f"Unreviewed source host for {episode['episode_id']}: {host}"
+            )
+        families.add(family)
+
+    if len(families) != 1:
+        raise ValueError(
+            f"Episode spans multiple source families: {episode['episode_id']}"
+        )
+    return next(iter(families))
+
+
 def validate_contract(
     rows: list[dict[str, str]],
     split: dict,
@@ -82,10 +151,25 @@ def validate_contract(
     held_out = (split.get("held_out_test") or {}).get("episode_ids")
     if not isinstance(development, list) or not isinstance(held_out, list):
         raise ValueError("Split plan must define development and held-out episode lists")
-    if set(development) & set(held_out):
+    development_set = set(development)
+    held_out_set = set(held_out)
+    if development_set & held_out_set:
         raise ValueError("Development and held-out split assignments overlap")
-    if set(development) | set(held_out) != set(episodes):
+    if development_set | held_out_set != set(episodes):
         raise ValueError("Split plan does not assign every committed episode exactly once")
+
+    missing_frozen = FROZEN_DEVELOPMENT_EPISODES - development_set
+    if missing_frozen:
+        raise ValueError(
+            "Previously used calibration episodes must remain development data: "
+            f"{sorted(missing_frozen)}"
+        )
+    leaked_frozen = FROZEN_DEVELOPMENT_EPISODES & held_out_set
+    if leaked_frozen:
+        raise ValueError(
+            "Previously used calibration episodes cannot enter held-out test: "
+            f"{sorted(leaked_frozen)}"
+        )
 
     held_out_config = split["held_out_test"]
     if held_out_config.get("target_count") != 10:
@@ -141,8 +225,13 @@ def validate_contract(
                     f"{field}={row[field]!r}"
                 )
 
-        if not row["source_family"].strip():
-            raise ValueError(f"Missing source family for {episode_id}")
+        expected_source_family = _expected_source_family(episode)
+        if row["source_family"] != expected_source_family:
+            raise ValueError(
+                f"Source-family audit mismatch for {episode_id}: "
+                f"expected={expected_source_family!r}, "
+                f"matrix={row['source_family']!r}"
+            )
 
         expected_requirement_events = {
             event["type"]
