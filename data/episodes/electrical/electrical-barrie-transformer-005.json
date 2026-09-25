@@ -1,0 +1,254 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-barrie-transformer-005",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ca-barrie-fin2026-162q",
+    "path": "data/initial_states/electrical/ca-barrie-fin2026-162q.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Transformer pre-purchase with critical requirement gaps and a quote correction",
+    "summary": "The public starting state lacks quantity, unit, delivery location, and budget. The agent must detect the gap, obtain synthetic buyer clarification, then compare complete transformer offers and request correction of a lower-price quote that omits the monitoring relay.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-xfmr-a",
+      "display_name": "Synthetic Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Complete transformer package."
+    },
+    {
+      "supplier_id": "syn-xfmr-b",
+      "display_name": "Synthetic Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially omits the monitoring relay from its lower-price offer."
+    },
+    {
+      "supplier_id": "syn-xfmr-c",
+      "display_name": "Synthetic Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Complete but higher-price offer."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Buyer clarification: quantity is 1 EA, delivery is to Barrie, Ontario; the package must include the neutral grounding resistor and monitoring relay; required delivery is no later than 61 months after award.",
+      "details": {
+        "quantity": 1,
+        "unit": "EA",
+        "delivery_location": "Barrie, Ontario, Canada",
+        "max_lead_time_months": 61,
+        "required_components": [
+          "44 kV pad-mounted transformer",
+          "neutral grounding resistor",
+          "monitoring relay"
+        ]
+      }
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-xfmr-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-xfmr-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes CAD 1,420,000, 58-month delivery, including the transformer, NGR, and monitoring relay.",
+      "details": {
+        "currency": "CAD",
+        "total_price": 1420000,
+        "lead_time_months": 58,
+        "includes_ngr": true,
+        "includes_monitoring_relay": true,
+        "revision": 0
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-xfmr-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-xfmr-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes CAD 1,310,000, 54-month delivery, but the offer excludes the monitoring relay.",
+      "details": {
+        "currency": "CAD",
+        "total_price": 1310000,
+        "lead_time_months": 54,
+        "includes_ngr": true,
+        "includes_monitoring_relay": false,
+        "revision": 0
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-xfmr-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-xfmr-b",
+        "step": null
+      },
+      "observation": "Supplier B asks whether the monitoring relay must be included in its scope.",
+      "details": {
+        "question": "Must the monitoring relay be included in the supplier scope?"
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-xfmr-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-xfmr-b",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier B revises to CAD 1,390,000, 56-month delivery, including the monitoring relay.",
+      "details": {
+        "currency": "CAD",
+        "total_price": 1390000,
+        "lead_time_months": 56,
+        "includes_ngr": true,
+        "includes_monitoring_relay": true,
+        "revision": 1
+      }
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-xfmr-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes CAD 1,500,000, 52-month delivery, including all required components.",
+      "details": {
+        "currency": "CAD",
+        "total_price": 1500000,
+        "lead_time_months": 52,
+        "includes_ngr": true,
+        "includes_monitoring_relay": true,
+        "revision": 0
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "The real public initial state explicitly requires a 44 kV pad-mounted transformer with neutral grounding resistor and monitoring relay."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "The episode cannot proceed to a valid RFQ until the synthetic buyer clarification supplies quantity and unit."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Maximum delivery after clarification is 61 months, matching the duration exposed in the real public listing."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "The monitoring relay must be included in the awarded supplier scope."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-xfmr-b",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "After revision, Supplier B is complete, within the clarified delivery window, and cheaper than the other complete offers."
+      }
+    ],
+    "failure_conditions": [
+      "Sending an award before resolving the missing quantity/unit.",
+      "Awarding Supplier B's original quote that excludes the monitoring relay.",
+      "Treating synthetic clarification fields as if they were part of the real public initial state."
+    ]
+  }
+}

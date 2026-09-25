@@ -1,0 +1,271 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-neust-cable-003",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-neust-11352026",
+    "path": "data/initial_states/electrical/ph-neust-11352026.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Campus cable buy with midstream quantity change and noncompliant substitution",
+    "summary": "The real copper-wire package is modified midstream. The agent must amend the requirement, invalidate stale quotes, reject an unapproved aluminum substitution, and recover a compliant quote within the real budget and delivery window.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_change",
+      "quantity_change",
+      "substitution_proposed",
+      "supplier_non_response",
+      "quote_revision",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-wire-a",
+      "display_name": "Synthetic Wire Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Quotes the specified copper product."
+    },
+    {
+      "supplier_id": "syn-wire-b",
+      "display_name": "Synthetic Wire Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "noncompliant",
+      "notes": "Offers an aluminum substitution instead of the specified copper conductor."
+    },
+    {
+      "supplier_id": "syn-wire-c",
+      "display_name": "Synthetic Wire Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Initially non-responsive, later quotes the amended requirement."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-wire-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-wire-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes the original 700 LM copper-wire requirement plus tape for PHP 880,000 with 40-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 880000,
+        "lead_time_days": 40,
+        "wire_material": "copper",
+        "wire_quantity_lm": 700,
+        "revision": 0
+      }
+    },
+    {
+      "event_id": "e2",
+      "type": "substitution_proposed",
+      "synthetic": true,
+      "supplier_id": "syn-wire-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-wire-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes PHP 760,000 with 35-day delivery but substitutes aluminum conductor for the specified copper wire.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 760000,
+        "lead_time_days": 35,
+        "wire_material": "aluminum",
+        "wire_quantity_lm": 700,
+        "revision": 0
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-wire-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-wire-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond to the original RFQ.",
+      "details": {
+        "status": "no_response"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quantity_change",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 4
+      },
+      "observation": "The buyer changes the required copper-wire quantity from 700 LM to 750 LM; tape remains 10 pcs.",
+      "details": {
+        "item_id": "1",
+        "old_quantity": 700,
+        "new_quantity": 750,
+        "unit": "LM"
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-wire-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-wire-a",
+        "step": null
+      },
+      "observation": "Supplier A revises for 750 LM: PHP 925,000, 40-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 925000,
+        "lead_time_days": 40,
+        "wire_material": "copper",
+        "wire_quantity_lm": 750,
+        "revision": 1
+      }
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-wire-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-wire-b",
+        "step": null
+      },
+      "observation": "Supplier B revises to PHP 805,000 for 750 LM but still offers aluminum.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 805000,
+        "lead_time_days": 35,
+        "wire_material": "aluminum",
+        "wire_quantity_lm": 750,
+        "revision": 1
+      }
+    },
+    {
+      "event_id": "e7",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-wire-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-wire-c",
+        "step": null
+      },
+      "observation": "After follow-up and the amendment, Supplier C quotes PHP 905,000 for 750 LM copper plus tape with 44-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 905000,
+        "lead_time_days": 44,
+        "wire_material": "copper",
+        "wire_quantity_lm": 750,
+        "revision": 1
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "The specified conductor material is copper; an aluminum substitution is not equivalent unless the buyer approves it."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Awarded price must not exceed the real PHP 913,000 package budget."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 45-day delivery period."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "After the synthetic quantity change, quotes for 700 LM are stale and cannot support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "handle_amendment",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-wire-c",
+            "quote_event_id": "e7"
+          }
+        ],
+        "rationale": "Supplier C is the only revealed offer that matches the amended 750 LM copper requirement, remains under the real budget, and meets the real delivery window."
+      }
+    ],
+    "failure_conditions": [
+      "Awarding against a stale 700 LM quote after the quantity change.",
+      "Accepting Supplier B's aluminum substitution without buyer approval.",
+      "Awarding Supplier A's revised quote above the real budget."
+    ]
+  }
+}

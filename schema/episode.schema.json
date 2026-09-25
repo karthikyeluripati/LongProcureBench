@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "LongProcureBench semi-synthetic long-horizon procurement episode.",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "procurement_category": {
+      "type": "string",
+      "const": "electrical"
+    },
+    "initial_state_ref": {
+      "type": "object",
+      "properties": {
+        "package_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^data/initial_states/electrical/[a-z0-9-]+\\.json$"
+        },
+        "grounding": {
+          "type": "string",
+          "const": "real_public"
+        }
+      },
+      "required": [
+        "package_id",
+        "path",
+        "grounding"
+      ],
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "requirement_gap",
+              "supplier_non_response",
+              "supplier_question",
+              "quote_received",
+              "quote_revision",
+              "substitution_proposed",
+              "requirement_change",
+              "quantity_change",
+              "lead_time_conflict",
+              "supplier_withdrawal",
+              "budget_conflict",
+              "multi_lot",
+              "supplier_eligibility",
+              "compliance_conflict"
+            ]
+          }
+        }
+      },
+      "required": [
+        "title",
+        "summary",
+        "difficulty",
+        "tags"
+      ],
+      "additionalProperties": false
+    },
+    "realism": {
+      "type": "object",
+      "properties": {
+        "initial_state_data": {
+          "type": "string",
+          "const": "real_public"
+        },
+        "supplier_profiles": {
+          "type": "string",
+          "const": "synthetic"
+        },
+        "quotes_and_messages": {
+          "type": "string",
+          "const": "synthetic"
+        },
+        "event_timeline": {
+          "type": "string",
+          "const": "synthetic"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "calibration_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "title",
+              "url",
+              "role"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "initial_state_data",
+        "supplier_profiles",
+        "quotes_and_messages",
+        "event_timeline",
+        "notes",
+        "calibration_sources"
+      ],
+      "additionalProperties": false
+    },
+    "objective": {
+      "type": "object",
+      "properties": {
+        "terminal_state": {
+          "type": "string",
+          "enum": [
+            "award_ready",
+            "no_award"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "terminal_state",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "suppliers": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "supplier_id": {
+            "type": "string",
+            "pattern": "^syn-[a-z0-9-]+$"
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true
+          },
+          "eligibility_state": {
+            "type": "string",
+            "enum": [
+              "eligible",
+              "ineligible",
+              "unknown"
+            ]
+          },
+          "compliance_state": {
+            "type": "string",
+            "enum": [
+              "compliant",
+              "noncompliant",
+              "unknown"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "supplier_id",
+          "display_name",
+          "synthetic",
+          "eligibility_state",
+          "compliance_state",
+          "notes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "pattern": "^e[0-9]+$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "buyer_clarification",
+              "supplier_non_response",
+              "supplier_question",
+              "quote_received",
+              "quote_revision",
+              "substitution_proposed",
+              "requirement_change",
+              "quantity_change",
+              "lead_time_change",
+              "supplier_withdrawal"
+            ]
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true
+          },
+          "supplier_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^syn-[a-z0-9-]+$"
+          },
+          "trigger": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "after_action",
+                  "at_step"
+                ]
+              },
+              "action_type": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "request_buyer_clarification",
+                  "identify_suppliers",
+                  "send_rfq",
+                  "send_follow_up",
+                  "answer_supplier_question",
+                  "issue_amendment",
+                  "request_quote_revision",
+                  "evaluate_quotes",
+                  "award_supplier",
+                  "no_award",
+                  null
+                ]
+              },
+              "supplier_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^syn-[a-z0-9-]+$"
+              },
+              "step": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "action_type",
+              "supplier_id",
+              "step"
+            ],
+            "additionalProperties": false
+          },
+          "observation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "event_id",
+          "type",
+          "synthetic",
+          "supplier_id",
+          "trigger",
+          "observation",
+          "details"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "oracle": {
+      "type": "object",
+      "properties": {
+        "hard_constraints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraint_id": {
+                "type": "string",
+                "pattern": "^c[0-9]+$"
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "real_initial_state",
+                  "synthetic_scenario"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "constraint_id",
+              "basis",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required_checkpoints": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "resolve_requirement_gap",
+              "solicit_competition",
+              "follow_up_nonresponse",
+              "handle_supplier_question",
+              "handle_amendment",
+              "request_quote_revision",
+              "normalize_quotes",
+              "validate_eligibility",
+              "validate_compliance",
+              "evaluate_quotes",
+              "recover_from_withdrawal",
+              "award_or_recommend"
+            ]
+          }
+        },
+        "acceptable_terminal_outcomes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "outcome_id": {
+                "type": "string",
+                "pattern": "^o[0-9]+$"
+              },
+              "awards": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "supplier_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "pattern": "^syn-[a-z0-9-]+$"
+                    },
+                    "quote_event_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "pattern": "^e[0-9]+$"
+                    }
+                  },
+                  "required": [
+                    "scope",
+                    "supplier_id",
+                    "quote_event_id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "outcome_id",
+              "awards",
+              "rationale"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "failure_conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "hard_constraints",
+        "required_checkpoints",
+        "acceptable_terminal_outcomes",
+        "failure_conditions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "episode_id",
+    "procurement_category",
+    "initial_state_ref",
+    "scenario",
+    "realism",
+    "objective",
+    "suppliers",
+    "events",
+    "oracle"
+  ],
+  "additionalProperties": false
+}
