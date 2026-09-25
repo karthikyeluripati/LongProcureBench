@@ -105,6 +105,18 @@ Terminal outcomes now carry an explicit `decision`:
 4. **DLA circuit breakers** — SDVOSB eligibility, withdrawal, delivery recovery.
 5. **Barrie transformer** — missing quantity/unit, buyer clarification, incomplete quote revision.
 
+## v0.2 batch 1
+
+Episodes 006–010 extend the suite to ten distinct real public starting states:
+
+6. **BFAR generator** — non-response, mandatory service scope, supplier question, quote revision.
+7. **Negros wire** — documented source-quantity ambiguity, buyer clarification, late offer, quantity correction.
+8. **Burauen generator** — budget/delivery constraints, supplier withdrawal, replacement revision.
+9. **High Point transformer** — alternate-policy ambiguity, missing schedule/budget clarification, standards compliance, delivery revision.
+10. **Painesville switchgear** — missing quantities, partial offers, split award, delivery revision.
+
+See [`episode-suite-v0.2.md`](episode-suite-v0.2.md) for the expansion rationale.
+
 ## Process-pattern references
 
 These references justify the event classes; they are not governing law for every episode:

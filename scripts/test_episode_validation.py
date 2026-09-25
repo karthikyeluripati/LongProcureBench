@@ -238,5 +238,23 @@ class EpisodeValidationTests(unittest.TestCase):
         ):
             validate_episode(record)
 
+
+    def test_v02_batch_has_ten_real_grounded_episodes(self):
+        paths = sorted(
+            (ROOT / "data/episodes/electrical").glob("*.json")
+        )
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in paths
+        ]
+        self.assertEqual(len(records), 10)
+        self.assertEqual(
+            len({
+                record["initial_state_ref"]["package_id"]
+                for record in records
+            }),
+            10,
+        )
+
 if __name__ == "__main__":
     unittest.main()

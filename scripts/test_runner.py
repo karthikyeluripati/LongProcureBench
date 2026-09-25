@@ -225,5 +225,21 @@ class RunnerTests(unittest.TestCase):
             "RuntimeError",
         )
 
+
+    def test_every_episode_has_reference_control(self):
+        episode_dir = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "episodes"
+            / "electrical"
+        )
+        episode_ids = {
+            path.stem for path in episode_dir.glob("*.json")
+        }
+        self.assertEqual(
+            set(ScriptedReferencePolicy.episode_ids()),
+            episode_ids,
+        )
+
 if __name__ == "__main__":
     unittest.main()
