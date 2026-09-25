@@ -3,6 +3,7 @@ name: OpenAI Baseline Smoke
 on:
   push:
     branches:
+      - main
       - codex/fix-openai-reasoning-pilot
     paths:
       - 'longprocurebench/litellm_client.py'
@@ -55,6 +56,7 @@ jobs:
           for model in models:
               policy = ReactiveLLMPolicy(
                   model,
+                  temperature=None,
                   reasoning_effort="medium",
               )
               policy.reset(state)

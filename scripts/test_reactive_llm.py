@@ -1,5 +1,6 @@
 """Regression tests for the reactive LLM baseline."""
 import unittest
+from unittest.mock import patch
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 from longprocurebench.reactive_llm import SEMANTIC_ACTION_SCHEMA
@@ -183,10 +184,10 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         self.assertLessEqual(len(slug.encode("utf-8")), 120)
         self.assertRegex(slug, r"--[0-9a-f]{10}$")
 
-    def test_litellm_client_omits_default_temperature(self):
-        client = LiteLLMClient("openai/gpt-5.6-sol")
-        self.assertIsNone(client.temperature)
-        self.assertEqual(client.reasoning_effort, "medium")
+    def test_litellm_client_preserves_provider_neutral_defaults(self):
+        client = LiteLLMClient("fake/model")
+        self.assertEqual(client.temperature, 0.0)
+        self.assertIsNone(client.reasoning_effort)
 
     def test_policy_records_reasoning_configuration(self):
         client = FakeActionClient([
@@ -195,6 +196,7 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         policy = ReactiveLLMPolicy(
             "fake/test-model",
             client=client,
+            temperature=None,
             reasoning_effort="medium",
         )
         policy.reset({})
@@ -202,6 +204,40 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         metrics = policy.get_run_metadata()
         self.assertIsNone(metrics["temperature"])
         self.assertEqual(metrics["reasoning_effort"], "medium")
+
+    @patch("longprocurebench.litellm_client.litellm.completion_cost", return_value=0.01)
+    @patch("longprocurebench.litellm_client.litellm.completion")
+    def test_default_request_forwards_temperature_without_reasoning(
+        self, mock_completion, mock_cost
+    ):
+        mock_completion.return_value = {
+            "choices": [{"message": {"content": "{\"type\": \"identify_suppliers\", \"supplier_id\": null, \"arguments\": {}}"}}],
+            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8},
+        }
+        client = LiteLLMClient("fake/model")
+        client.generate_action(messages=[{"role":"user","content":"x"}], action_schema={"type":"object"})
+        request = mock_completion.call_args.kwargs
+        self.assertEqual(request["temperature"], 0.0)
+        self.assertNotIn("reasoning_effort", request)
+
+    @patch("longprocurebench.litellm_client.litellm.completion_cost", return_value=0.01)
+    @patch("longprocurebench.litellm_client.litellm.completion")
+    def test_openai_reasoning_request_omits_temperature_and_forwards_effort(
+        self, mock_completion, mock_cost
+    ):
+        mock_completion.return_value = {
+            "choices": [{"message": {"content": "{\"type\": \"identify_suppliers\", \"supplier_id\": null, \"arguments\": {}}"}}],
+            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8},
+        }
+        client = LiteLLMClient(
+            "openai/gpt-5.6-sol",
+            temperature=None,
+            reasoning_effort="medium",
+        )
+        client.generate_action(messages=[{"role":"user","content":"x"}], action_schema={"type":"object"})
+        request = mock_completion.call_args.kwargs
+        self.assertNotIn("temperature", request)
+        self.assertEqual(request["reasoning_effort"], "medium")
 
 if __name__ == "__main__":
     unittest.main()

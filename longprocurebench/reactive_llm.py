@@ -101,8 +101,8 @@ Return only the structured action. Do not include reasoning or prose."""
         model: str,
         *,
         client: ActionModelClient | None = None,
-        temperature: float | None = None,
-        reasoning_effort: str | None = "medium",
+        temperature: float | None = 0.0,
+        reasoning_effort: str | None = None,
     ):
         self.model = model
         self.temperature = temperature

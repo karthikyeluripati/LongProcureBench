@@ -41,6 +41,9 @@ def main():
         help="Episode ID; repeat flag to run multiple. Defaults to all five.",
     )
     parser.add_argument("--max-actions", type=int, default=50)
+    parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument("--omit-temperature", action="store_true")
+    parser.add_argument("--reasoning-effort", default=None)
     parser.add_argument(
         "--output-dir",
         default="results/reactive-llm-v0.1",
@@ -52,9 +55,14 @@ def main():
     episodes = args.episodes or DEFAULT_EPISODES
     output_dir = Path(args.output_dir) / model_slug(args.model)
     execution_failures = 0
+    temperature = None if args.omit_temperature else args.temperature
 
     for episode_id in episodes:
-        policy = ReactiveLLMPolicy(args.model)
+        policy = ReactiveLLMPolicy(
+            args.model,
+            temperature=temperature,
+            reasoning_effort=args.reasoning_effort,
+        )
         result = runner.run(
             policy,
             episode_id,

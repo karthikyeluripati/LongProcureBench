@@ -128,7 +128,7 @@ def write_csv(rows, path):
             w.writerow(x)
 
 
-def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None, policy_factory=ReactiveLLMPolicy):
+def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None, policy_factory=ReactiveLLMPolicy, policy_kwargs=None):
     if not models:
         raise ValueError("At least one model is required")
     if repeats < 1:
@@ -139,11 +139,12 @@ def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None
     validated_episodes = [validate_episode_id(x) for x in episodes]
 
     runner = runner or BenchmarkRunner()
+    policy_kwargs = dict(policy_kwargs or {})
     rows = []
     for model in models:
         for episode_id in validated_episodes:
             for repeat in range(1, repeats + 1):
-                policy = policy_factory(model)
+                policy = policy_factory(model, **policy_kwargs)
                 rid = f"reactive-v0.1--{model_slug(model)}--{episode_id}--r{repeat:03d}"
                 path = output_dir / model_slug(model) / episode_id / f"run-{repeat:03d}.json"
                 result = runner.run(policy, episode_id, max_actions=max_actions, run_id=rid, result_path=path)
@@ -163,9 +164,23 @@ def main():
     p.add_argument("--episode", action="append", dest="episodes")
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--max-actions", type=int, default=50)
+    p.add_argument("--temperature", type=float, default=0.0)
+    p.add_argument("--omit-temperature", action="store_true")
+    p.add_argument("--reasoning-effort", default=None)
     p.add_argument("--output-dir", default="results/reactive-pilot-v0.1")
     a = p.parse_args()
-    run_pilot(a.models, a.episodes or DEFAULT_EPISODES, a.repeats, Path(a.output_dir), a.max_actions)
+    temperature = None if a.omit_temperature else a.temperature
+    run_pilot(
+        a.models,
+        a.episodes or DEFAULT_EPISODES,
+        a.repeats,
+        Path(a.output_dir),
+        a.max_actions,
+        policy_kwargs={
+            "temperature": temperature,
+            "reasoning_effort": a.reasoning_effort,
+        },
+    )
 
 
 if __name__ == "__main__":

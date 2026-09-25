@@ -60,3 +60,9 @@ The readable portion of the model directory is truncated before the stable hash 
 ## Complete token usage
 
 A call is considered to have complete usage only when both prompt-token and completion-token counts are present. If the provider omits total_tokens, the total is safely derived from those two counts. Any missing prompt/completion count sets usage_available=false and therefore usage_incomplete=true for the run.
+
+## Sampling and reasoning configuration
+
+The provider-neutral baseline preserves the original sampling default: temperature=0.0 and no reasoning-effort parameter. Reasoning effort is opt-in because not every provider/model accepts that parameter.
+
+The OpenAI GPT-5.6 pilot is an explicit exception: its workflow omits temperature and requests reasoning_effort=medium because GPT-5.6 reasoning rejects temperature=0 while reasoning is enabled. Both settings are recorded in policy_metrics so experiment configurations remain comparable and auditable.

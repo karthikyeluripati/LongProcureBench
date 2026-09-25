@@ -23,8 +23,8 @@ class LiteLLMClient:
         self,
         model: str,
         *,
-        temperature: float | None = None,
-        reasoning_effort: str | None = "medium",
+        temperature: float | None = 0.0,
+        reasoning_effort: str | None = None,
     ):
         if not isinstance(model, str) or not model:
             raise ValueError("model must be a non-empty string")
