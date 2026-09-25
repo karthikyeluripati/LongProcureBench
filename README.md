@@ -37,6 +37,14 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Batch 2 adds compound multi-obligation episodes; all 20 currently collected starting states are now used exactly once.
 - See [`docs/episode-suite-v0.2.md`](docs/episode-suite-v0.2.md).
 
+### Benchmark Data/Observability Freeze v0.1
+
+- Episodes 001–020 are explicitly frozen as **development/calibration**, because they were used while building the runtime, Evaluator v0.2, and fairness diagnostics.
+- The next ~10 distinct real public packages are reserved for a held-out paper evaluation slice.
+- `BENCHMARK_SPEC.md` freezes the real-vs-synthetic boundary, temporal visibility rules, leakage rules, and held-out collection gate.
+- `OBSERVABILITY_MATRIX.csv` audits every current episode.
+- `scripts/validate_benchmark_contract.py` enforces the matrix and split policy in CI.
+
 ### Deterministic Runtime v0.1
 
 - `reset(episode)` and `step(action)` execution environment.
@@ -122,7 +130,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
 - `data/initial_states/electrical/` — 20 real public starting states.
-- `data/episodes/electrical/` — 20 frozen benchmark episodes in the current v0.2 suite.
+- `data/episodes/electrical/` — 20 frozen development/calibration episodes in the current v0.2 suite.
+- `data/splits/electrical-v0.3-plan.json` — development/held-out collection plan.
+- `BENCHMARK_SPEC.md` — frozen benchmark grounding, visibility, leakage, and split contract.
+- `OBSERVABILITY_MATRIX.csv` — episode-level observability audit.
 - `docs/fields.md` — initial-state field guide.
 - `docs/initial-state-v0.1-report.md` — initial-state coverage and limitations.
 - `docs/episode-model.md` — reality boundary, action space, event ontology, and first five episodes.
@@ -142,6 +153,7 @@ python -m pip install -r requirements.txt
 python scripts/validate_dataset.py
 python scripts/validate_episodes.py
 python scripts/validate_evaluation.py
+python scripts/validate_benchmark_contract.py
 python scripts/run_reference.py
 python -m unittest discover -s scripts -p "test_*.py" -v
 ```
