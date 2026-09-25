@@ -1,4 +1,4 @@
-"""Validate the 20-package Initial State v0.1 candidate dataset."""
+"""Validate the committed electrical initial-state dataset."""
 import json
 from pathlib import Path
 import sys
@@ -20,9 +20,10 @@ def validate_record(record):
 
 def main():
     files = sorted((ROOT / "data/initial_states/electrical").glob("*.json"))
-    if len(files) != 20:
+    if len(files) < 20:
         raise ValueError(
-            f"Initial State v0.1 requires exactly 20 packages; found {len(files)}"
+            "The dataset must retain at least the 20 frozen development "
+            f"packages; found {len(files)}"
         )
     ids = set()
     count = 0

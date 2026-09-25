@@ -87,12 +87,17 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate_record(self.record)
 
-    def test_v01_has_twenty_unique_packages(self):
+    def test_electrical_initial_states_are_unique_and_retain_development_pool(self):
         paths = sorted((ROOT / 'data/initial_states/electrical').glob('*.json'))
-        self.assertEqual(len(paths), 20)
+        self.assertGreaterEqual(len(paths), 20)
         records = [json.loads(p.read_text(encoding='utf-8')) for p in paths]
-        self.assertEqual(len({r['package_id'] for r in records}), 20)
-        self.assertTrue(all(r['procurement_category'] == 'electrical' for r in records))
+        self.assertEqual(
+            len({r['package_id'] for r in records}),
+            len(records),
+        )
+        self.assertTrue(
+            all(r['procurement_category'] == 'electrical' for r in records)
+        )
 
     def test_source_snapshot_unavailable_requires_null_hash(self):
         record = copy.deepcopy(self.record)

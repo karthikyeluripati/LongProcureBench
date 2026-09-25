@@ -1,0 +1,95 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-eweb-rfp-25-030-g",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Eugene Water & Electric Board (EWEB)",
+    "project_name": "EWEB RFP 25-030-G 38 MVA Transformer",
+    "project_description": "Procurement of a 21/28/38 MVA generator step-up transformer for the International Paper Turbine Generator project.",
+    "location": "Lane County, Oregon, USA"
+  },
+  "package_subscope": "One 21/28/38 MVA GSU transformer with the public-notice requirements available in OregonBuys.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2025-03-20",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "21/28/38 MVA generator step-up transformer",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "21/28/38 MVA GSU transformer with a de-energized tap changer and natural ester fluid.",
+          "verbatim_excerpt": null,
+          "source_locator": "OregonBuys > Bulletin Description / Item Information"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2025-04-24 14:00 PT"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "EWEB RFP 25-030-G 38 MVA TRANSFORMER",
+      "url": "https://oregonbuys.gov/bso/external/bidDetail.sda?docId=S-P00140-00013272",
+      "document_type": "notice_html",
+      "issued_date": "2025-03-20",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/unit",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "OregonBuys bid header, bulletin description, and item information",
+      "interpretation": "Direct extraction or conservative paraphrase from the OregonBuys public solicitation page."
+    }
+  ],
+  "missing_information": [
+    {"field_path": "/line_items/0/manufacturer", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/model", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/acceptable_alternates", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_unit_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_total_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/total_estimated_budget", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/need_by_date", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/delivery_requirement", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/supplier_eligibility_constraints", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/certifications_compliance", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/supporting_documents/0/sha256", "reason": "source_snapshot_unavailable", "detail": "Raw source bytes were not captured; checksum intentionally omitted."},
+    {"field_path": "/line_items", "reason": "partial_extraction", "detail": "The public solicitation page is used as the initial-state evidence; detailed attached RFP clauses are not exhaustively extracted."}
+  ]
+}

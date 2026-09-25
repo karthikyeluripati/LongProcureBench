@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "OBSERVABILITY_MATRIX.csv"
 SPLIT_PATH = ROOT / "data/splits/electrical-v0.3-plan.json"
 EPISODE_DIR = ROOT / "data/episodes/electrical"
+INITIAL_STATE_DIR = ROOT / "data/initial_states/electrical"
 
 REQUIRED_COLUMNS = {
     "episode_id",
@@ -103,6 +104,16 @@ def load_episodes(root: Path = EPISODE_DIR) -> dict[str, dict]:
     return episodes
 
 
+def load_initial_states(root: Path = INITIAL_STATE_DIR) -> dict[str, dict]:
+    records = {}
+    for path in sorted(root.glob("*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if path.stem != record["package_id"]:
+            raise ValueError(f"Initial-state filename mismatch: {path.name}")
+        records[record["package_id"]] = record
+    return records
+
+
 def _expected_source_family(episode: dict) -> str:
     initial_path = ROOT / episode["initial_state_ref"]["path"]
     initial = json.loads(initial_path.read_text(encoding="utf-8"))
@@ -138,7 +149,9 @@ def validate_contract(
     rows: list[dict[str, str]],
     split: dict,
     episodes: dict[str, dict],
+    initial_states: dict[str, dict] | None = None,
 ) -> None:
+    initial_states = initial_states or load_initial_states()
     ids = [row["episode_id"] for row in rows]
     if len(ids) != len(set(ids)):
         raise ValueError("Observability matrix contains duplicate episode_id values")
@@ -172,6 +185,50 @@ def validate_contract(
         )
 
     held_out_config = split["held_out_test"]
+    initial_state_package_ids = held_out_config.get("initial_state_package_ids", [])
+    if not isinstance(initial_state_package_ids, list):
+        raise ValueError("Held-out initial_state_package_ids must be a list")
+    if len(initial_state_package_ids) != len(set(initial_state_package_ids)):
+        raise ValueError("Held-out initial-state package IDs must be unique")
+    missing_initial_states = set(initial_state_package_ids) - set(initial_states)
+    if missing_initial_states:
+        raise ValueError(
+            "Held-out split references missing initial states: "
+            f"{sorted(missing_initial_states)}"
+        )
+    development_package_ids = {
+        episode["initial_state_ref"]["package_id"]
+        for episode in episodes.values()
+        if episode["episode_id"] in FROZEN_DEVELOPMENT_EPISODES
+    }
+    reserved_package_ids = set(initial_state_package_ids)
+    overlap = development_package_ids & reserved_package_ids
+    if overlap:
+        raise ValueError(
+            "Held-out initial states cannot reuse development packages: "
+            f"{sorted(overlap)}"
+        )
+
+    collected_nondevelopment_package_ids = (
+        set(initial_states) - development_package_ids
+    )
+    if collected_nondevelopment_package_ids != reserved_package_ids:
+        missing_reservations = (
+            collected_nondevelopment_package_ids - reserved_package_ids
+        )
+        stale_reservations = (
+            reserved_package_ids - collected_nondevelopment_package_ids
+        )
+        raise ValueError(
+            "Held-out reservation list must exactly match collected "
+            "non-development initial states: "
+            f"missing_reservations={sorted(missing_reservations)}, "
+            f"stale_reservations={sorted(stale_reservations)}"
+        )
+
+    if len(initial_state_package_ids) > held_out_config.get("target_count", 0):
+        raise ValueError("Collected held-out initial states exceed target count")
+
     if held_out_config.get("target_count") != 10:
         raise ValueError("Held-out target count must remain 10 for the v0.3 plan")
     if held_out_config.get("reserved_numeric_suffixes") != list(range(21, 31)):
@@ -190,8 +247,17 @@ def validate_contract(
             raise ValueError(f"Invalid paper split for {episode_id}")
         if row["paper_split"] != expected_split[episode_id]:
             raise ValueError(f"Matrix/split disagreement for {episode_id}")
-        if row["package_id"] != episode["initial_state_ref"]["package_id"]:
+        episode_package_id = episode["initial_state_ref"]["package_id"]
+        if row["package_id"] != episode_package_id:
             raise ValueError(f"Package ID mismatch for {episode_id}")
+        if (
+            episode_id in held_out_set
+            and episode_package_id not in reserved_package_ids
+        ):
+            raise ValueError(
+                f"Held-out episode uses unreserved initial state: "
+                f"{episode_id} -> {episode_package_id}"
+            )
         if episode["initial_state_ref"]["grounding"] != "real_public":
             raise ValueError(f"Initial state is not real_public for {episode_id}")
         if row["initial_state_grounding"] != "real_public":
@@ -259,13 +325,15 @@ def main() -> None:
     rows = load_matrix()
     split = load_split()
     episodes = load_episodes()
-    validate_contract(rows, split, episodes)
+    initial_states = load_initial_states()
+    validate_contract(rows, split, episodes, initial_states)
     held_out = len(split["held_out_test"]["episode_ids"])
+    held_out_states = len(split["held_out_test"].get("initial_state_package_ids", []))
     print(
         f"Validated benchmark contract for {len(episodes)} episodes: "
         f"{len(split['development_calibration_episodes'])} development/calibration, "
-        f"{held_out} held-out collected, "
-        f"{split['held_out_test']['target_count'] - held_out} held-out remaining."
+        f"{held_out_states} held-out initial states collected, "
+        f"{held_out} held-out episodes frozen."
     )
 
 

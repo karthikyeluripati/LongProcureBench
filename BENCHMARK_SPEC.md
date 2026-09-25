@@ -14,8 +14,11 @@ data.
 
 The next benchmark-scale target is approximately 30 episodes. The next ten
 distinct real public starting states are reserved for a held-out paper evaluation
-slice. Once those held-out episodes are frozen, evaluator semantics and agent
-architecture choices must not be tuned on their results.
+slice. The real starting states are collected first, while the stronger-agent
+design is still restricted to episodes 001–020. The held-out synthetic event and
+oracle layer is authored only after that stronger-agent design is frozen. Once
+those held-out episodes exist, evaluator semantics and agent architecture choices
+must not be tuned on their results.
 
 The machine-readable split policy is in
 `data/splits/electrical-v0.3-plan.json`.
@@ -125,10 +128,12 @@ committed episodes and initial states in CI.
 
 Before adding episodes 021–030:
 
-- collect a distinct real public procurement starting state for every episode;
+- collect and freeze ten distinct real public procurement starting states;
 - preserve field-level provenance and missingness;
-- construct the episode without using outcomes from a model under evaluation;
-- update the observability matrix;
+- design/freeze stronger agents using development episodes 001–020 only;
+- only then construct the held-out synthetic event/oracle layer without using
+  outcomes from a model under evaluation;
+- update the observability matrix when those held-out episodes are created;
 - keep the held-out slice sealed from evaluator and architecture tuning once
   frozen.
 
