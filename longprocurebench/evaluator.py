@@ -17,6 +17,29 @@ class EvaluationError(ValueError):
 
 class LongProcureBenchEvaluator:
     QUOTE_TYPES = {"quote_received", "quote_revision"}
+    REVISION_SOURCE_TYPES = {
+        "quote_received",
+        "quote_revision",
+        "substitution_proposed",
+    }
+    EVENT_OBLIGATIONS = {
+        "follow_up_nonresponse": {"supplier_non_response"},
+        "handle_supplier_question": {"supplier_question"},
+        "handle_amendment": {"requirement_change", "quantity_change"},
+        "recover_from_withdrawal": {"supplier_withdrawal"},
+    }
+    STARTING_STATE_OBLIGATIONS = {"resolve_requirement_gap"}
+    BRANCH_OBLIGATIONS = {"request_quote_revision"}
+    PROXY_CHECKPOINTS = {
+        "normalize_quotes",
+        "validate_eligibility",
+        "validate_compliance",
+    }
+    PROCEDURAL_CHECKPOINTS = {
+        "solicit_competition",
+        "evaluate_quotes",
+        "award_or_recommend",
+    }
 
     def __init__(self, repo_root: str | Path | None = None):
         self.repo_root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[1]
@@ -373,6 +396,527 @@ class LongProcureBenchEvaluator:
             "results": results,
         }
 
+    @staticmethod
+    def _trace_observations(trace):
+        return [
+            (row["step"], event)
+            for row in trace
+            for event in row["observations"]
+        ]
+
+    @staticmethod
+    def _trace_horizon(trace):
+        return trace[-1]["step"] if trace else 0
+
+    @staticmethod
+    def _terminal_awards(final_state):
+        terminal = final_state.get("terminal")
+        if not terminal or terminal.get("decision") != "award":
+            return []
+        return list(terminal.get("awards", []))
+
+    @staticmethod
+    def _obligation_record(
+        *,
+        obligation_id,
+        checkpoint,
+        category,
+        status,
+        detail,
+        trigger_event_id=None,
+        supplier_id=None,
+        trigger_step=None,
+        resolution_step=None,
+        applicability_reason=None,
+    ):
+        actionable = status in {"resolved", "unresolved"}
+        return {
+            "obligation_id": obligation_id,
+            "checkpoint": checkpoint,
+            "category": category,
+            "status": status,
+            "applicable": status != "not_applicable",
+            "actionable": actionable,
+            "resolved": (
+                True if status == "resolved"
+                else False if status == "unresolved"
+                else None
+            ),
+            "trigger_event_id": trigger_event_id,
+            "supplier_id": supplier_id,
+            "trigger_step": trigger_step,
+            "resolution_step": resolution_step,
+            "applicability_reason": applicability_reason,
+            "detail": detail,
+        }
+
+    def _event_obligation_records(
+        self,
+        name,
+        trace,
+        final_state,
+        terminal_result,
+        hard,
+    ):
+        trigger_types = self.EVENT_OBLIGATIONS[name]
+        observations = self._trace_observations(trace)
+        triggers = [
+            (step, event)
+            for step, event in observations
+            if event["type"] in trigger_types
+        ]
+        if not triggers:
+            return [self._obligation_record(
+                obligation_id=f"{name}:na",
+                checkpoint=name,
+                category="event_obligation",
+                status="not_applicable",
+                detail="No matching trigger event was revealed.",
+                applicability_reason="trigger_not_revealed",
+            )]
+
+        horizon = self._trace_horizon(trace)
+        actions = [row["action"] for row in trace]
+        terminal_awards = self._terminal_awards(final_state)
+        records = []
+
+        for step, event in triggers:
+            event_id = event["event_id"]
+            supplier_id = event.get("supplier_id")
+            obligation_id = f"{name}:{event_id}"
+
+            if step >= horizon:
+                records.append(self._obligation_record(
+                    obligation_id=obligation_id,
+                    checkpoint=name,
+                    category="event_obligation",
+                    status="no_opportunity",
+                    detail=(
+                        f"Trigger {event_id} was revealed at the final accepted "
+                        f"step {step}; no later action opportunity existed."
+                    ),
+                    trigger_event_id=event_id,
+                    supplier_id=supplier_id,
+                    trigger_step=step,
+                    applicability_reason="matching_event_revealed",
+                ))
+                continue
+
+            resolution_step = None
+            detail = None
+
+            if name == "follow_up_nonresponse":
+                resolution_step = next(
+                    (
+                        row["step"]
+                        for row in trace
+                        if row["step"] > step
+                        and row["action"]["type"] == "send_follow_up"
+                        and row["action"]["supplier_id"] == supplier_id
+                    ),
+                    None,
+                )
+                detail = (
+                    f"Follow-up after non-response from {supplier_id}."
+                )
+            elif name == "handle_supplier_question":
+                resolution_step = next(
+                    (
+                        row["step"]
+                        for row in trace
+                        if row["step"] > step
+                        and row["action"]["type"] == "answer_supplier_question"
+                        and row["action"]["supplier_id"] == supplier_id
+                    ),
+                    None,
+                )
+                detail = (
+                    f"Answer after supplier question from {supplier_id}."
+                )
+            elif name == "handle_amendment":
+                amendment_step = next(
+                    (
+                        row["step"]
+                        for row in trace
+                        if row["step"] > step
+                        and row["action"]["type"] == "issue_amendment"
+                    ),
+                    None,
+                )
+                if amendment_step is not None:
+                    if terminal_awards:
+                        event_steps = {
+                            observed["event_id"]: observed_step
+                            for observed_step, observed in observations
+                        }
+                        awarded_steps = [
+                            event_steps.get(award["quote_event_id"])
+                            for award in terminal_awards
+                        ]
+                        fresh = (
+                            all(x is not None for x in awarded_steps)
+                            and all(x > amendment_step for x in awarded_steps)
+                        )
+                        if fresh:
+                            resolution_step = max(awarded_steps)
+                            detail = (
+                                f"Amendment at step {amendment_step}; all "
+                                "awarded quotes were revealed afterward."
+                            )
+                        else:
+                            detail = (
+                                f"Amendment at step {amendment_step}, but "
+                                f"awarded quote steps {awarded_steps} were not "
+                                "all post-amendment."
+                            )
+                    else:
+                        resolution_step = amendment_step
+                        detail = f"Amendment issued at step {amendment_step}."
+                else:
+                    detail = "No amendment was issued after the revealed change."
+            elif name == "recover_from_withdrawal":
+                withdrawn_supplier = supplier_id
+                selected_withdrawn = any(
+                    award["supplier_id"] == withdrawn_supplier
+                    for award in terminal_awards
+                )
+                recovered = (
+                    terminal_result["correct"]
+                    and hard["all_passed"]
+                    and not selected_withdrawn
+                )
+                if recovered:
+                    resolution_step = horizon
+                    detail = (
+                        "Terminal decision restored a feasible hard-constraint-"
+                        "satisfying path without awarding the withdrawn supplier."
+                    )
+                else:
+                    detail = (
+                        "No feasible hard-constraint-satisfying terminal "
+                        "recovery path was established after withdrawal."
+                    )
+            else:
+                raise EvaluationError(f"Unknown event obligation: {name}")
+
+            records.append(self._obligation_record(
+                obligation_id=obligation_id,
+                checkpoint=name,
+                category="event_obligation",
+                status="resolved" if resolution_step is not None else "unresolved",
+                detail=detail,
+                trigger_event_id=event_id,
+                supplier_id=supplier_id,
+                trigger_step=step,
+                resolution_step=resolution_step,
+                applicability_reason="matching_event_revealed",
+            ))
+        return records
+
+    def _requirement_gap_records(self, trace):
+        name = "resolve_requirement_gap"
+        horizon = self._trace_horizon(trace)
+        if horizon == 0:
+            return [self._obligation_record(
+                obligation_id=f"{name}:initial",
+                checkpoint=name,
+                category="starting_state_obligation",
+                status="no_opportunity",
+                detail="No accepted action opportunity was present.",
+                trigger_step=0,
+                applicability_reason="visible_from_initial_state",
+            )]
+
+        clarification_step = next(
+            (
+                row["step"]
+                for row in trace
+                if any(
+                    event["type"] == "buyer_clarification"
+                    for event in row["observations"]
+                )
+            ),
+            None,
+        )
+        first_rfq_step = next(
+            (
+                row["step"]
+                for row in trace
+                if row["action"]["type"] == "send_rfq"
+            ),
+            None,
+        )
+        resolved = (
+            clarification_step is not None
+            and (
+                first_rfq_step is None
+                or clarification_step < first_rfq_step
+            )
+        )
+        return [self._obligation_record(
+            obligation_id=f"{name}:initial",
+            checkpoint=name,
+            category="starting_state_obligation",
+            status="resolved" if resolved else "unresolved",
+            detail=(
+                f"clarification_step={clarification_step}, "
+                f"first_rfq_step={first_rfq_step}"
+            ),
+            trigger_step=0,
+            resolution_step=clarification_step if resolved else None,
+            applicability_reason="visible_from_initial_state",
+        )]
+
+    def _revision_obligation_records(
+        self,
+        episode,
+        trace,
+        final_state,
+    ):
+        name = "request_quote_revision"
+        awards = self._terminal_awards(final_state)
+        if not awards:
+            return [self._obligation_record(
+                obligation_id=f"{name}:na",
+                checkpoint=name,
+                category="branch_conditional",
+                status="not_applicable",
+                detail="No terminal award path selected.",
+                applicability_reason="no_selected_award_path",
+            )]
+
+        by_event = {
+            event["event_id"]: event
+            for event in episode["events"]
+        }
+        event_steps = {
+            event["event_id"]: step
+            for step, event in self._trace_observations(trace)
+        }
+        acceptable_triplets = {
+            (
+                award["supplier_id"],
+                award["scope"],
+                award["quote_event_id"],
+            )
+            for outcome in episode["oracle"]["acceptable_terminal_outcomes"]
+            for award in outcome.get("awards", [])
+        }
+        revision_repairs = {}
+        for outcome in episode["oracle"]["acceptable_terminal_outcomes"]:
+            for award in outcome.get("awards", []):
+                event = by_event.get(award["quote_event_id"])
+                if event and event["type"] == "quote_revision":
+                    revision_repairs.setdefault(
+                        (award["supplier_id"], award["scope"]),
+                        set(),
+                    ).add(award["quote_event_id"])
+
+        needs = {}
+        for award in awards:
+            supplier_id = award["supplier_id"]
+            scope = award["scope"]
+            event_id = award["quote_event_id"]
+            event = by_event.get(event_id)
+            if event is None:
+                continue
+
+            reason = None
+            if event["type"] == "quote_revision":
+                reason = "selected_award_uses_revision"
+            elif (
+                (supplier_id, scope, event_id) not in acceptable_triplets
+                and (supplier_id, scope) in revision_repairs
+            ):
+                reason = "selected_original_offer_has_revision_repair_path"
+
+            if reason is None:
+                continue
+
+            trigger_step = event_steps.get(event_id)
+            if event["type"] == "quote_revision":
+                request_step = next(
+                    (
+                        row["step"]
+                        for row in trace
+                        if row["action"]["type"] == "request_quote_revision"
+                        and row["action"]["supplier_id"] == supplier_id
+                        and row["step"] <= event_steps.get(event_id, row["step"])
+                    ),
+                    None,
+                )
+                prior_offer_steps = [
+                    observed_step
+                    for observed_step, observed in self._trace_observations(trace)
+                    if observed_step < (request_step or 10**9)
+                    and observed.get("supplier_id") == supplier_id
+                    and observed["type"] in self.REVISION_SOURCE_TYPES
+                ]
+                if prior_offer_steps:
+                    trigger_step = max(prior_offer_steps)
+
+            current = needs.get(supplier_id)
+            candidate = {
+                "supplier_id": supplier_id,
+                "trigger_step": trigger_step,
+                "reason": reason,
+                "selected_event_ids": {event_id},
+            }
+            if current is None:
+                needs[supplier_id] = candidate
+            else:
+                current["selected_event_ids"].add(event_id)
+                if (
+                    trigger_step is not None
+                    and (
+                        current["trigger_step"] is None
+                        or trigger_step < current["trigger_step"]
+                    )
+                ):
+                    current["trigger_step"] = trigger_step
+                if reason == "selected_award_uses_revision":
+                    current["reason"] = reason
+
+        if not needs:
+            return [self._obligation_record(
+                obligation_id=f"{name}:na",
+                checkpoint=name,
+                category="branch_conditional",
+                status="not_applicable",
+                detail=(
+                    "Selected award path is feasible without a quote revision."
+                ),
+                applicability_reason="selected_path_does_not_require_revision",
+            )]
+
+        horizon = self._trace_horizon(trace)
+        records = []
+        for supplier_id, need in sorted(needs.items()):
+            trigger_step = need["trigger_step"]
+            obligation_id = f"{name}:{supplier_id}"
+            if trigger_step is None or trigger_step >= horizon:
+                records.append(self._obligation_record(
+                    obligation_id=obligation_id,
+                    checkpoint=name,
+                    category="branch_conditional",
+                    status="no_opportunity",
+                    detail=(
+                        "Revision need became applicable without a later "
+                        "accepted action opportunity."
+                    ),
+                    supplier_id=supplier_id,
+                    trigger_step=trigger_step,
+                    applicability_reason=need["reason"],
+                ))
+                continue
+
+            request_step = next(
+                (
+                    row["step"]
+                    for row in trace
+                    if row["step"] > trigger_step
+                    and row["action"]["type"] == "request_quote_revision"
+                    and row["action"]["supplier_id"] == supplier_id
+                ),
+                None,
+            )
+            records.append(self._obligation_record(
+                obligation_id=obligation_id,
+                checkpoint=name,
+                category="branch_conditional",
+                status="resolved" if request_step is not None else "unresolved",
+                detail=(
+                    f"selected_events={sorted(need['selected_event_ids'])}, "
+                    f"request_step={request_step}"
+                ),
+                supplier_id=supplier_id,
+                trigger_step=trigger_step,
+                resolution_step=request_step,
+                applicability_reason=need["reason"],
+            ))
+        return records
+
+    def _obligations(
+        self,
+        episode,
+        trace,
+        final_state,
+        terminal_result,
+        hard,
+    ):
+        records = []
+        required = episode["oracle"]["required_checkpoints"]
+
+        for name in required:
+            if name in self.EVENT_OBLIGATIONS:
+                records.extend(self._event_obligation_records(
+                    name,
+                    trace,
+                    final_state,
+                    terminal_result,
+                    hard,
+                ))
+            elif name in self.STARTING_STATE_OBLIGATIONS:
+                records.extend(self._requirement_gap_records(trace))
+            elif name in self.BRANCH_OBLIGATIONS:
+                records.extend(self._revision_obligation_records(
+                    episode,
+                    trace,
+                    final_state,
+                ))
+
+        encountered = sum(
+            record["status"] != "not_applicable"
+            for record in records
+        )
+        actionable = sum(record["actionable"] for record in records)
+        resolved = sum(record["status"] == "resolved" for record in records)
+        unresolved = sum(record["status"] == "unresolved" for record in records)
+        no_opportunity = sum(
+            record["status"] == "no_opportunity"
+            for record in records
+        )
+        not_applicable = sum(
+            record["status"] == "not_applicable"
+            for record in records
+        )
+        return {
+            "version": "0.2.0",
+            "encountered": encountered,
+            "actionable": actionable,
+            "resolved": resolved,
+            "unresolved": unresolved,
+            "no_opportunity": no_opportunity,
+            "not_applicable": not_applicable,
+            "resolution_rate": (
+                resolved / actionable if actionable else None
+            ),
+            "all_actionable_resolved": unresolved == 0,
+            "has_actionable_obligations": actionable > 0,
+            "results": records,
+        }
+
+    def _checkpoint_diagnostics(self, checkpoints):
+        def summarize(names):
+            results = [
+                result
+                for result in checkpoints["results"]
+                if result["checkpoint"] in names
+            ]
+            return {
+                "completed": sum(result["complete"] for result in results),
+                "total": len(results),
+                "all_completed": all(
+                    result["complete"] for result in results
+                ) if results else True,
+                "results": results,
+            }
+
+        return {
+            "proxy": summarize(self.PROXY_CHECKPOINTS),
+            "procedural": summarize(self.PROCEDURAL_CHECKPOINTS),
+        }
+
     def evaluate_actions(self, episode_id: str, actions: list[dict[str, Any]]) -> dict[str, Any]:
         env = LongProcureBenchEnv(repo_root=self.repo_root)
         episode = env.load_episode(episode_id)
@@ -389,14 +933,38 @@ class LongProcureBenchEvaluator:
             and checkpoints["all_completed"]
         )
         success = feasible_process_success and economic["satisfied"]
+
+        obligations = self._obligations(
+            episode,
+            trace,
+            final_state,
+            terminal,
+            hard,
+        )
+        diagnostics = self._checkpoint_diagnostics(checkpoints)
+        feasible_obligation_success = (
+            terminal["correct"]
+            and hard["all_passed"]
+            and obligations["all_actionable_resolved"]
+        )
+        episode_success_v02 = (
+            feasible_obligation_success
+            and economic["satisfied"]
+        )
+
         return {
             "episode_id": episode_id,
+            "evaluation_version": "0.2.0",
             "episode_success": success,
             "feasible_process_success": feasible_process_success,
+            "episode_success_v02": episode_success_v02,
+            "feasible_obligation_success": feasible_obligation_success,
             "terminal_outcome": terminal,
             "economic_objective": economic,
             "hard_constraints": hard,
             "required_checkpoints": checkpoints,
+            "obligations": obligations,
+            "checkpoint_diagnostics": diagnostics,
             "constraint_violations": violations,
             "efficiency": {"accepted_actions": len(final_state["action_history"])},
             "terminated": final_state["terminated"],
