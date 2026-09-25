@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "suite": "electrical",
-  "status": "pre_holdout_collection",
+  "status": "holdout_collection_in_progress",
   "development_calibration_episodes": [
     "electrical-bongabon-generator-001",
     "electrical-national-museum-lighting-002",
@@ -40,7 +40,14 @@
       29,
       30
     ],
-    "freeze_rule": "Each held-out episode must use a distinct newly collected real public initial state. After the held-out slice is frozen, evaluator semantics and agent architecture choices must not be tuned against its results."
+    "freeze_rule": "Held-out initial states are collected before stronger-agent design. The synthetic long-horizon episodes for these states are authored only after the stronger-agent design is frozen, then used for final evaluation without tuning evaluator semantics or architecture choices against their results.",
+    "initial_state_package_ids": [
+      "us-columbus-rfq029445",
+      "us-eweb-rfp-25-030-g",
+      "us-lompoc-rfq-3099",
+      "us-njang-w50s8f26qa022",
+      "us-port-angeles-mec-2025-18"
+    ]
   },
   "collection_gate": {
     "distinct_real_public_initial_state_per_episode": true,
