@@ -1,0 +1,279 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-highpoint-transformer-009",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-high-point-8017-112221",
+    "path": "data/initial_states/electrical/us-high-point-8017-112221.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Transformer buy with alternate-policy and schedule clarification",
+    "summary": "The real solicitation specifies five 300 kVA transformers but leaves delivery and budget unpriced and contains conflicting whole-unit substitution language. The agent must obtain a controlled buyer clarification before sourcing and then correct a late otherwise-compliant offer.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The quantity and technical/standards requirements come from the real High Point solicitation. The USD 300,000 price ceiling and 210-day delivery ceiling are synthetic controlled clarification values because the public bid form leaves those fields bidder-provided.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-hp-xfmr-a",
+      "display_name": "Synthetic High Point Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-hp-xfmr-b",
+      "display_name": "Synthetic High Point Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "noncompliant",
+      "notes": "Fails the required ANSI/DOE compliance package."
+    },
+    {
+      "supplier_id": "syn-hp-xfmr-c",
+      "display_name": "Synthetic High Point Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic benchmark clarification: whole-unit equivalents are acceptable only if all cited ANSI/DOE requirements are met; maximum total price is USD 300,000 and maximum delivery is 210 days.",
+      "details": {
+        "quantity": 5,
+        "max_total_price_usd": 300000,
+        "max_lead_time_days": 210,
+        "whole_unit_equivalents_allowed_if_compliant": true
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-hp-xfmr-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hp-xfmr-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 285,000 for five units with 190-day delivery and full cited standards compliance.",
+      "details": {
+        "currency": "USD",
+        "total_price": 285000,
+        "quantity": 5,
+        "lead_time_days": 190,
+        "standards_compliant": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-hp-xfmr-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hp-xfmr-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 260,000 with 180-day delivery but does not satisfy the cited ANSI/DOE compliance package.",
+      "details": {
+        "currency": "USD",
+        "total_price": 260000,
+        "quantity": 5,
+        "lead_time_days": 180,
+        "standards_compliant": false,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-hp-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hp-xfmr-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 270,000 for five compliant equivalent units but requires 220 days.",
+      "details": {
+        "currency": "USD",
+        "total_price": 270000,
+        "quantity": 5,
+        "lead_time_days": 220,
+        "standards_compliant": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-hp-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-hp-xfmr-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to USD 275,000 with 205-day delivery, preserving full standards compliance.",
+      "details": {
+        "currency": "USD",
+        "total_price": 275000,
+        "quantity": 5,
+        "lead_time_days": 205,
+        "standards_compliant": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The missing schedule/budget and whole-unit alternate ambiguity must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real estimated quantity of five transformers."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Award must satisfy the cited transformer standards/compliance requirements."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Synthetic benchmark delivery ceiling is 210 days after clarification."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Synthetic benchmark total-price ceiling is USD 300,000 after clarification."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-hp-xfmr-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C's revision satisfies quantity, standards, synthetic delivery, and synthetic budget requirements at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-hp-xfmr-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A is also feasible but costs more than Supplier C's compliant revision.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before resolving the documented gaps/alternate ambiguity.",
+      "Awarding Supplier B despite standards noncompliance.",
+      "Awarding Supplier C's original 220-day quote."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active package offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

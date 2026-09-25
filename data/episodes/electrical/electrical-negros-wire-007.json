@@ -1,0 +1,274 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-negros-wire-007",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-negros-oriental-12937154",
+    "path": "data/initial_states/electrical/ph-negros-oriental-12937154.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Streetlighting wire buy with source-quantity ambiguity",
+    "summary": "The real public starting state contains a conflict between a structured one-lot quantity and narrative roll count. The agent must obtain buyer clarification before RFQ, then reject late and wrong-quantity offers.",
+    "difficulty": "medium",
+    "tags": [
+      "requirement_gap",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "budget_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The initial one-lot versus narrative-roll conflict is real and retained in the source record. The 81-roll resolution is a synthetic controlled clarification for this benchmark episode, not a historical claim about the buyer.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-negros-a",
+      "display_name": "Synthetic Wire Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-negros-b",
+      "display_name": "Synthetic Wire Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-negros-c",
+      "display_name": "Synthetic Wire Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initial quote under-covers the clarified roll quantity."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification for this benchmark episode: evaluate the requirement as 81 rolls of #6 service-drop wire, 500 m per roll.",
+      "details": {
+        "clarified_rolls": 81,
+        "roll_length_m": 500,
+        "item_id": "1"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-negros-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-negros-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes PHP 1,420,000 for 81 rolls with 9-working-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 1420000,
+        "lead_time_working_days": 9,
+        "rolls": 81,
+        "roll_length_m": 500,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-negros-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-negros-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes PHP 1,360,000 for 81 rolls but requires 12 working days.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 1360000,
+        "lead_time_working_days": 12,
+        "rolls": 81,
+        "roll_length_m": 500,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-negros-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-negros-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes PHP 1,380,000 with 8-working-day delivery but only 80 rolls.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 1380000,
+        "lead_time_working_days": 8,
+        "rolls": 80,
+        "roll_length_m": 500,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-negros-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-negros-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to 81 rolls at PHP 1,410,000 with the same 8-working-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 1410000,
+        "lead_time_working_days": 8,
+        "rolls": 81,
+        "roll_length_m": 500,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The source quantity ambiguity must be resolved by buyer clarification before any RFQ is sent."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "Award must satisfy the clarified benchmark quantity of 81 rolls at 500 m per roll."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Awarded price must not exceed the real PHP 1,499,999.50 buyer budget."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 10-working-day requirement."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-negros-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C's revision satisfies the clarified quantity, real budget, and real delivery requirement at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-negros-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A also satisfies the clarified quantity, real budget, and delivery requirement but costs more.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before resolving the public-source quantity conflict.",
+      "Awarding Supplier B despite 12-working-day delivery.",
+      "Awarding Supplier C's original 80-roll quote."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active package offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

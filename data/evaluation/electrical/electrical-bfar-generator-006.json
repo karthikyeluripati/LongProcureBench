@@ -1,0 +1,89 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-bfar-generator-006",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "total_price",
+          "value": 150000,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 15,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "quantity",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_min",
+          "scope": null,
+          "path": "warranty_months",
+          "value": 12,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "testing_commissioning",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "quarterly_maintenance",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_latest",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

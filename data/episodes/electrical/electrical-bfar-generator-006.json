@@ -1,0 +1,293 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-bfar-generator-006",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-bfar5bac-2024-007",
+    "path": "data/initial_states/electrical/ph-bfar5bac-2024-007.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Two-generator buy with non-response and service-scope correction",
+    "summary": "Three synthetic suppliers compete for the real two-unit 5 kVA generator requirement. The agent must follow up a non-responder and correct a quote that omits the required quarterly maintenance service before award.",
+    "difficulty": "medium",
+    "tags": [
+      "supplier_non_response",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, prices, and event timing are synthetic. The two-unit quantity, PHP 150,000 budget, 15-day delivery requirement, one-year warranty, testing/commissioning, and quarterly-maintenance requirement come from the cited real public starting state.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-bfar-a",
+      "display_name": "Synthetic BFAR Generator Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-bfar-b",
+      "display_name": "Synthetic BFAR Generator Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-bfar-c",
+      "display_name": "Synthetic BFAR Generator Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially non-responsive; first quote omits the required quarterly maintenance checks."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bfar-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes PHP 145,000 for two generators, 12-day delivery, one-year warranty, testing/commissioning, and quarterly maintenance checks.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 145000,
+        "lead_time_days": 12,
+        "quantity": 2,
+        "warranty_months": 12,
+        "testing_commissioning": true,
+        "quarterly_maintenance": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bfar-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes PHP 138,000 with 18-day delivery; service and warranty requirements are otherwise met.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 138000,
+        "lead_time_days": 18,
+        "quantity": 2,
+        "warranty_months": 12,
+        "testing_commissioning": true,
+        "quarterly_maintenance": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bfar-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond during the normal quotation window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-bfar-c",
+        "step": null
+      },
+      "observation": "After follow-up, Supplier C quotes PHP 136,000 with 14-day delivery and one-year warranty, but omits the free quarterly maintenance checks.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 136000,
+        "lead_time_days": 14,
+        "quantity": 2,
+        "warranty_months": 12,
+        "testing_commissioning": true,
+        "quarterly_maintenance": false,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-bfar-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the quarterly maintenance checks are mandatory in the supplier scope.",
+      "details": {
+        "question": "Are the free quarterly maintenance checks mandatory?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-bfar-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-bfar-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to PHP 141,000, keeps 14-day delivery and one-year warranty, and includes testing/commissioning plus the quarterly maintenance checks.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 141000,
+        "lead_time_days": 14,
+        "quantity": 2,
+        "warranty_months": 12,
+        "testing_commissioning": true,
+        "quarterly_maintenance": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded total price must not exceed the real PHP 150,000 approved budget."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 15-calendar-day requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Award must include two generators, one-year warranty, testing/commissioning, and the stated quarterly maintenance service."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-bfar-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier C's revision satisfies the real price, delivery, quantity, warranty, testing, and maintenance requirements at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-bfar-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A is also fully feasible but costs more than Supplier C's compliant revision.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding Supplier B despite its 18-day delivery.",
+      "Awarding Supplier C's original quote without quarterly maintenance.",
+      "Awarding above the real PHP 150,000 budget."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active package offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
