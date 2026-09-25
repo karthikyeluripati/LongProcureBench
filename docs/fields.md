@@ -57,10 +57,10 @@ missing-information note. URI validation checks syntax offline, not link reachab
 | `schedule.bid_submission_deadline` | Optional value | Source-stated bidding deadline retained separately as context. |
 | `supplier_eligibility_constraints` | Optional value | Known eligibility requirements; null if unavailable. |
 | `certifications_compliance` | Optional value | Known compliance requirements; not a certification of any supplier. |
-| `supporting_documents` | Required | Primary-source document catalog. |
+| `supporting_documents` | Required | Source document catalog. Prefer primary buyer sources; a clearly labeled dated archival mirror may supplement a mutable primary page to freeze the reviewed version. |
 | `supporting_documents[].document_id` | Required | Local identifier used by provenance references. |
 | `supporting_documents[].title` | Required | Human-readable source title. |
-| `supporting_documents[].url` | Required | Original primary-source location. |
+| `supporting_documents[].url` | Required | Source location. Primary buyer URLs are preferred; archival mirrors must be explicitly identified in `snapshot_policy`. |
 | `supporting_documents[].document_type` | Required | Source medium. |
 | `supporting_documents[].issued_date` | Optional value | Original issue/publication date, not retrieval date. |
 | `supporting_documents[].retrieved_date` | Required | Date source bytes were retrieved. |
