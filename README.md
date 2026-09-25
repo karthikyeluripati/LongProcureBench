@@ -16,10 +16,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 ### Initial-state dataset
 
 - 20 real public electrical procurement starting states back development/calibration episodes 001–020.
-- 5 additional real public starting states are now reserved for the future held-out slice; no held-out synthetic episodes have been authored yet.
+- 10 additional real public starting states are now frozen for the future held-out slice; no held-out synthetic episodes have been authored yet.
 - Multiple source families and electrical subtypes.
 - Strict provenance, missingness, and no-outcome-leakage checks.
-- See [`docs/initial-state-v0.1-report.md`](docs/initial-state-v0.1-report.md) and [`docs/heldout-initial-state-batch-1.md`](docs/heldout-initial-state-batch-1.md).
+- See [`docs/initial-state-v0.1-report.md`](docs/initial-state-v0.1-report.md), [`docs/heldout-initial-state-batch-1.md`](docs/heldout-initial-state-batch-1.md), and [`docs/heldout-initial-state-batch-2.md`](docs/heldout-initial-state-batch-2.md).
 
 ### Episode Model v0.1
 
@@ -130,7 +130,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
-- `data/initial_states/electrical/` — 25 real public starting states: 20 development/calibration + 5 held-out-state reservations.
+- `data/initial_states/electrical/` — 30 real public starting states: 20 development/calibration + 10 frozen held-out-state reservations.
 - `data/episodes/electrical/` — 20 frozen development/calibration episodes in the current v0.2 suite.
 - `data/splits/electrical-v0.3-plan.json` — development/held-out collection plan.
 - `BENCHMARK_SPEC.md` — frozen benchmark grounding, visibility, leakage, and split contract.
