@@ -1,0 +1,101 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-columbus-rfq029445",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Columbus, Department of Public Utilities",
+    "project_name": "Distribution Switchgear UTC (RFQ029445)",
+    "project_description": "Universal Term Contract for medium-voltage outdoor pad-mounted underground electric distribution switchgear for municipal use.",
+    "location": "Various outdoor locations within Columbus, Ohio, USA"
+  },
+  "package_subscope": "Medium-voltage outdoor pad-mounted underground distribution switchgear; City employees perform installation.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2025-01-18",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Medium-voltage outdoor pad-mounted underground electric distribution switchgear",
+      "quantity": null,
+      "quantity_basis": null,
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "Complete operational medium-voltage outdoor pad-mounted underground distribution switchgear with required accessories/components for City outdoor locations.",
+          "verbatim_excerpt": null,
+          "source_locator": "City Bulletin Jan. 18, 2025 > RFQ029445"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": [
+        "Only models listed in the specification or approved equals will be considered."
+      ],
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2025-01-23 11:00 ET"
+  },
+  "supplier_eligibility_constraints": [
+    "Bidder must show five years of experience providing these materials and/or warranty service.",
+    "Bidder must document successful contracts from at least four customers similar in scope, complexity, and cost."
+  ],
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Columbus City Bulletin - RFQ029445 Distribution Switchgear UTC",
+      "url": "https://www.columbus.gov/files/sharedassets/city/v/1/city-council/documents/city-bulletins/2025/bulletin20250118.pdf",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2025-01-18",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/line_items/0/acceptable_alternates/0",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1"
+      ],
+      "document_id": "source-1",
+      "locator": "Columbus City Bulletin Jan. 18, 2025 > RFQ029445",
+      "interpretation": "Direct extraction or conservative paraphrase from the City bulletin solicitation notice."
+    }
+  ],
+  "missing_information": [
+    {"field_path": "/line_items/0/quantity", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/quantity_basis", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/unit", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/manufacturer", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/model", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_unit_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_total_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/total_estimated_budget", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/need_by_date", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/delivery_requirement", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/certifications_compliance", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/supporting_documents/0/sha256", "reason": "source_snapshot_unavailable", "detail": "Raw source bytes were not captured; checksum intentionally omitted."},
+    {"field_path": "/line_items", "reason": "partial_extraction", "detail": "The City Bulletin solicitation summary is extracted; the complete underlying specification is not reproduced."}
+  ]
+}
