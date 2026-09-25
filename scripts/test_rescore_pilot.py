@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from longprocurebench import LongProcureBenchEvaluator
 from rescore_pilot import (
     accepted_actions,
     failure_taxonomy,
@@ -89,6 +90,9 @@ class RescoreTests(unittest.TestCase):
             False,
         )
         self.assertIsNone(rescored["evaluation_error"])
+        self.assertEqual(rescored["audit_status"], "success")
+        self.assertEqual(rescored["source_status"], "completed")
+        self.assertEqual(rescored["status"], "completed")
         self.assertEqual(rescored["trajectory"], original["trajectory"])
         self.assertEqual(
             rescored["policy_metrics"],
@@ -188,6 +192,126 @@ class RescoreTests(unittest.TestCase):
             1,
         )
         self.assertEqual(taxonomy["strict_success_runs"], 1)
+
+
+    def test_rescore_recovers_prior_evaluation_error_status(self):
+        original = raw_result()
+        original["status"] = "evaluation_error"
+        original["error"] = {
+            "type": "ValueError",
+            "message": "old evaluation failed",
+        }
+        original["evaluation"] = None
+        rescored = rescore_result(original, StubEvaluator())
+        self.assertEqual(rescored["source_status"], "evaluation_error")
+        self.assertEqual(rescored["status"], "completed")
+        self.assertIsNone(rescored["error"])
+        self.assertEqual(rescored["audit_status"], "success")
+        self.assertIsNotNone(rescored["evaluation"])
+
+    def test_invalid_saved_action_records_audit_failure_without_raising(self):
+        class FailingEvaluator:
+            def evaluate_actions(self, episode_id, actions):
+                raise ValueError("saved action no longer valid")
+
+        rescored = rescore_result(raw_result(), FailingEvaluator())
+        self.assertEqual(rescored["audit_status"], "evaluation_error")
+        self.assertEqual(
+            rescored["audit_error"]["type"],
+            "ValueError",
+        )
+        self.assertIsNone(rescored["evaluation"])
+
+    def test_directory_continues_after_one_audit_failure(self):
+        class MixedEvaluator:
+            def __init__(self):
+                self.calls = 0
+
+            def evaluate_actions(self, episode_id, actions):
+                self.calls += 1
+                if self.calls == 1:
+                    raise ValueError("legacy replay mismatch")
+                return StubEvaluator().evaluate_actions(
+                    episode_id, actions
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw = root / "raw"
+            for repeat in (1, 2):
+                path = (
+                    raw / "fake-model" / "episode"
+                    / f"run-{repeat:03d}.json"
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                record = raw_result()
+                record["run_id"] = f"raw-run-{repeat}"
+                path.write_text(json.dumps(record), encoding="utf-8")
+
+            output = root / "audit"
+            rows, summary, taxonomy = rescore_directory(
+                raw,
+                output,
+                evaluator=MixedEvaluator(),
+            )
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(summary["audit_failed_runs"], 1)
+            self.assertEqual(taxonomy["audit_failed_runs"], 1)
+            self.assertTrue((output / "runs.csv").is_file())
+            self.assertTrue((output / "summary.json").is_file())
+            self.assertTrue(
+                (output / "failure-taxonomy.json").is_file()
+            )
+
+    def test_real_evaluator_replays_existing_episode_trajectory(self):
+        eid = "electrical-bongabon-generator-001"
+        specs = [
+            ("identify_suppliers", None, {}),
+            ("send_rfq", "syn-gen-a", {}),
+            ("send_rfq", "syn-gen-b", {}),
+            ("send_rfq", "syn-gen-c", {}),
+            ("send_follow_up", "syn-gen-c", {}),
+            ("request_quote_revision", "syn-gen-c", {}),
+            ("evaluate_quotes", None, {}),
+            (
+                "award_supplier",
+                "syn-gen-c",
+                {
+                    "awards": [{
+                        "scope": "package",
+                        "supplier_id": "syn-gen-c",
+                        "quote_event_id": "e5",
+                    }]
+                },
+            ),
+        ]
+        original = raw_result()
+        original["episode_id"] = eid
+        original["trajectory"] = []
+        for index, (action_type, supplier_id, arguments) in enumerate(
+            specs, start=1
+        ):
+            original["trajectory"].append({
+                "step": index,
+                "action": {
+                    "action_id": f"a{index}",
+                    "episode_id": eid,
+                    "type": action_type,
+                    "supplier_id": supplier_id,
+                    "arguments": arguments,
+                },
+                "observations": [],
+            })
+
+        rescored = rescore_result(
+            original,
+            LongProcureBenchEvaluator(),
+        )
+        self.assertEqual(rescored["audit_status"], "success")
+        self.assertTrue(rescored["evaluation"]["episode_success"])
+        self.assertTrue(
+            rescored["evaluation"]["economic_objective"]["satisfied"]
+        )
 
 
 if __name__ == "__main__":

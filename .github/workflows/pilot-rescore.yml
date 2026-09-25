@@ -7,8 +7,13 @@ on:
         description: GitHub Actions run ID containing the raw OpenAI pilot artifact
         required: true
         default: '36159375317'
+      source_run_attempt:
+        description: Optional run attempt; leave empty to discover the latest artifact
+        required: false
+        default: ''
   push:
     branches:
+      - main
       - codex/pilot-rescore-v0.1
     paths:
       - 'scripts/rescore_pilot.py'
@@ -28,6 +33,7 @@ jobs:
     timeout-minutes: 20
     env:
       SOURCE_RUN_ID: ${{ github.event.inputs.source_run_id || '36159375317' }}
+      SOURCE_RUN_ATTEMPT: ${{ github.event.inputs.source_run_attempt || '' }}
       RAW_DIR: raw-pilot
       AUDIT_DIR: audited-pilot
 
@@ -50,7 +56,26 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          artifact="openai-reactive-pilot-${SOURCE_RUN_ID}-1"
+          if [ -n "$SOURCE_RUN_ATTEMPT" ]; then
+            artifact="openai-reactive-pilot-${SOURCE_RUN_ID}-${SOURCE_RUN_ATTEMPT}"
+          else
+            prefix="openai-reactive-pilot-${SOURCE_RUN_ID}-"
+            artifact="$(
+              gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" \
+                --paginate \
+                --jq ".artifacts[] | select(.name | startswith(\"$prefix\")) | [.created_at, .name] | @tsv" \
+              | sort \
+              | tail -n 1 \
+              | cut -f2-
+            )"
+          fi
+
+          if [ -z "$artifact" ]; then
+            echo "No OpenAI pilot artifact found for run $SOURCE_RUN_ID."
+            exit 1
+          fi
+
+          echo "Downloading artifact: $artifact"
           mkdir -p "$RAW_DIR"
           gh run download "$SOURCE_RUN_ID" --name "$artifact" --dir "$RAW_DIR"
 
