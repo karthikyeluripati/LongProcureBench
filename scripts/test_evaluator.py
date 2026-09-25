@@ -1,7 +1,9 @@
 """Regression tests for Evaluator v0.1."""
+import copy
 import unittest
 
 from longprocurebench import LongProcureBenchEnv, LongProcureBenchEvaluator
+from validate_evaluation import validate_config
 
 
 class EvaluatorTests(unittest.TestCase):
@@ -172,6 +174,90 @@ class EvaluatorTests(unittest.TestCase):
             state=env.step(action)
         report=self.evaluator.evaluate_state(state)
         self.assertTrue(report["episode_success"])
+
+
+    def test_amendment_checkpoint_requires_awarded_quote_after_amendment(self):
+        eid = "electrical-neust-cable-003"
+        actions = [
+            self.action(1, eid, "identify_suppliers"),
+            self.action(2, eid, "send_rfq", "syn-wire-a"),
+            self.action(3, eid, "send_rfq", "syn-wire-b"),
+            self.action(4, eid, "send_rfq", "syn-wire-c"),
+            self.action(5, eid, "send_follow_up", "syn-wire-c"),
+            self.action(6, eid, "issue_amendment"),
+            self.action(7, eid, "request_quote_revision", "syn-wire-a"),
+            self.action(8, eid, "evaluate_quotes"),
+            self.action(
+                9,
+                eid,
+                "award_supplier",
+                "syn-wire-c",
+                awards=[{
+                    "scope": "package",
+                    "supplier_id": "syn-wire-c",
+                    "quote_event_id": "e7",
+                }],
+            ),
+        ]
+        report = self.evaluator.evaluate_actions(eid, actions)
+        self.assertTrue(report["terminal_outcome"]["correct"])
+        self.assertTrue(report["hard_constraints"]["all_passed"])
+        checkpoints = {
+            item["checkpoint"]: item
+            for item in report["required_checkpoints"]["results"]
+        }
+        self.assertFalse(checkpoints["handle_amendment"]["complete"])
+        self.assertFalse(report["episode_success"])
+
+    def test_withdrawal_recovery_requires_new_quote_then_reevaluation(self):
+        eid = "electrical-dla-breaker-004"
+        actions = [
+            self.action(1, eid, "identify_suppliers"),
+            self.action(2, eid, "send_rfq", "syn-breaker-a"),
+            self.action(3, eid, "send_rfq", "syn-breaker-b"),
+            self.action(4, eid, "send_rfq", "syn-breaker-c"),
+            self.action(5, eid, "request_quote_revision", "syn-breaker-c"),
+            self.action(6, eid, "evaluate_quotes"),
+            self.action(7, eid, "evaluate_quotes"),
+            self.action(
+                8,
+                eid,
+                "award_supplier",
+                "syn-breaker-c",
+                awards=[{
+                    "scope": "package",
+                    "supplier_id": "syn-breaker-c",
+                    "quote_event_id": "e5",
+                }],
+            ),
+        ]
+        report = self.evaluator.evaluate_actions(eid, actions)
+        self.assertTrue(report["terminal_outcome"]["correct"])
+        self.assertTrue(report["hard_constraints"]["all_passed"])
+        checkpoints = {
+            item["checkpoint"]: item
+            for item in report["required_checkpoints"]["results"]
+        }
+        self.assertFalse(checkpoints["recover_from_withdrawal"]["complete"])
+        self.assertFalse(report["episode_success"])
+
+    def test_award_quote_equals_requires_non_null_value(self):
+        config = copy.deepcopy(
+            self.evaluator.load_config(
+                "electrical-bongabon-generator-001"
+            )
+        )
+        equals_check = next(
+            check
+            for rule in config["constraint_rules"]
+            for check in rule["checks"]
+            if check["kind"] == "award_quote_equals"
+        )
+        equals_check["value"] = None
+        with self.assertRaisesRegex(
+            ValueError, "award_quote_equals requires value"
+        ):
+            validate_config(config)
 
 
 if __name__ == "__main__":

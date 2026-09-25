@@ -210,10 +210,58 @@ class LongProcureBenchEvaluator:
                     return True, f"Answered {a['supplier_id']} after supplier question", "direct"
             return False, "No answer after supplier question", "direct"
         if name == "handle_amendment":
+            change_step = None
+            amendment_step = None
             for row in trace:
-                if row["action"]["type"] == "issue_amendment" and any(e["type"] in {"requirement_change","quantity_change"} for e in self._prior_events(trace, row["step"])):
-                    return True, "Issued amendment after revealed requirement change", "direct"
-            return False, "No amendment after revealed requirement change", "direct"
+                if any(
+                    event["type"] in {"requirement_change", "quantity_change"}
+                    for event in row["observations"]
+                ):
+                    change_step = row["step"]
+                if (
+                    row["action"]["type"] == "issue_amendment"
+                    and change_step is not None
+                    and row["step"] > change_step
+                ):
+                    amendment_step = row["step"]
+
+            if change_step is None:
+                return False, "No requirement change was revealed", "direct"
+            if amendment_step is None:
+                return False, (
+                    f"No amendment was issued after requirement change at step "
+                    f"{change_step}"
+                ), "direct"
+
+            terminal = final_state["terminal"]
+            if terminal is None or terminal.get("decision") != "award":
+                return False, "No terminal award available after amendment", "direct"
+
+            awarded_quote_ids = {
+                award["quote_event_id"] for award in terminal.get("awards", [])
+            }
+            quote_steps = {}
+            for row in trace:
+                for event in row["observations"]:
+                    if event["event_id"] in awarded_quote_ids:
+                        quote_steps[event["event_id"]] = row["step"]
+
+            missing = awarded_quote_ids - set(quote_steps)
+            if missing:
+                return False, (
+                    f"Awarded quote events were not observed: {sorted(missing)}"
+                ), "direct"
+
+            stale = {
+                event_id: step
+                for event_id, step in quote_steps.items()
+                if step < amendment_step
+            }
+            complete = not stale
+            return complete, (
+                f"change_step={change_step}, amendment_step={amendment_step}, "
+                f"awarded_quote_steps={quote_steps}, stale_awards={stale}"
+            ), "direct"
         if name == "request_quote_revision":
             ok = any(a["type"] == "request_quote_revision" for a in actions)
             return ok, "Quote revision request observed" if ok else "No quote revision request", "direct"
@@ -238,15 +286,53 @@ class LongProcureBenchEvaluator:
             ok = cstep is not None and rstep is not None and cstep < rstep
             return ok, f"clarification_step={cstep}, first_rfq_step={rstep}", "direct"
         if name == "recover_from_withdrawal":
-            wstep = None
+            withdrawal_step = None
+            withdrawn_suppliers = set()
             for row in trace:
-                if any(e["type"] == "supplier_withdrawal" for e in row["observations"]):
-                    wstep = row["step"]
-                    break
-            if wstep is None:
+                for event in row["observations"]:
+                    if event["type"] == "supplier_withdrawal":
+                        withdrawal_step = row["step"]
+                        withdrawn_suppliers.add(event["supplier_id"])
+            if withdrawal_step is None:
                 return False, "No supplier withdrawal revealed", "direct"
-            recovery = any(row["step"] > wstep and row["action"]["type"] in {"request_quote_revision","send_rfq","send_follow_up","evaluate_quotes"} for row in trace)
-            return recovery, f"withdrawal_step={wstep}, recovery_action={recovery}", "direct"
+
+            replacement_quote_step = None
+            replacement_quote_id = None
+            for row in trace:
+                if row["step"] <= withdrawal_step:
+                    continue
+                for event in row["observations"]:
+                    if (
+                        event["type"] in self.QUOTE_TYPES
+                        and event["supplier_id"] not in withdrawn_suppliers
+                    ):
+                        replacement_quote_step = row["step"]
+                        replacement_quote_id = event["event_id"]
+                        break
+                if replacement_quote_step is not None:
+                    break
+
+            if replacement_quote_step is None:
+                return False, (
+                    f"withdrawal_step={withdrawal_step}; no new quote/revision "
+                    f"was revealed after withdrawal"
+                ), "direct"
+
+            reevaluation_step = next(
+                (
+                    row["step"]
+                    for row in trace
+                    if row["step"] > replacement_quote_step
+                    and row["action"]["type"] == "evaluate_quotes"
+                ),
+                None,
+            )
+            complete = reevaluation_step is not None
+            return complete, (
+                f"withdrawal_step={withdrawal_step}, "
+                f"replacement_quote={replacement_quote_id}@{replacement_quote_step}, "
+                f"reevaluation_step={reevaluation_step}"
+            ), "direct"
         if name == "award_or_recommend":
             ok = final_state["terminal"] is not None
             return ok, "Terminal decision reached" if ok else "No terminal decision", "direct"

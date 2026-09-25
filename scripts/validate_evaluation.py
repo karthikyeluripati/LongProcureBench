@@ -12,7 +12,7 @@ VALIDATOR = Draft202012Validator(SCHEMA)
 REQUIRED_FIELDS = {
     "award_quote_max": {"path", "value"},
     "award_quote_min": {"path", "value"},
-    "award_quote_equals": {"path"},
+    "award_quote_equals": {"path", "value"},
     "award_supplier_equals": {"supplier_field"},
     "award_quote_latest": set(),
     "award_supplier_not_withdrawn": set(),

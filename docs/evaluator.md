@@ -36,10 +36,7 @@ required event-before-action ordering, and complete award scope.
 
 ## Required checkpoints
 
-Some checkpoints have direct trajectory evidence, including follow-up after
-non-response, buyer clarification, amendment handling, supplier-question handling,
-quote-revision requests, withdrawal recovery, quote evaluation, and terminal
-decision.
+Some checkpoints have direct trajectory evidence. Amendment handling requires the amendment to occur after the revealed requirement change and the ultimately awarded quote(s) to be observed only after that amendment. Withdrawal recovery requires a fresh quote/revision from a non-withdrawn supplier after the withdrawal, followed by a new quote-evaluation action. Follow-up after non-response, buyer clarification, supplier-question handling, quote-revision requests, and terminal decision are also checked directly.
 
 The current action contract does not include explicit `normalize_quotes`,
 `validate_eligibility`, or `validate_compliance` actions. Those report
