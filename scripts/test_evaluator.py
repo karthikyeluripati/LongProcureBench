@@ -241,6 +241,33 @@ class EvaluatorTests(unittest.TestCase):
         self.assertFalse(checkpoints["recover_from_withdrawal"]["complete"])
         self.assertFalse(report["episode_success"])
 
+    def test_award_scope_complete_allows_optional_line_unawarded(self):
+        final_state = {
+            "initial_state": {
+                "line_items": [
+                    {"item_id": "base", "award_requirement": "required"},
+                    {"item_id": "alternate", "award_requirement": "optional"},
+                ]
+            },
+            "revealed_events": [],
+        }
+        terminal = {
+            "decision": "award",
+            "awards": [{
+                "scope": "lot-base",
+                "supplier_id": "syn-test",
+                "quote_event_id": "e1",
+            }],
+        }
+        passed, _ = self.evaluator._check_rule(
+            {"kind": "award_scope_complete"},
+            terminal,
+            {"suppliers": []},
+            final_state,
+            [],
+        )
+        self.assertTrue(passed)
+
     def test_award_quote_equals_requires_non_null_value(self):
         config = copy.deepcopy(
             self.evaluator.load_config(
