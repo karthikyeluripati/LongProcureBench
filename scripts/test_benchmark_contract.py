@@ -110,6 +110,21 @@ class BenchmarkContractTests(unittest.TestCase):
                 rows, split, episodes, self.initial_states
             )
 
+    def test_frozen_state_pool_requires_all_ten_states(self):
+        split = copy.deepcopy(self.split)
+        split["held_out_test"]["initial_state_package_ids"].pop()
+        initial_states = copy.deepcopy(self.initial_states)
+        removed = set(self.initial_states) - {
+            episode["initial_state_ref"]["package_id"]
+            for episode in self.episodes.values()
+        } - set(split["held_out_test"]["initial_state_package_ids"])
+        for package_id in removed:
+            initial_states.pop(package_id, None)
+        with self.assertRaises(ValueError):
+            validate_contract(
+                self.rows, split, self.episodes, initial_states
+            )
+
     def test_split_must_assign_every_committed_episode(self):
         split = copy.deepcopy(self.split)
         split["development_calibration_episodes"].pop()
