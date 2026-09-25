@@ -183,5 +183,25 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         self.assertLessEqual(len(slug.encode("utf-8")), 120)
         self.assertRegex(slug, r"--[0-9a-f]{10}$")
 
+    def test_litellm_client_omits_default_temperature(self):
+        client = LiteLLMClient("openai/gpt-5.6-sol")
+        self.assertIsNone(client.temperature)
+        self.assertEqual(client.reasoning_effort, "medium")
+
+    def test_policy_records_reasoning_configuration(self):
+        client = FakeActionClient([
+            {"type":"identify_suppliers","supplier_id":None,"arguments":{}},
+        ])
+        policy = ReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+            reasoning_effort="medium",
+        )
+        policy.reset({})
+        policy.act({"step":0})
+        metrics = policy.get_run_metadata()
+        self.assertIsNone(metrics["temperature"])
+        self.assertEqual(metrics["reasoning_effort"], "medium")
+
 if __name__ == "__main__":
     unittest.main()

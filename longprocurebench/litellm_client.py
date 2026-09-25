@@ -19,11 +19,18 @@ class ModelCallError(RuntimeError):
 class LiteLLMClient:
     """One provider-neutral structured model call through LiteLLM."""
 
-    def __init__(self, model: str, *, temperature: float = 0.0):
+    def __init__(
+        self,
+        model: str,
+        *,
+        temperature: float | None = None,
+        reasoning_effort: str | None = "medium",
+    ):
         if not isinstance(model, str) or not model:
             raise ValueError("model must be a non-empty string")
         self.model = model
         self.temperature = temperature
+        self.reasoning_effort = reasoning_effort
 
     @staticmethod
     def _value(obj: Any, key: str, default: Any = None) -> Any:
@@ -96,11 +103,10 @@ class LiteLLMClient:
         started = perf_counter()
         response = None
         try:
-            response = litellm.completion(
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                response_format={
+            request = {
+                "model": self.model,
+                "messages": messages,
+                "response_format": {
                     "type": "json_schema",
                     "json_schema": {
                         "name": "longprocurebench_action",
@@ -108,7 +114,13 @@ class LiteLLMClient:
                         "schema": action_schema,
                     },
                 },
-            )
+            }
+            if self.temperature is not None:
+                request["temperature"] = self.temperature
+            if self.reasoning_effort is not None:
+                request["reasoning_effort"] = self.reasoning_effort
+
+            response = litellm.completion(**request)
 
             choice = self._value(response, "choices")[0]
             message = self._value(choice, "message")

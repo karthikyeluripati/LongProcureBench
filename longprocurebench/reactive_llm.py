@@ -101,12 +101,17 @@ Return only the structured action. Do not include reasoning or prose."""
         model: str,
         *,
         client: ActionModelClient | None = None,
-        temperature: float = 0.0,
+        temperature: float | None = None,
+        reasoning_effort: str | None = "medium",
     ):
         self.model = model
+        self.temperature = temperature
+        self.reasoning_effort = reasoning_effort
         self.policy_id = f"reactive-llm--{model}"
         self._client = client or LiteLLMClient(
-            model, temperature=temperature
+            model,
+            temperature=temperature,
+            reasoning_effort=reasoning_effort,
         )
         self._calls: list[dict[str, Any]] = []
 
@@ -188,6 +193,8 @@ Return only the structured action. Do not include reasoning or prose."""
         ]
         return {
             "model": self.model,
+            "temperature": self.temperature,
+            "reasoning_effort": self.reasoning_effort,
             "model_calls": attempts,
             "model_calls_attempted": attempts,
             "model_calls_succeeded": succeeded,
