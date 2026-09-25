@@ -238,8 +238,7 @@ class EpisodeValidationTests(unittest.TestCase):
         ):
             validate_episode(record)
 
-
-    def test_v02_batch_has_ten_real_grounded_episodes(self):
+    def test_v02_suite_has_twenty_distinct_real_states(self):
         paths = sorted(
             (ROOT / "data/episodes/electrical").glob("*.json")
         )
@@ -247,17 +246,16 @@ class EpisodeValidationTests(unittest.TestCase):
             json.loads(path.read_text(encoding="utf-8"))
             for path in paths
         ]
-        self.assertEqual(len(records), 10)
+        self.assertEqual(len(records), 20)
         self.assertEqual(
             len({
                 record["initial_state_ref"]["package_id"]
                 for record in records
             }),
-            10,
+            20,
         )
 
-
-    def test_suite_rejects_reused_real_initial_state(self):
+    def test_suite_rejects_duplicate_real_initial_state(self):
         records = [
             self.load_episode("electrical-bongabon-generator-001"),
             self.load_episode("electrical-national-museum-lighting-002"),
@@ -273,9 +271,42 @@ class EpisodeValidationTests(unittest.TestCase):
         records.append(duplicate)
         with self.assertRaisesRegex(
             ValueError,
-            "distinct real initial-state package_id",
+            "distinct real initial-state",
         ):
             validate_suite_records(records)
+
+    def test_highpoint_awarded_quotes_carry_source_requirement_evidence(self):
+        record = self.load_episode("electrical-highpoint-cable-018")
+        by_event = {
+            event["event_id"]: event
+            for event in record["events"]
+        }
+        awarded_event_ids = {
+            award["quote_event_id"]
+            for outcome in record["oracle"]["acceptable_terminal_outcomes"]
+            for award in outcome["awards"]
+        }
+        for event_id in awarded_event_ids:
+            details = by_event[event_id]["details"]
+            self.assertGreaterEqual(
+                details["comparable_references_count"],
+                3,
+            )
+            self.assertTrue(
+                details["technical_compliance_evidence_provided"]
+            )
+        primary_awards = [
+            award
+            for outcome in record["oracle"]["acceptable_terminal_outcomes"]
+            for award in outcome["awards"]
+            if award["scope"] == "lot-2904"
+        ]
+        for award in primary_awards:
+            self.assertTrue(
+                by_event[award["quote_event_id"]]["details"][
+                    "primary_cable_sample_requirement_satisfied"
+                ]
+            )
 
 if __name__ == "__main__":
     unittest.main()

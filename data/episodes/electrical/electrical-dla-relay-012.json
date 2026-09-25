@@ -1,0 +1,281 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-relay-012",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-nsn5945016793948-2026-05-28",
+    "path": "data/initial_states/electrical/us-dla-nsn5945016793948-2026-05-28.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Relay buy with non-response, withdrawal, and replacement quantity correction",
+    "summary": "The agent must source 24 relays within the real 46-day delivery period. The cheapest compliant supplier withdraws after evaluation; a non-responder returns with an under-quantity quote that must be corrected and re-evaluated.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_non_response",
+      "supplier_withdrawal",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 24-unit quantity and 46-day delivery period are real public requirements. Supplier identities, prices, non-response, withdrawal, and revision are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-relay-a",
+      "display_name": "Synthetic Relay Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-relay-b",
+      "display_name": "Synthetic Relay Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-relay-c",
+      "display_name": "Synthetic Relay Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially non-responsive; later submits an under-quantity quote."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-relay-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-relay-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 48,000 for 24 relays with 45-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 48000,
+        "quantity": 24,
+        "lead_time_days": 45,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-relay-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-relay-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 44,000 for 24 relays with 42-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 44000,
+        "quantity": 24,
+        "lead_time_days": 42,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-relay-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-relay-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond during the initial quotation window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-relay-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "evaluate_quotes",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Supplier B withdraws its quotation before award.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-relay-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-relay-c",
+        "step": null
+      },
+      "observation": "After follow-up, Supplier C quotes USD 43,000 with 44-day delivery but only 22 relays.",
+      "details": {
+        "currency": "USD",
+        "total_price": 43000,
+        "quantity": 22,
+        "lead_time_days": 44,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-relay-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-relay-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to 24 relays at USD 47,000 with 45-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 47000,
+        "quantity": 24,
+        "lead_time_days": 45,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 24 relays."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 46-day ADO requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier cannot receive award."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "recover_from_withdrawal",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-relay-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "After Supplier B withdraws, Supplier C's corrected 24-unit quote is feasible and cheaper than Supplier A.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-relay-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A remains feasible after the withdrawal but costs more than Supplier C's corrected offer.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding Supplier B after withdrawal.",
+      "Awarding Supplier C's 22-unit quote.",
+      "Awarding any offer above the 46-day delivery requirement."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among remaining feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

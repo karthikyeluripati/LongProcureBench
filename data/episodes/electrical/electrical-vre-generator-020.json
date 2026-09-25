@@ -1,0 +1,358 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-vre-generator-020",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-vre-rfq-001-fy27",
+    "path": "data/initial_states/electrical/us-vre-rfq-001-fy27.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Mobile-generator buy with commercial clarification and later schedule amendment",
+    "summary": "The real VRE starting state specifies one 60 kW mobile diesel generator but no public budget or delivery requirement. The agent must obtain controlled commercial terms before RFQ, then react to a later schedule tightening by issuing an amendment, refreshing stale offers, and following up a non-responder.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_non_response",
+      "requirement_change",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The quantity and 60 kW mobile diesel-generator requirement are real public facts. The price ceiling, initial 120-day schedule, later 90-day schedule change, and supplier interactions are synthetic controlled benchmark facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-vre-a",
+      "display_name": "Synthetic VRE Generator Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-vre-b",
+      "display_name": "Synthetic VRE Generator Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-vre-c",
+      "display_name": "Synthetic VRE Generator Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially non-responsive; later quotes against the amended schedule."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic benchmark clarification: maximum total price is USD 140,000 and delivery is initially required within 120 days.",
+      "details": {
+        "max_total_price_usd": 140000,
+        "max_lead_time_days": 120
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-vre-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-vre-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 130,000 for one 60 kW mobile diesel generator with 100-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 130000,
+        "quantity": 1,
+        "power_kw": 60,
+        "mobile": true,
+        "fuel": "diesel",
+        "lead_time_days": 100,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-vre-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-vre-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 125,000 for the required generator but requires 115 days.",
+      "details": {
+        "currency": "USD",
+        "total_price": 125000,
+        "quantity": 1,
+        "power_kw": 60,
+        "mobile": true,
+        "fuel": "diesel",
+        "lead_time_days": 115,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-vre-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-vre-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond during the initial quotation window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "requirement_change",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 5
+      },
+      "observation": "Controlled buyer change: delivery is now required within 90 days.",
+      "details": {
+        "old_max_lead_time_days": 120,
+        "new_max_lead_time_days": 90
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-vre-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-vre-a",
+        "step": null
+      },
+      "observation": "Supplier A revises to USD 135,000 with 85-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 135000,
+        "quantity": 1,
+        "power_kw": 60,
+        "mobile": true,
+        "fuel": "diesel",
+        "lead_time_days": 85,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e7",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-vre-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-vre-b",
+        "step": null
+      },
+      "observation": "Supplier B revises to USD 132,000 with 88-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 132000,
+        "quantity": 1,
+        "power_kw": 60,
+        "mobile": true,
+        "fuel": "diesel",
+        "lead_time_days": 88,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e8",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-vre-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-vre-c",
+        "step": null
+      },
+      "observation": "After follow-up on the amendment, Supplier C quotes USD 128,000 with 89-day delivery for the required generator.",
+      "details": {
+        "currency": "USD",
+        "total_price": 128000,
+        "quantity": 1,
+        "power_kw": 60,
+        "mobile": true,
+        "fuel": "diesel",
+        "lead_time_days": 89,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The missing budget and initial delivery requirement must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must match the real quantity and 60 kW mobile diesel generator requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Awarded total price must not exceed the clarified USD 140,000 ceiling."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "After the controlled requirement change, delivery must be no later than 90 days."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "handle_amendment",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-vre-c",
+            "quote_event_id": "e8"
+          }
+        ],
+        "rationale": "Supplier C satisfies the amended 90-day schedule, synthetic budget, and real generator requirement at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-vre-b",
+            "quote_event_id": "e7"
+          }
+        ],
+        "rationale": "Supplier B's revised offer is feasible but more expensive than Supplier C.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o3",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-vre-a",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier A's revised offer is feasible but more expensive than Supplier C.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before resolving missing commercial terms.",
+      "Awarding a stale pre-amendment quote after the 90-day change.",
+      "Failing to follow up Supplier C after non-response."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active offers under the amended schedule, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-power-supply-016",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-spe7lx26u8478",
+    "path": "data/initial_states/electrical/us-dla-spe7lx26u8478.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Power-supply buy with non-response and expedited midstream schedule",
+    "summary": "The real DLA requirement is for 57 power supplies within 219 days ADO. A controlled buyer change expedites delivery to 200 days after initial RFQs; the agent must amend the solicitation, refresh stale offers, and follow up a non-responder.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_non_response",
+      "requirement_change",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 57-unit quantity and original 219-day ADO are real public facts. The 200-day expedited schedule and all supplier behavior are synthetic controlled scenario facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-ps-a",
+      "display_name": "Synthetic Power Supply Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-ps-b",
+      "display_name": "Synthetic Power Supply Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-ps-c",
+      "display_name": "Synthetic Power Supply Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially non-responsive; later responds against the amended schedule."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ps-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ps-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 110,000 for 57 units with 210-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 110000,
+        "quantity": 57,
+        "lead_time_days": 210,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ps-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ps-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 104,000 with 190-day delivery but only 55 units.",
+      "details": {
+        "currency": "USD",
+        "total_price": 104000,
+        "quantity": 55,
+        "lead_time_days": 190,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-ps-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ps-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond during the original quotation window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "requirement_change",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 4
+      },
+      "observation": "Controlled buyer change: maximum delivery is reduced from 219 days to 200 days for this benchmark episode.",
+      "details": {
+        "old_max_lead_time_days": 219,
+        "new_max_lead_time_days": 200
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-ps-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-ps-a",
+        "step": null
+      },
+      "observation": "Supplier A revises to USD 115,000 for 57 units with 195-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 115000,
+        "quantity": 57,
+        "lead_time_days": 195,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-ps-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-ps-b",
+        "step": null
+      },
+      "observation": "Supplier B revises to the full 57-unit quantity at USD 112,000 with 198-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 112000,
+        "quantity": 57,
+        "lead_time_days": 198,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e7",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ps-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-ps-c",
+        "step": null
+      },
+      "observation": "After follow-up on the amendment, Supplier C quotes USD 108,000 for 57 units with 199-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 108000,
+        "quantity": 57,
+        "lead_time_days": 199,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 57 power supplies."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "After the controlled schedule change, delivery must be no later than 200 days."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "handle_amendment",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-ps-c",
+            "quote_event_id": "e7"
+          }
+        ],
+        "rationale": "Supplier C satisfies the amended schedule and real quantity at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-ps-b",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier B's corrected quote is feasible but costs more than Supplier C.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o3",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-ps-a",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier A's revised quote is feasible but costs more than Supplier C.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding Supplier A's stale 210-day quote after the amendment.",
+      "Awarding Supplier B's original 55-unit quote.",
+      "Failing to follow up Supplier C after non-response."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active offers under the amended schedule, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-battery-charger-015",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-spe4a526t470l",
+    "path": "data/initial_states/electrical/us-dla-spe4a526t470l.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Battery-charger buy with eligibility, withdrawal, and question-driven recovery",
+    "summary": "The real DLA Aviation requirement is a total small-business set-aside for 34 chargers with 167-day ADO. The initial best eligible supplier withdraws; the remaining eligible late supplier asks a delivery question before issuing a compliant revision.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_eligibility",
+      "supplier_withdrawal",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 34-unit quantity, 167-day ADO, and total small-business set-aside are real public facts. Supplier behavior and prices are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-charger-a",
+      "display_name": "Synthetic Charger Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-charger-b",
+      "display_name": "Synthetic Charger Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Cheaper but ineligible under the real small-business set-aside."
+    },
+    {
+      "supplier_id": "syn-charger-c",
+      "display_name": "Synthetic Charger Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially late; later revises after a supplier question."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-charger-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-charger-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 102,000 for 34 chargers with 160-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 102000,
+        "quantity": 34,
+        "lead_time_days": 160,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-charger-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-charger-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 86,000 with 150-day delivery but is not small-business eligible.",
+      "details": {
+        "currency": "USD",
+        "total_price": 86000,
+        "quantity": 34,
+        "lead_time_days": 150,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-charger-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-charger-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 96,000 for 34 chargers with 180-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 96000,
+        "quantity": 34,
+        "lead_time_days": 180,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-charger-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "evaluate_quotes",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Supplier A withdraws its quotation before award.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-charger-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-charger-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the 167-day ADO is firm for the full quantity.",
+      "details": {
+        "question": "Is the 167-day ADO firm for all 34 chargers?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-charger-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-charger-c",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier C revises to USD 99,000 for 34 chargers with 165-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 99000,
+        "quantity": 34,
+        "lead_time_days": 165,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the real total small-business set-aside."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 34 chargers."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 167-day ADO requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier cannot receive award."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "validate_eligibility",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "recover_from_withdrawal",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-charger-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "After Supplier A withdraws, Supplier C's revision is the remaining eligible offer meeting quantity and delivery.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the cheaper ineligible Supplier B.",
+      "Awarding Supplier A after withdrawal.",
+      "Awarding Supplier C's original 180-day quote."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among remaining eligible feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

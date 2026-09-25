@@ -117,6 +117,15 @@ Episodes 006–010 extend the suite to ten distinct real public starting states:
 
 See [`episode-suite-v0.2.md`](episode-suite-v0.2.md) for the expansion rationale.
 
+## v0.2 batch 2
+
+Episodes 011–020 extend the suite to all twenty currently collected real public
+starting states. These scenarios emphasize compound obligations: non-response plus
+amendment, withdrawal plus recovery, eligibility plus compliance, supplier
+questions plus revisions, and multi-line split awards.
+
+See [`episode-suite-v0.2.md`](episode-suite-v0.2.md) for the complete batch table.
+
 ## Process-pattern references
 
 These references justify the event classes; they are not governing law for every episode:

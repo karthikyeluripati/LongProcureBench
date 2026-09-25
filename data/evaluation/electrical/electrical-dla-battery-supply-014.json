@@ -1,0 +1,148 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-battery-supply-014",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "award_supplier_equals",
+          "scope": null,
+          "path": null,
+          "value": "eligible",
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": "eligibility_state"
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_scope_complete",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": "lot-0001",
+          "path": "lots.0001.lead_time_days",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_max",
+          "scope": "lot-0002",
+          "path": "lots.0002.lead_time_days",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_max",
+          "scope": "lot-0003",
+          "path": "lots.0003.lead_time_days",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_max",
+          "scope": "lot-0004",
+          "path": "lots.0004.lead_time_days",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_max",
+          "scope": "lot-0005",
+          "path": "lots.0005.lead_time_days",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-0001",
+          "path": "lots.0001.quantity",
+          "value": 10,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-0002",
+          "path": "lots.0002.quantity",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-0003",
+          "path": "lots.0003.quantity",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-0004",
+          "path": "lots.0004.quantity",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-0005",
+          "path": "lots.0005.quantity",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c5",
+      "checks": [
+        {
+          "kind": "award_quote_latest",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

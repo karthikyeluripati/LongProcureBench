@@ -22,7 +22,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 
 ### Episode Model v0.1
 
-- 10 semi-synthetic long-horizon procurement episodes grounded in 10 distinct real initial states.
+- 20 semi-synthetic long-horizon procurement episodes grounded in 20 distinct real initial states.
 - Shared action contract and event ontology.
 - Coverage includes non-response, clarification, quote revision, substitutions,
   requirement/quantity changes, lead-time conflicts, supplier eligibility,
@@ -31,10 +31,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 
 ### Episode Suite v0.2
 
-- Expands the original 5 episodes to 10 using additional real public starting states.
+- Expands the original 5 episodes to 20 using all 20 currently collected real public starting states.
 - New coverage: service-scope follow-up, source ambiguity clarification, supplier-withdrawal recovery, alternate-policy clarification, and split multi-line awards.
 - Every episode has deterministic machine checks and an oracle-aware reference control.
-- This is batch 1 toward the planned ~30-episode benchmark.
+- Batch 2 adds compound multi-obligation episodes; all 20 currently collected starting states are now used exactly once.
 - See [`docs/episode-suite-v0.2.md`](docs/episode-suite-v0.2.md).
 
 ### Deterministic Runtime v0.1
@@ -113,7 +113,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
 - `data/initial_states/electrical/` — 20 real public starting states.
-- `data/episodes/electrical/` — 10 frozen benchmark episodes in the current v0.2 batch.
+- `data/episodes/electrical/` — 20 frozen benchmark episodes in the current v0.2 suite.
 - `docs/fields.md` — initial-state field guide.
 - `docs/initial-state-v0.1-report.md` — initial-state coverage and limitations.
 - `docs/episode-model.md` — reality boundary, action space, event ontology, and first five episodes.
