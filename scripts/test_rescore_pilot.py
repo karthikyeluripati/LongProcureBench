@@ -343,5 +343,25 @@ class RescoreTests(unittest.TestCase):
         self.assertEqual(taxonomy["audited_runs"], 1)
         self.assertEqual(taxonomy["strict_success_runs"], 1)
 
+    def test_workflow_requires_successful_producer_attempt(self):
+        workflow = (
+            Path(__file__).resolve().parents[1]
+            / ".github"
+            / "workflows"
+            / "pilot-rescore.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "/attempts/${attempt}",
+            workflow,
+        )
+        self.assertIn(
+            'if [ "$conclusion" != "success" ]; then',
+            workflow,
+        )
+        self.assertIn(
+            "Skipping artifact from rejected producer attempt",
+            workflow,
+        )
+
 if __name__ == "__main__":
     unittest.main()

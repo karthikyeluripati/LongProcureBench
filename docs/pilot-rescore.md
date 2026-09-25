@@ -42,3 +42,12 @@ Re-scoring is appropriate when evaluator/oracle semantics change but the execute
 agent trajectories remain valid evidence. If runtime transition semantics or
 agent-visible observations change, the old trajectories must be audited more
 carefully before reuse.
+
+## Artifact acceptance
+
+Automatic artifact selection accepts a raw pilot artifact only when both conditions hold:
+
+1. the corresponding producer workflow attempt concluded `success`; and
+2. the artifact contains the expected number of raw `run-*.json` files.
+
+This prevents an artifact uploaded by a failed/cancelled producer attempt from being treated as valid merely because it contains all expected filenames. When no attempt is explicitly requested, the workflow searches newest-to-oldest and selects the newest artifact satisfying both conditions.

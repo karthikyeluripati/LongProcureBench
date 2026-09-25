@@ -63,6 +63,28 @@ jobs:
         run: |
           validate_artifact() {
             local artifact="$1"
+            local attempt="${artifact##*-}"
+            local conclusion
+
+            if ! [[ "$attempt" =~ ^[0-9]+$ ]]; then
+              echo "Skipping artifact with unparseable attempt: $artifact"
+              return 1
+            fi
+
+            if ! conclusion="$(
+              gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/attempts/${attempt}" \
+                --jq '.conclusion'
+            )"; then
+              echo "Could not read producer attempt $attempt for $artifact."
+              return 1
+            fi
+
+            echo "Producer attempt $attempt conclusion: $conclusion"
+            if [ "$conclusion" != "success" ]; then
+              echo "Skipping artifact from rejected producer attempt $attempt."
+              return 1
+            fi
+
             rm -rf "$RAW_DIR"
             mkdir -p "$RAW_DIR"
 
@@ -82,7 +104,7 @@ jobs:
               return 1
             fi
 
-            echo "Selected complete artifact: $artifact"
+            echo "Selected accepted complete artifact: $artifact"
             return 0
           }
 
@@ -116,7 +138,7 @@ jobs:
             done
 
             if [ -z "$selected" ]; then
-              echo "No complete $EXPECTED_RUNS-run artifact found for run $SOURCE_RUN_ID."
+              echo "No successful complete $EXPECTED_RUNS-run artifact found for run $SOURCE_RUN_ID."
               exit 1
             fi
           fi
