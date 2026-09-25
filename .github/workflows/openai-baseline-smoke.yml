@@ -1,0 +1,70 @@
+name: OpenAI Baseline Smoke
+
+on:
+  push:
+    branches:
+      - main
+      - codex/fix-openai-reasoning-pilot
+    paths:
+      - 'longprocurebench/litellm_client.py'
+      - 'longprocurebench/reactive_llm.py'
+      - 'scripts/test_reactive_llm.py'
+      - '.github/workflows/openai-baseline-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run reactive baseline tests
+        run: python -m unittest discover -s scripts -p "test_reactive_llm.py" -v
+
+      - name: Smoke structured model action when credentials are configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY is not configured; skipping optional live-model smoke."
+            exit 0
+          fi
+
+          python - <<'PY'
+          from longprocurebench import LongProcureBenchEnv, ReactiveLLMPolicy
+
+          models = [
+              "openai/gpt-5.6-sol",
+              "openai/gpt-5.6-terra",
+              "openai/gpt-5.6-luna",
+          ]
+          env = LongProcureBenchEnv()
+          state = env.reset("electrical-bongabon-generator-001")
+
+          for model in models:
+              policy = ReactiveLLMPolicy(
+                  model,
+                  temperature=None,
+                  reasoning_effort="medium",
+              )
+              policy.reset(state)
+              action = policy.act(state)
+              metrics = policy.get_run_metadata()
+              print(
+                  f"{model}: action={action['type']} "
+                  f"tokens={metrics['total_tokens']} "
+                  f"reasoning={metrics['reasoning_effort']}"
+              )
+          PY

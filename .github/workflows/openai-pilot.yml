@@ -39,6 +39,8 @@ jobs:
             --model openai/gpt-5.6-sol \
             --model openai/gpt-5.6-terra \
             --model openai/gpt-5.6-luna \
+            --omit-temperature \
+            --reasoning-effort medium \
             --repeats 3 \
             --output-dir "$PILOT_OUTPUT"
 

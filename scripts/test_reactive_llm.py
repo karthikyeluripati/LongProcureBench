@@ -1,10 +1,11 @@
 """Regression tests for the reactive LLM baseline."""
 import unittest
+from unittest.mock import patch
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 from longprocurebench.reactive_llm import SEMANTIC_ACTION_SCHEMA
 from longprocurebench.litellm_client import LiteLLMClient, ModelCallError
-from run_reactive_llm import model_slug
+from run_reactive_llm import model_slug, resolve_sampling_options
 
 
 class FakeActionClient:
@@ -182,6 +183,87 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         slug = model_slug("provider/" + ("x" * 400))
         self.assertLessEqual(len(slug.encode("utf-8")), 120)
         self.assertRegex(slug, r"--[0-9a-f]{10}$")
+
+    def test_litellm_client_preserves_provider_neutral_defaults(self):
+        client = LiteLLMClient("fake/model")
+        self.assertEqual(client.temperature, 0.0)
+        self.assertIsNone(client.reasoning_effort)
+
+    def test_policy_records_reasoning_configuration(self):
+        client = FakeActionClient([
+            {"type":"identify_suppliers","supplier_id":None,"arguments":{}},
+        ])
+        policy = ReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+            temperature=None,
+            reasoning_effort="medium",
+        )
+        policy.reset({})
+        policy.act({"step":0})
+        metrics = policy.get_run_metadata()
+        self.assertIsNone(metrics["temperature"])
+        self.assertEqual(metrics["reasoning_effort"], "medium")
+
+    @patch("longprocurebench.litellm_client.litellm.completion_cost", return_value=0.01)
+    @patch("longprocurebench.litellm_client.litellm.completion")
+    def test_default_request_forwards_temperature_without_reasoning(
+        self, mock_completion, mock_cost
+    ):
+        mock_completion.return_value = {
+            "choices": [{"message": {"content": "{\"type\": \"identify_suppliers\", \"supplier_id\": null, \"arguments\": {}}"}}],
+            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8},
+        }
+        client = LiteLLMClient("fake/model")
+        client.generate_action(messages=[{"role":"user","content":"x"}], action_schema={"type":"object"})
+        request = mock_completion.call_args.kwargs
+        self.assertEqual(request["temperature"], 0.0)
+        self.assertNotIn("reasoning_effort", request)
+
+    @patch("longprocurebench.litellm_client.litellm.completion_cost", return_value=0.01)
+    @patch("longprocurebench.litellm_client.litellm.completion")
+    def test_openai_reasoning_request_omits_temperature_and_forwards_effort(
+        self, mock_completion, mock_cost
+    ):
+        mock_completion.return_value = {
+            "choices": [{"message": {"content": "{\"type\": \"identify_suppliers\", \"supplier_id\": null, \"arguments\": {}}"}}],
+            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8},
+        }
+        client = LiteLLMClient(
+            "openai/gpt-5.6-sol",
+            temperature=None,
+            reasoning_effort="medium",
+        )
+        client.generate_action(messages=[{"role":"user","content":"x"}], action_schema={"type":"object"})
+        request = mock_completion.call_args.kwargs
+        self.assertNotIn("temperature", request)
+        self.assertEqual(request["reasoning_effort"], "medium")
+
+
+    def test_reasoning_effort_automatically_omits_temperature(self):
+        self.assertIsNone(
+            resolve_sampling_options(None, False, "medium")
+        )
+
+    def test_default_cli_sampling_preserves_temperature_zero(self):
+        self.assertEqual(
+            resolve_sampling_options(None, False, None),
+            0.0,
+        )
+
+    def test_explicit_temperature_with_reasoning_is_rejected(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "cannot be combined with --temperature",
+        ):
+            resolve_sampling_options(0.0, False, "medium")
+
+    def test_temperature_and_omit_temperature_are_rejected(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "cannot be used together",
+        ):
+            resolve_sampling_options(0.2, True, None)
 
 if __name__ == "__main__":
     unittest.main()
