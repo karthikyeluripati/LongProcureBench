@@ -18,16 +18,20 @@ class FairnessAuditV02Tests(unittest.TestCase):
 
     def test_input_jsonl_gz_uses_requested_file(self):
         record = {
-            "episode_id": "custom-episode",
+            "episode_id": "electrical-bongabon-generator-001",
             "run_id": "custom-run",
             "trajectory": [],
-            "evaluation": {},
+            "evaluation": None,
         }
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "custom.jsonl.gz"
             with gzip.open(path, "wt", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
-            self.assertEqual(_load_frozen_gzip(path), [record])
+            runs = _load_frozen_gzip(path)
+            self.assertEqual(runs, [record])
+            audit = audit_runs(runs, self.root)
+            self.assertEqual(audit["runs_detail"][0]["checkpoints"], [])
+            self.assertFalse(audit["runs_detail"][0]["terminal_feasible"])
             with self.assertRaises(ValueError):
                 _load_frozen_gzip(Path(temp_dir) / "missing.jsonl.gz")
 
