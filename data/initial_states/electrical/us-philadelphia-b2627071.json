@@ -55,7 +55,17 @@
       "issued_date": "2026-05-29",
       "retrieved_date": "2026-09-25",
       "sha256": null,
-      "snapshot_policy": "Official City solicitation URL and retrieval date retained. Initial-state extraction uses header/item facts from the original posting and excludes later amendment and bid-result content visible on the live page."
+      "snapshot_policy": "Official live City solicitation URL retained for canonical identity and current access. Because the page now contains later amendments and bid results, frozen pre-amendment scope is corroborated by the dated archival mirror in source-2."
+    },
+    {
+      "document_id": "source-2",
+      "title": "Bid 2479 Specs.pdf - dated archival mirror of original buyer-authored specification",
+      "url": "https://govtribe.com/file/government-file/bid-2479-specs-dot-pdf",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2026-05-28",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Dated archival mirror of the original buyer-authored Bid 2479 specification, posted before later amendments and bid results. Used to freeze the pre-amendment project scope; this mirror is secondary archival evidence and is not agent input."
     }
   ],
   "source_provenance": [
@@ -80,6 +90,19 @@
       "document_id": "source-1",
       "locator": "Official solicitation source; see per-field source_locator values where provided.",
       "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    },
+    {
+      "field_paths": [
+        "/project/project_name",
+        "/project/project_description",
+        "/package_subscope",
+        "/line_items/0/description",
+        "/line_items/0/technical_specifications/0/summary",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-2",
+      "locator": "Archived Bid 2479 Specs.pdf title page, table of contents, and bid pricing pages",
+      "interpretation": "Dated archival copy of the original buyer-authored specification corroborates the frozen pre-amendment scope and bid date independently of the mutable live solicitation page."
     }
   ],
   "missing_information": [
@@ -142,6 +165,11 @@
       "field_path": "/line_items",
       "reason": "partial_extraction",
       "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    },
+    {
+      "field_path": "/supporting_documents/1/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "The archival mirror is retained by stable dated URL; local raw bytes were not captured, so no local checksum is asserted."
     }
   ]
 }
