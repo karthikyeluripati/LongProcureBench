@@ -28,11 +28,30 @@ tasks. Every committed episode is static JSON with:
 This first batch intentionally increases **state/obligation diversity**, not merely
 the number of price-comparison tasks.
 
-## Next batches
+## Batch 2: episodes 011–020
 
-The target is approximately 30 episodes. Later batches will add relays, power
-supplies, breakers, UPS/battery, additional generator packages, and compound
-episodes with multiple outstanding obligations active at once.
+| Episode | Real starting state | Main long-horizon obligations |
+| --- | --- | --- |
+| 011 Sagada generator | 60 kVA generator + ATS | non-response; schedule change; amendment; stale-offer refresh |
+| 012 DLA relay | 24 electromagnetic relays | non-response; withdrawal; quantity correction; re-evaluation |
+| 013 DLA transformer | 56 power transformers | commercial clarification; supplier question; delivery revision |
+| 014 DLA battery supply | 5 delivery lines | eligibility; partial offers; multi-line normalization; late revision |
+| 015 DLA battery charger | 34 aircraft battery chargers | eligibility; withdrawal; supplier question; recovery revision |
+| 016 DLA power supply | 57 power supplies | non-response; expedited schedule amendment; multiple refreshed offers |
+| 017 DLA QPL breaker | 161 circuit breakers | small-business eligibility; QPL compliance; supplier question; revision |
+| 018 High Point cable | 5 cable lines | substitution ambiguity; clarification; priced substitution; split award |
+| 019 USAF UPS | 80 UPS batteries + installation equipment | eligibility; scope omission; withdrawal; recovery revision |
+| 020 VRE generator | 60 kW mobile generator | commercial clarification; non-response; schedule amendment; stale-offer refresh |
+
+Batch 2 deliberately stacks multiple outstanding obligations in the same
+trajectory. The full suite now covers all 20 currently collected real public
+initial states exactly once.
+
+## Next gate
+
+The next benchmark-scale target is approximately 30 episodes. Reaching it now
+requires collecting about ten additional real public procurement starting states;
+the repository has exhausted its current 20-state pool.
 
 
 ## Distinct-state invariant
