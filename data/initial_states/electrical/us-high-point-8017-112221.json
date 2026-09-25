@@ -141,8 +141,8 @@
     },
     {
       "field_path": "/total_estimated_budget",
-      "reason": "bidder_to_provide",
-      "detail": "Unpriced solicitation; blank price cells are not buyer estimates."
+      "reason": "not_stated",
+      "detail": "Buyer budget is not stated in the reviewed solicitation; blank bidder price cells do not establish it."
     },
     {
       "field_path": "/schedule/need_by_date",
