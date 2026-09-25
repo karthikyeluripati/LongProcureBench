@@ -12,13 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       PILOT_OUTPUT: results/openai-pilot-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
           cache: pip
@@ -26,7 +25,9 @@ jobs:
       - name: Install declared dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Require OpenAI API secret
+      - name: Run 45-episode OpenAI pilot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: |
           if [ -z "$OPENAI_API_KEY" ]; then
@@ -34,8 +35,6 @@ jobs:
             exit 1
           fi
 
-      - name: Run 45-episode OpenAI pilot
-        run: |
           python scripts/run_reactive_pilot.py \
             --model openai/gpt-5.6-sol \
             --model openai/gpt-5.6-terra \
@@ -43,9 +42,46 @@ jobs:
             --repeats 3 \
             --output-dir "$PILOT_OUTPUT"
 
+      - name: Validate pilot execution statuses
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import os
+          from pathlib import Path
+
+          runs_path = Path(os.environ["PILOT_OUTPUT"]) / "runs.csv"
+          if not runs_path.is_file():
+              raise SystemExit("Pilot did not produce runs.csv")
+
+          execution_errors = {
+              "policy_error",
+              "environment_error",
+              "setup_error",
+              "evaluation_error",
+              "metadata_error",
+          }
+
+          with runs_path.open(newline="", encoding="utf-8") as handle:
+              rows = list(csv.DictReader(handle))
+
+          bad = [row for row in rows if row["status"] in execution_errors]
+          if bad:
+              print(f"{len(bad)} pilot run(s) had execution errors:")
+              for row in bad:
+                  print(
+                      f"- {row['model']} | {row['episode_id']} | "
+                      f"repeat={row['repeat']} | status={row['status']} | "
+                      f"error={row['error_type']}"
+                  )
+              raise SystemExit(1)
+
+          print(f"Validated {len(rows)} pilot run(s) with no execution errors.")
+          PY
+
       - name: Upload raw runs and summaries
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: openai-reactive-pilot-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.PILOT_OUTPUT }}
