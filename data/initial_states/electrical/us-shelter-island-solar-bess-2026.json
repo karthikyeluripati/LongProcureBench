@@ -32,7 +32,8 @@
       "model": null,
       "acceptable_alternates": null,
       "estimated_unit_cost": null,
-      "estimated_total_cost": null
+      "estimated_total_cost": null,
+      "award_requirement": "required"
     },
     {
       "item_id": "2",
@@ -51,7 +52,8 @@
       "model": null,
       "acceptable_alternates": null,
       "estimated_unit_cost": null,
-      "estimated_total_cost": null
+      "estimated_total_cost": null,
+      "award_requirement": "optional"
     }
   ],
   "total_estimated_budget": null,
@@ -87,6 +89,7 @@
         "/initial_state/source_issue_date",
         "/line_items/0/item_id",
         "/line_items/0/description",
+        "/line_items/0/award_requirement",
         "/line_items/0/quantity",
         "/line_items/0/quantity_basis",
         "/line_items/0/unit",
@@ -94,6 +97,7 @@
         "/line_items/0/technical_specifications/0/source_locator",
         "/line_items/1/item_id",
         "/line_items/1/description",
+        "/line_items/1/award_requirement",
         "/line_items/1/quantity",
         "/line_items/1/quantity_basis",
         "/line_items/1/unit",
