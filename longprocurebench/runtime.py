@@ -32,6 +32,7 @@ class LongProcureBenchEnv:
         "no_award",
     }
     QUOTE_EVENT_TYPES = {"quote_received", "quote_revision"}
+    REVISION_SOURCE_EVENT_TYPES = QUOTE_EVENT_TYPES | {"substitution_proposed"}
 
     def __init__(self, repo_root: str | Path | None = None):
         self.repo_root = (
@@ -252,6 +253,19 @@ class LongProcureBenchEnv:
             raise EnvironmentError(f"Duplicate action_id: {action['action_id']}")
 
         self._validate_supplier_action(action)
+
+        if action["type"] == "request_quote_revision":
+            supplier_id = action["supplier_id"]
+            has_revealed_offer = any(
+                event["type"] in self.REVISION_SOURCE_EVENT_TYPES
+                and event["supplier_id"] == supplier_id
+                for event in self._revealed_events
+            )
+            if not has_revealed_offer:
+                raise EnvironmentError(
+                    "request_quote_revision requires a previously revealed "
+                    f"offer from supplier {supplier_id}"
+                )
 
         if action["type"] == "award_supplier":
             awards = self._validate_award_action(action)

@@ -1,0 +1,322 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-painesville-switchgear-010",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-painesville-switchgear-2026",
+    "path": "data/initial_states/electrical/us-painesville-switchgear-2026.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Two-line switchgear buy with missing quantities and split award",
+    "summary": "The public notice names metal enclosed switchgear and solar switches but omits quantities, units, budget, and delivery. The agent must resolve the gap, compare a combined offer with partial offers, and obtain a delivery revision before a split award.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "multi_lot",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The two line-item descriptions are real public facts. Quantities, units, and the 240-day delivery ceiling are synthetic controlled clarification values because the public notice does not state them.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-pain-a",
+      "display_name": "Synthetic Painesville Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-pain-b",
+      "display_name": "Synthetic Painesville Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Quotes only the metal enclosed switchgear line."
+    },
+    {
+      "supplier_id": "syn-pain-c",
+      "display_name": "Synthetic Painesville Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Quotes only the solar-switch line and initially misses the clarified delivery ceiling."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic benchmark clarification: quantity is 1 EA for each line and delivery must be no later than 240 days after award.",
+      "details": {
+        "quantities": {
+          "1": 1,
+          "2": 1
+        },
+        "units": {
+          "1": "EA",
+          "2": "EA"
+        },
+        "max_lead_time_days": 240
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pain-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pain-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes both lines: switchgear USD 600,000 and solar switches USD 260,000, each at 210-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": {
+            "price": 600000,
+            "lead_time_days": 210,
+            "quantity": 1
+          },
+          "2": {
+            "price": 260000,
+            "lead_time_days": 210,
+            "quantity": 1
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1",
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pain-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pain-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes only line 1 at USD 560,000 with 230-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": {
+            "price": 560000,
+            "lead_time_days": 230,
+            "quantity": 1
+          },
+          "2": null
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pain-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pain-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes only line 2 at USD 230,000 but requires 250 days.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": null,
+          "2": {
+            "price": 230000,
+            "lead_time_days": 250,
+            "quantity": 1
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-pain-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-pain-c",
+        "step": null
+      },
+      "observation": "Supplier C revises line 2 to USD 245,000 with 235-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": null,
+          "2": {
+            "price": 245000,
+            "lead_time_days": 235,
+            "quantity": 1
+          }
+        },
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Missing quantities/units and delivery must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover both real public line items exactly once."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Each awarded line must satisfy the clarified 240-day delivery ceiling."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Each awarded line must satisfy the clarified quantity of one unit."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-pain-b",
+            "quote_event_id": "e3"
+          },
+          {
+            "scope": "lot-2",
+            "supplier_id": "syn-pain-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "The split award covers both real lines, meets the clarified quantities and delivery ceiling, and has the lowest feasible total price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-pain-a",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-2",
+            "supplier_id": "syn-pain-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A's combined offer is feasible for both lines but more expensive than the split award.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before resolving the missing buyer requirements.",
+      "Awarding only one of the two public line items.",
+      "Awarding Supplier C's original 250-day quote."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible line assignments, prefer the combination with the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

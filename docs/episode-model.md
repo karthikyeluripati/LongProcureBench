@@ -1,4 +1,4 @@
-# LongProcureBench episode model v0.1
+# LongProcureBench episode model
 
 This layer converts real public procurement starting states into controlled,
 semi-synthetic long-horizon episodes. It does **not** claim that the synthetic
@@ -97,13 +97,25 @@ Terminal outcomes now carry an explicit `decision`:
 | `lead_time_change` | Schedule risk |
 | `supplier_withdrawal` | Recovery after a viable option disappears |
 
-## First five episodes
+## Original five episodes
 
 1. **Bongabon generator** — non-response, lead-time conflict, warranty revision.
 2. **National Museum lighting** — two lots, partial offers, accelerated revision.
 3. **NEUST cable** — quantity amendment, stale quotes, aluminum substitution.
 4. **DLA circuit breakers** — SDVOSB eligibility, withdrawal, delivery recovery.
 5. **Barrie transformer** — missing quantity/unit, buyer clarification, incomplete quote revision.
+
+## v0.2 batch 1
+
+Episodes 006–010 extend the suite to ten distinct real public starting states:
+
+6. **BFAR generator** — non-response, mandatory service scope, supplier question, quote revision.
+7. **Negros wire** — documented source-quantity ambiguity, buyer clarification, late offer, quantity correction.
+8. **Burauen generator** — budget/delivery constraints, supplier withdrawal, replacement revision.
+9. **High Point transformer** — alternate-policy ambiguity, missing schedule/budget clarification, standards compliance, delivery revision.
+10. **Painesville switchgear** — missing quantities, partial offers, split award, delivery revision.
+
+See [`episode-suite-v0.2.md`](episode-suite-v0.2.md) for the expansion rationale.
 
 ## Process-pattern references
 
@@ -117,6 +129,4 @@ These references justify the event classes; they are not governing law for every
 
 ## Not built yet
 
-There is still **no runtime simulator, agent baseline, scoring implementation, or
-leaderboard**. This milestone freezes the episode data contract and provides five
-reviewable episodes before runtime behavior is implemented.
+The original five episodes froze the v0.1 data contract. The suite is now designed to expand while preserving the same real/synthetic boundary, deterministic runtime, evaluator semantics, and reference-control sanity checks.

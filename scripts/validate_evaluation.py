@@ -1,4 +1,4 @@
-"""Validate Evaluator v0.1 machine-check configurations."""
+"""Validate machine-check configurations for the electrical episode suite."""
 import json
 from pathlib import Path
 
@@ -42,8 +42,14 @@ def validate_config(config):
 
 def main():
     files = sorted((ROOT / "data/evaluation/electrical").glob("*.json"))
-    if len(files) != 5:
-        raise ValueError(f"Evaluator v0.1 requires exactly 5 configs; found {len(files)}")
+    episode_files = sorted(
+        (ROOT / "data/episodes/electrical").glob("*.json")
+    )
+    if len(files) != len(episode_files):
+        raise ValueError(
+            "Evaluation configs must have one-to-one coverage with episodes: "
+            f"episodes={len(episode_files)}, configs={len(files)}"
+        )
     ids = set()
     for file in files:
         config = json.loads(file.read_text(encoding="utf-8"))
@@ -52,8 +58,11 @@ def main():
             raise ValueError("Evaluation filename must match episode_id")
         ids.add(config["episode_id"])
         print(f"PASS {file.name}")
-    if len(ids) != 5:
-        raise ValueError("Evaluation configs must cover five distinct episodes")
+    episode_ids = {path.stem for path in episode_files}
+    if ids != episode_ids:
+        raise ValueError(
+            "Evaluation config IDs must exactly match episode IDs"
+        )
     print(f"Validated {len(files)} evaluation configs.")
 
 

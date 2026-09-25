@@ -374,5 +374,70 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(len(state["revealed_events"]), expected_events)
 
 
+
+    def test_quote_revision_requires_prior_revealed_quote(self):
+        episode_ids = [
+            ("electrical-bfar-generator-006", "syn-bfar-c"),
+            ("electrical-negros-wire-007", "syn-negros-c"),
+            ("electrical-highpoint-transformer-009", "syn-hp-xfmr-c"),
+            ("electrical-painesville-switchgear-010", "syn-pain-c"),
+        ]
+        for episode_id, supplier_id in episode_ids:
+            with self.subTest(episode_id=episode_id):
+                env = LongProcureBenchEnv()
+                state = env.reset(episode_id)
+                env.step(
+                    self.action(
+                        1,
+                        episode_id,
+                        "identify_suppliers",
+                    )
+                )
+                with self.assertRaisesRegex(
+                    EnvironmentError,
+                    "requires a previously revealed offer",
+                ):
+                    env.step(
+                        self.action(
+                            2,
+                            episode_id,
+                            "request_quote_revision",
+                            supplier_id=supplier_id,
+                        )
+                    )
+                self.assertEqual(env.state["step"], 1)
+                self.assertEqual(env.state["revealed_events"], [])
+
+
+    def test_priced_substitution_can_be_revised(self):
+        episode_id = "electrical-neust-cable-003"
+        env = LongProcureBenchEnv()
+        env.reset(episode_id)
+        env.step(self.action(1, episode_id, "identify_suppliers"))
+        state = env.step(
+            self.action(
+                2,
+                episode_id,
+                "send_rfq",
+                supplier_id="syn-wire-b",
+            )
+        )
+        self.assertEqual(
+            [event["type"] for event in state["observations"]],
+            ["substitution_proposed"],
+        )
+        state = env.step(
+            self.action(
+                3,
+                episode_id,
+                "request_quote_revision",
+                supplier_id="syn-wire-b",
+            )
+        )
+        self.assertEqual(
+            [event["event_id"] for event in state["observations"]],
+            ["e6"],
+        )
+
 if __name__ == "__main__":
     unittest.main()

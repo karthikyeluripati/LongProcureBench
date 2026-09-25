@@ -1,0 +1,267 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-burauen-generator-008",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-burauen-13076346",
+    "path": "data/initial_states/electrical/ph-burauen-13076346.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "250 kVA generator buy with supplier withdrawal and recovery",
+    "summary": "The agent must compare three synthetic offers against the real budget and delivery requirement, then recover after the strongest compliant supplier withdraws before award.",
+    "difficulty": "hard",
+    "tags": [
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "supplier_withdrawal",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, quote values, withdrawal, and revision are synthetic. The PHP 2.5M budget, 20-day delivery period, and 250 kVA/3-phase/230 V/ATS configuration come from the cited real public starting state.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-burauen-a",
+      "display_name": "Synthetic Burauen Generator Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-burauen-b",
+      "display_name": "Synthetic Burauen Generator Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-burauen-c",
+      "display_name": "Synthetic Burauen Generator Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-burauen-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-burauen-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes PHP 2,350,000 with 18-day delivery for a 250 kVA, 3-phase, 230 V generator with ATS.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 2350000,
+        "lead_time_days": 18,
+        "kva": 250,
+        "phases": 3,
+        "voltage_v": 230,
+        "has_ats": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-burauen-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-burauen-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes PHP 2,280,000 but requires 24 days.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 2280000,
+        "lead_time_days": 24,
+        "kva": 250,
+        "phases": 3,
+        "voltage_v": 230,
+        "has_ats": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-burauen-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-burauen-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes PHP 2,420,000 with 19-day delivery for the required configuration.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 2420000,
+        "lead_time_days": 19,
+        "kva": 250,
+        "phases": 3,
+        "voltage_v": 230,
+        "has_ats": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-burauen-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "evaluate_quotes",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Supplier A withdraws its quotation before award.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-burauen-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-burauen-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to PHP 2,390,000 with 17-day delivery and the same required generator configuration.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 2390000,
+        "lead_time_days": 17,
+        "kva": 250,
+        "phases": 3,
+        "voltage_v": 230,
+        "has_ats": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded price must not exceed the real PHP 2,500,000 buyer budget."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 20-day requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Award must match the real 250 kVA, 3-phase, 230 V generator-with-ATS requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier cannot receive award."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "recover_from_withdrawal",
+      "request_quote_revision",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-burauen-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "After Supplier A withdraws, Supplier C's revision is the remaining feasible active offer under the real budget and delivery requirement.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding Supplier B despite its 24-day lead time.",
+      "Awarding Supplier A after withdrawal.",
+      "Awarding a stale Supplier C quote after its revision."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among remaining feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

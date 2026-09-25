@@ -1,4 +1,4 @@
-"""Validate the five-episode LongProcureBench episode-model v0.1 milestone."""
+"""Validate the LongProcureBench electrical episode suite."""
 import json
 from pathlib import Path
 
@@ -196,29 +196,54 @@ def validate_action(action):
     ACTION_VALIDATOR.validate(action)
 
 
+def validate_suite_records(records):
+    if len(records) < 5:
+        raise ValueError(
+            f"Episode suite must retain at least the original 5 episodes; "
+            f"found {len(records)}"
+        )
+
+    episode_ids = [record["episode_id"] for record in records]
+    if len(episode_ids) != len(set(episode_ids)):
+        raise ValueError("Duplicate episode_id")
+
+    package_ids = [
+        record["initial_state_ref"]["package_id"]
+        for record in records
+    ]
+    if len(package_ids) != len(set(package_ids)):
+        raise ValueError(
+            "Each benchmark episode must use a distinct real initial-state "
+            "package_id"
+        )
+
+    all_event_types = {
+        event["type"]
+        for record in records
+        for event in record["events"]
+    }
+    if len(all_event_types) < 8:
+        raise ValueError(
+            "Episode suite does not exercise enough event-type diversity"
+        )
+
+
 def main():
     files = sorted((ROOT / "data/episodes/electrical").glob("*.json"))
-    if len(files) != 5:
-        raise ValueError(f"Episode-model v0.1 requires exactly 5 episodes; found {len(files)}")
-    episode_ids = set()
-    package_ids = set()
-    all_event_types = set()
+    records = []
     for file in files:
         record = json.loads(file.read_text(encoding="utf-8"))
         validate_episode(record)
         if file.stem != record["episode_id"]:
             raise ValueError("Episode filename must match episode_id")
-        if record["episode_id"] in episode_ids:
-            raise ValueError("Duplicate episode_id")
-        episode_ids.add(record["episode_id"])
-        package_ids.add(record["initial_state_ref"]["package_id"])
-        all_event_types.update(event["type"] for event in record["events"])
+        records.append(record)
         print(f"PASS {file.name}")
-    if len(package_ids) != 5:
-        raise ValueError("The first five episodes must use five distinct initial states")
-    if len(all_event_types) < 8:
-        raise ValueError("Episode suite does not exercise enough event-type diversity")
-    print(f"Validated {len(files)} episodes across {len(package_ids)} initial states.")
+
+    validate_suite_records(records)
+    print(
+        f"Validated {len(records)} episodes across "
+        f"{len(records)} distinct initial states."
+    )
 
 
 if __name__ == "__main__":

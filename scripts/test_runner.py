@@ -59,7 +59,7 @@ class RunnerTests(unittest.TestCase):
     def setUp(self):
         self.runner = BenchmarkRunner()
 
-    def test_reference_control_passes_all_five_episodes(self):
+    def test_reference_control_passes_all_frozen_episodes(self):
         for episode_id in ScriptedReferencePolicy.episode_ids():
             with self.subTest(episode_id=episode_id):
                 result = self.runner.run(ScriptedReferencePolicy(), episode_id)
@@ -223,6 +223,22 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(
             result["policy_metrics"]["metadata_error"]["type"],
             "RuntimeError",
+        )
+
+
+    def test_every_episode_has_reference_control(self):
+        episode_dir = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "episodes"
+            / "electrical"
+        )
+        episode_ids = {
+            path.stem for path in episode_dir.glob("*.json")
+        }
+        self.assertEqual(
+            set(ScriptedReferencePolicy.episode_ids()),
+            episode_ids,
         )
 
 if __name__ == "__main__":

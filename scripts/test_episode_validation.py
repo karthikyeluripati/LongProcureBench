@@ -4,7 +4,7 @@ import json
 import unittest
 
 from jsonschema import ValidationError
-from validate_episodes import EPISODE_SCHEMA, EPISODE_VALIDATOR, ROOT, validate_action, validate_episode
+from validate_episodes import EPISODE_SCHEMA, EPISODE_VALIDATOR, ROOT, validate_action, validate_episode, validate_suite_records
 
 
 class EpisodeValidationTests(unittest.TestCase):
@@ -19,13 +19,27 @@ class EpisodeValidationTests(unittest.TestCase):
     def test_valid_episode(self):
         validate_episode(self.episode)
 
-    def test_v01_has_five_distinct_real_initial_states(self):
+    def test_suite_retains_original_grounding_and_can_expand(self):
         paths = sorted((ROOT / "data/episodes/electrical").glob("*.json"))
-        self.assertEqual(len(paths), 5)
-        records = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
-        self.assertEqual(len({r["episode_id"] for r in records}), 5)
-        self.assertEqual(len({r["initial_state_ref"]["package_id"] for r in records}), 5)
-        self.assertTrue(all(r["initial_state_ref"]["grounding"] == "real_public" for r in records))
+        self.assertGreaterEqual(len(paths), 5)
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in paths
+        ]
+        self.assertEqual(
+            len({r["episode_id"] for r in records}),
+            len(records),
+        )
+        self.assertEqual(
+            len({r["initial_state_ref"]["package_id"] for r in records}),
+            len(records),
+        )
+        self.assertTrue(
+            all(
+                r["initial_state_ref"]["grounding"] == "real_public"
+                for r in records
+            )
+        )
 
     def test_unknown_initial_state_rejected(self):
         record = copy.deepcopy(self.episode)
@@ -223,6 +237,45 @@ class EpisodeValidationTests(unittest.TestCase):
             "preferred outcomes do not match minimum-price",
         ):
             validate_episode(record)
+
+
+    def test_v02_batch_has_ten_real_grounded_episodes(self):
+        paths = sorted(
+            (ROOT / "data/episodes/electrical").glob("*.json")
+        )
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in paths
+        ]
+        self.assertEqual(len(records), 10)
+        self.assertEqual(
+            len({
+                record["initial_state_ref"]["package_id"]
+                for record in records
+            }),
+            10,
+        )
+
+
+    def test_suite_rejects_reused_real_initial_state(self):
+        records = [
+            self.load_episode("electrical-bongabon-generator-001"),
+            self.load_episode("electrical-national-museum-lighting-002"),
+            self.load_episode("electrical-neust-cable-003"),
+            self.load_episode("electrical-dla-breaker-004"),
+            self.load_episode("electrical-barrie-transformer-005"),
+        ]
+        duplicate = copy.deepcopy(records[-1])
+        duplicate["episode_id"] = "electrical-duplicate-state-999"
+        duplicate["initial_state_ref"] = copy.deepcopy(
+            records[0]["initial_state_ref"]
+        )
+        records.append(duplicate)
+        with self.assertRaisesRegex(
+            ValueError,
+            "distinct real initial-state package_id",
+        ):
+            validate_suite_records(records)
 
 if __name__ == "__main__":
     unittest.main()
