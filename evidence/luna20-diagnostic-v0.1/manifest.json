@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.2.0",
+  "purpose": "Durable source for Luna 20-episode fairness audit and Evaluator v0.2 rescoring.",
+  "source_workflow_run_id": 36173979424,
+  "source_workflow_run_attempt": 1,
+  "source_artifact_id": 10881812151,
+  "source_artifact_name": "luna20-diagnostic-36173979424-1",
+  "source_artifact_digest": "sha256:28d2ec26ed068ffe2c5d3764f79975fb45acd7a02ac0f680802461c276ca8e08",
+  "records": 60,
+  "episodes": 20,
+  "repeats_per_episode": 3,
+  "storage": {
+    "format": "gzip(JSONL) encoded as six base64 text chunks",
+    "chunk_pattern": "fairness-source.b64.part01..06",
+    "compressed_bytes": 18140,
+    "compressed_sha256": "e67bf0a7408e239cfb677d1f3143e7f09a485f72c714ede4e385115eda577707"
+  },
+  "retained_fields": [
+    "episode_id",
+    "run_id",
+    "status",
+    "trajectory",
+    "evaluation"
+  ]
+}

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
-import gzip
 import json
 from pathlib import Path
 import re
@@ -14,18 +13,14 @@ if str(ROOT) not in __import__("sys").path:
     __import__("sys").path.insert(0, str(ROOT))
 
 from longprocurebench import LongProcureBenchEvaluator
+from frozen_luna20_source import load_frozen_luna20_source
 
 EPISODE_NUMBER_RE = re.compile(r"-(\d{3})$")
 
 
-def load_frozen_runs(path: Path) -> list[dict[str, Any]]:
-    if not path.is_file():
-        raise ValueError(f"Frozen Luna source not found: {path}")
-    with gzip.open(path, "rt", encoding="utf-8") as handle:
-        runs = [json.loads(line) for line in handle if line.strip()]
-    if len(runs) != 60:
-        raise ValueError(f"Expected exactly 60 frozen runs; found {len(runs)}")
-    return runs
+def load_frozen_runs(path: Path | None = None) -> list[dict[str, Any]]:
+    """Compatibility wrapper over the committed six-part source."""
+    return load_frozen_luna20_source(ROOT)
 
 
 def accepted_actions(run: dict[str, Any]) -> list[dict[str, Any]]:
@@ -240,7 +235,7 @@ def build_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
         "schema_version": "0.2.0",
         "benchmark": "LongProcureBench",
         "experiment": "luna20-evaluator-v0.2-rescore",
-        "source": "evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz",
+        "source": "evidence/luna20-diagnostic-v0.1/fairness-source.b64.part01..06",
         "runs": len(records),
         "by_group": {
             name: _summarize(group_records)
@@ -358,19 +353,12 @@ def write_outputs(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--input",
-        default=(
-            "evidence/luna20-diagnostic-v0.1/"
-            "fairness-source.jsonl.gz"
-        ),
-    )
-    parser.add_argument(
         "--output-dir",
         default="results/luna20-evaluator-v02",
     )
     args = parser.parse_args()
 
-    records = rescore_runs(load_frozen_runs(Path(args.input)))
+    records = rescore_runs(load_frozen_runs())
     summary = build_summary(records)
     write_outputs(records, summary, Path(args.output_dir))
     print(report_markdown(summary))

@@ -12,7 +12,8 @@ on:
       - 'scripts/test_rescore_luna20_v02.py'
       - 'data/episodes/electrical/**'
       - 'data/evaluation/electrical/**'
-      - 'evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz'
+      - 'evidence/luna20-diagnostic-v0.1/fairness-source.b64.part*'
+      - 'scripts/frozen_luna20_source.py'
       - '.github/workflows/evaluator-v02-rescore.yml'
   workflow_dispatch:
 

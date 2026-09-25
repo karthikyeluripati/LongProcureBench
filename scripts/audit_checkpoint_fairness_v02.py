@@ -1,9 +1,15 @@
 """Checkpoint fairness audit v0.2."""
 from __future__ import annotations
-import argparse, gzip, json
+import argparse, json
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in __import__('sys').path:
+    __import__('sys').path.insert(0, str(ROOT))
+
+from frozen_luna20_source import load_frozen_luna20_source
 
 EVENT_OBLIGATIONS = {
     "follow_up_nonresponse": {"supplier_non_response"},
@@ -339,30 +345,28 @@ def report_markdown(audit, static):
     return "\n".join(lines) + "\n"
 
 
-def _load_frozen_gzip(path):
-    if not path.is_file():
-        raise ValueError(f"Frozen trajectory source not found: {path}")
-    with gzip.open(path, "rt", encoding="utf-8") as handle:
-        runs = [json.loads(line) for line in handle if line.strip()]
-    if not runs:
-        raise ValueError(f"Frozen trajectory source is empty: {path}")
-    return runs
-
+def _load_frozen_gzip(path=None):
+    """Compatibility wrapper over the committed six-part source."""
+    return load_frozen_luna20_source(ROOT)
 
 def main():
     parser = argparse.ArgumentParser()
-    source = parser.add_mutually_exclusive_group(required=True)
+    source = parser.add_mutually_exclusive_group(required=False)
     source.add_argument("--input-dir")
     source.add_argument("--input-jsonl-gz")
     parser.add_argument("--repo-root", default=str(Path(__file__).resolve().parents[1]))
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
     repo_root = Path(args.repo_root)
-    runs = (
-        [json.loads(p.read_text(encoding="utf-8")) for p in discover_runs(Path(args.input_dir))]
-        if args.input_dir
-        else _load_frozen_gzip(Path(args.input_jsonl_gz))
-    )
+    if args.input_dir:
+        runs = [
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in discover_runs(Path(args.input_dir))
+        ]
+    elif args.input_jsonl_gz:
+        runs = _load_frozen_gzip(Path(args.input_jsonl_gz))
+    else:
+        runs = load_frozen_luna20_source(repo_root)
     audit = audit_runs(runs, repo_root)
     static = static_episode_audit(repo_root)
     out = Path(args.output_dir)

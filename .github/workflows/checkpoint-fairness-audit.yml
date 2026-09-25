@@ -3,25 +3,26 @@ name: Checkpoint Fairness Audit
 on:
   push:
     branches:
-      - codex/checkpoint-fairness-audit-v0.1
+      - main
+      - codex/evaluator-v0.2
     paths:
       - 'scripts/audit_checkpoint_fairness.py'
+      - 'scripts/audit_checkpoint_fairness_v02.py'
+      - 'scripts/frozen_luna20_source.py'
       - 'scripts/test_checkpoint_fairness.py'
+      - 'scripts/test_checkpoint_fairness_v02.py'
+      - 'evidence/luna20-diagnostic-v0.1/fairness-source.b64.part*'
       - '.github/workflows/checkpoint-fairness-audit.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SOURCE_RUN_ID: '36173979424'
-      SOURCE_RUN_ATTEMPT: '1'
-      RAW_DIR: raw-luna20
       OUTPUT_DIR: checkpoint-fairness-audit
 
     steps:
@@ -38,38 +39,9 @@ jobs:
       - name: Run audit regression tests
         run: python -m unittest discover -s scripts -p "test_checkpoint_fairness.py" -v
 
-      - name: Verify source workflow attempt
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          conclusion="$(
-            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/attempts/${SOURCE_RUN_ATTEMPT}" \
-              --jq '.conclusion'
-          )"
-          if [ "$conclusion" != "success" ]; then
-            echo "Source Luna diagnostic attempt was not successful: $conclusion"
-            exit 1
-          fi
-
-      - name: Download immutable 60-run artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RAW_DIR"
-          gh run download "$SOURCE_RUN_ID" \
-            --name "luna20-diagnostic-${SOURCE_RUN_ID}-${SOURCE_RUN_ATTEMPT}" \
-            --dir "$RAW_DIR"
-          count="$(find "$RAW_DIR" -type f -name 'run-*.json' | wc -l | tr -d ' ')"
-          if [ "$count" -ne 60 ]; then
-            echo "Expected 60 raw run files; found $count"
-            exit 1
-          fi
-
       - name: Audit checkpoint fairness
         run: |
           python scripts/audit_checkpoint_fairness.py \
-            --input-dir "$RAW_DIR" \
             --output-dir "$OUTPUT_DIR"
 
       - name: Show fairness report
