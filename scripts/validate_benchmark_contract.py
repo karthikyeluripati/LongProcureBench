@@ -201,12 +201,31 @@ def validate_contract(
         for episode in episodes.values()
         if episode["episode_id"] in FROZEN_DEVELOPMENT_EPISODES
     }
-    overlap = development_package_ids & set(initial_state_package_ids)
+    reserved_package_ids = set(initial_state_package_ids)
+    overlap = development_package_ids & reserved_package_ids
     if overlap:
         raise ValueError(
             "Held-out initial states cannot reuse development packages: "
             f"{sorted(overlap)}"
         )
+
+    collected_nondevelopment_package_ids = (
+        set(initial_states) - development_package_ids
+    )
+    if collected_nondevelopment_package_ids != reserved_package_ids:
+        missing_reservations = (
+            collected_nondevelopment_package_ids - reserved_package_ids
+        )
+        stale_reservations = (
+            reserved_package_ids - collected_nondevelopment_package_ids
+        )
+        raise ValueError(
+            "Held-out reservation list must exactly match collected "
+            "non-development initial states: "
+            f"missing_reservations={sorted(missing_reservations)}, "
+            f"stale_reservations={sorted(stale_reservations)}"
+        )
+
     if len(initial_state_package_ids) > held_out_config.get("target_count", 0):
         raise ValueError("Collected held-out initial states exceed target count")
 
@@ -228,8 +247,17 @@ def validate_contract(
             raise ValueError(f"Invalid paper split for {episode_id}")
         if row["paper_split"] != expected_split[episode_id]:
             raise ValueError(f"Matrix/split disagreement for {episode_id}")
-        if row["package_id"] != episode["initial_state_ref"]["package_id"]:
+        episode_package_id = episode["initial_state_ref"]["package_id"]
+        if row["package_id"] != episode_package_id:
             raise ValueError(f"Package ID mismatch for {episode_id}")
+        if (
+            episode_id in held_out_set
+            and episode_package_id not in reserved_package_ids
+        ):
+            raise ValueError(
+                f"Held-out episode uses unreserved initial state: "
+                f"{episode_id} -> {episode_package_id}"
+            )
         if episode["initial_state_ref"]["grounding"] != "real_public":
             raise ValueError(f"Initial state is not real_public for {episode_id}")
         if row["initial_state_grounding"] != "real_public":
