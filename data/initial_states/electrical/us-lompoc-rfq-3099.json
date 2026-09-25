@@ -1,0 +1,88 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-lompoc-rfq-3099",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Lompoc",
+    "project_name": "Electric Transformers (RFQ 3099)",
+    "project_description": "Municipal procurement of electric transformers under RFQ 3099.",
+    "location": null
+  },
+  "package_subscope": "Electric-transformer procurement represented by the public RFQ listing; detailed attachment content was not available in the reviewed indexed page.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2025-03-10",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Electric transformers",
+      "quantity": null,
+      "quantity_basis": null,
+      "unit": null,
+      "technical_specifications": null,
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2025-04-01 12:00 PT"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Electric Transformers - RFQ 3099",
+      "url": "https://www.cityoflompoc.com/Home/Components/RFP/RFP/379/190",
+      "document_type": "notice_html",
+      "issued_date": "2025-03-10",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "City of Lompoc bid page > Electric Transformers > RFQ 3099",
+      "interpretation": "Direct extraction or conservative paraphrase from the City bid listing."
+    }
+  ],
+  "missing_information": [
+    {"field_path": "/project/location", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/quantity", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/quantity_basis", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/unit", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/technical_specifications", "reason": "partial_extraction", "detail": "The indexed City page exposes the RFQ title and dates but not the contents of the linked transformer specification attachment."},
+    {"field_path": "/line_items/0/manufacturer", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/model", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/acceptable_alternates", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_unit_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/line_items/0/estimated_total_cost", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/total_estimated_budget", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/need_by_date", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/schedule/delivery_requirement", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/supplier_eligibility_constraints", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/certifications_compliance", "reason": "not_stated", "detail": "Not stated or not accessible in the reviewed public source; no value inferred."},
+    {"field_path": "/supporting_documents/0/sha256", "reason": "source_snapshot_unavailable", "detail": "Raw source bytes were not captured; checksum intentionally omitted."},
+    {"field_path": "/line_items", "reason": "partial_extraction", "detail": "The linked RFQ attachment was not available through the reviewed indexed page; only fields directly visible on the primary City listing are populated."}
+  ]
+}
