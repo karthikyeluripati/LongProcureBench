@@ -14,6 +14,8 @@ if str(ROOT) not in sys.path:
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 
+EPISODE_ID_RE = re.compile(r"^[a-z0-9-]+$")
+
 DEFAULT_EPISODES = [
     "electrical-bongabon-generator-001",
     "electrical-national-museum-lighting-002",
@@ -28,6 +30,22 @@ def model_slug(model):
     digest = sha256(model.encode("utf-8")).hexdigest()[:10]
     readable = readable[:108].rstrip("._-") or "model"
     return f"{readable}--{digest}"
+
+
+def validate_episode_id(episode_id):
+    if not isinstance(episode_id, str) or not EPISODE_ID_RE.fullmatch(episode_id):
+        raise ValueError(
+            f"Invalid episode ID for pilot output path: {episode_id!r}"
+        )
+    return episode_id
+
+
+def ensure_fresh_output_dir(output_dir):
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise FileExistsError(
+            f"Pilot output directory is not empty: {output_dir}. "
+            "Use a new --output-dir so raw replicates are never overwritten."
+        )
 
 
 def flatten_result(result, model, repeat):
@@ -84,7 +102,14 @@ def summarize(rows):
             "mean_accepted_actions": _mean([r["accepted_actions"] for r in subset]),
             "mean_total_tokens": _mean([r["total_tokens"] for r in subset]),
             "mean_latency_ms": _mean([r["latency_ms"] for r in subset]),
-            "total_cost_usd": sum(float(r["cost_usd"]) for r in subset) if subset and all(r["cost_usd"] is not None for r in subset) else None,
+            "total_known_cost_usd": sum(
+                float(r["cost_usd"])
+                for r in subset
+                if r["cost_usd"] is not None
+            ),
+            "runs_with_unknown_cost_usd": sum(
+                r["cost_usd"] is None for r in subset
+            ),
             "runs_with_incomplete_usage": sum(bool(r["usage_incomplete"]) for r in subset),
         }
     return {"schema_version": "0.1.0", "benchmark": "LongProcureBench", "baseline": "reactive-llm-v0.1", "runs": len(rows), "by_model": by_model}
@@ -108,10 +133,15 @@ def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None
         raise ValueError("At least one model is required")
     if repeats < 1:
         raise ValueError("repeats must be >= 1")
+
+    output_dir = Path(output_dir)
+    ensure_fresh_output_dir(output_dir)
+    validated_episodes = [validate_episode_id(x) for x in episodes]
+
     runner = runner or BenchmarkRunner()
     rows = []
     for model in models:
-        for episode_id in episodes:
+        for episode_id in validated_episodes:
             for repeat in range(1, repeats + 1):
                 policy = policy_factory(model)
                 rid = f"reactive-v0.1--{model_slug(model)}--{episode_id}--r{repeat:03d}"

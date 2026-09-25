@@ -45,3 +45,23 @@ Provider credentials must already be available through the normal LiteLLM/provid
 ## Interpretation
 
 This five-episode experiment is a pilot for benchmark validation and failure taxonomy. It is not enough for paper-level claims about model rankings or the superiority of an agent architecture.
+
+
+## Immutable pilot output directory
+
+Each invocation owns its output directory. If the requested output directory
+already contains files, the harness refuses to start. Use a new --output-dir for
+a rerun. This prevents raw replicate JSON from being silently overwritten.
+
+## Cost completeness
+
+Per-model summaries report total_known_cost_usd as the sum of every available
+run cost and runs_with_unknown_cost_usd separately. One unknown price therefore
+does not erase known spend.
+
+## Safe episode path components
+
+Custom episode IDs are validated against the canonical benchmark identifier
+pattern before they are used in output paths. Path separators, traversal
+components, uppercase characters, underscores, and other noncanonical values are
+rejected before any run begins.

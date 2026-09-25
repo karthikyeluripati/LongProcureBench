@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from run_reactive_pilot import model_slug, run_pilot, summarize
+from run_reactive_pilot import model_slug, run_pilot, summarize, validate_episode_id
 
 
 class StubPolicy:
@@ -72,6 +72,62 @@ class PilotTests(unittest.TestCase):
         self.assertEqual(s["mean_accepted_actions"], 6.0)
         self.assertEqual(s["mean_total_tokens"], 150.0)
 
+
+    def test_repeated_invocation_refuses_nonempty_output_dir(self):
+        runner = StubRunner()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "pilot"
+            run_pilot(
+                ["provider/a"],
+                ["episode-one"],
+                1,
+                out,
+                runner=runner,
+                policy_factory=StubPolicy,
+            )
+            with self.assertRaisesRegex(
+                FileExistsError,
+                "output directory is not empty",
+            ):
+                run_pilot(
+                    ["provider/a"],
+                    ["episode-one"],
+                    1,
+                    out,
+                    runner=runner,
+                    policy_factory=StubPolicy,
+                )
+
+    def test_summary_keeps_known_cost_when_some_costs_are_missing(self):
+        rows = [
+            {"model":"m","episode_success":True,"terminal_correct":True,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":5,"total_tokens":100,"latency_ms":20.0,"cost_usd":0.01,"usage_incomplete":False},
+            {"model":"m","episode_success":False,"terminal_correct":False,"status":"completed","constraint_violations":[],"incomplete_checkpoints":[],"accepted_actions":6,"total_tokens":120,"latency_ms":25.0,"cost_usd":None,"usage_incomplete":False},
+        ]
+        s = summarize(rows)["by_model"]["m"]
+        self.assertAlmostEqual(s["total_known_cost_usd"], 0.01)
+        self.assertEqual(s["runs_with_unknown_cost_usd"], 1)
+
+    def test_episode_id_rejects_path_traversal(self):
+        for bad in ("../outside", "a/b", "UPPER", "a_b"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    validate_episode_id(bad)
+
+    def test_invalid_episode_is_rejected_before_runner_or_filesystem_use(self):
+        runner = StubRunner()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "pilot"
+            with self.assertRaises(ValueError):
+                run_pilot(
+                    ["provider/a"],
+                    ["../outside"],
+                    1,
+                    out,
+                    runner=runner,
+                    policy_factory=StubPolicy,
+                )
+            self.assertEqual(runner.calls, [])
+            self.assertFalse(out.exists())
 
 if __name__ == "__main__":
     unittest.main()
