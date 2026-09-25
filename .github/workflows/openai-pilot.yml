@@ -1,0 +1,53 @@
+name: OpenAI Reactive Pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    name: 45-run OpenAI reactive pilot
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      PILOT_OUTPUT: results/openai-pilot-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Require OpenAI API secret
+        shell: bash
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY repository secret is not configured."
+            exit 1
+          fi
+
+      - name: Run 45-episode OpenAI pilot
+        run: |
+          python scripts/run_reactive_pilot.py \
+            --model openai/gpt-5.6-sol \
+            --model openai/gpt-5.6-terra \
+            --model openai/gpt-5.6-luna \
+            --repeats 3 \
+            --output-dir "$PILOT_OUTPUT"
+
+      - name: Upload raw runs and summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-reactive-pilot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.PILOT_OUTPUT }}
+          if-no-files-found: warn
+          retention-days: 30
