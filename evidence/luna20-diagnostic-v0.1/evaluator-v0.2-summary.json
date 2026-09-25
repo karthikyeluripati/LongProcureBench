@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.2.0",
+  "source_run_id": 36173979424,
+  "rescore_workflow_run_id": 36185075656,
+  "rescore_artifact_id": 10885743123,
+  "runs": 60,
+  "terminal_feasible_rate": 0.7166666666666667,
+  "legacy_feasible_process_success_rate": 0.18333333333333332,
+  "feasible_obligation_success_rate": 0.5,
+  "episode_success_v02_rate": 0.26666666666666666,
+  "actionable_obligations": 91,
+  "resolved_obligations": 62,
+  "unresolved_obligations": 29,
+  "no_opportunity_obligations": 2,
+  "not_applicable_obligations": 54,
+  "obligation_resolution_rate": 0.6813186813186813,
+  "unresolved_obligation_counts": {
+    "resolve_requirement_gap": 10,
+    "follow_up_nonresponse": 6,
+    "request_quote_revision": 6,
+    "handle_amendment": 4,
+    "recover_from_withdrawal": 3
+  }
+}

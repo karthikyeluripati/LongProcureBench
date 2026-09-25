@@ -1,10 +1,21 @@
 """Regression tests for the frozen Luna Evaluator v0.2 rescore."""
 import unittest
 
-from rescore_luna20_v02 import build_summary
+from rescore_luna20_v02 import build_summary, load_frozen_runs
 
 
 class Luna20V02RescoreTests(unittest.TestCase):
+    def test_committed_frozen_source_is_complete_and_verified(self):
+        runs = load_frozen_runs()
+        self.assertEqual(len(runs), 60)
+        counts = {}
+        for run in runs:
+            counts[run["episode_id"]] = (
+                counts.get(run["episode_id"], 0) + 1
+            )
+        self.assertEqual(len(counts), 20)
+        self.assertTrue(all(count == 3 for count in counts.values()))
+
     @staticmethod
     def record(
         episode_id,
