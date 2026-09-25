@@ -24,10 +24,7 @@ path, or parsed episode dictionary.
 
 ## Visible vs hidden state
 
-At reset, the agent-visible state contains the real public initial state and no
-synthetic suppliers or future events. `identify_suppliers` reveals the synthetic
-supplier directory. Future quotes, questions, amendments, withdrawals, and other
-events remain hidden until their episode triggers fire.
+At reset, the referenced initial state is revalidated with the same schema and repository invariants used by dataset checks. Only after validation passes does the agent-visible state expose the real public initial state. `identify_suppliers` reveals only supplier identity fields (`supplier_id`, `display_name`, and `synthetic`). Internal synthetic profile fields such as `notes`, `eligibility_state`, and `compliance_state` remain hidden unless a later event explicitly reveals that information. Future quotes, questions, amendments, withdrawals, and other events remain hidden until their episode triggers fire.
 
 Returned state contains:
 

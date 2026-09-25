@@ -1,5 +1,9 @@
 """Regression tests for the deterministic LongProcureBench runtime."""
+import copy
 import json
+from pathlib import Path
+import shutil
+import tempfile
 import unittest
 
 from jsonschema import ValidationError
@@ -36,16 +40,66 @@ class RuntimeTests(unittest.TestCase):
             state["initial_state"]["package_id"], "ph-bongabon-wd-13076574"
         )
 
-    def test_identify_suppliers_reveals_directory(self):
-        state = self.env.reset("electrical-bongabon-generator-001")
+    def test_identify_suppliers_reveals_only_public_directory_fields(self):
+        state = self.env.reset("electrical-barrie-transformer-005")
         state = self.env.step(
             self.action(1, state["episode_id"], "identify_suppliers")
         )
         self.assertEqual(len(state["visible_suppliers"]), 3)
-        self.assertEqual(
-            {supplier["supplier_id"] for supplier in state["visible_suppliers"]},
-            {"syn-gen-a", "syn-gen-b", "syn-gen-c"},
+        for supplier in state["visible_suppliers"]:
+            self.assertEqual(
+                set(supplier), {"supplier_id", "display_name", "synthetic"}
+            )
+        serialized = json.dumps(state["visible_suppliers"])
+        self.assertNotIn("omits the monitoring relay", serialized)
+        self.assertNotIn("compliance_state", serialized)
+        self.assertNotIn("eligibility_state", serialized)
+        self.assertNotIn("notes", serialized)
+
+
+    def test_reset_rejects_invalid_referenced_initial_state(self):
+        source_episode = self.env.load_episode(
+            "electrical-bongabon-generator-001"
         )
+        source_initial = self.env._read_json(
+            self.env.repo_root
+            / source_episode["initial_state_ref"]["path"]
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "schema").mkdir()
+            (root / "data/initial_states/electrical").mkdir(parents=True)
+            for schema_name in (
+                "episode.schema.json",
+                "action.schema.json",
+                "initial-state.schema.json",
+            ):
+                shutil.copy2(
+                    self.env.repo_root / "schema" / schema_name,
+                    root / "schema" / schema_name,
+                )
+
+            bad_initial = copy.deepcopy(source_initial)
+            bad_initial["line_items"].append(
+                copy.deepcopy(bad_initial["line_items"][0])
+            )
+            initial_path = (
+                root
+                / "data/initial_states/electrical"
+                / "duplicate-items.json"
+            )
+            initial_path.write_text(
+                json.dumps(bad_initial), encoding="utf-8"
+            )
+
+            episode = copy.deepcopy(source_episode)
+            episode["initial_state_ref"]["path"] = (
+                "data/initial_states/electrical/duplicate-items.json"
+            )
+            env = LongProcureBenchEnv(repo_root=root)
+            with self.assertRaisesRegex(ValueError, "Duplicate item IDs"):
+                env.reset(episode)
 
     def test_supplier_action_requires_revealed_directory(self):
         state = self.env.reset("electrical-bongabon-generator-001")

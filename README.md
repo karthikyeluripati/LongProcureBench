@@ -84,6 +84,5 @@ presented as historical actors.
 
 ## Development and CI
 
-Use TDD for behavioral fixes. GitHub Actions runs runtime regression tests plus
-both data validators on Python 3.10 and 3.12. See [`AGENTS.md`](AGENTS.md) for
+Use TDD for behavioral fixes. GitHub Actions runs the full unit/runtime regression suite plus both data validators on Python 3.10 and 3.12. See [`AGENTS.md`](AGENTS.md) for
 repository workflow and review rules.

@@ -8,6 +8,8 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+from .validation import InitialStateValidator
+
 
 class EnvironmentError(ValueError):
     """Raised when an action is invalid for the current environment state."""
@@ -39,6 +41,9 @@ class LongProcureBenchEnv:
         )
         self._episode_schema = self._read_json(self.repo_root / "schema/episode.schema.json")
         self._action_schema = self._read_json(self.repo_root / "schema/action.schema.json")
+        self._initial_state_validator = InitialStateValidator(
+            self.repo_root / "schema/initial-state.schema.json"
+        )
         Draft202012Validator.check_schema(self._episode_schema)
         Draft202012Validator.check_schema(self._action_schema)
         checker = FormatChecker()
@@ -93,6 +98,7 @@ class LongProcureBenchEnv:
         if not initial_path.is_file():
             raise EnvironmentError(f"Initial state not found: {initial_path}")
         initial = self._read_json(initial_path)
+        self._initial_state_validator.validate(initial)
         if initial["package_id"] != record["initial_state_ref"]["package_id"]:
             raise EnvironmentError("Episode initial_state_ref package_id mismatch")
 
@@ -127,7 +133,14 @@ class LongProcureBenchEnv:
     def _snapshot(self, observations: list[dict[str, Any]]) -> dict[str, Any]:
         self._require_reset()
         visible_suppliers = (
-            [deepcopy(supplier) for supplier in self._suppliers.values()]
+            [
+                {
+                    "supplier_id": supplier["supplier_id"],
+                    "display_name": supplier["display_name"],
+                    "synthetic": supplier["synthetic"],
+                }
+                for supplier in self._suppliers.values()
+            ]
             if self._suppliers_revealed
             else []
         )
