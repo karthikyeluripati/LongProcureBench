@@ -57,7 +57,9 @@
         "completed",
         "max_actions",
         "policy_error",
-        "environment_error"
+        "environment_error",
+        "setup_error",
+        "evaluation_error"
       ]
     },
     "max_actions": {
@@ -144,44 +146,51 @@
       }
     },
     "evaluation": {
-      "type": "object",
-      "properties": {
-        "episode_id": {
-          "type": "string"
+      "oneOf": [
+        {
+          "type": "null"
         },
-        "episode_success": {
-          "type": "boolean"
-        },
-        "terminal_outcome": {
-          "type": "object"
-        },
-        "hard_constraints": {
-          "type": "object"
-        },
-        "required_checkpoints": {
-          "type": "object"
-        },
-        "constraint_violations": {
-          "type": "array"
-        },
-        "efficiency": {
-          "type": "object"
-        },
-        "terminated": {
-          "type": "boolean"
+        {
+          "type": "object",
+          "properties": {
+            "episode_id": {
+              "type": "string"
+            },
+            "episode_success": {
+              "type": "boolean"
+            },
+            "terminal_outcome": {
+              "type": "object"
+            },
+            "hard_constraints": {
+              "type": "object"
+            },
+            "required_checkpoints": {
+              "type": "object"
+            },
+            "constraint_violations": {
+              "type": "array"
+            },
+            "efficiency": {
+              "type": "object"
+            },
+            "terminated": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "episode_id",
+            "episode_success",
+            "terminal_outcome",
+            "hard_constraints",
+            "required_checkpoints",
+            "constraint_violations",
+            "efficiency",
+            "terminated"
+          ],
+          "additionalProperties": true
         }
-      },
-      "required": [
-        "episode_id",
-        "episode_success",
-        "terminal_outcome",
-        "hard_constraints",
-        "required_checkpoints",
-        "constraint_violations",
-        "efficiency",
-        "terminated"
-      ],
-      "additionalProperties": true
+      ]
     },
     "error": {
       "oneOf": [

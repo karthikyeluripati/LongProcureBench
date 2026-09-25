@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
+
+from jsonschema import ValidationError
 
 from longprocurebench import BenchmarkRunner, ScriptedReferencePolicy
 
@@ -32,6 +35,16 @@ class MalformedPolicy:
         pass
     def act(self, state):
         return {"action_id": "policy-owned-id", "type": "identify_suppliers"}
+
+
+
+class BogusActionPolicy:
+    policy_id = "bogus-action-policy"
+    policy_kind = "test"
+    def reset(self, state):
+        pass
+    def act(self, state):
+        return {"type": "bogus", "supplier_id": None, "arguments": {}}
 
 
 class RunnerTests(unittest.TestCase):
@@ -93,6 +106,43 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(result["attempts"]), len(result["trajectory"]))
         self.assertTrue(all(x["accepted"] for x in result["attempts"]))
         self.assertEqual(result["evaluation"]["episode_id"], result["episode_id"])
+
+
+    def test_unsupported_policy_action_is_policy_error(self):
+        result = self.runner.run(
+            BogusActionPolicy(),
+            "electrical-bongabon-generator-001",
+        )
+        self.assertEqual(result["status"], "policy_error")
+        self.assertEqual(result["trajectory"], [])
+        self.assertEqual(result["attempts"][0]["accepted"], False)
+        self.assertEqual(result["error"]["type"], "ValidationError")
+        self.assertIsNotNone(result["evaluation"])
+
+    def test_unknown_episode_returns_setup_error_result(self):
+        result = self.runner.run(
+            LoopPolicy(),
+            "does-not-exist",
+        )
+        self.assertEqual(result["status"], "setup_error")
+        self.assertIsNone(result["evaluation"])
+        self.assertEqual(result["trajectory"], [])
+        self.assertEqual(result["error"]["type"], "EnvironmentError")
+
+    def test_evaluation_failure_returns_result_instead_of_raising(self):
+        with patch(
+            "longprocurebench.runner.LongProcureBenchEvaluator.evaluate_actions",
+            side_effect=ValueError("Missing evaluation config"),
+        ):
+            result = self.runner.run(
+                LoopPolicy(),
+                "electrical-bongabon-generator-001",
+                max_actions=1,
+            )
+        self.assertEqual(result["status"], "evaluation_error")
+        self.assertIsNone(result["evaluation"])
+        self.assertEqual(result["error"]["type"], "ValueError")
+        self.assertEqual(len(result["trajectory"]), 1)
 
 
 if __name__ == "__main__":

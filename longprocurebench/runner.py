@@ -6,10 +6,10 @@ import json
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, ValidationError
 
 from .evaluator import LongProcureBenchEvaluator
-from .runtime import LongProcureBenchEnv
+from .runtime import EnvironmentError, LongProcureBenchEnv
 
 
 class RunnerError(ValueError):
@@ -106,7 +106,7 @@ class BenchmarkRunner:
         max_actions: int,
         attempts: list[dict[str, Any]],
         trajectory: list[dict[str, Any]],
-        evaluation: dict[str, Any],
+        evaluation: dict[str, Any] | None,
         error: dict[str, str] | None,
     ) -> dict[str, Any]:
         result = {
@@ -157,22 +157,33 @@ class BenchmarkRunner:
         if not isinstance(resolved_run_id, str) or not resolved_run_id:
             raise RunnerError("run_id must be a non-empty string")
 
-        env = LongProcureBenchEnv(repo_root=self.repo_root)
-        evaluator = LongProcureBenchEvaluator(repo_root=self.repo_root)
-        state = env.reset(episode_id)
-
         attempts: list[dict[str, Any]] = []
         trajectory: list[dict[str, Any]] = []
         status = "completed"
         run_error: dict[str, str] | None = None
+        evaluation: dict[str, Any] | None = None
+        state: dict[str, Any] | None = None
 
         try:
-            policy.reset(deepcopy(state))
+            env = LongProcureBenchEnv(repo_root=self.repo_root)
+            evaluator = LongProcureBenchEvaluator(repo_root=self.repo_root)
+            state = env.reset(episode_id)
         except Exception as exc:
-            status = "policy_error"
+            status = "setup_error"
             run_error = self._error(exc)
 
-        while status == "completed" and not state["terminated"]:
+        if state is not None:
+            try:
+                policy.reset(deepcopy(state))
+            except Exception as exc:
+                status = "policy_error"
+                run_error = self._error(exc)
+
+        while (
+            status == "completed"
+            and state is not None
+            and not state["terminated"]
+        ):
             if len(trajectory) >= max_actions:
                 status = "max_actions"
                 break
@@ -207,6 +218,12 @@ class BenchmarkRunner:
             }
             try:
                 state = env.step(action)
+            except (ValidationError, EnvironmentError) as exc:
+                status = "policy_error"
+                run_error = self._error(exc)
+                attempt["error"] = deepcopy(run_error)
+                attempts.append(attempt)
+                break
             except Exception as exc:
                 status = "environment_error"
                 run_error = self._error(exc)
@@ -224,10 +241,16 @@ class BenchmarkRunner:
                 }
             )
 
-        accepted_actions = [row["action"] for row in trajectory]
-        evaluation = evaluator.evaluate_actions(
-            episode_id, accepted_actions
-        )
+        if status != "setup_error":
+            accepted_actions = [row["action"] for row in trajectory]
+            try:
+                evaluation = evaluator.evaluate_actions(
+                    episode_id, accepted_actions
+                )
+            except Exception as exc:
+                status = "evaluation_error"
+                run_error = self._error(exc)
+
         result = self._build_result(
             run_id=resolved_run_id,
             episode_id=episode_id,

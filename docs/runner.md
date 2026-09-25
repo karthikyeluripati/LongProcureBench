@@ -31,3 +31,17 @@ Run it locally with `python scripts/run_reference.py`.
 ## External frameworks
 
 No external orchestration or observability framework is needed at this layer. The runner standardizes only policy calls, deterministic environment steps, and evaluation. Framework selection should happen when the first real model agent introduces model calls, retries, state management, token/cost accounting, or trace-analysis requirements.
+
+## Failure statuses
+
+Runner v0.1 distinguishes where a failure originated:
+
+- `setup_error` — episode/runtime/evaluator setup failed before policy execution;
+- `policy_error` — policy code failed or returned an invalid/illegal action;
+- `environment_error` — unexpected runtime failure not attributable to the policy action;
+- `evaluation_error` — execution record exists but deterministic evaluation could not be produced;
+- `max_actions` — the run hit the configured accepted-action budget.
+
+When setup or evaluation fails, `evaluation` is `null`; the standardized run
+record and error metadata are still returned so batch execution never loses the
+failure record.
