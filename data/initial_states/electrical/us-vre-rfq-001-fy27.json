@@ -25,7 +25,7 @@
         {
           "summary": "60 kW mobile diesel-engine-driven generator set",
           "verbatim_excerpt": null,
-          "source_locator": "Public notice description / line-item text"
+          "source_locator": "VRE procurement page > Description"
         }
       ],
       "manufacturer": null,
@@ -61,112 +61,112 @@
         "/project/source_organization"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page header",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/project_name"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > RFQ 001-FY27 title",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/project_description"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/location"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/package_subscope"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/initial_state/source_issue_date"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "RFQ Information > Posted",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/item_id"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/description"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/quantity"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/quantity_basis"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/unit"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/technical_specifications/0/summary"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/technical_specifications/0/source_locator"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "VRE procurement page > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/schedule/bid_submission_deadline"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "RFQ Information > Quotes Due",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     }
   ],
   "missing_information": [

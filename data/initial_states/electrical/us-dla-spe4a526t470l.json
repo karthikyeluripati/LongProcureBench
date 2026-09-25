@@ -25,7 +25,7 @@
         {
           "summary": "Battery charger, air, NSN 4920014982543",
           "verbatim_excerpt": null,
-          "source_locator": "Public notice description / line-item text"
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
         }
       ],
       "manufacturer": null,
@@ -41,10 +41,10 @@
     "delivery_requirement": "167 days ADO.",
     "bid_submission_deadline": "2026-09-30"
   },
-  "supplier_eligibility_constraints": null,
-  "certifications_compliance": [
+  "supplier_eligibility_constraints": [
     "Total Small Business Set-Aside."
   ],
+  "certifications_compliance": null,
   "supporting_documents": [
     {
       "document_id": "source-1",
@@ -63,128 +63,128 @@
         "/project/source_organization"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Department/Ind. Agency / Sub-tier / Office",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/project_name"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Title",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/project_description"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/project/location"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Place of Performance / ship-to destination",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/package_subscope"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN requirement",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/initial_state/source_issue_date"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > History > Original Published Date",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/item_id"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/description"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/quantity"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/quantity_basis"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/unit"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/technical_specifications/0/summary"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/line_items/0/technical_specifications/0/source_locator"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/schedule/delivery_requirement"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > Description > delivery requirement (days ADO/ARO)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
         "/schedule/bid_submission_deadline"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > General Information > Original Date Offers Due",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     },
     {
       "field_paths": [
-        "/certifications_compliance/0"
+        "/supplier_eligibility_constraints/0"
       ],
       "document_id": "source-1",
-      "locator": "Public notice / solicitation fields and description",
-      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+      "locator": "SAM.gov > General Information > Set Aside",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
     }
   ],
   "missing_information": [
@@ -224,11 +224,6 @@
       "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
     },
     {
-      "field_path": "/supplier_eligibility_constraints",
-      "reason": "not_stated",
-      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
-    },
-    {
       "field_path": "/supporting_documents/0/sha256",
       "reason": "source_snapshot_unavailable",
       "detail": "Raw source bytes were not captured; checksum intentionally omitted."
@@ -237,6 +232,11 @@
       "field_path": "/line_items",
       "reason": "partial_extraction",
       "detail": "Technical and contractual clauses are selectively summarized; original cited source remains authoritative."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "No separate certification/compliance requirement was retained after moving the supplier set-aside restriction to eligibility."
     }
   ]
 }
