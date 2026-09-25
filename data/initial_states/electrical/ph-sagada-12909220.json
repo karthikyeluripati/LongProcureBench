@@ -1,0 +1,306 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "ph-sagada-12909220",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Municipality of Sagada, Mountain Province",
+    "project_name": "G-01-2026 Procurement of Generator Set",
+    "project_description": "Procurement of a brand-new generator set with automatic transfer switch.",
+    "location": "Mountain Province, Philippines"
+  },
+  "package_subscope": "generators procurement package reconstructed from the cited public solicitation/notice.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-04-14",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "60 kVA generator set, 380/220 V, 60 Hz, diesel, with ATS",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "Lot",
+      "technical_specifications": [
+        {
+          "summary": "60 kVA generator set, 380/220 V, 60 Hz, diesel, with ATS",
+          "verbatim_excerpt": null,
+          "source_locator": "Description / Line Items > item specification text"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": {
+        "amount": 763568,
+        "currency": "PHP",
+        "basis": "Buyer-listed budget/estimate; not supplier price."
+      },
+      "estimated_total_cost": {
+        "amount": 763568,
+        "currency": "PHP",
+        "basis": "Buyer-listed or derived package estimate from buyer amount and quantity; not supplier price."
+      }
+    }
+  ],
+  "total_estimated_budget": {
+    "amount": 763568,
+    "currency": "PHP",
+    "basis": "Approved/buyer budget where stated."
+  },
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": "Delivery period: 30 days.",
+    "bid_submission_deadline": "2026-04-27 14:15"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "G-01-2026 Procurement of Generator Set",
+      "url": "https://notices.philgeps.gov.ph/GEPS/Tender/PrintableBidNoticeAbstractUI.aspx?refid=12909220",
+      "document_type": "notice_html",
+      "issued_date": "2026-04-14",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this browser/index collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Procuring Entity",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Title",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "Description > project/requirement text",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Area of Delivery; Description > Place of Delivery",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / Line Items",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Date Published",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "Line Items table > Item No., Product/Service Name, Quantity, UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "Line Items table > Item No., Product/Service Name, Quantity, UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "Line Items table > Item No., Product/Service Name, Quantity, UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "Line Items table > Item No., Product/Service Name, Quantity, UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "Line Items table > Item No., Product/Service Name, Quantity, UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / Line Items > item specification text",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / Line Items > item specification text",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_unit_cost/amount"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_unit_cost/currency"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_unit_cost/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_total_cost/amount"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_total_cost/currency"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/estimated_total_cost/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "Description / lot cost table; Line Items > Budget (PHP)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/total_estimated_budget/amount"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Approved Budget for the Contract",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/total_estimated_budget/currency"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Approved Budget for the Contract",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/total_estimated_budget/basis"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Approved Budget for the Contract",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/schedule/delivery_requirement"
+      ],
+      "document_id": "source-1",
+      "locator": "Delivery Period; Description > Terms and Conditions",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "Bid Notice Abstract > Closing Date / Time",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "Technical and contractual clauses are selectively summarized; original cited source remains authoritative."
+    }
+  ]
+}

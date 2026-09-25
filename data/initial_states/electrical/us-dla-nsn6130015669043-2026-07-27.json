@@ -1,0 +1,642 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-dla-nsn6130015669043-2026-07-27",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Defense Logistics Agency - DLA Land and Maritime",
+    "project_name": "BATTERY POWER SUPPLY NSN 6130015669043",
+    "project_description": "RFQ for battery power supplies delivered to multiple Navy ships.",
+    "location": "Multiple U.S. Navy ship destinations"
+  },
+  "package_subscope": "UPS/batteries procurement package reconstructed from the cited public solicitation/notice.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-07-27",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "0001",
+      "description": "Battery power supply, NSN 6130015669043",
+      "quantity": 10,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Battery power supply, NSN 6130015669043",
+          "verbatim_excerpt": null,
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "0002",
+      "description": "Battery power supply, NSN 6130015669043",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Battery power supply, NSN 6130015669043",
+          "verbatim_excerpt": null,
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "0003",
+      "description": "Battery power supply, NSN 6130015669043",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Battery power supply, NSN 6130015669043",
+          "verbatim_excerpt": null,
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "0004",
+      "description": "Battery power supply, NSN 6130015669043",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Battery power supply, NSN 6130015669043",
+          "verbatim_excerpt": null,
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "0005",
+      "description": "Battery power supply, NSN 6130015669043",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "Battery power supply, NSN 6130015669043",
+          "verbatim_excerpt": null,
+          "source_locator": "SAM.gov > Description > NSN/CLIN requirement"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": "60 days ADO for each line.",
+    "bid_submission_deadline": "2026-08-05"
+  },
+  "supplier_eligibility_constraints": [
+    "Total Small Business Set-Aside."
+  ],
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "BATTERY POWER SUPPLY NSN 6130015669043",
+      "url": "https://sam.gov/opp/273bf43e9ed5489b9b59be4088407d41/view",
+      "document_type": "notice_html",
+      "issued_date": "2026-07-27",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this browser/index collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Department/Ind. Agency / Sub-tier / Office",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Title",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/project/location"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Place of Performance / ship-to destination",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN requirement",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > History > Original Published Date",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/1/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/2/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/3/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/description"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/quantity"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/quantity_basis"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/unit"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/line_items/4/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > NSN/CLIN line, quantity and UOM",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/schedule/delivery_requirement"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > Description > delivery requirement (days ADO/ARO)",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > General Information > Original Date Offers Due",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    },
+    {
+      "field_paths": [
+        "/supplier_eligibility_constraints/0"
+      ],
+      "document_id": "source-1",
+      "locator": "SAM.gov > General Information > Set Aside",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source section."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/2/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/3/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/4/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/4/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/4/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/4/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/4/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "Technical and contractual clauses are selectively summarized; original cited source remains authoritative."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "No separate certification/compliance requirement was retained after moving the supplier set-aside restriction to eligibility."
+    }
+  ]
+}

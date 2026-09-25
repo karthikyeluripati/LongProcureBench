@@ -68,3 +68,8 @@ is not a license grant.
 Unknown values use `null`, never fabricated defaults or zero. Known gaps and
 conflicts live in `missing_information`. Curator metadata (IDs, extraction notes,
 hashes, boundaries) is distinguished from source-backed procurement facts.
+
+
+## Current milestone
+
+Initial State v0.1 candidate contains 20 real public electrical procurement starting states across multiple source families and equipment subtypes. See `docs/initial-state-v0.1-report.md`.
