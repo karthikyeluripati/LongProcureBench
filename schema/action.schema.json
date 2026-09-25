@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Agent action contract for a LongProcureBench episode.",
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "pattern": "^a[0-9]+$"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "request_buyer_clarification",
+        "identify_suppliers",
+        "send_rfq",
+        "send_follow_up",
+        "answer_supplier_question",
+        "issue_amendment",
+        "request_quote_revision",
+        "evaluate_quotes",
+        "award_supplier",
+        "no_award"
+      ]
+    },
+    "supplier_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^syn-[a-z0-9-]+$"
+    },
+    "arguments": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "action_id",
+    "episode_id",
+    "type",
+    "supplier_id",
+    "arguments"
+  ],
+  "additionalProperties": false
+}

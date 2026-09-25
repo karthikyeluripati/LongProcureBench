@@ -1,0 +1,247 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-bongabon-generator-001",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-bongabon-wd-13076574",
+    "path": "data/initial_states/electrical/ph-bongabon-wd-13076574.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Generator buy with non-response, lead-time conflict, and warranty revision",
+    "summary": "Three synthetic suppliers compete for the real Bongabon 15 kVA generator requirement. The agent must follow up a non-responder, reject a cheaper late offer, and distinguish a quote revision from the original noncompliant offer.",
+    "difficulty": "medium",
+    "tags": [
+      "supplier_non_response",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-gen-a",
+      "display_name": "Synthetic Generator Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-gen-b",
+      "display_name": "Synthetic Generator Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier with a delivery-time conflict."
+    },
+    {
+      "supplier_id": "syn-gen-c",
+      "display_name": "Synthetic Generator Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Synthetic supplier that initially does not respond and later revises warranty terms."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-gen-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-gen-a",
+        "step": null
+      },
+      "observation": "Supplier A submits a PHP 382,000 quotation, 12-day delivery, ISO documentation, and a 12-month warranty.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 382000,
+        "lead_time_days": 12,
+        "warranty_months": 12,
+        "iso_documentation": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-gen-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-gen-b",
+        "step": null
+      },
+      "observation": "Supplier B submits the lowest initial price at PHP 349,000 but requires 24 days for delivery.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 349000,
+        "lead_time_days": 24,
+        "warranty_months": 12,
+        "iso_documentation": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-gen-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-gen-c",
+        "step": null
+      },
+      "observation": "Supplier C has not responded after the normal response window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-gen-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-gen-c",
+        "step": null
+      },
+      "observation": "After follow-up, Supplier C quotes PHP 365,500 with 14-day delivery but only a 6-month warranty.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 365500,
+        "lead_time_days": 14,
+        "warranty_months": 6,
+        "iso_documentation": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-gen-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-gen-c",
+        "step": null
+      },
+      "observation": "Supplier C revises the quotation to PHP 379,000, keeps 14-day delivery, and accepts a 12-month warranty.",
+      "details": {
+        "currency": "PHP",
+        "total_price": 379000,
+        "lead_time_days": 14,
+        "warranty_months": 12,
+        "iso_documentation": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded price must not exceed the real PHP 383,250 approved budget."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 15-day post-NTP delivery requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Award must satisfy the real ISO-documentation and one-year-warranty requirements."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may be used as that supplier's active offer."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-gen-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C's revision is compliant, within the real budget and delivery window, and cheaper than Supplier A's compliant offer.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding Supplier B despite the 24-day lead time.",
+      "Awarding Supplier C based on its original 6-month-warranty quote.",
+      "Awarding any offer above the real package budget."
+    ]
+  }
+}

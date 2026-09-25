@@ -1,0 +1,261 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-national-museum-lighting-002",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "ph-national-museum-11489658",
+    "path": "data/initial_states/electrical/ph-national-museum-11489658.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Two-lot lighting buy with partial offers and an accelerated revision",
+    "summary": "The real two-lot lighting package receives synthetic partial and combined offers. The agent must evaluate lots independently, handle a lead-time conflict, and request a valid revision rather than silently accepting a late offer.",
+    "difficulty": "medium",
+    "tags": [
+      "multi_lot",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-light-a",
+      "display_name": "Synthetic Lighting Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Bids only Lot 1."
+    },
+    {
+      "supplier_id": "syn-light-b",
+      "display_name": "Synthetic Lighting Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Bids both lots."
+    },
+    {
+      "supplier_id": "syn-light-c",
+      "display_name": "Synthetic Lighting Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Bids only Lot 2 and initially misses the delivery window."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-light-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-light-a",
+        "step": null
+      },
+      "observation": "Supplier A offers Lot 1 for PHP 2,250,000 with 25-day delivery and does not quote Lot 2.",
+      "details": {
+        "currency": "PHP",
+        "lots": {
+          "1": {
+            "price": 2250000,
+            "lead_time_days": 25
+          },
+          "2": null
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-light-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-light-b",
+        "step": null
+      },
+      "observation": "Supplier B offers Lot 1 for PHP 2,320,000 and Lot 2 for PHP 2,050,000, both with 28-day delivery; Lot 2 exceeds its real lot budget.",
+      "details": {
+        "currency": "PHP",
+        "lots": {
+          "1": {
+            "price": 2320000,
+            "lead_time_days": 28
+          },
+          "2": {
+            "price": 2050000,
+            "lead_time_days": 28
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1",
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-light-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-light-c",
+        "step": null
+      },
+      "observation": "Supplier C offers Lot 2 for PHP 1,850,000 but requires 35 days.",
+      "details": {
+        "currency": "PHP",
+        "lots": {
+          "1": null,
+          "2": {
+            "price": 1850000,
+            "lead_time_days": 35
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-light-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-light-c",
+        "step": null
+      },
+      "observation": "Supplier C provides an accelerated Lot 2 option at PHP 1,980,000 with 30-day delivery.",
+      "details": {
+        "currency": "PHP",
+        "lots": {
+          "1": null,
+          "2": {
+            "price": 1980000,
+            "lead_time_days": 30
+          }
+        },
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Lot 1 award must not exceed its real PHP 2,400,000 budget."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Lot 2 award must not exceed its real PHP 2,000,000 budget."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Delivery must fit the real 30-day delivery requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Partial quotations may be combined across suppliers if each awarded lot independently satisfies constraints."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-light-a",
+            "quote_event_id": "e1"
+          },
+          {
+            "scope": "lot-2",
+            "supplier_id": "syn-light-c",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "A is the lowest compliant Lot 1 offer. B exceeds the real Lot 2 budget, while C's accelerated revision meets both the Lot 2 budget and 30-day delivery requirement.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Treating a partial quotation as if it covered both lots.",
+      "Awarding Supplier C's original 35-day Lot 2 quote.",
+      "Using only the overall package budget and ignoring the real per-lot budget ceilings."
+    ]
+  }
+}

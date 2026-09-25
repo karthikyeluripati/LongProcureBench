@@ -1,0 +1,243 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-breaker-004",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-nsn5925014302318-2026-07-28",
+    "path": "data/initial_states/electrical/us-dla-nsn5925014302318-2026-07-28.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Set-aside circuit-breaker buy with withdrawal and delivery recovery",
+    "summary": "The agent must enforce the real SDVOSB eligibility restriction, avoid the cheapest ineligible supplier, recover after the best compliant supplier withdraws, and obtain a revised delivery commitment from the remaining eligible supplier.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_eligibility",
+      "quote_received",
+      "lead_time_conflict",
+      "supplier_withdrawal",
+      "quote_revision"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Supplier identities, messages, quote values, and event timing are synthetic. The starting procurement requirement is the cited real public initial state. Synthetic facts are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-breaker-a",
+      "display_name": "Synthetic Breaker Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic SDVOSB supplier."
+    },
+    {
+      "supplier_id": "syn-breaker-b",
+      "display_name": "Synthetic Breaker Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic non-SDVOSB supplier; cannot receive award under the real set-aside."
+    },
+    {
+      "supplier_id": "syn-breaker-c",
+      "display_name": "Synthetic Breaker Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic SDVOSB supplier with an initially late delivery."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-breaker-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-breaker-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 73,024 total with 120-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 73024,
+        "lead_time_days": 120,
+        "quantity": 652,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-breaker-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-breaker-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 63,896 total with 100-day delivery, but is not SDVOSB-eligible.",
+      "details": {
+        "currency": "USD",
+        "total_price": 63896,
+        "lead_time_days": 100,
+        "quantity": 652,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-breaker-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-breaker-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 71,068 total with 140-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 71068,
+        "lead_time_days": 140,
+        "quantity": 652,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-breaker-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "evaluate_quotes",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Supplier A withdraws its quotation before award.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-breaker-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-breaker-c",
+        "step": null
+      },
+      "observation": "Supplier C revises its delivery commitment to 130 days and total price to USD 72,372.",
+      "details": {
+        "currency": "USD",
+        "total_price": 72372,
+        "lead_time_days": 130,
+        "quantity": 652,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Award must go to a supplier satisfying the real SDVOSB set-aside restriction."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 134-day ADO requirement."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn quotation cannot support award."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Supplier C's revision supersedes its original 140-day offer."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "validate_eligibility",
+      "normalize_quotes",
+      "evaluate_quotes",
+      "recover_from_withdrawal",
+      "request_quote_revision",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-breaker-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "After A withdraws, C's revision is the only remaining eligible revealed offer that meets the real 134-day delivery requirement.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the lower-priced but ineligible Supplier B.",
+      "Awarding Supplier A after its withdrawal.",
+      "Awarding Supplier C's original 140-day quote."
+    ]
+  }
+}
