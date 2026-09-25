@@ -7,21 +7,24 @@ workflow run `36173979424`. The source trajectories were not modified.
 
 | Finding | Count |
 | --- | ---: |
-| Current checkpoint failures on obligations that never became applicable | **55** |
+| Current checkpoint failures on obligations that never became applicable | **50** |
 | Applicable obligations revealed with no later action opportunity | **2** |
-| Clearly applicable + actionable obligation failures | **32** |
+| Clearly applicable + actionable obligation failures | **37** |
 | Failures from evaluator proxy checkpoints | **19** |
 | Failures from procedural-policy checkpoints | **1** |
 | Potentially over-prescriptive withdrawal-recovery cases | **3** |
 
 ## Non-applicable failures in the current evaluator
 
-- `request_quote_revision`: **31**
+- `request_quote_revision`: **26**
 - `follow_up_nonresponse`: **15**
 - `handle_supplier_question`: **9**
 
 These are currently scored as missing required checkpoints even when the branch
-or event that creates the obligation was never observed on that trajectory.
+or event that creates the obligation was never observed on that trajectory. The
+v0.2 audit additionally recognizes an infeasible selected original offer as
+revision-applicable when the frozen episode contains a same-supplier/same-scope
+revision path to a feasible outcome.
 
 ## No-opportunity failures
 
@@ -37,6 +40,7 @@ action opportunity to issue an amendment.
 - `resolve_requirement_gap`: **10**
 - `follow_up_nonresponse`: **6**
 - `handle_amendment`: **6**
+- `request_quote_revision`: **5**
 
 These are the strongest current candidates for the paper's actual long-horizon
 obligation-failure signal.
@@ -61,6 +65,12 @@ post-withdrawal quote followed by re-evaluation.
 That rule may be too prescriptive when an already-revealed, still-valid fallback
 offer is sufficient for a correct recovery. It should be reconsidered in
 Evaluator v0.2.
+
+## Auditability
+
+The v0.2 audit JSON emits a complete per-run checkpoint record for all 60
+trajectories; aggregate counts are derived from those records rather than capped
+examples.
 
 ## Static episode audit
 
