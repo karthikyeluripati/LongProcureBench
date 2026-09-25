@@ -188,6 +188,34 @@ class EvaluatorV02Tests(unittest.TestCase):
         self.assertEqual(revision[0]["status"], "resolved")
         self.assertIsNotNone(revision[0]["resolution_step"])
 
+    def test_revision_request_does_not_resolve_unrevised_award(self):
+        eid = "electrical-dla-relay-012"
+        actions = [
+            self.action(1, eid, "identify_suppliers"),
+            self.action(2, eid, "send_rfq", "syn-relay-a"),
+            self.action(3, eid, "send_rfq", "syn-relay-b"),
+            self.action(4, eid, "send_rfq", "syn-relay-c"),
+            self.action(5, eid, "evaluate_quotes"),
+            self.action(6, eid, "send_follow_up", "syn-relay-c"),
+            self.action(7, eid, "request_quote_revision", "syn-relay-c"),
+            self.action(
+                8,
+                eid,
+                "award_supplier",
+                "syn-relay-c",
+                awards=[{
+                    "scope": "package",
+                    "supplier_id": "syn-relay-c",
+                    "quote_event_id": "e5",
+                }],
+            ),
+        ]
+        report = self.evaluator.evaluate_actions(eid, actions)
+        revision = self.obligation(report, "request_quote_revision")
+        self.assertEqual(len(revision), 1)
+        self.assertEqual(revision[0]["status"], "unresolved")
+        self.assertIsNone(revision[0]["resolution_step"])
+
     def test_valid_fallback_resolves_withdrawal_without_forced_new_quote(self):
         eid = "electrical-dla-relay-012"
         actions = [
