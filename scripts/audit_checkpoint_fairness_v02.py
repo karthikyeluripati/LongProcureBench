@@ -1,6 +1,6 @@
 """Checkpoint fairness audit v0.2."""
 from __future__ import annotations
-import argparse, json
+import argparse, gzip, json
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -346,8 +346,56 @@ def report_markdown(audit, static):
 
 
 def _load_frozen_gzip(path=None):
-    """Compatibility wrapper over the committed six-part source."""
-    return load_frozen_luna20_source(ROOT)
+    """Load a requested gzip JSONL source, or the committed frozen source."""
+    if path is None:
+        return load_frozen_luna20_source(ROOT)
+
+    candidate = Path(path)
+    if not candidate.is_file():
+        raise ValueError(f"Input JSONL gzip not found: {candidate}")
+
+    runs = []
+    try:
+        with gzip.open(candidate, "rt", encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                if not isinstance(record, dict):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} is not an object"
+                    )
+                required = ("episode_id", "run_id", "trajectory", "evaluation")
+                missing = [key for key in required if key not in record]
+                if missing:
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} missing fields: "
+                        f"{', '.join(missing)}"
+                    )
+                if not isinstance(record["episode_id"], str):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid episode_id"
+                    )
+                if not isinstance(record["run_id"], str):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid run_id"
+                    )
+                if not isinstance(record["trajectory"], list):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid trajectory"
+                    )
+                if not isinstance(record["evaluation"], dict):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid evaluation"
+                    )
+                runs.append(record)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Could not read gzip JSONL source: {candidate}") from exc
+
+    if not runs:
+        raise ValueError(f"Input JSONL gzip contains no records: {candidate}")
+    return runs
+
 
 def main():
     parser = argparse.ArgumentParser()
