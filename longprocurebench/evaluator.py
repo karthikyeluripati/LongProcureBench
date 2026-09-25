@@ -820,18 +820,24 @@ class LongProcureBenchEvaluator:
                 ),
                 None,
             )
+            selected_path_repaired = all(
+                by_event.get(event_id, {}).get("type") == "quote_revision"
+                for event_id in need["selected_event_ids"]
+            )
+            resolved = request_step is not None and selected_path_repaired
             records.append(self._obligation_record(
                 obligation_id=obligation_id,
                 checkpoint=name,
                 category="branch_conditional",
-                status="resolved" if request_step is not None else "unresolved",
+                status="resolved" if resolved else "unresolved",
                 detail=(
                     f"selected_events={sorted(need['selected_event_ids'])}, "
-                    f"request_step={request_step}"
+                    f"request_step={request_step}, "
+                    f"selected_path_repaired={selected_path_repaired}"
                 ),
                 supplier_id=supplier_id,
                 trigger_step=trigger_step,
-                resolution_step=request_step,
+                resolution_step=request_step if resolved else None,
                 applicability_reason=need["reason"],
             ))
         return records
