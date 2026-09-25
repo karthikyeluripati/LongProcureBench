@@ -39,9 +39,21 @@ There is still no agent baseline, scoring implementation, or leaderboard.
 - Scripted end-to-end execution tests for all 5 frozen episodes.
 - See [`docs/runtime.md`](docs/runtime.md).
 
+### Evaluator v0.1
+
+- Replay-first deterministic scoring; no LLM judge.
+- Exact terminal-outcome matching.
+- Machine-checkable hard constraints for all 5 frozen episodes.
+- Required checkpoint completion with direct/proxy evidence labels.
+- Constraint violations and accepted action count.
+- See [`docs/evaluator.md`](docs/evaluator.md).
+
 ## Repository map
 
 - `longprocurebench/runtime.py` — deterministic benchmark environment.
+- `longprocurebench/evaluator.py` — deterministic trajectory evaluator.
+- `schema/evaluation.schema.json` — machine evaluation-rule contract.
+- `data/evaluation/electrical/` — hard-constraint rules for all 5 episodes.
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
@@ -61,6 +73,7 @@ There is still no agent baseline, scoring implementation, or leaderboard.
 python -m pip install -r requirements.txt
 python scripts/validate_dataset.py
 python scripts/validate_episodes.py
+python scripts/validate_evaluation.py
 python -m unittest discover -s scripts -p "test_*.py" -v
 ```
 
