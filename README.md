@@ -75,6 +75,13 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Aggregates failure modes without introducing a weighted score or ranking.
 - See [`docs/reactive-pilot.md`](docs/reactive-pilot.md).
 
+### Pilot v0.1 audited evidence
+
+- First frozen 45-run audited reactive-agent pilot.
+- 73.3% terminal feasibility vs 28.9% strict process-complete success.
+- Dominant failures are long-horizon follow-up, amendment, compliance, and recovery obligations.
+- See [`docs/pilot-v0.1-audit.md`](docs/pilot-v0.1-audit.md).
+
 ### Pilot Rescore v0.1
 
 - Re-evaluates saved raw trajectories under the current deterministic evaluator.
