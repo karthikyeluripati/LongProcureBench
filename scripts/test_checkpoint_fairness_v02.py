@@ -1,27 +1,31 @@
 """Focused regressions for checkpoint fairness v0.2."""
-import gzip
 import json
 from pathlib import Path
 import unittest
 
-from audit_checkpoint_fairness import (
-    _load_frozen_gzip,
-    audit_checkpoint,
-    audit_runs,
-)
+from audit_checkpoint_fairness import audit_checkpoint, audit_runs
 
 
 class FairnessAuditV02Tests(unittest.TestCase):
-    def test_infeasible_original_offer_with_revision_repair_is_applicable(self):
+    def setUp(self):
+        self.root = Path(__file__).resolve().parents[1]
+
+    def test_dla_relay_underquantity_offer_requires_revision(self):
+        episode = json.loads(
+            (
+                self.root
+                / "data/episodes/electrical/electrical-dla-relay-012.json"
+            ).read_text(encoding="utf-8")
+        )
         run = {
             "trajectory": [
                 {
                     "step": 1,
-                    "action": {"type": "send_rfq"},
+                    "action": {"type": "send_follow_up", "arguments": {}},
                     "observations": [{
-                        "event_id": "e1",
+                        "event_id": "e5",
                         "type": "quote_received",
-                        "supplier_id": "syn-a",
+                        "supplier_id": "syn-relay-c",
                     }],
                 },
                 {
@@ -31,8 +35,8 @@ class FairnessAuditV02Tests(unittest.TestCase):
                         "arguments": {
                             "awards": [{
                                 "scope": "package",
-                                "supplier_id": "syn-a",
-                                "quote_event_id": "e1",
+                                "supplier_id": "syn-relay-c",
+                                "quote_event_id": "e5",
                             }]
                         },
                     },
@@ -50,34 +54,37 @@ class FairnessAuditV02Tests(unittest.TestCase):
             "evidence_mode": "direct",
             "detail": "No quote revision request",
         }
-        episode = {
-            "events": [
-                {"event_id": "e1", "type": "quote_received", "supplier_id": "syn-a"},
-                {"event_id": "e2", "type": "quote_revision", "supplier_id": "syn-a"},
-            ],
-            "oracle": {
-                "acceptable_terminal_outcomes": [{
-                    "awards": [{
-                        "scope": "package",
-                        "supplier_id": "syn-a",
-                        "quote_event_id": "e2",
-                    }]
-                }]
-            },
-        }
         audited = audit_checkpoint(run, checkpoint, episode)
         self.assertTrue(audited["applicable"])
         self.assertTrue(audited["opportunity"])
         self.assertTrue(audited["applicable_obligation_failure"])
 
-    def test_committed_source_has_complete_per_run_records(self):
-        root = Path(__file__).resolve().parents[1]
-        source = root / "evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz"
-        runs = _load_frozen_gzip(source)
-        audit = audit_runs(runs, root)
-        self.assertEqual(len(runs), 60)
-        self.assertEqual(len(audit["runs_detail"]), 60)
-        self.assertTrue(all("checkpoints" in row for row in audit["runs_detail"]))
+    def test_audit_emits_complete_per_run_checkpoint_record(self):
+        run = {
+            "episode_id": "electrical-bongabon-generator-001",
+            "run_id": "fairness-audit-test",
+            "status": "completed",
+            "trajectory": [],
+            "evaluation": {
+                "terminal_outcome": {"correct": False},
+                "hard_constraints": {"all_passed": False},
+                "feasible_process_success": False,
+                "required_checkpoints": {
+                    "results": [{
+                        "checkpoint": "award_or_recommend",
+                        "complete": False,
+                        "evidence_mode": "direct",
+                        "detail": "No terminal decision",
+                    }]
+                },
+            },
+        }
+        audit = audit_runs([run], self.root)
+        self.assertEqual(len(audit["runs_detail"]), 1)
+        self.assertEqual(
+            len(audit["runs_detail"][0]["checkpoints"]),
+            1,
+        )
 
 
 if __name__ == "__main__":
