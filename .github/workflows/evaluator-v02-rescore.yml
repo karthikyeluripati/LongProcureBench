@@ -1,0 +1,59 @@
+name: Evaluator v0.2 Luna Rescore
+
+on:
+  push:
+    branches:
+      - main
+      - codex/evaluator-v0.2
+    paths:
+      - 'longprocurebench/evaluator.py'
+      - 'scripts/rescore_luna20_v02.py'
+      - 'scripts/test_evaluator_v02.py'
+      - 'scripts/test_rescore_luna20_v02.py'
+      - 'data/episodes/electrical/**'
+      - 'data/evaluation/electrical/**'
+      - 'evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz'
+      - '.github/workflows/evaluator-v02-rescore.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rescore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OUTPUT_DIR: results/luna20-evaluator-v02
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run Evaluator v0.2 regression tests
+        run: |
+          python -m unittest discover -s scripts -p "test_evaluator_v02.py" -v
+          python -m unittest discover -s scripts -p "test_rescore_luna20_v02.py" -v
+
+      - name: Rescore frozen 60 trajectories
+        run: |
+          python scripts/rescore_luna20_v02.py \
+            --output-dir "$OUTPUT_DIR"
+
+      - name: Show v0.2 report
+        run: cat "$OUTPUT_DIR/report.md"
+
+      - name: Upload v0.2 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: luna20-evaluator-v02-${{ github.run_id }}
+          path: ${{ env.OUTPUT_DIR }}
+          if-no-files-found: error
+          retention-days: 30
