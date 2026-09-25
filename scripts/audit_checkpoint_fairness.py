@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter, defaultdict
+from collections import Counter
+import gzip
 import json
 from pathlib import Path
 from typing import Any
@@ -47,53 +48,39 @@ def _terminal_step(run: dict[str, Any]) -> int | None:
     return trajectory[-1]["step"] if trajectory else None
 
 
-def _awarded_event_ids(run: dict[str, Any]) -> set[str]:
+def _terminal_awards(run: dict[str, Any]) -> list[dict[str, Any]]:
     trajectory = run.get("trajectory") or []
     if not trajectory:
-        return set()
+        return []
     action = trajectory[-1].get("action") or {}
     if action.get("type") != "award_supplier":
-        return set()
+        return []
     awards = (action.get("arguments") or {}).get("awards") or []
+    return [award for award in awards if isinstance(award, dict)]
+
+
+def _awarded_event_ids(run: dict[str, Any]) -> set[str]:
     return {
         award["quote_event_id"]
-        for award in awards
-        if isinstance(award, dict) and "quote_event_id" in award
+        for award in _terminal_awards(run)
+        if "quote_event_id" in award
     }
 
 
-def checkpoint_category(name: str) -> str:
-    if name in EVENT_OBLIGATIONS:
-        return "event_obligation"
-    if name in STARTING_STATE_OBLIGATIONS:
-        return "starting_state_obligation"
-    if name in BRANCH_CONDITIONAL:
-        return "branch_conditional"
-    if name in PROXY_CHECKPOINTS:
-        return "proxy"
-    if name in PROCEDURAL_CHECKPOINTS:
-        return "procedural"
-    return "unknown"
+def _event_steps(run: dict[str, Any]) -> dict[str, int]:
+    return {
+        event["event_id"]: step
+        for step, event in _observations(run)
+        if isinstance(event.get("event_id"), str)
+    }
 
 
-def audit_checkpoint(
-    run: dict[str, Any],
-    checkpoint: dict[str, Any],
-) -> dict[str, Any]:
-    name = checkpoint["checkpoint"]
-    category = checkpoint_category(name)
+def _revision_repair_branch(run, episode):
     observations = _observations(run)
-    terminal_step = _terminal_step(run)
-    awarded_ids = _awarded_event_ids(run)
-    awarded_types = {
-        event["type"]
-        for _, event in observations
-        if event.get("event_id") in awarded_ids
-    }
-
     trigger_steps: list[int] = []
     applicable: bool | None
     opportunity: bool | None
+    applicability_reason: str | None = None
 
     if category == "event_obligation":
         trigger_steps = [
@@ -102,6 +89,7 @@ def audit_checkpoint(
             if event["type"] in EVENT_OBLIGATIONS[name]
         ]
         applicable = bool(trigger_steps)
+        applicability_reason = "matching_event_revealed" if applicable else "trigger_not_revealed"
         opportunity = (
             applicable
             and terminal_step is not None
@@ -109,10 +97,18 @@ def audit_checkpoint(
         )
     elif category == "starting_state_obligation":
         applicable = True
+        applicability_reason = "visible_from_initial_state"
         opportunity = terminal_step is not None and terminal_step >= 1
     elif category == "branch_conditional":
-        applicable = "quote_revision" in awarded_types
-        opportunity = applicable
+        applicable, trigger_steps, applicability_reason = _revision_repair_branch(
+            run, episode
+        )
+        opportunity = (
+            applicable
+            and terminal_step is not None
+            and bool(trigger_steps)
+            and min(trigger_steps) < terminal_step
+        )
     else:
         applicable = None
         opportunity = None
@@ -127,7 +123,11 @@ def audit_checkpoint(
         current_failed
         and applicable is True
         and opportunity is False
-        and category in {"event_obligation", "starting_state_obligation"}
+        and category in {
+            "event_obligation",
+            "starting_state_obligation",
+            "branch_conditional",
+        }
     )
     applicable_obligation_failure = (
         current_failed
@@ -147,6 +147,7 @@ def audit_checkpoint(
         "evidence_mode": checkpoint.get("evidence_mode"),
         "applicable": applicable,
         "opportunity": opportunity,
+        "applicability_reason": applicability_reason,
         "trigger_steps": trigger_steps,
         "terminal_step": terminal_step,
         "non_applicable_failure": non_applicable_failure,
@@ -187,7 +188,14 @@ def _overprescriptive_recovery(run: dict[str, Any], audited: dict[str, Any]) -> 
     return bool(awarded_steps) and max(awarded_steps) < withdrawal_step
 
 
-def audit_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
+def _load_episode(repo_root: Path, episode_id: str) -> dict[str, Any]:
+    path = repo_root / "data" / "episodes" / "electrical" / f"{episode_id}.json"
+    if not path.is_file():
+        raise ValueError(f"Missing episode for audit: {episode_id}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def audit_runs(runs: list[dict[str, Any]], repo_root: Path) -> dict[str, Any]:
     checkpoint_failures = Counter()
     non_applicable = Counter()
     no_opportunity = Counter()
@@ -195,56 +203,29 @@ def audit_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
     proxy_failures = Counter()
     procedural_failures = Counter()
     overprescriptive_recovery = []
-    examples: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    runs_detail = []
 
     for run in runs:
         evaluation = run.get("evaluation") or {}
-        checkpoints = (
-            evaluation.get("required_checkpoints") or {}
-        ).get("results") or []
+        episode = _load_episode(repo_root, run["episode_id"])
+        checkpoints = (evaluation.get("required_checkpoints") or {}).get("results") or []
+        audited_checkpoints = []
 
         for checkpoint in checkpoints:
-            audited = audit_checkpoint(run, checkpoint)
-
+            audited = audit_checkpoint(run, checkpoint, episode)
+            audited_checkpoints.append(audited)
             if not audited["current_complete"]:
                 checkpoint_failures[audited["checkpoint"]] += 1
-
             if audited["non_applicable_failure"]:
                 non_applicable[audited["checkpoint"]] += 1
-                if len(examples["non_applicable"]) < 12:
-                    examples["non_applicable"].append({
-                        "episode_id": run["episode_id"],
-                        "run_id": run["run_id"],
-                        "checkpoint": audited["checkpoint"],
-                        "detail": audited["detail"],
-                    })
-
             if audited["no_opportunity_failure"]:
                 no_opportunity[audited["checkpoint"]] += 1
-                if len(examples["no_opportunity"]) < 12:
-                    examples["no_opportunity"].append({
-                        "episode_id": run["episode_id"],
-                        "run_id": run["run_id"],
-                        "checkpoint": audited["checkpoint"],
-                        "trigger_steps": audited["trigger_steps"],
-                        "terminal_step": audited["terminal_step"],
-                    })
-
             if audited["applicable_obligation_failure"]:
                 applicable_failures[audited["checkpoint"]] += 1
-
-            if (
-                not audited["current_complete"]
-                and audited["category"] == "proxy"
-            ):
+            if not audited["current_complete"] and audited["category"] == "proxy":
                 proxy_failures[audited["checkpoint"]] += 1
-
-            if (
-                not audited["current_complete"]
-                and audited["category"] == "procedural"
-            ):
+            if not audited["current_complete"] and audited["category"] == "procedural":
                 procedural_failures[audited["checkpoint"]] += 1
-
             if _overprescriptive_recovery(run, audited):
                 overprescriptive_recovery.append({
                     "episode_id": run["episode_id"],
@@ -252,23 +233,27 @@ def audit_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:
                     "checkpoint": audited["checkpoint"],
                 })
 
+        runs_detail.append({
+            "episode_id": run["episode_id"],
+            "run_id": run["run_id"],
+            "source_status": run.get("status"),
+            "terminal_feasible": bool((evaluation.get("terminal_outcome") or {}).get("correct")),
+            "hard_constraints_all_passed": bool((evaluation.get("hard_constraints") or {}).get("all_passed")),
+            "current_feasible_process_success": bool(evaluation.get("feasible_process_success")),
+            "checkpoints": audited_checkpoints,
+        })
+
     return {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "runs": len(runs),
         "checkpoint_failure_counts": dict(checkpoint_failures.most_common()),
-        "non_applicable_current_failure_counts": dict(
-            non_applicable.most_common()
-        ),
-        "no_opportunity_failure_counts": dict(
-            no_opportunity.most_common()
-        ),
-        "applicable_obligation_failure_counts": dict(
-            applicable_failures.most_common()
-        ),
+        "non_applicable_current_failure_counts": dict(non_applicable.most_common()),
+        "no_opportunity_failure_counts": dict(no_opportunity.most_common()),
+        "applicable_obligation_failure_counts": dict(applicable_failures.most_common()),
         "proxy_failure_counts": dict(proxy_failures.most_common()),
         "procedural_failure_counts": dict(procedural_failures.most_common()),
         "overprescriptive_recovery_cases": overprescriptive_recovery,
-        "examples": dict(examples),
+        "runs_detail": runs_detail,
     }
 
 
@@ -372,6 +357,7 @@ def report_markdown(
         "## Static episode audit",
         "",
         f"- Static checkpoint/trigger issues: **{len(static['issues'])}**",
+        f"- Complete per-run checkpoint records: **{len(audit['runs_detail'])}** trajectories",
     ]
     for issue in static["issues"]:
         lines.append(
@@ -396,9 +382,21 @@ def report_markdown(
     return "\n".join(lines)
 
 
+def _load_frozen_gzip(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file():
+        raise ValueError(f"Frozen trajectory source not found: {path}")
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        runs = [json.loads(line) for line in handle if line.strip()]
+    if not runs:
+        raise ValueError(f"Frozen trajectory source is empty: {path}")
+    return runs
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir", required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--input-dir")
+    source.add_argument("--input-jsonl-gz")
     parser.add_argument(
         "--repo-root",
         default=str(Path(__file__).resolve().parents[1]),
@@ -406,16 +404,20 @@ def main() -> None:
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
 
-    input_dir = Path(args.input_dir)
+    repo_root = Path(args.repo_root)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    runs = [
-        json.loads(path.read_text(encoding="utf-8"))
-        for path in discover_runs(input_dir)
-    ]
-    audit = audit_runs(runs)
-    static = static_episode_audit(Path(args.repo_root))
+    runs = (
+        [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in discover_runs(Path(args.input_dir))
+        ]
+        if args.input_dir
+        else _load_frozen_gzip(Path(args.input_jsonl_gz))
+    )
+    audit = audit_runs(runs, repo_root)
+    static = static_episode_audit(repo_root)
 
     payload = {
         "trajectory_audit": audit,
