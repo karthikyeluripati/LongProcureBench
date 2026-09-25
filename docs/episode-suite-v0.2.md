@@ -53,6 +53,13 @@ The next benchmark-scale target is approximately 30 episodes. Reaching it now
 requires collecting about ten additional real public procurement starting states;
 the repository has exhausted its current 20-state pool.
 
+Episodes 001–020 are now explicitly treated as **development/calibration**:
+they were used to build the runtime, inspect model trajectories, audit checkpoint
+fairness, and design Evaluator v0.2. The next ten distinct states are reserved for
+the held-out paper evaluation slice. See `BENCHMARK_SPEC.md`,
+`OBSERVABILITY_MATRIX.csv`, and
+`data/splits/electrical-v0.3-plan.json`.
+
 
 ## Distinct-state invariant
 
