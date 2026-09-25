@@ -26,7 +26,7 @@
     "supplier_profiles": "synthetic",
     "quotes_and_messages": "synthetic",
     "event_timeline": "synthetic",
-    "notes": "The five line quantities and stock 2904 NO SUBS clause are real public facts. The 120-day delivery ceiling is synthetic because the bid form leaves delivery bidder-provided.",
+    "notes": "The five line quantities and stock 2904 NO SUBS clause are real public facts. The 120-day delivery ceiling is synthetic because the bid form leaves delivery bidder-provided. Supplier references, sample-status evidence, and technical-compliance evidence are synthetic observations used to test the real solicitation requirements; they are not historical vendor claims.",
     "calibration_sources": [
       {
         "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
@@ -106,7 +106,7 @@
         "supplier_id": "syn-hpc-a",
         "step": null
       },
-      "observation": "Supplier A quotes all five lines with 110-day delivery for an aggregate USD 440,000.",
+      "observation": "Supplier A quotes all five lines with 110-day delivery for an aggregate USD 440,000. The offer includes three comparable references, required primary-cable sample evidence, and technical compliance evidence.",
       "details": {
         "currency": "USD",
         "lots": {
@@ -137,7 +137,10 @@
             "quantity": 15000
           }
         },
-        "revision": 0
+        "revision": 0,
+        "comparable_references_count": 3,
+        "primary_cable_sample_requirement_satisfied": true,
+        "technical_compliance_evidence_provided": true
       },
       "offer_scope": {
         "kind": "items",
@@ -188,7 +191,7 @@
         "supplier_id": "syn-hpc-c",
         "step": null
       },
-      "observation": "Supplier C quotes only lines 4523 and 59 at 115-day delivery.",
+      "observation": "Supplier C quotes only lines 4523 and 59 at 115-day delivery. The supplier provides three comparable references and technical compliance evidence for the covered lines.",
       "details": {
         "currency": "USD",
         "lots": {
@@ -206,7 +209,9 @@
             "quantity": 15000
           }
         },
-        "revision": 0
+        "revision": 0,
+        "comparable_references_count": 3,
+        "technical_compliance_evidence_provided": true
       },
       "offer_scope": {
         "kind": "items",
@@ -228,7 +233,7 @@
         "supplier_id": "syn-hpc-b",
         "step": null
       },
-      "observation": "Supplier B revises the first three lines to comply with stock 2904 NO SUBS, at an aggregate USD 325,000 and 115-day delivery.",
+      "observation": "Supplier B revises the first three lines to comply with stock 2904 NO SUBS, at an aggregate USD 325,000 and 115-day delivery. The revision includes three comparable references, satisfies the primary-cable sample requirement, and includes technical compliance evidence.",
       "details": {
         "currency": "USD",
         "lots": {
@@ -251,7 +256,10 @@
           },
           "4523": null
         },
-        "revision": 1
+        "revision": 1,
+        "comparable_references_count": 3,
+        "primary_cable_sample_requirement_satisfied": true,
+        "technical_compliance_evidence_provided": true
       },
       "offer_scope": {
         "kind": "items",
@@ -295,6 +303,21 @@
         "constraint_id": "c6",
         "basis": "synthetic_scenario",
         "description": "Only the latest revealed revision for a supplier may support award."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "Every awarded supplier must provide at least three comparable references as required by the real solicitation."
+      },
+      {
+        "constraint_id": "c8",
+        "basis": "real_initial_state",
+        "description": "Any award covering primary-cable stock 2904 must satisfy the real primary-cable sample requirement or its limited prior-sample exemption."
+      },
+      {
+        "constraint_id": "c9",
+        "basis": "real_initial_state",
+        "description": "Every awarded offer must include technical compliance evidence for the applicable cable standards and required test documentation."
       }
     ],
     "required_checkpoints": [
@@ -375,7 +398,10 @@
     "failure_conditions": [
       "Proceeding before clarifying the documented substitution conflict.",
       "Accepting Supplier B's priced stock-2904 substitution.",
-      "Leaving any cable line uncovered or exceeding the clarified delivery ceiling."
+      "Leaving any cable line uncovered or exceeding the clarified delivery ceiling.",
+      "Awarding a supplier without at least three comparable references.",
+      "Awarding stock 2904 without satisfying the primary-cable sample requirement.",
+      "Awarding any covered line without technical compliance evidence."
     ],
     "economic_objective": {
       "kind": "minimize_total_price",

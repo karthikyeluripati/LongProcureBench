@@ -157,6 +157,48 @@
           "supplier_field": null
         }
       ]
+    },
+    {
+      "constraint_id": "c7",
+      "checks": [
+        {
+          "kind": "award_quote_min",
+          "scope": null,
+          "path": "comparable_references_count",
+          "value": 3,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c8",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": "lot-2904",
+          "path": "primary_cable_sample_requirement_satisfied",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c9",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "technical_compliance_evidence_provided",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
     }
   ]
 }
