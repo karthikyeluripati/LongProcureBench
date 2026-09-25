@@ -1,0 +1,149 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-philadelphia-b2627071",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Philadelphia Water Department",
+    "project_name": "Bid 2479 - Replacement of Switchgear and Motor Control Centers at Northeast WPCP",
+    "project_description": "Public-works replacement of switchgear and motor control centers at the Northeast Water Pollution Control Plant.",
+    "location": null
+  },
+  "package_subscope": "Aggregate public-works scope for replacement of switchgear and motor control centers at Northeast WPCP.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-05-29",
+    "boundary": "Buyer-authored solicitation requirements available at initial posting only; excludes later amendments, bid results, supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Replacement of switchgear and motor control centers at Northeast WPCP",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "SUM",
+      "technical_specifications": [
+        {
+          "summary": "Aggregate public-works replacement scope for switchgear and motor control centers at the Northeast Water Pollution Control Plant.",
+          "verbatim_excerpt": null,
+          "source_locator": "PHLContracts > Item Information, Item #1"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": {
+    "amount": 3500000,
+    "currency": "USD",
+    "basis": "Midpoint of the City-posted estimated range of USD 3,000,000 to 4,000,000; retained as a derived planning estimate, not a supplier price."
+  },
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-06-18 10:30 ET"
+  },
+  "supplier_eligibility_constraints": [
+    "Invitation-only opportunity following prequalification.",
+    "Mandatory seller-quote checklist and required bid documents apply."
+  ],
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Bid Solicitation B2627071 - PW Bid 2479",
+      "url": "https://www.phlcontracts.phila.gov/bso/external/bidDetail.sda?docId=B2627071&external=true&parentUrl=close",
+      "document_type": "notice_html",
+      "issued_date": "2026-05-29",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Official City solicitation URL and retrieval date retained. Initial-state extraction uses header/item facts from the original posting and excludes later amendment and bid-result content visible on the live page."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/unit",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/total_estimated_budget/amount",
+        "/total_estimated_budget/currency",
+        "/total_estimated_budget/basis",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation source; see per-field source_locator values where provided.",
+      "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/project/location",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    }
+  ]
+}
