@@ -1,0 +1,145 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "ph-bfar5bac-2024-007",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Bureau of Fisheries and Aquatic Resources, Regional Office No. 5",
+    "project_name": "Supply and Delivery of Two (2) Units of Generator Set",
+    "project_description": "Supply and delivery of two generator sets.",
+    "location": "BFAR RO5, Fabrica, Bula, Camarines Sur, Philippines"
+  },
+  "package_subscope": "Two generator sets, delivery, testing, commissioning and stated warranty services.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2024-01-20",
+    "boundary": "Buyer-authored requirements only. Exclude supplier responses, offered lead times, negotiations, awards, and later amendments. Public solicitation is a proxy for internal pre-RFQ knowledge."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "5 kVA diesel generator set",
+      "quantity": 2,
+      "quantity_basis": "specified",
+      "unit": "Unit",
+      "technical_specifications": [
+        {
+          "summary": "60 Hz; 230 V AC; single-phase; electric start; 7.8 h continuous operation; 16 L tank; air-cooled vertical single-cylinder four-stroke direct-injection diesel.",
+          "verbatim_excerpt": null,
+          "source_locator": "HTML Description / Specifications"
+        },
+        {
+          "summary": "DC output retained without interpreting ambiguous current units.",
+          "verbatim_excerpt": "DC output (V) 12V/8.3",
+          "source_locator": "HTML Description / Specifications"
+        },
+        {
+          "summary": "Testing/commissioning; one-year parts/service warranty; free quarterly maintenance checks.",
+          "verbatim_excerpt": null,
+          "source_locator": "HTML Description / Conditions"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": {
+        "amount": 75000,
+        "currency": "PHP",
+        "basis": "Buyer RFQ unit cost; not an offer."
+      },
+      "estimated_total_cost": {
+        "amount": 150000,
+        "currency": "PHP",
+        "basis": "Buyer RFQ total cost."
+      }
+    }
+  ],
+  "total_estimated_budget": {
+    "amount": 150000,
+    "currency": "PHP",
+    "basis": "Approved Budget for the Contract (ABC); ceiling, not award price."
+  },
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": "Within 15 calendar days after supplier receives the purchase order.",
+    "bid_submission_deadline": "2024-01-29 13:00 (timezone not stated)"
+  },
+  "supplier_eligibility_constraints": [
+    "Mayor's/Business Permit; PhilGEPS registration number."
+  ],
+  "certifications_compliance": [
+    "Notice cites RA 9184, 2016 Revised IRR, Rule XVI, Sections 52.1b and 52.2 for shopping. No equipment certification stated."
+  ],
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Supply and Delivery of Two (2) Units of Generator Set",
+      "url": "https://notices.philgeps.gov.ph/GEPSNONPILOT/Tender/PrintableBidNoticeAbstractUI.aspx?refid=10485194",
+      "document_type": "notice_html",
+      "issued_date": "2024-01-20",
+      "retrieved_date": "2026-09-25",
+      "sha256": "5b6d6cb39e1fc2ef7473334c4ea6710609eee07a41c227ab1865df3f415d3a3a",
+      "snapshot_policy": "URL and retrieved-byte hash retained; full source bytes excluded from dataset. Retrieve independently for audit; HTML may contain later status metadata."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project",
+        "/package_subscope",
+        "/line_items",
+        "/total_estimated_budget",
+        "/schedule",
+        "/supplier_eligibility_constraints",
+        "/certifications_compliance"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Description: quantity/cost row, Specifications, Conditions, submission requirements, ABC paragraph; Line Items",
+      "interpretation": "Extract buyer-authored RFQ only; omit live status and all post-publication outcome metadata."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "HTML Date Published",
+      "interpretation": "Creation date is 2024-01-18; publication date is 2024-01-20. Publication used as baseline."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/technical_specifications/1",
+      "reason": "conflicting_source",
+      "detail": "DC output lists 12V/8.3 without an explicit unit for 8.3; preserve exact text rather than infer amperes."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not specified in reviewed source; no value inferred."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "All goods lines included, but technical and contractual clauses are summarized selectively. Consult cited original pages for complete requirements."
+    },
+    {
+      "field_path": "/initial_state",
+      "reason": "retrospective_source",
+      "detail": "Live notice has been updated after publication. Only its buyer requirement section is extracted; no archived initial revision was obtained."
+    }
+  ]
+}
