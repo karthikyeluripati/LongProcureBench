@@ -47,14 +47,16 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Scripted end-to-end execution tests for all 5 frozen episodes.
 - See [`docs/runtime.md`](docs/runtime.md).
 
-### Evaluator v0.1
+### Evaluator v0.2
 
 - Replay-first deterministic scoring; no LLM judge.
-- Exact terminal-outcome matching.
-- Machine-checkable hard constraints for all 5 frozen episodes.
-- Required checkpoint completion with direct/proxy evidence labels.
-- Constraint violations and accepted action count.
-- See [`docs/evaluator.md`](docs/evaluator.md).
+- Keeps legacy v0.1 checkpoint/process fields for reproducibility.
+- Adds trigger-aware obligation records with `resolved`, `unresolved`, `no_opportunity`, and `not_applicable` states.
+- Event obligations are scored only after their trigger is visible; branch-conditional revisions are required only when the selected path genuinely needs repair.
+- Withdrawal recovery is outcome-based rather than forcing one fixed "new quote then re-evaluate" sequence.
+- Proxy/procedural checkpoints remain visible diagnostics but do not determine obligation success.
+- Frozen 60-run Luna rescore: **62/91 actionable obligations resolved (68.1%)**; **50.0% feasible-obligation success** vs the legacy **18.3% process-complete rate**.
+- See [`docs/evaluator.md`](docs/evaluator.md) and [`docs/evaluator-v0.2-luna-rescore.md`](docs/evaluator-v0.2-luna-rescore.md).
 
 ### Benchmark Runner v0.1
 
@@ -115,7 +117,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
-- `data/evaluation/electrical/` — hard-constraint rules for all 5 episodes.
+- `data/evaluation/electrical/` — hard-constraint rules for all 20 episodes.
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
@@ -130,6 +132,8 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
 - `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
+- `scripts/frozen_luna20_source.py` — verifies and reconstructs the durable 60-run Luna evidence source.
+- `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.
 
 ## Validate
 

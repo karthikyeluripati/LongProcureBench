@@ -1,4 +1,4 @@
-name: Checkpoint Fairness Audit
+name: Evaluator v0.2 Luna Rescore
 
 on:
   push:
@@ -6,24 +6,27 @@ on:
       - main
       - codex/evaluator-v0.2
     paths:
-      - 'scripts/audit_checkpoint_fairness.py'
-      - 'scripts/audit_checkpoint_fairness_v02.py'
-      - 'scripts/frozen_luna20_source.py'
-      - 'scripts/test_checkpoint_fairness.py'
-      - 'scripts/test_checkpoint_fairness_v02.py'
+      - 'longprocurebench/evaluator.py'
+      - 'longprocurebench/runtime.py'
+      - 'scripts/rescore_luna20_v02.py'
+      - 'scripts/test_evaluator_v02.py'
+      - 'scripts/test_rescore_luna20_v02.py'
+      - 'data/episodes/electrical/**'
+      - 'data/evaluation/electrical/**'
       - 'evidence/luna20-diagnostic-v0.1/fairness-source.b64.part*'
-      - '.github/workflows/checkpoint-fairness-audit.yml'
+      - 'scripts/frozen_luna20_source.py'
+      - '.github/workflows/evaluator-v02-rescore.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  audit:
+  rescore:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      OUTPUT_DIR: checkpoint-fairness-audit
+      OUTPUT_DIR: results/luna20-evaluator-v02
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -36,23 +39,23 @@ jobs:
       - name: Install declared dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Run audit regression tests
+      - name: Run Evaluator v0.2 regression tests
         run: |
-          python -m unittest discover -s scripts -p "test_checkpoint_fairness*.py" -v
+          python -m unittest discover -s scripts -p "test_evaluator_v02.py" -v
           python -m unittest discover -s scripts -p "test_rescore_luna20_v02.py" -v
 
-      - name: Audit checkpoint fairness
+      - name: Rescore frozen 60 trajectories
         run: |
-          python scripts/audit_checkpoint_fairness.py \
+          python scripts/rescore_luna20_v02.py \
             --output-dir "$OUTPUT_DIR"
 
-      - name: Show fairness report
-        run: cat "$OUTPUT_DIR/checkpoint-fairness-report.md"
+      - name: Show v0.2 report
+        run: cat "$OUTPUT_DIR/report.md"
 
-      - name: Upload fairness audit
+      - name: Upload v0.2 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: checkpoint-fairness-audit-${{ github.run_id }}
+          name: luna20-evaluator-v02-${{ github.run_id }}
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: error
           retention-days: 30

@@ -7,6 +7,8 @@ on:
       - codex/checkpoint-fairness-audit-v0.1
     paths:
       - 'scripts/audit_checkpoint_fairness.py'
+      - 'scripts/audit_checkpoint_fairness_v02.py'
+      - 'scripts/frozen_luna20_source.py'
       - 'scripts/test_checkpoint_fairness*.py'
       - '.github/workflows/checkpoint-fairness-audit-v02.yml'
       - 'evidence/luna20-diagnostic-v0.1/**'
@@ -30,9 +32,9 @@ jobs:
       - name: Run fairness regressions
         run: python -m unittest discover -s scripts -p "test_checkpoint_fairness*.py" -v
       - name: Verify durable source
-        run: python -c "import hashlib,pathlib; p=pathlib.Path('evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz'); assert p.is_file(); assert hashlib.sha256(p.read_bytes()).hexdigest()=='d86e0582d40558726423f89a18b4cb929d52d9e1155444df9343293785c3b3cb'"
+        run: python -c "import pathlib,sys; sys.path.insert(0, 'scripts'); from frozen_luna20_source import load_frozen_luna20_source; assert len(load_frozen_luna20_source(pathlib.Path('.'))) == 60"
       - name: Run fairness audit
-        run: python scripts/audit_checkpoint_fairness.py --input-jsonl-gz evidence/luna20-diagnostic-v0.1/fairness-source.jsonl.gz --output-dir checkpoint-fairness-audit
+        run: python scripts/audit_checkpoint_fairness.py --output-dir checkpoint-fairness-audit
       - name: Upload fairness audit
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

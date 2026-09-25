@@ -1,14 +1,39 @@
 """Focused regressions for checkpoint fairness v0.2."""
+import gzip
 import json
 from pathlib import Path
+import tempfile
 import unittest
 
-from audit_checkpoint_fairness import audit_checkpoint, audit_runs
+from audit_checkpoint_fairness import (
+    _load_frozen_gzip,
+    audit_checkpoint,
+    audit_runs,
+)
 
 
 class FairnessAuditV02Tests(unittest.TestCase):
     def setUp(self):
         self.root = Path(__file__).resolve().parents[1]
+
+    def test_input_jsonl_gz_uses_requested_file(self):
+        record = {
+            "episode_id": "electrical-bongabon-generator-001",
+            "run_id": "custom-run",
+            "trajectory": [],
+            "evaluation": None,
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "custom.jsonl.gz"
+            with gzip.open(path, "wt", encoding="utf-8") as handle:
+                handle.write(json.dumps(record) + "\n")
+            runs = _load_frozen_gzip(path)
+            self.assertEqual(runs, [record])
+            audit = audit_runs(runs, self.root)
+            self.assertEqual(audit["runs_detail"][0]["checkpoints"], [])
+            self.assertFalse(audit["runs_detail"][0]["terminal_feasible"])
+            with self.assertRaises(ValueError):
+                _load_frozen_gzip(Path(temp_dir) / "missing.jsonl.gz")
 
     def test_dla_relay_underquantity_offer_requires_revision(self):
         episode = json.loads(

@@ -97,3 +97,18 @@ The fairness audit supports an Evaluator v0.2 with these principles:
 
 The raw 60-run trajectories remain useful and can be deterministically rescored
 after these semantics are frozen.
+
+
+## Evaluator v0.2 follow-up
+
+The fairness audit was diagnostic, not the final scoring rule. Evaluator v0.2
+replays the frozen trajectories and instantiates obligations directly from
+visible triggers/branches.
+
+The final 60-run v0.2 rescore reports **91 actionable obligations**, of which
+**62 were resolved and 29 unresolved**, for a **68.1% obligation-resolution
+rate**. It also changes withdrawal recovery from the legacy prescribed
+new-quote-plus-reevaluation sequence to outcome-based recovery and scores
+obligation instances rather than only legacy checkpoint booleans.
+
+See [`evaluator-v0.2-luna-rescore.md`](evaluator-v0.2-luna-rescore.md).

@@ -5,6 +5,12 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in __import__('sys').path:
+    __import__('sys').path.insert(0, str(ROOT))
+
+from frozen_luna20_source import load_frozen_luna20_source
+
 EVENT_OBLIGATIONS = {
     "follow_up_nonresponse": {"supplier_non_response"},
     "handle_supplier_question": {"supplier_question"},
@@ -339,30 +345,79 @@ def report_markdown(audit, static):
     return "\n".join(lines) + "\n"
 
 
-def _load_frozen_gzip(path):
-    if not path.is_file():
-        raise ValueError(f"Frozen trajectory source not found: {path}")
-    with gzip.open(path, "rt", encoding="utf-8") as handle:
-        runs = [json.loads(line) for line in handle if line.strip()]
+def _load_frozen_gzip(path=None):
+    """Load a requested gzip JSONL source, or the committed frozen source."""
+    if path is None:
+        return load_frozen_luna20_source(ROOT)
+
+    candidate = Path(path)
+    if not candidate.is_file():
+        raise ValueError(f"Input JSONL gzip not found: {candidate}")
+
+    runs = []
+    try:
+        with gzip.open(candidate, "rt", encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                if not isinstance(record, dict):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} is not an object"
+                    )
+                required = ("episode_id", "run_id", "trajectory", "evaluation")
+                missing = [key for key in required if key not in record]
+                if missing:
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} missing fields: "
+                        f"{', '.join(missing)}"
+                    )
+                if not isinstance(record["episode_id"], str):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid episode_id"
+                    )
+                if not isinstance(record["run_id"], str):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid run_id"
+                    )
+                if not isinstance(record["trajectory"], list):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid trajectory"
+                    )
+                if (
+                    record["evaluation"] is not None
+                    and not isinstance(record["evaluation"], dict)
+                ):
+                    raise ValueError(
+                        f"Input JSONL gzip line {line_number} has invalid evaluation"
+                    )
+                runs.append(record)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Could not read gzip JSONL source: {candidate}") from exc
+
     if not runs:
-        raise ValueError(f"Frozen trajectory source is empty: {path}")
+        raise ValueError(f"Input JSONL gzip contains no records: {candidate}")
     return runs
 
 
 def main():
     parser = argparse.ArgumentParser()
-    source = parser.add_mutually_exclusive_group(required=True)
+    source = parser.add_mutually_exclusive_group(required=False)
     source.add_argument("--input-dir")
     source.add_argument("--input-jsonl-gz")
     parser.add_argument("--repo-root", default=str(Path(__file__).resolve().parents[1]))
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
     repo_root = Path(args.repo_root)
-    runs = (
-        [json.loads(p.read_text(encoding="utf-8")) for p in discover_runs(Path(args.input_dir))]
-        if args.input_dir
-        else _load_frozen_gzip(Path(args.input_jsonl_gz))
-    )
+    if args.input_dir:
+        runs = [
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in discover_runs(Path(args.input_dir))
+        ]
+    elif args.input_jsonl_gz:
+        runs = _load_frozen_gzip(Path(args.input_jsonl_gz))
+    else:
+        runs = load_frozen_luna20_source(repo_root)
     audit = audit_runs(runs, repo_root)
     static = static_episode_audit(repo_root)
     out = Path(args.output_dir)
