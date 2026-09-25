@@ -20,3 +20,5 @@
   Address valid findings; report pending or unavailable reviews without calling
   them passed. Do not dismiss reviews or resolve threads solely because of a push.
 - Do not merge unless the user explicitly requests it.
+- Reference policies are oracle-aware integration controls, not competitive baselines; label them `reference_control` and never report them as model performance.
+- Benchmark runner policies receive only agent-visible state. The runner owns `action_id`, `episode_id`, execution, and evaluation.

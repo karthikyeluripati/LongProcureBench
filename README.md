@@ -48,11 +48,23 @@ There is still no agent baseline, scoring implementation, or leaderboard.
 - Constraint violations and accepted action count.
 - See [`docs/evaluator.md`](docs/evaluator.md).
 
+### Benchmark Runner v0.1
+
+- Minimal policy interface shared by future agent baselines.
+- Runner-owned action IDs and deterministic environment execution.
+- Standard result JSON with attempts, accepted trajectory, observations, and evaluator report.
+- Oracle-aware scripted reference control for all 5 episodes.
+- The reference control is a sanity check, not a competitive baseline.
+- See [`docs/runner.md`](docs/runner.md).
+
 ## Repository map
 
 - `longprocurebench/runtime.py` — deterministic benchmark environment.
 - `longprocurebench/evaluator.py` — deterministic trajectory evaluator.
+- `longprocurebench/runner.py` — standard policy execution and result generation.
+- `longprocurebench/reference.py` — oracle-aware reference control.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
+- `schema/result.schema.json` — standardized run-result contract.
 - `data/evaluation/electrical/` — hard-constraint rules for all 5 episodes.
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
@@ -74,6 +86,7 @@ python -m pip install -r requirements.txt
 python scripts/validate_dataset.py
 python scripts/validate_episodes.py
 python scripts/validate_evaluation.py
+python scripts/run_reference.py
 python -m unittest discover -s scripts -p "test_*.py" -v
 ```
 
