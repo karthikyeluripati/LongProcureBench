@@ -570,12 +570,43 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "economic_objective": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "minimize_total_price"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1
+            },
+            "preferred_outcome_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^o[0-9]+$"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "preferred_outcome_ids"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "hard_constraints",
         "required_checkpoints",
         "acceptable_terminal_outcomes",
+        "economic_objective",
         "failure_conditions"
       ],
       "additionalProperties": false

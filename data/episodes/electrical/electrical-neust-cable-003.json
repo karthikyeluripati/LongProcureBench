@@ -286,6 +286,13 @@
       "Awarding against a stale 700 LM quote after the quantity change.",
       "Accepting Supplier B's aluminum substitution without buyer approval.",
       "Awarding Supplier A's revised quote above the real budget."
-    ]
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active offers for the amended requirement, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
   }
 }

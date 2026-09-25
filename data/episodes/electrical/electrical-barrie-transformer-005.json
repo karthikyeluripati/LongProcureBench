@@ -262,12 +262,43 @@
         ],
         "rationale": "After revision, Supplier B is complete, within the clarified delivery window, and cheaper than the other complete offers.",
         "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-xfmr-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A's offer is complete and meets the clarified delivery requirement, but costs more than Supplier B's compliant revision.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o3",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-xfmr-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier C's offer is complete and meets the clarified delivery requirement, but costs more than Supplier B's compliant revision.",
+        "decision": "award"
       }
     ],
     "failure_conditions": [
       "Sending an award before resolving the missing quantity/unit.",
       "Awarding Supplier B's original quote that excludes the monitoring relay.",
       "Treating synthetic clarification fields as if they were part of the real public initial state."
-    ]
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among complete feasible offers after clarification, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
   }
 }

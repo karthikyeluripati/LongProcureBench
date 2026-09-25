@@ -74,6 +74,22 @@ class LongProcureBenchEvaluator:
         return {"correct": False, "matched_outcome_id": None, "detail": "Terminal decision or award set does not match any acceptable outcome."}
 
     @staticmethod
+    def _economic_result(episode, terminal_result):
+        objective = episode["oracle"]["economic_objective"]
+        matched = terminal_result["matched_outcome_id"]
+        satisfied = (
+            terminal_result["correct"]
+            and matched in objective["preferred_outcome_ids"]
+        )
+        return {
+            "kind": objective["kind"],
+            "description": objective["description"],
+            "satisfied": satisfied,
+            "matched_outcome_id": matched,
+            "preferred_outcome_ids": list(objective["preferred_outcome_ids"]),
+        }
+
+    @staticmethod
     def _required_items(scope, initial_item_ids):
         if scope == "package":
             return set(initial_item_ids)
@@ -366,11 +382,19 @@ class LongProcureBenchEvaluator:
         hard = self._hard_constraints(episode, config, final_state, trace)
         checkpoints = self._checkpoints(episode, config, final_state, trace, hard)
         violations = [r["constraint_id"] for r in hard["results"] if not r["passed"]]
-        success = terminal["correct"] and hard["all_passed"] and checkpoints["all_completed"]
+        economic = self._economic_result(episode, terminal)
+        feasible_process_success = (
+            terminal["correct"]
+            and hard["all_passed"]
+            and checkpoints["all_completed"]
+        )
+        success = feasible_process_success and economic["satisfied"]
         return {
             "episode_id": episode_id,
             "episode_success": success,
+            "feasible_process_success": feasible_process_success,
             "terminal_outcome": terminal,
+            "economic_objective": economic,
             "hard_constraints": hard,
             "required_checkpoints": checkpoints,
             "constraint_violations": violations,

@@ -90,7 +90,19 @@ def validate_episode(record):
                 raise ValueError(f"Invalid at_step trigger: {event['event_id']}")
 
     expected_decision = "award" if record["objective"]["terminal_state"] == "award_ready" else "no_award"
-    for outcome in record["oracle"]["acceptable_terminal_outcomes"]:
+    outcomes = record["oracle"]["acceptable_terminal_outcomes"]
+    outcome_ids = [outcome["outcome_id"] for outcome in outcomes]
+    if len(outcome_ids) != len(set(outcome_ids)):
+        raise ValueError("Duplicate acceptable outcome_id")
+
+    preferred = record["oracle"]["economic_objective"]["preferred_outcome_ids"]
+    unknown_preferred = set(preferred) - set(outcome_ids)
+    if unknown_preferred:
+        raise ValueError(
+            f"Economic objective references unknown acceptable outcomes: {sorted(unknown_preferred)}"
+        )
+
+    for outcome in outcomes:
         if outcome["decision"] != expected_decision:
             raise ValueError("Outcome decision does not match objective terminal_state")
         if outcome["decision"] == "no_award":
