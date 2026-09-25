@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Standardized output from LongProcureBench Runner v0.1.",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "benchmark": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "const": "LongProcureBench"
+        },
+        "runner_version": {
+          "type": "string",
+          "const": "0.1.0"
+        }
+      },
+      "required": [
+        "name",
+        "runner_version"
+      ],
+      "additionalProperties": false
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "policy_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy_kind": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "policy_id",
+        "policy_kind"
+      ],
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "max_actions",
+        "policy_error",
+        "environment_error"
+      ]
+    },
+    "max_actions": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "decision": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "accepted": {
+            "type": "boolean"
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "message"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "attempt",
+          "decision",
+          "accepted",
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "trajectory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "action": {
+            "type": "object"
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "step",
+          "action",
+          "observations"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "episode_id": {
+          "type": "string"
+        },
+        "episode_success": {
+          "type": "boolean"
+        },
+        "terminal_outcome": {
+          "type": "object"
+        },
+        "hard_constraints": {
+          "type": "object"
+        },
+        "required_checkpoints": {
+          "type": "object"
+        },
+        "constraint_violations": {
+          "type": "array"
+        },
+        "efficiency": {
+          "type": "object"
+        },
+        "terminated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "episode_id",
+        "episode_success",
+        "terminal_outcome",
+        "hard_constraints",
+        "required_checkpoints",
+        "constraint_violations",
+        "efficiency",
+        "terminated"
+      ],
+      "additionalProperties": true
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "benchmark",
+    "run_id",
+    "episode_id",
+    "policy",
+    "status",
+    "max_actions",
+    "attempts",
+    "trajectory",
+    "evaluation",
+    "error"
+  ],
+  "additionalProperties": false
+}
