@@ -94,6 +94,23 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(len({r['package_id'] for r in records}), 20)
         self.assertTrue(all(r['procurement_category'] == 'electrical' for r in records))
 
+    def test_source_snapshot_unavailable_requires_null_hash(self):
+        record = copy.deepcopy(self.record)
+        record['supporting_documents'][0]['sha256'] = None
+        record['missing_information'].append(dict(
+            field_path='/supporting_documents/0/sha256',
+            reason='source_snapshot_unavailable',
+            detail='Raw source bytes were not captured.'))
+        validate_record(record)
+
+        record = copy.deepcopy(self.record)
+        record['missing_information'].append(dict(
+            field_path='/supporting_documents/0/sha256',
+            reason='source_snapshot_unavailable',
+            detail='Must not describe a populated hash as unavailable.'))
+        with self.assertRaises(ValueError):
+            validate_record(record)
+
 
 if __name__ == '__main__':
     unittest.main()
