@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "suite": "electrical",
-  "status": "holdout_collection_in_progress",
+  "status": "holdout_states_frozen",
   "development_calibration_episodes": [
     "electrical-bongabon-generator-001",
     "electrical-national-museum-lighting-002",
@@ -46,7 +46,12 @@
       "us-eweb-rfp-25-030-g",
       "us-lompoc-rfq-3099",
       "us-njang-w50s8f26qa022",
-      "us-port-angeles-mec-2025-18"
+      "us-port-angeles-mec-2025-18",
+      "us-greenport-transformers-2025",
+      "us-san-bruno-ev-chargers-51035",
+      "us-shelter-island-solar-bess-2026",
+      "us-philadelphia-b2627071",
+      "us-detroit-or-s-q10041-00016402"
     ]
   },
   "collection_gate": {
