@@ -1,0 +1,62 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-breaker-004",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "award_supplier_equals",
+          "scope": null,
+          "path": null,
+          "value": "eligible",
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": "eligibility_state"
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 134,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_supplier_not_withdrawn",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_latest",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

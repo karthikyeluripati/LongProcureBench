@@ -1,0 +1,71 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-barrie-transformer-005",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "includes_ngr",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "includes_monitoring_relay",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "event_before_action",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": "e1",
+          "action_type": "send_rfq",
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_months",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "includes_monitoring_relay",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

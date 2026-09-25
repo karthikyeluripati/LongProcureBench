@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "constraint_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "constraint_id": {
+            "type": "string",
+            "pattern": "^c[0-9]+$"
+          },
+          "checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "award_quote_max",
+                    "award_quote_min",
+                    "award_quote_equals",
+                    "award_supplier_equals",
+                    "award_quote_latest",
+                    "award_supplier_not_withdrawn",
+                    "event_before_action",
+                    "award_scope_complete"
+                  ]
+                },
+                "scope": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "path": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "value": {},
+                "event_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^e[0-9]+$"
+                },
+                "action_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "supplier_field": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "scope",
+                "path",
+                "value",
+                "event_id",
+                "action_type",
+                "supplier_field"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "constraint_id",
+          "checks"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "episode_id",
+    "constraint_rules"
+  ],
+  "additionalProperties": false
+}
