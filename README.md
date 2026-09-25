@@ -86,7 +86,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
-- On the 60-run Luna diagnostic, 55 current failures were non-applicable, 2 had no post-trigger action opportunity, and 19 came from proxy checkpoints.
+- On the 60-run Luna diagnostic, 50 current failures were non-applicable, 2 had no post-trigger action opportunity, and 19 came from proxy checkpoints.
 - The current `feasible_process_success` metric is therefore not frozen as the paper's primary obligation metric yet.
 - See [`docs/checkpoint-fairness-v0.1-results.md`](docs/checkpoint-fairness-v0.1-results.md).
 
