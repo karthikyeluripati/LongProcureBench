@@ -109,6 +109,7 @@ class BenchmarkRunner:
         evaluation: dict[str, Any] | None,
         error: dict[str, str] | None,
         evaluation_error: dict[str, str] | None,
+        policy_metrics: dict[str, Any],
     ) -> dict[str, Any]:
         result = {
             "schema_version": self.RESULT_SCHEMA_VERSION,
@@ -126,6 +127,7 @@ class BenchmarkRunner:
             "evaluation": evaluation,
             "error": error,
             "evaluation_error": evaluation_error,
+            "policy_metrics": policy_metrics,
         }
         self._result_validator.validate(result)
         return result
@@ -256,6 +258,15 @@ class BenchmarkRunner:
                     status = "evaluation_error"
                     run_error = deepcopy(evaluation_error)
 
+        metadata_fn = getattr(policy, "get_run_metadata", None)
+        policy_metrics = (
+            deepcopy(metadata_fn())
+            if callable(metadata_fn)
+            else {}
+        )
+        if not isinstance(policy_metrics, dict):
+            raise RunnerError("get_run_metadata() must return an object")
+
         result = self._build_result(
             run_id=resolved_run_id,
             episode_id=episode_id,
@@ -267,6 +278,7 @@ class BenchmarkRunner:
             evaluation=evaluation,
             error=run_error,
             evaluation_error=evaluation_error,
+            policy_metrics=policy_metrics,
         )
         if result_path is not None:
             self.save_result(result, result_path)
