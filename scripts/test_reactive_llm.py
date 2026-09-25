@@ -162,5 +162,26 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         aggregate = policy.get_run_metadata()
         self.assertTrue(aggregate["usage_incomplete"])
 
+    def test_partial_usage_is_marked_incomplete(self):
+        client = LiteLLMClient("fake/model")
+        metrics = client._metrics(
+            response={"usage": {"prompt_tokens": 17}, "choices": []},
+            latency_ms=1.0,
+            success=True,
+            error=None,
+        )
+        self.assertFalse(metrics["usage_available"])
+        self.assertEqual(metrics["prompt_tokens"], 17)
+        self.assertEqual(metrics["completion_tokens"], 0)
+        self.assertEqual(metrics["total_tokens"], 17)
+        policy = ReactiveLLMPolicy("fake/model", client=FakeActionClient([]))
+        policy._calls = [metrics]
+        self.assertTrue(policy.get_run_metadata()["usage_incomplete"])
+
+    def test_model_slug_stays_within_filesystem_component_limit(self):
+        slug = model_slug("provider/" + ("x" * 400))
+        self.assertLessEqual(len(slug.encode("utf-8")), 120)
+        self.assertRegex(slug, r"--[0-9a-f]{10}$")
+
 if __name__ == "__main__":
     unittest.main()

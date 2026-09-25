@@ -11,10 +11,15 @@ if str(ROOT) not in sys.path:
 
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 
+MODEL_SLUG_MAX_BYTES = 120
+HASH_SUFFIX_BYTES = 12  # "--" + 10 hex chars
+
 def model_slug(model):
-    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-") or "model"
+    readable = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-") or "model"
     digest = sha256(model.encode("utf-8")).hexdigest()[:10]
-    return f"{slug}--{digest}"
+    max_readable = MODEL_SLUG_MAX_BYTES - HASH_SUFFIX_BYTES
+    readable = readable[:max_readable].rstrip("._-") or "model"
+    return f"{readable}--{digest}"
 
 
 DEFAULT_EPISODES = [

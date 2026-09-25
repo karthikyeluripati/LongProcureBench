@@ -52,3 +52,11 @@ not overwrite each other even when their sanitized names are identical.
 Token totals are considered complete only when the provider response actually
 contains token-usage fields. A normal response without usage metadata is recorded
 with `usage_available=false`, causing aggregate `usage_incomplete=true`.
+
+## Bounded model directory names
+
+The readable portion of the model directory is truncated before the stable hash suffix is appended. The complete directory component is capped at 120 ASCII bytes, well below common 255-byte filesystem component limits, while the hash continues to identify the exact original model string.
+
+## Complete token usage
+
+A call is considered to have complete usage only when both prompt-token and completion-token counts are present. If the provider omits total_tokens, the total is safely derived from those two counts. Any missing prompt/completion count sets usage_available=false and therefore usage_incomplete=true for the run.

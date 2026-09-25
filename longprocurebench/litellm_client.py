@@ -40,22 +40,22 @@ class LiteLLMClient:
         error: Exception | None,
     ) -> dict[str, Any]:
         usage = self._value(response, "usage", None) if response is not None else None
+        prompt_raw = self._value(usage, "prompt_tokens", None)
+        completion_raw = self._value(usage, "completion_tokens", None)
+        total_raw = self._value(usage, "total_tokens", None)
+
         usage_available = (
             usage is not None
-            and any(
-                self._value(usage, key, None) is not None
-                for key in (
-                    "prompt_tokens",
-                    "completion_tokens",
-                    "total_tokens",
-                )
-            )
+            and prompt_raw is not None
+            and completion_raw is not None
         )
-        prompt_tokens = self._value(usage, "prompt_tokens", 0) or 0
-        completion_tokens = self._value(usage, "completion_tokens", 0) or 0
-        total_tokens = self._value(
-            usage, "total_tokens", prompt_tokens + completion_tokens
-        ) or (prompt_tokens + completion_tokens)
+        prompt_tokens = prompt_raw or 0
+        completion_tokens = completion_raw or 0
+        total_tokens = (
+            total_raw
+            if total_raw is not None
+            else prompt_tokens + completion_tokens
+        )
 
         cost_usd = None
         if response is not None:
