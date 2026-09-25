@@ -30,3 +30,12 @@ procurement.
 Unknown values remain null. Live procurement pages that later accumulated
 amendments or results are used only for their original solicitation facts; those
 later outcomes are outside the initial-state boundary.
+
+
+## Mutable-source preservation
+
+Philadelphia B2627071 and Detroit S-Q10041-00016402 are live procurement pages
+that later accumulated amendments or results. Their records therefore retain the
+official live URL for canonical identity **and** a dated archival mirror of the
+original buyer-authored specification/RFQ to make the frozen pre-amendment
+extraction reviewable over time.
