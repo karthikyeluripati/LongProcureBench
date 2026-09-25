@@ -7,6 +7,7 @@ on:
       - codex/evaluator-v0.2
     paths:
       - 'longprocurebench/evaluator.py'
+      - 'longprocurebench/runtime.py'
       - 'scripts/rescore_luna20_v02.py'
       - 'scripts/test_evaluator_v02.py'
       - 'scripts/test_rescore_luna20_v02.py'
