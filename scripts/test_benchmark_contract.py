@@ -125,6 +125,46 @@ class BenchmarkContractTests(unittest.TestCase):
                 self.rows, split, self.episodes, initial_states
             )
 
+    def test_state_only_freeze_rejects_otherwise_valid_held_out_episode(self):
+        rows = copy.deepcopy(self.rows)
+        split = copy.deepcopy(self.split)
+        episodes = copy.deepcopy(self.episodes)
+
+        source_episode_id = rows[0]["episode_id"]
+        held_out_episode_id = "electrical-heldout-021"
+        episode = copy.deepcopy(episodes[source_episode_id])
+        episode["episode_id"] = held_out_episode_id
+        episode["initial_state_ref"] = {
+            "package_id": "us-njang-w50s8f26qa022",
+            "path": "data/initial_states/electrical/us-njang-w50s8f26qa022.json",
+            "grounding": "real_public",
+        }
+        episodes[held_out_episode_id] = episode
+
+        row = copy.deepcopy(rows[0])
+        row["episode_id"] = held_out_episode_id
+        row["package_id"] = "us-njang-w50s8f26qa022"
+        row["source_family"] = "SAM.gov"
+        row["paper_split"] = "held_out_test"
+        rows.append(row)
+        split["held_out_test"]["episode_ids"].append(held_out_episode_id)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out episodes must remain empty",
+        ):
+            validate_contract(
+                rows, split, episodes, self.initial_states
+            )
+
+    def test_invalid_split_status_is_rejected(self):
+        split = copy.deepcopy(self.split)
+        split["status"] = "holdout_state_frozn"
+        with self.assertRaisesRegex(ValueError, "Invalid benchmark split status"):
+            validate_contract(
+                self.rows, split, self.episodes, self.initial_states
+            )
+
     def test_split_must_assign_every_committed_episode(self):
         split = copy.deepcopy(self.split)
         split["development_calibration_episodes"].pop()
