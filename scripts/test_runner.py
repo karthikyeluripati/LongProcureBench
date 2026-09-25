@@ -8,6 +8,7 @@ from unittest.mock import patch
 from jsonschema import ValidationError
 
 from longprocurebench import BenchmarkRunner, ScriptedReferencePolicy
+from run_reference import run_all_reference
 
 
 class BadPolicy:
@@ -139,10 +140,69 @@ class RunnerTests(unittest.TestCase):
                 "electrical-bongabon-generator-001",
                 max_actions=1,
             )
-        self.assertEqual(result["status"], "evaluation_error")
+        self.assertEqual(result["status"], "max_actions")
         self.assertIsNone(result["evaluation"])
-        self.assertEqual(result["error"]["type"], "ValueError")
+        self.assertIsNone(result["error"])
+        self.assertEqual(
+            result["evaluation_error"]["type"], "ValueError"
+        )
         self.assertEqual(len(result["trajectory"]), 1)
+
+
+    def test_invalid_episode_identifier_still_returns_failure_record(self):
+        result = self.runner.run(
+            LoopPolicy(),
+            "INVALID_episode",
+        )
+        self.assertEqual(result["status"], "setup_error")
+        self.assertEqual(result["episode_id"], "INVALID_episode")
+        self.assertIsNone(result["evaluation"])
+        self.assertIsNone(result["evaluation_error"])
+        self.assertEqual(result["error"]["type"], "EnvironmentError")
+
+    def test_evaluation_failure_does_not_hide_policy_failure(self):
+        with patch(
+            "longprocurebench.runner.LongProcureBenchEvaluator.evaluate_actions",
+            side_effect=ValueError("Missing evaluation config"),
+        ):
+            result = self.runner.run(
+                BadPolicy(),
+                "electrical-bongabon-generator-001",
+            )
+        self.assertEqual(result["status"], "policy_error")
+        self.assertEqual(result["error"]["type"], "RuntimeError")
+        self.assertEqual(
+            result["evaluation_error"]["type"], "ValueError"
+        )
+        self.assertIsNone(result["evaluation"])
+
+    def test_reference_batch_continues_when_one_evaluation_is_missing(self):
+        episode_ids = ScriptedReferencePolicy.episode_ids()
+        class StubRunner:
+            def __init__(self):
+                self.calls = []
+            def run(self, policy, episode_id, result_path=None):
+                self.calls.append(episode_id)
+                if len(self.calls) == 1:
+                    return {
+                        "status": "evaluation_error",
+                        "evaluation": None,
+                        "trajectory": [{"step": 1}],
+                    }
+                return {
+                    "status": "completed",
+                    "evaluation": {
+                        "episode_success": True,
+                        "efficiency": {"accepted_actions": 3},
+                    },
+                    "trajectory": [],
+                }
+
+        stub = StubRunner()
+        with tempfile.TemporaryDirectory() as tmp:
+            failures = run_all_reference(Path(tmp), runner=stub)
+        self.assertEqual(stub.calls, episode_ids)
+        self.assertEqual(failures, 1)
 
 
 if __name__ == "__main__":

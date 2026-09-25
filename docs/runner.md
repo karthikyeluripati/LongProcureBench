@@ -45,3 +45,19 @@ Runner v0.1 distinguishes where a failure originated:
 When setup or evaluation fails, `evaluation` is `null`; the standardized run
 record and error metadata are still returned so batch execution never loses the
 failure record.
+
+## Failure preservation
+
+Result records preserve caller input even when setup fails, so an invalid or
+unknown episode identifier can still be recorded in batch output. The result
+schema therefore treats `episode_id` as the requested identifier; canonical
+episode-ID validation remains the runtime's responsibility.
+
+Post-run evaluation is secondary to execution. If evaluation fails after an
+earlier policy/environment/max-actions stop, the original `status` and `error`
+remain unchanged and the evaluator failure is stored separately in
+`evaluation_error`. Only a previously completed run is promoted to
+`status="evaluation_error"`.
+
+The reference-control batch treats a missing evaluation as a failed episode,
+prints it, and continues through the remaining episodes.

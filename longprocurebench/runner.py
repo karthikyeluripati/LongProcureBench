@@ -108,6 +108,7 @@ class BenchmarkRunner:
         trajectory: list[dict[str, Any]],
         evaluation: dict[str, Any] | None,
         error: dict[str, str] | None,
+        evaluation_error: dict[str, str] | None,
     ) -> dict[str, Any]:
         result = {
             "schema_version": self.RESULT_SCHEMA_VERSION,
@@ -124,6 +125,7 @@ class BenchmarkRunner:
             "trajectory": trajectory,
             "evaluation": evaluation,
             "error": error,
+            "evaluation_error": evaluation_error,
         }
         self._result_validator.validate(result)
         return result
@@ -162,6 +164,7 @@ class BenchmarkRunner:
         status = "completed"
         run_error: dict[str, str] | None = None
         evaluation: dict[str, Any] | None = None
+        evaluation_error: dict[str, str] | None = None
         state: dict[str, Any] | None = None
 
         try:
@@ -248,8 +251,10 @@ class BenchmarkRunner:
                     episode_id, accepted_actions
                 )
             except Exception as exc:
-                status = "evaluation_error"
-                run_error = self._error(exc)
+                evaluation_error = self._error(exc)
+                if status == "completed":
+                    status = "evaluation_error"
+                    run_error = deepcopy(evaluation_error)
 
         result = self._build_result(
             run_id=resolved_run_id,
@@ -261,6 +266,7 @@ class BenchmarkRunner:
             trajectory=trajectory,
             evaluation=evaluation,
             error=run_error,
+            evaluation_error=evaluation_error,
         )
         if result_path is not None:
             self.save_result(result, result_path)

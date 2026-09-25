@@ -30,8 +30,7 @@
       "minLength": 1
     },
     "episode_id": {
-      "type": "string",
-      "pattern": "^[a-z0-9-]+$"
+      "type": "string"
     },
     "policy": {
       "type": "object",
@@ -215,6 +214,30 @@
           "additionalProperties": false
         }
       ]
+    },
+    "evaluation_error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   },
   "required": [
@@ -228,7 +251,8 @@
     "attempts",
     "trajectory",
     "evaluation",
-    "error"
+    "error",
+    "evaluation_error"
   ],
   "additionalProperties": false
 }

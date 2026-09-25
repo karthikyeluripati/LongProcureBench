@@ -10,6 +10,34 @@ if str(ROOT) not in sys.path:
 from longprocurebench import BenchmarkRunner, ScriptedReferencePolicy
 
 
+def run_all_reference(output_dir, runner=None):
+    runner = runner or BenchmarkRunner()
+    failures = 0
+
+    for episode_id in ScriptedReferencePolicy.episode_ids():
+        result = runner.run(
+            ScriptedReferencePolicy(),
+            episode_id,
+            result_path=Path(output_dir) / f"{episode_id}.json",
+        )
+        evaluation = result.get("evaluation")
+        success = bool(
+            evaluation and evaluation.get("episode_success")
+        )
+        actions = (
+            evaluation["efficiency"]["accepted_actions"]
+            if evaluation
+            else len(result.get("trajectory", []))
+        )
+        failures += 0 if success else 1
+        print(
+            f"{episode_id}: status={result['status']} "
+            f"success={success} actions={actions}"
+        )
+
+    return failures
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -20,22 +48,7 @@ def main():
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
-    runner = BenchmarkRunner()
-    failures = 0
-
-    for episode_id in ScriptedReferencePolicy.episode_ids():
-        result = runner.run(
-            ScriptedReferencePolicy(),
-            episode_id,
-            result_path=output_dir / f"{episode_id}.json",
-        )
-        success = result["evaluation"]["episode_success"]
-        failures += 0 if success else 1
-        print(
-            f"{episode_id}: status={result['status']} "
-            f"success={success} "
-            f"actions={result['evaluation']['efficiency']['accepted_actions']}"
-        )
+    failures = run_all_reference(output_dir)
 
     if failures:
         raise SystemExit(
