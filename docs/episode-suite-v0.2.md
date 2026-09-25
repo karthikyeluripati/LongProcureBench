@@ -33,3 +33,17 @@ the number of price-comparison tasks.
 The target is approximately 30 episodes. Later batches will add relays, power
 supplies, breakers, UPS/battery, additional generator packages, and compound
 episodes with multiple outstanding obligations active at once.
+
+
+## Distinct-state invariant
+
+Every committed benchmark episode must reference a distinct real public
+`package_id`. Suite validation enforces one-to-one episode-to-initial-state
+coverage, so distinct-state breadth grows automatically with the episode count.
+
+## Revision-order invariant
+
+`request_quote_revision` is a stateful runtime action: it is rejected unless a
+quote from that supplier has already been revealed. This prevents an agent from
+triggering a synthetic revision before the supplier has submitted an initial
+offer.

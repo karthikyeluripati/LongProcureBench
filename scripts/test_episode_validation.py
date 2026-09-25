@@ -4,7 +4,7 @@ import json
 import unittest
 
 from jsonschema import ValidationError
-from validate_episodes import EPISODE_SCHEMA, EPISODE_VALIDATOR, ROOT, validate_action, validate_episode
+from validate_episodes import EPISODE_SCHEMA, EPISODE_VALIDATOR, ROOT, validate_action, validate_episode, validate_suite_records
 
 
 class EpisodeValidationTests(unittest.TestCase):
@@ -30,9 +30,9 @@ class EpisodeValidationTests(unittest.TestCase):
             len({r["episode_id"] for r in records}),
             len(records),
         )
-        self.assertGreaterEqual(
+        self.assertEqual(
             len({r["initial_state_ref"]["package_id"] for r in records}),
-            5,
+            len(records),
         )
         self.assertTrue(
             all(
@@ -255,6 +255,27 @@ class EpisodeValidationTests(unittest.TestCase):
             }),
             10,
         )
+
+
+    def test_suite_rejects_reused_real_initial_state(self):
+        records = [
+            self.load_episode("electrical-bongabon-generator-001"),
+            self.load_episode("electrical-national-museum-lighting-002"),
+            self.load_episode("electrical-neust-cable-003"),
+            self.load_episode("electrical-dla-breaker-004"),
+            self.load_episode("electrical-barrie-transformer-005"),
+        ]
+        duplicate = copy.deepcopy(records[-1])
+        duplicate["episode_id"] = "electrical-duplicate-state-999"
+        duplicate["initial_state_ref"] = copy.deepcopy(
+            records[0]["initial_state_ref"]
+        )
+        records.append(duplicate)
+        with self.assertRaisesRegex(
+            ValueError,
+            "distinct real initial-state package_id",
+        ):
+            validate_suite_records(records)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 # Deterministic runtime v0.1
 
-The runtime executes the frozen five-episode contract without an LLM. It is a
+The runtime executes the frozen benchmark episode contract without an LLM. It is a
 state machine, not an agent and not a scorer.
 
 ## Interface
@@ -58,7 +58,9 @@ Invalid actions do not increment `step` or enter `action_history`.
 
 `send_rfq`, `send_follow_up`, `answer_supplier_question`, and
 `request_quote_revision` require a known supplier and require the supplier
-directory to have been revealed first.
+directory to have been revealed first. In addition, `request_quote_revision`
+is valid only after at least one quote from that supplier has already been
+revealed; a revision cannot be requested before an initial offer exists.
 
 `request_buyer_clarification`, `identify_suppliers`, `issue_amendment`,
 `evaluate_quotes`, and `no_award` require `supplier_id: null`.
@@ -92,5 +94,4 @@ correct**. Oracle scoring is a later milestone.
 - no baseline comparison;
 - no leaderboard.
 
-All five frozen Episode Model v0.1 episodes have deterministic scripted execution
-tests in `scripts/test_runtime.py`.
+All frozen episodes are covered by deterministic reference-control integration checks.

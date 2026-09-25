@@ -374,5 +374,39 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(len(state["revealed_events"]), expected_events)
 
 
+
+    def test_quote_revision_requires_prior_revealed_quote(self):
+        episode_ids = [
+            ("electrical-bfar-generator-006", "syn-bfar-c"),
+            ("electrical-negros-wire-007", "syn-negros-c"),
+            ("electrical-highpoint-transformer-009", "syn-hp-xfmr-c"),
+            ("electrical-painesville-switchgear-010", "syn-pain-c"),
+        ]
+        for episode_id, supplier_id in episode_ids:
+            with self.subTest(episode_id=episode_id):
+                env = LongProcureBenchEnv()
+                state = env.reset(episode_id)
+                env.step(
+                    self.action(
+                        1,
+                        episode_id,
+                        "identify_suppliers",
+                    )
+                )
+                with self.assertRaisesRegex(
+                    EnvironmentError,
+                    "requires a previously revealed quote",
+                ):
+                    env.step(
+                        self.action(
+                            2,
+                            episode_id,
+                            "request_quote_revision",
+                            supplier_id=supplier_id,
+                        )
+                    )
+                self.assertEqual(env.state["step"], 1)
+                self.assertEqual(env.state["revealed_events"], [])
+
 if __name__ == "__main__":
     unittest.main()
