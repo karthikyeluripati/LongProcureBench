@@ -428,9 +428,12 @@
             "format": "date"
           },
           "sha256": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "minLength": 1,
-            "description": "SHA-256 of retrieved bytes for detecting source changes.",
+            "description": "SHA-256 when raw source bytes were captured; null when unavailable.",
             "pattern": "^[a-f0-9]{64}$"
           },
           "snapshot_policy": {
@@ -517,7 +520,8 @@
               "bidder_to_provide",
               "conflicting_source",
               "partial_extraction",
-              "retrospective_source"
+              "retrospective_source",
+              "source_snapshot_unavailable"
             ]
           },
           "detail": {

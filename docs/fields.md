@@ -63,7 +63,7 @@ missing-information note. URI validation checks syntax offline, not link reachab
 | `supporting_documents[].document_type` | Required | Source medium. |
 | `supporting_documents[].issued_date` | Optional value | Original issue/publication date, not retrieval date. |
 | `supporting_documents[].retrieved_date` | Required | Date source bytes were retrieved. |
-| `supporting_documents[].sha256` | Required | SHA-256 of retrieved bytes for detecting source changes. |
+| `supporting_documents[].sha256` | Optional value | SHA-256 when raw source bytes were captured; null when unavailable through the collection path. |
 | `supporting_documents[].snapshot_policy` | Required | Explains what was retained and why; source bytes are not agent input. |
 | `source_provenance` | Required | Field-level evidence; metadata and missing-information notes are curator-authored. |
 | `source_provenance[].field_paths` | Required | Fields supported by this evidence. |

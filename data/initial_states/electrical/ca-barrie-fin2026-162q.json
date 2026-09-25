@@ -1,0 +1,230 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "ca-barrie-fin2026-162q",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Barrie",
+    "project_name": "Pre-Purchase of 44 kV Pad-Mounted Transformer",
+    "project_description": "Pre-purchase of a 44 kV pad-mounted transformer with neutral grounding resistor and monitoring relay.",
+    "location": null
+  },
+  "package_subscope": "transformers procurement package reconstructed from the cited public solicitation/notice.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-05-14",
+    "boundary": "Buyer-authored requirements and solicitation metadata only; excludes supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "44 kV pad-mounted transformer with neutral grounding resistor and monitoring relay",
+      "quantity": null,
+      "quantity_basis": null,
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "44 kV pad-mounted transformer with neutral grounding resistor and monitoring relay",
+          "verbatim_excerpt": null,
+          "source_locator": "Public notice description / line-item text"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": "Bid listing states a 61-month duration.",
+    "bid_submission_deadline": "2026-08-18 14:00 EDT"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": [
+    "CFTA and CETA identified in bid listing."
+  ],
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Pre-Purchase of 44 kV Pad-Mounted Transformer",
+      "url": "https://barrie.bidsandtenders.ca/Module/Tenders/en/Tender/Detail/73ac0a7f-89a3-4bab-a84f-d2b9e85b3798",
+      "document_type": "notice_html",
+      "issued_date": "2026-05-14",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "URL and retrieval date retained; raw source bytes were not captured in this browser/index collection pass."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/project/project_name"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/project/project_description"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/package_subscope"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/initial_state/source_issue_date"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/item_id"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/description"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/summary"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/schedule/delivery_requirement"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    },
+    {
+      "field_paths": [
+        "/certifications_compliance/0"
+      ],
+      "document_id": "source-1",
+      "locator": "Public notice / solicitation fields and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited public source."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/project/location",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/quantity",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/quantity_basis",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/unit",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "Technical and contractual clauses are selectively summarized; original cited source remains authoritative."
+    }
+  ]
+}

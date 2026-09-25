@@ -1,4 +1,4 @@
-"""Validate the three-example milestone, provenance, and missingness."""
+"""Validate the 20-package Initial State v0.1 candidate, provenance, and missingness."""
 import json
 from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
@@ -59,7 +59,7 @@ def validate_record(record):
     missing = {entry['field_path'] for entry in record['missing_information']}
     for entry in record['missing_information']:
         value = pointer(record, entry['field_path'])
-        if entry['reason'] in ('not_stated', 'bidder_to_provide') and value is not None:
+        if entry['reason'] in ('not_stated', 'bidder_to_provide', 'source_snapshot_unavailable') and value is not None:
             raise ValueError(f"Absence reason requires null: {entry['field_path']}")
     sourced = ('/project/', '/package_subscope', '/line_items/',
                '/total_estimated_budget', '/schedule/',
@@ -83,8 +83,8 @@ def validate_record(record):
 
 def main():
     files = sorted((ROOT / 'data/initial_states/electrical').glob('*.json'))
-    if len(files) != 3:
-        raise ValueError(f'This milestone requires exactly 3 examples; found {len(files)}')
+    if len(files) != 20:
+        raise ValueError(f'Initial State v0.1 requires exactly 20 packages; found {len(files)}')
     ids = set()
     count = 0
     for file in files:
