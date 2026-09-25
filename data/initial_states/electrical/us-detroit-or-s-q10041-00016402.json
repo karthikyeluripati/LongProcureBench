@@ -68,7 +68,17 @@
       "issued_date": "2026-03-23",
       "retrieved_date": "2026-09-25",
       "sha256": null,
-      "snapshot_policy": "Official OregonBuys solicitation URL and retrieval date retained. Initial-state extraction uses original posting facts and excludes later amendment content."
+      "snapshot_policy": "Official live OregonBuys solicitation URL retained for canonical identity and current access. Because the live record later accumulated amendment content, frozen original-posting scope is corroborated by the dated archival mirror in source-2."
+    },
+    {
+      "document_id": "source-2",
+      "title": "City of Detroit Silver Bullet Generator and ATS RFQ.pdf - dated archival mirror",
+      "url": "https://govtribe.com/file/government-file/city-of-detroit-silver-bullet-generator-and-ats-rfq-dot-pdf",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2026-03-23",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Dated archival mirror of the original buyer-authored RFQ, posted at solicitation release before later amendment content. Used to freeze original scope; this mirror is secondary archival evidence and is not agent input."
     }
   ],
   "source_provenance": [
@@ -99,6 +109,23 @@
       "document_id": "source-1",
       "locator": "Official solicitation source; see per-field source_locator values where provided.",
       "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    },
+    {
+      "field_paths": [
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/line_items/0/description",
+        "/line_items/1/description",
+        "/line_items/1/technical_specifications/0/summary",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1"
+      ],
+      "document_id": "source-2",
+      "locator": "Archived original RFQ > Project Background, Scope of Work, and quote requirements",
+      "interpretation": "Dated archival copy of the original buyer-authored RFQ corroborates the frozen pre-amendment scope independently of the mutable OregonBuys live record."
     }
   ],
   "missing_information": [
@@ -186,6 +213,11 @@
       "field_path": "/line_items",
       "reason": "partial_extraction",
       "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    },
+    {
+      "field_path": "/supporting_documents/1/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "The archival mirror is retained by stable dated URL; local raw bytes were not captured, so no local checksum is asserted."
     }
   ]
 }
