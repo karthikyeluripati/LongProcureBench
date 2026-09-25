@@ -1,0 +1,424 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-battery-supply-014",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-nsn6130015669043-2026-07-27",
+    "path": "data/initial_states/electrical/us-dla-nsn6130015669043-2026-07-27.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Five-line battery-power-supply buy with eligibility and partial offers",
+    "summary": "The real DLA package has five delivery lines and a total small-business set-aside. The agent must reject a cheaper ineligible package offer, normalize partial eligible offers, and obtain a delivery revision for the final two lines.",
+    "difficulty": "hard",
+    "tags": [
+      "multi_lot",
+      "supplier_eligibility",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The five real line quantities, 60-day ADO, and total small-business set-aside come from the public DLA starting state. Suppliers and quote values are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-bps-a",
+      "display_name": "Synthetic Battery Supply Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-bps-b",
+      "display_name": "Synthetic Battery Supply Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Cheapest full-package offer but not eligible under the real small-business set-aside."
+    },
+    {
+      "supplier_id": "syn-bps-c",
+      "display_name": "Synthetic Battery Supply Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-bps-d",
+      "display_name": "Synthetic Battery Supply Supplier D",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Quotes only the final two lines and is initially late."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bps-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bps-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes all five lines for an aggregate USD 148,000, with every line deliverable in 55 days.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "0001": {
+            "price": 100000,
+            "lead_time_days": 55,
+            "quantity": 10
+          },
+          "0002": {
+            "price": 12000,
+            "lead_time_days": 55,
+            "quantity": 1
+          },
+          "0003": {
+            "price": 12000,
+            "lead_time_days": 55,
+            "quantity": 1
+          },
+          "0004": {
+            "price": 12000,
+            "lead_time_days": 55,
+            "quantity": 1
+          },
+          "0005": {
+            "price": 12000,
+            "lead_time_days": 55,
+            "quantity": 1
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bps-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bps-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes all five lines for an aggregate USD 130,000 at 50 days, but is not eligible under the small-business set-aside.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "0001": {
+            "price": 90000,
+            "lead_time_days": 50,
+            "quantity": 10
+          },
+          "0002": {
+            "price": 10000,
+            "lead_time_days": 50,
+            "quantity": 1
+          },
+          "0003": {
+            "price": 10000,
+            "lead_time_days": 50,
+            "quantity": 1
+          },
+          "0004": {
+            "price": 10000,
+            "lead_time_days": 50,
+            "quantity": 1
+          },
+          "0005": {
+            "price": 10000,
+            "lead_time_days": 50,
+            "quantity": 1
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bps-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bps-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes lines 0001-0003 at 58-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "0001": {
+            "price": 95000,
+            "lead_time_days": 58,
+            "quantity": 10
+          },
+          "0002": {
+            "price": 11000,
+            "lead_time_days": 58,
+            "quantity": 1
+          },
+          "0003": {
+            "price": 11000,
+            "lead_time_days": 58,
+            "quantity": 1
+          },
+          "0004": null,
+          "0005": null
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "0001",
+          "0002",
+          "0003"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-bps-d",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-bps-d",
+        "step": null
+      },
+      "observation": "Supplier D quotes lines 0004-0005 at 65-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "0001": null,
+          "0002": null,
+          "0003": null,
+          "0004": {
+            "price": 9000,
+            "lead_time_days": 65,
+            "quantity": 1
+          },
+          "0005": {
+            "price": 9000,
+            "lead_time_days": 65,
+            "quantity": 1
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "0004",
+          "0005"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-bps-d",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-bps-d",
+        "step": null
+      },
+      "observation": "Supplier D revises lines 0004-0005 to USD 10,000 each with 58-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "0001": null,
+          "0002": null,
+          "0003": null,
+          "0004": {
+            "price": 10000,
+            "lead_time_days": 58,
+            "quantity": 1
+          },
+          "0005": {
+            "price": 10000,
+            "lead_time_days": 58,
+            "quantity": 1
+          }
+        },
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "0004",
+          "0005"
+        ]
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Every awarded supplier must satisfy the real total small-business set-aside."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "All five real delivery lines must be awarded exactly once."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Each awarded line must meet the real 60-day ADO requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Each awarded line must cover its real line quantity."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "lot-0001",
+            "supplier_id": "syn-bps-c",
+            "quote_event_id": "e3"
+          },
+          {
+            "scope": "lot-0002",
+            "supplier_id": "syn-bps-c",
+            "quote_event_id": "e3"
+          },
+          {
+            "scope": "lot-0003",
+            "supplier_id": "syn-bps-c",
+            "quote_event_id": "e3"
+          },
+          {
+            "scope": "lot-0004",
+            "supplier_id": "syn-bps-d",
+            "quote_event_id": "e5"
+          },
+          {
+            "scope": "lot-0005",
+            "supplier_id": "syn-bps-d",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "The C+D split award is eligible, complete, within 60 days, and lower-cost than Supplier A's eligible full-package offer.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "lot-0001",
+            "supplier_id": "syn-bps-a",
+            "quote_event_id": "e1"
+          },
+          {
+            "scope": "lot-0002",
+            "supplier_id": "syn-bps-a",
+            "quote_event_id": "e1"
+          },
+          {
+            "scope": "lot-0003",
+            "supplier_id": "syn-bps-a",
+            "quote_event_id": "e1"
+          },
+          {
+            "scope": "lot-0004",
+            "supplier_id": "syn-bps-a",
+            "quote_event_id": "e1"
+          },
+          {
+            "scope": "lot-0005",
+            "supplier_id": "syn-bps-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A's full-package offer is eligible and feasible but more expensive than the C+D split award.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the cheaper ineligible Supplier B.",
+      "Leaving any real delivery line uncovered or double-awarded.",
+      "Awarding Supplier D's original 65-day partial offer."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among eligible feasible line assignments, prefer the lowest aggregate awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

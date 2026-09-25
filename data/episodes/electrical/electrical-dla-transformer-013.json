@@ -1,0 +1,287 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-transformer-013",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-nsn5950015217950-2026-09-09",
+    "path": "data/initial_states/electrical/us-dla-nsn5950015217950-2026-09-09.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Power-transformer buy with commercial clarification and supplier question",
+    "summary": "The real DLA requirement fixes quantity and delivery but has no public budget. The agent must obtain a controlled budget clarification before RFQ, then answer a supplier question and obtain a compliant delivery revision.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 56-unit quantity and 66-day ADO are real public facts. The USD 135,000 ceiling and all supplier interactions are synthetic controlled scenario facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-dla-xfmr-a",
+      "display_name": "Synthetic DLA Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-dla-xfmr-b",
+      "display_name": "Synthetic DLA Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-dla-xfmr-c",
+      "display_name": "Synthetic DLA Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially late; asks a delivery-commitment question during revision."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic benchmark clarification: maximum total evaluated price is USD 135,000; the real 66-day ADO requirement remains unchanged.",
+      "details": {
+        "max_total_price_usd": 135000,
+        "max_lead_time_days": 66
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-dla-xfmr-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-dla-xfmr-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 130,000 for 56 transformers with 64-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 130000,
+        "quantity": 56,
+        "lead_time_days": 64,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-dla-xfmr-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-dla-xfmr-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 118,000 for 56 transformers but requires 70 days.",
+      "details": {
+        "currency": "USD",
+        "total_price": 118000,
+        "quantity": 56,
+        "lead_time_days": 70,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-dla-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-dla-xfmr-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 120,000 for 56 transformers with 72-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 120000,
+        "quantity": 56,
+        "lead_time_days": 72,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-dla-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-dla-xfmr-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the 66-day ADO requirement is firm for all 56 units.",
+      "details": {
+        "question": "Is the 66-day ADO requirement firm for the complete 56-unit quantity?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-dla-xfmr-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-dla-xfmr-c",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier C revises to USD 125,000 for all 56 units with 65-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 125000,
+        "quantity": 56,
+        "lead_time_days": 65,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The synthetic total-price ceiling must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 56 transformers."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 66-day ADO requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Awarded total price must not exceed the clarified USD 135,000 ceiling."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-dla-xfmr-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier C's revision meets the real quantity/delivery requirements and synthetic budget at the lowest feasible price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-dla-xfmr-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A is feasible but costs more than Supplier C's revision.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before the synthetic commercial clarification.",
+      "Awarding Supplier B or Supplier C's original late quote.",
+      "Ignoring Supplier C's delivery question before its revision."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
