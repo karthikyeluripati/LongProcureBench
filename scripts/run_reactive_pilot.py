@@ -16,6 +16,25 @@ from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 
 EPISODE_ID_RE = re.compile(r"^[a-z0-9-]+$")
 
+
+def resolve_sampling_options(
+    temperature,
+    omit_temperature,
+    reasoning_effort,
+):
+    if omit_temperature and temperature is not None:
+        raise ValueError(
+            "--temperature and --omit-temperature cannot be used together"
+        )
+    if reasoning_effort is not None and temperature is not None:
+        raise ValueError(
+            "--reasoning-effort cannot be combined with --temperature; "
+            "temperature is omitted automatically for reasoning runs"
+        )
+    if reasoning_effort is not None or omit_temperature:
+        return None
+    return 0.0 if temperature is None else temperature
+
 DEFAULT_EPISODES = [
     "electrical-bongabon-generator-001",
     "electrical-national-museum-lighting-002",
@@ -164,12 +183,35 @@ def main():
     p.add_argument("--episode", action="append", dest="episodes")
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--max-actions", type=int, default=50)
-    p.add_argument("--temperature", type=float, default=0.0)
-    p.add_argument("--omit-temperature", action="store_true")
-    p.add_argument("--reasoning-effort", default=None)
+    p.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature. Defaults to 0.0 when reasoning is off.",
+    )
+    p.add_argument(
+        "--omit-temperature",
+        action="store_true",
+        help="Omit temperature from the provider request.",
+    )
+    p.add_argument(
+        "--reasoning-effort",
+        default=None,
+        help=(
+            "Provider reasoning effort. Supplying this automatically omits "
+            "temperature; do not combine it with --temperature."
+        ),
+    )
     p.add_argument("--output-dir", default="results/reactive-pilot-v0.1")
     a = p.parse_args()
-    temperature = None if a.omit_temperature else a.temperature
+    try:
+        temperature = resolve_sampling_options(
+            a.temperature,
+            a.omit_temperature,
+            a.reasoning_effort,
+        )
+    except ValueError as exc:
+        p.error(str(exc))
     run_pilot(
         a.models,
         a.episodes or DEFAULT_EPISODES,

@@ -5,7 +5,7 @@ from unittest.mock import patch
 from longprocurebench import BenchmarkRunner, ReactiveLLMPolicy
 from longprocurebench.reactive_llm import SEMANTIC_ACTION_SCHEMA
 from longprocurebench.litellm_client import LiteLLMClient, ModelCallError
-from run_reactive_llm import model_slug
+from run_reactive_llm import model_slug, resolve_sampling_options
 
 
 class FakeActionClient:
@@ -238,6 +238,32 @@ class ReactiveLLMPolicyTests(unittest.TestCase):
         request = mock_completion.call_args.kwargs
         self.assertNotIn("temperature", request)
         self.assertEqual(request["reasoning_effort"], "medium")
+
+
+    def test_reasoning_effort_automatically_omits_temperature(self):
+        self.assertIsNone(
+            resolve_sampling_options(None, False, "medium")
+        )
+
+    def test_default_cli_sampling_preserves_temperature_zero(self):
+        self.assertEqual(
+            resolve_sampling_options(None, False, None),
+            0.0,
+        )
+
+    def test_explicit_temperature_with_reasoning_is_rejected(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "cannot be combined with --temperature",
+        ):
+            resolve_sampling_options(0.0, False, "medium")
+
+    def test_temperature_and_omit_temperature_are_rejected(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "cannot be used together",
+        ):
+            resolve_sampling_options(0.2, True, None)
 
 if __name__ == "__main__":
     unittest.main()

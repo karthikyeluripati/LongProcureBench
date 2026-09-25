@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from run_reactive_pilot import model_slug, run_pilot, summarize, validate_episode_id
+from run_reactive_pilot import model_slug, resolve_sampling_options, run_pilot, summarize, validate_episode_id
 
 
 class StubPolicy:
@@ -128,6 +128,16 @@ class PilotTests(unittest.TestCase):
                 )
             self.assertEqual(runner.calls, [])
             self.assertFalse(out.exists())
+
+
+    def test_pilot_reasoning_effort_omits_temperature(self):
+        self.assertIsNone(
+            resolve_sampling_options(None, False, "medium")
+        )
+
+    def test_pilot_rejects_explicit_temperature_with_reasoning(self):
+        with self.assertRaises(ValueError):
+            resolve_sampling_options(0.0, False, "medium")
 
 if __name__ == "__main__":
     unittest.main()
