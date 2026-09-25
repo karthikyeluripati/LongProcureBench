@@ -1,0 +1,103 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-vre-generator-020",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "event_before_action",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": "e1",
+          "action_type": "send_rfq",
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "quantity",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "power_kw",
+          "value": 60,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "mobile",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "fuel",
+          "value": "diesel",
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "total_price",
+          "value": 140000,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 90,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c5",
+      "checks": [
+        {
+          "kind": "award_quote_latest",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

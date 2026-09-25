@@ -1,0 +1,388 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-highpoint-cable-018",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-high-point-20-042022",
+    "path": "data/initial_states/electrical/us-high-point-20-042022.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Five-line cable buy with substitution ambiguity and split award",
+    "summary": "The real High Point cable schedule has five lines, an explicit NO SUBS clause for stock 2904, and conflicting general substitution language. Delivery is bidder-provided. The agent must obtain a controlled buyer clarification, handle a priced substitution proposal, request a compliant revision, normalize partial offers, and make a complete split award.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "multi_lot",
+      "substitution_proposed",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The five line quantities and stock 2904 NO SUBS clause are real public facts. The 120-day delivery ceiling is synthetic because the bid form leaves delivery bidder-provided.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-hpc-a",
+      "display_name": "Synthetic High Point Cable Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-hpc-b",
+      "display_name": "Synthetic High Point Cable Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Proposes a substitute for stock 2904 before revising to no-substitution compliance."
+    },
+    {
+      "supplier_id": "syn-hpc-c",
+      "display_name": "Synthetic High Point Cable Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic benchmark clarification: stock 2904's NO SUBS clause is controlling; other line equivalents may be considered if specifications are met; maximum delivery is 120 days.",
+      "details": {
+        "stock_2904_no_substitution": true,
+        "other_equivalents_if_compliant": true,
+        "max_lead_time_days": 120
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-hpc-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hpc-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes all five lines with 110-day delivery for an aggregate USD 440,000.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "59": {
+            "price": 50000,
+            "lead_time_days": 110,
+            "quantity": 15000
+          },
+          "79": {
+            "price": 90000,
+            "lead_time_days": 110,
+            "quantity": 30000
+          },
+          "80": {
+            "price": 100000,
+            "lead_time_days": 110,
+            "quantity": 30000
+          },
+          "2904": {
+            "price": 160000,
+            "lead_time_days": 110,
+            "quantity": 30000,
+            "no_substitution": true
+          },
+          "4523": {
+            "price": 40000,
+            "lead_time_days": 110,
+            "quantity": 15000
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2904",
+          "79",
+          "80",
+          "4523",
+          "59"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "substitution_proposed",
+      "synthetic": true,
+      "supplier_id": "syn-hpc-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hpc-b",
+        "step": null
+      },
+      "observation": "Supplier B proposes a priced substitute for stock 2904 and quotes the first three lines for USD 305,000 total at 110 days.",
+      "details": {
+        "currency": "USD",
+        "total_price": 305000,
+        "lead_time_days": 110,
+        "covered_item_ids": [
+          "2904",
+          "79",
+          "80"
+        ],
+        "stock_2904_substitution": true,
+        "revision": 0
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-hpc-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-hpc-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes only lines 4523 and 59 at 115-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "59": {
+            "price": 45000,
+            "lead_time_days": 115,
+            "quantity": 15000
+          },
+          "79": null,
+          "80": null,
+          "2904": null,
+          "4523": {
+            "price": 35000,
+            "lead_time_days": 115,
+            "quantity": 15000
+          }
+        },
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "4523",
+          "59"
+        ]
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-hpc-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-hpc-b",
+        "step": null
+      },
+      "observation": "Supplier B revises the first three lines to comply with stock 2904 NO SUBS, at an aggregate USD 325,000 and 115-day delivery.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "59": null,
+          "79": {
+            "price": 80000,
+            "lead_time_days": 115,
+            "quantity": 30000
+          },
+          "80": {
+            "price": 90000,
+            "lead_time_days": 115,
+            "quantity": 30000
+          },
+          "2904": {
+            "price": 155000,
+            "lead_time_days": 115,
+            "quantity": 30000,
+            "no_substitution": true
+          },
+          "4523": null
+        },
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2904",
+          "79",
+          "80"
+        ]
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The substitution ambiguity and delivery ceiling must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "All five real cable lines must be awarded exactly once."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Every awarded line must meet the clarified 120-day delivery ceiling."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Each awarded line must cover its real scheduled quantity."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "Stock 2904 must comply with the real NO SUBS clause."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "lot-2904",
+            "supplier_id": "syn-hpc-b",
+            "quote_event_id": "e5"
+          },
+          {
+            "scope": "lot-79",
+            "supplier_id": "syn-hpc-b",
+            "quote_event_id": "e5"
+          },
+          {
+            "scope": "lot-80",
+            "supplier_id": "syn-hpc-b",
+            "quote_event_id": "e5"
+          },
+          {
+            "scope": "lot-4523",
+            "supplier_id": "syn-hpc-c",
+            "quote_event_id": "e4"
+          },
+          {
+            "scope": "lot-59",
+            "supplier_id": "syn-hpc-c",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "The B+C split award covers all five real lines, respects stock 2904 NO SUBS, meets quantities and the clarified schedule, and is lower-cost than Supplier A.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "lot-2904",
+            "supplier_id": "syn-hpc-a",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-79",
+            "supplier_id": "syn-hpc-a",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-80",
+            "supplier_id": "syn-hpc-a",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-4523",
+            "supplier_id": "syn-hpc-a",
+            "quote_event_id": "e2"
+          },
+          {
+            "scope": "lot-59",
+            "supplier_id": "syn-hpc-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A's five-line offer is feasible but more expensive than the B+C split award.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Proceeding before clarifying the documented substitution conflict.",
+      "Accepting Supplier B's priced stock-2904 substitution.",
+      "Leaving any cable line uncovered or exceeding the clarified delivery ceiling."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among feasible complete line assignments, prefer the lowest aggregate awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

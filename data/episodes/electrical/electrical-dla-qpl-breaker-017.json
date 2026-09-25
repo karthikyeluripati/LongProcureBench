@@ -1,0 +1,273 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-qpl-breaker-017",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-dla-spe7m526q1053",
+    "path": "data/initial_states/electrical/us-dla-spe7m526q1053.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "QPL circuit-breaker buy with eligibility and question-driven compliance revision",
+    "summary": "The real DLA breaker requirement is a total small-business set-aside and a Qualified Products List item. The agent must reject an ineligible cheap offer and a non-QPL eligible offer, then obtain a compliant revision after answering a supplier question.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_eligibility",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 161-unit quantity, 210-day ADO, total small-business set-aside, and QPL requirement are real public facts. Supplier interactions and prices are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-qpl-a",
+      "display_name": "Synthetic QPL Breaker Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-qpl-b",
+      "display_name": "Synthetic QPL Breaker Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Cheaper but ineligible under the real total small-business set-aside."
+    },
+    {
+      "supplier_id": "syn-qpl-c",
+      "display_name": "Synthetic QPL Breaker Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Eligible but initial offered item is not QPL-qualified."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-qpl-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-qpl-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 120,000 for 161 QPL-qualified breakers with 205-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 120000,
+        "quantity": 161,
+        "lead_time_days": 205,
+        "qpl_qualified": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-qpl-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-qpl-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 100,000 for 161 QPL-qualified breakers with 190-day delivery but is not small-business eligible.",
+      "details": {
+        "currency": "USD",
+        "total_price": 100000,
+        "quantity": 161,
+        "lead_time_days": 190,
+        "qpl_qualified": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-qpl-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-qpl-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 105,000 for 161 breakers with 200-day delivery, but the offered item is not QPL-qualified.",
+      "details": {
+        "currency": "USD",
+        "total_price": 105000,
+        "quantity": 161,
+        "lead_time_days": 200,
+        "qpl_qualified": false,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-qpl-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-qpl-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the QPL requirement is mandatory or whether an equivalent non-QPL item can be accepted.",
+      "details": {
+        "question": "Is QPL qualification mandatory for the offered breaker?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-qpl-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-qpl-c",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier C revises to a QPL-qualified item at USD 112,000 for 161 breakers with 208-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 112000,
+        "quantity": 161,
+        "lead_time_days": 208,
+        "qpl_qualified": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the real total small-business set-aside."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 161 breakers."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Awarded item must satisfy the real Qualified Products List requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 210-day ADO requirement."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "validate_eligibility",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-qpl-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C's revised QPL-qualified offer is eligible, within 210 days, and cheaper than Supplier A.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-qpl-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A is also fully feasible but more expensive.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the cheaper ineligible Supplier B.",
+      "Awarding Supplier C's non-QPL original offer.",
+      "Awarding an offer beyond 210 days."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among eligible QPL-qualified feasible offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

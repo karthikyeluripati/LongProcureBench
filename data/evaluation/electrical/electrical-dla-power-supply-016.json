@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-dla-power-supply-016",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "quantity",
+          "value": 57,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 200,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_latest",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

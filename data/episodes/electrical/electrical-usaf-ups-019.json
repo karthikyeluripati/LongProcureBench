@@ -1,0 +1,285 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-usaf-ups-019",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-usaf-f3g3jb6175ag01",
+    "path": "data/initial_states/electrical/us-usaf-f3g3jb6175ag01.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "UPS battery replacement with eligibility, scope correction, and withdrawal recovery",
+    "summary": "The real Air Force requirement is for 80 UPS batteries with installation equipment, 60-day ARO, and a total small-business set-aside. The best complete eligible supplier withdraws; the remaining eligible supplier must correct an installation-scope omission before award.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_eligibility",
+      "supplier_withdrawal",
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 80-unit quantity, installation-equipment scope, 60-day ARO, and total small-business set-aside are real public facts. Supplier behavior and prices are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; not governing law for non-U.S. episodes."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for buyer requirement changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for evaluating quotations on compliance, price, delivery, and other factors."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting constraints or scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-ups-a",
+      "display_name": "Synthetic UPS Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-ups-b",
+      "display_name": "Synthetic UPS Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Cheaper but ineligible under the real set-aside."
+    },
+    {
+      "supplier_id": "syn-ups-c",
+      "display_name": "Synthetic UPS Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initial offer omits required installation equipment."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ups-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ups-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 160,000 for 80 batteries with installation equipment and 55-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 160000,
+        "quantity": 80,
+        "lead_time_days": 55,
+        "installation_equipment": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ups-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ups-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 140,000 for 80 batteries with installation equipment and 50-day delivery but is not small-business eligible.",
+      "details": {
+        "currency": "USD",
+        "total_price": 140000,
+        "quantity": 80,
+        "lead_time_days": 50,
+        "installation_equipment": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-ups-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-ups-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 145,000 for 80 batteries with 58-day delivery but excludes the installation equipment.",
+      "details": {
+        "currency": "USD",
+        "total_price": 145000,
+        "quantity": 80,
+        "lead_time_days": 58,
+        "installation_equipment": false,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-ups-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "evaluate_quotes",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Supplier A withdraws its quotation before award.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-ups-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-ups-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the installation equipment must be included in its scope.",
+      "details": {
+        "question": "Must installation equipment be included with the 80 UPS batteries?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-ups-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-ups-c",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier C revises to USD 150,000 for 80 batteries including installation equipment, with 58-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 150000,
+        "quantity": 80,
+        "lead_time_days": 58,
+        "installation_equipment": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the real total small-business set-aside."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must cover the real quantity of 80 batteries."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Delivery must satisfy the real 60-day ARO requirement."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Awarded scope must include the installation equipment stated in the real requirement."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier cannot receive award."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision for a supplier may support award."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "validate_eligibility",
+      "recover_from_withdrawal",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-ups-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "After Supplier A withdraws, Supplier C's corrected offer is the remaining eligible offer meeting quantity, installation scope, and 60-day delivery.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the cheaper ineligible Supplier B.",
+      "Awarding Supplier A after withdrawal.",
+      "Awarding Supplier C's original scope without installation equipment."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among remaining eligible feasible active offers, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
