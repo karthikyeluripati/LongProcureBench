@@ -28,6 +28,10 @@ from frozen_operational_ledger_v01 import (
     EXPECTED_REPEATS,
     EXPECTED_PARTS,
     EXPECTED_RUNS,
+    EXPECTED_SELECTED_COMPACTION_SHA256,
+    EXPECTED_SELECTED_RAW_PROVENANCE_SHA256,
+    EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256,
+    EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256,
     MODEL,
     load_frozen_operational_ledger_source,
     reconstruct_actions as reconstruct_ledger_actions,
@@ -479,6 +483,23 @@ def _close(actual: Any, expected: Any, path: str = "root") -> None:
         )
 
 
+def _check_declared_replay_files(
+    directory: Path,
+    expected_parts: tuple[str, ...],
+) -> None:
+    actual = {
+        path.name
+        for path in directory.glob("replay-source*.b64")
+        if path.is_file()
+    }
+    expected = set(expected_parts)
+    if actual != expected:
+        raise ValueError(
+            "Frozen ledger replay file set mismatch: "
+            f"expected={sorted(expected)}, actual={sorted(actual)}"
+        )
+
+
 def check_manifest() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -565,6 +586,40 @@ def check_manifest() -> None:
             raise ValueError(
                 f"Ledger manifest replay storage mismatch for {key}"
             )
+
+    _check_declared_replay_files(EVIDENCE_DIR, EXPECTED_PARTS)
+
+    source_verification = manifest.get("source_verification") or {}
+    expected_source_verification = {
+        "verifier_script": (
+            "scripts/verify_operational_ledger_source_artifacts_v01.py"
+        ),
+        "selected_compaction_sha256": (
+            EXPECTED_SELECTED_COMPACTION_SHA256
+        ),
+        "selected_raw_provenance_sha256": (
+            EXPECTED_SELECTED_RAW_PROVENANCE_SHA256
+        ),
+        "original_raw_provenance_sha256": (
+            EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256
+        ),
+        "recovery_raw_provenance_sha256": (
+            EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256
+        ),
+        "provenance_line_format": (
+            "source_code|episode_index|repeat|sha256(exact raw run JSON bytes)"
+        ),
+    }
+    for key, value in expected_source_verification.items():
+        if source_verification.get(key) != value:
+            raise ValueError(
+                f"Ledger source verification mismatch for {key}"
+            )
+    verifier = ROOT / source_verification["verifier_script"]
+    if not verifier.is_file():
+        raise ValueError(
+            "Ledger source-artifact verifier script is missing"
+        )
 
     comparison = manifest.get("comparison") or {}
     expected_comparison = {
