@@ -26,6 +26,7 @@ from frozen_operational_ledger_v01 import (
     EXPECTED_ORIGINAL_RUNS,
     EXPECTED_RECOVERY_RUNS,
     EXPECTED_REPEATS,
+    EXPECTED_PARTS,
     EXPECTED_RUNS,
     MODEL,
     load_frozen_operational_ledger_source,
@@ -555,7 +556,7 @@ def check_manifest() -> None:
 
     storage = manifest.get("storage") or {}
     expected_storage = {
-        "path": "replay-source.b64",
+        "part_count": EXPECTED_PARTS,
         "compressed_bytes": EXPECTED_COMPRESSED_BYTES,
         "compressed_sha256": EXPECTED_COMPRESSED_SHA256,
     }
