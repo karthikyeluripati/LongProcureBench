@@ -1,12 +1,16 @@
 """Regression tests for the frozen context-compiled experiment."""
+import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import audit_context_compiled_v01 as audit_module
 from audit_context_compiled_v01 import (
     BOOTSTRAP_SAMPLER,
     _bootstrap_index,
@@ -85,6 +89,54 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
             comparison["cluster_bootstrap"]["sampler"],
             "sha256-index-v1",
         )
+
+    def test_manifest_replay_and_bootstrap_drift_is_rejected(self):
+        manifest_path = (
+            ROOT
+            / "evidence"
+            / "context-compiled-reactive-v0.1"
+            / "manifest.json"
+        )
+        manifest = json.loads(
+            manifest_path.read_text(encoding="utf-8")
+        )
+        mutations = [
+            (
+                "replay_digest",
+                lambda value: value["storage"].__setitem__(
+                    "compressed_sha256", "0" * 64
+                ),
+            ),
+            (
+                "episode_count",
+                lambda value: value.__setitem__("episodes", 19),
+            ),
+            (
+                "bootstrap_seed",
+                lambda value: value["comparison"].__setitem__(
+                    "bootstrap_seed", 1
+                ),
+            ),
+            (
+                "bootstrap_sampler",
+                lambda value: value["comparison"].__setitem__(
+                    "bootstrap_sampler", "other"
+                ),
+            ),
+        ]
+
+        for name, mutate in mutations:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:
+                changed = json.loads(json.dumps(manifest))
+                mutate(changed)
+                path = Path(tmp) / "manifest.json"
+                path.write_text(
+                    json.dumps(changed),
+                    encoding="utf-8",
+                )
+                with patch.object(audit_module, "MANIFEST_PATH", path):
+                    with self.assertRaises(ValueError):
+                        check_manifest()
 
     def test_key_long_horizon_failure_is_not_claimed_solved(self):
         comparison = build_comparison()
