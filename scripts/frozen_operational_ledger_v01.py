@@ -8,9 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-EXPECTED_COMPRESSED_BYTES = 28669
+EXPECTED_COMPRESSED_BYTES = 31058
 EXPECTED_COMPRESSED_SHA256 = (
-    "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+    "687916d2fea8dd7fbad6c1750c3896c01b0cc21bc106256f0b73d01e43ea5491"
 )
 EXPECTED_SELECTED_COMPACTION_SHA256 = (
     "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68"
@@ -32,6 +32,7 @@ EXPECTED_RECOVERY_RUNS = 17
 EXPECTED_PARTS = (
     "replay-source.part-01.b64",
     "replay-source.part-02.b64",
+    "replay-source.part-02a.b64",
     "replay-source.part-03a.b64",
     "replay-source.part-03b.b64",
     "replay-source.part-04.b64",
