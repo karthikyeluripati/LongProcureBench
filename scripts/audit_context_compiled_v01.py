@@ -253,6 +253,61 @@ def _bootstrap(
     }
 
 
+def evaluate_predeclared_gate(
+    delta: dict[str, float],
+) -> dict[str, Any]:
+    """Evaluate the two frozen development inclusion branches."""
+    terminal = float(delta["terminal_feasible_pp"])
+    obligation_success = float(
+        delta["feasible_obligation_success_pp"]
+    )
+    obligation_resolution = float(
+        delta["obligation_resolution_pp"]
+    )
+    total_tokens = float(delta["total_tokens_pct"])
+    tolerance = 1e-9
+
+    quality_gain = (
+        (
+            obligation_success >= 5.0 - tolerance
+            or obligation_resolution >= 5.0 - tolerance
+        )
+        and terminal >= -5.0 - tolerance
+    )
+    efficiency_noninferiority = (
+        abs(obligation_success) <= 2.0 + tolerance
+        and abs(obligation_resolution) <= 2.0 + tolerance
+        and total_tokens <= -15.0 + tolerance
+    )
+
+    if quality_gain:
+        matched_condition = "quality_gain"
+    elif efficiency_noninferiority:
+        matched_condition = "efficiency_noninferiority"
+    else:
+        matched_condition = None
+
+    return {
+        "passed": quality_gain or efficiency_noninferiority,
+        "matched_condition": matched_condition,
+        "quality_gain": {
+            "passed": quality_gain,
+            "rule": (
+                "feasible-obligation success OR obligation-resolution "
+                "rate improves by >=5 pp, AND terminal feasibility "
+                "does not fall by more than 5 pp"
+            ),
+        },
+        "efficiency_noninferiority": {
+            "passed": efficiency_noninferiority,
+            "rule": (
+                "both reliability metrics remain within +/-2 pp of "
+                "raw history, AND total tokens fall by >=15%"
+            ),
+        },
+    }
+
+
 def build_comparison() -> dict[str, Any]:
     evaluator = LongProcureBenchEvaluator(repo_root=ROOT)
     raw_source = [
@@ -335,19 +390,7 @@ def build_comparison() -> dict[str, Any]:
                 _per_episode(compiled_records),
             ),
         },
-        "predeclared_gate": {
-            "passed": True,
-            "basis": (
-                "obligation resolution improved by 6.1 percentage points "
-                "while terminal feasibility fell by exactly 5.0 points, "
-                "satisfying the >=5-point improvement and <=5-point "
-                "terminal guardrail"
-            ),
-            "interpretation": (
-                "narrow mixed pass; retain as an efficiency-layer "
-                "candidate, not as a reliability solution by itself"
-            ),
-        },
+        "predeclared_gate": evaluate_predeclared_gate(delta),
     }
 
 
