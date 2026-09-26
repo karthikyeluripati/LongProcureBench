@@ -77,6 +77,24 @@ Other large cross-model gaps include:
   `electrical-negros-wire-007`: each 9/9 terminal feasible and 3/9
   obligation success.
 
+## Action-induced obligations
+
+The raw action counts also expose an efficiency mechanism that the method should
+not ignore. Mean RFQs per run were approximately **2.75** for GPT-5.6 Sol,
+**3.02** for Claude Opus 5.5, and **3.05** for Gemini 3.8 Flash. In contrast,
+observed follow-up actions were only **2**, **8**, and **0** respectively across
+60 runs per model.
+
+This matters because agent actions can create downstream work. Soliciting an
+additional supplier can reveal a non-response, question, revision need, or
+withdrawal that must then be managed. An efficient long-horizon agent should
+therefore optimize not only "what action is valid now?" but also the future
+obligation load created by that action.
+
+This is a benchmark-mechanism observation, not a claim that fewer suppliers are
+always better in real procurement. Competition and sourcing policy can make
+additional outreach valuable.
+
 ## What this does and does not establish
 
 The result supports a cross-family phenomenon on this benchmark slice:
