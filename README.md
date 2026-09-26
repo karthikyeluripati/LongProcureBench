@@ -114,12 +114,13 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 
 ### Operational-Ledger Reactive Baseline v0.1
 
-- Next controlled architecture experiment: factual compiled context plus a persistent, model-maintained ledger of open/resolved procurement commitments.
-- The model updates the ledger in the **same single call** that chooses the next semantic action; no extra planning call is introduced.
-- The harness assigns stable ledger IDs and rejects references to hidden events, hidden suppliers, or unknown ledger items.
-- No evaluator checkpoints, oracle obligations, chain-of-thought, ReAct planner, verifier, or knowledge graph are added.
-- Matched development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats against the frozen context-compiled baseline.
-- See [`docs/operational-ledger-reactive-v0.1.md`](docs/operational-ledger-reactive-v0.1.md).
+- Controlled test of factual compiled context plus a persistent, model-maintained ledger of open/resolved procurement commitments.
+- Frozen selected grid: GPT-5.6 Sol × 20 development episodes × 3 repeats = **60 runs**; a provider-credit interruption was repaired with a key-frozen 43-original + 17-recovery selection.
+- Compared with context compilation, terminal feasibility fell **25.0 pp** and feasible-obligation success fell **20.0 pp**, despite strict v0.2 rising **8.3 pp** and aggregate obligation resolution rising **6.3 pp**.
+- The treatment used **+295.4% total tokens**, **+132.1% model calls**, and **+371.8% known API cost**; 11 runs hit the 50-action cap.
+- The predeclared inclusion gate **failed**. This ledger formulation is dropped; the next causal axis is explicit planning/replanning rather than more memory infrastructure.
+- Durable replay evidence is committed under `evidence/operational-ledger-reactive-v0.1/`.
+- See [`docs/operational-ledger-reactive-v0.1.md`](docs/operational-ledger-reactive-v0.1.md) and [`docs/operational-ledger-reactive-v0.1-results.md`](docs/operational-ledger-reactive-v0.1-results.md).
 
 ### Checkpoint fairness audit v0.1
 
@@ -179,7 +180,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.
 - `scripts/frozen_cross_family_reactive_v01.py` — checksum-verified loader for the frozen 180-run cross-family replay source.
 - `scripts/audit_cross_family_reactive_v01.py` — deterministic replay/audit of all 180 cross-family trajectories.
+- `scripts/frozen_operational_ledger_v01.py` — checksum-verified loader for the selected 60-run operational-ledger evidence.
+- `scripts/audit_operational_ledger_v01.py` — deterministic matched replay/audit of the operational-ledger experiment.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
+- `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.
 - `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate
