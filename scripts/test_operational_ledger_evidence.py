@@ -14,6 +14,7 @@ import audit_operational_ledger_v01 as audit_module
 from audit_operational_ledger_v01 import (
     BOOTSTRAP_SAMPLER,
     _bootstrap_index,
+    _check_declared_replay_files,
     check_frozen_comparison,
     check_manifest,
     evaluate_predeclared_gate,
@@ -152,6 +153,40 @@ class OperationalLedgerFrozenEvidenceTests(unittest.TestCase):
              18, 6, 1, 17, 16, 5, 17, 18, 4, 2],
         )
 
+    def test_artifact_derived_source_roots_are_frozen(self):
+        manifest = json.loads((
+            ROOT
+            / "evidence"
+            / "operational-ledger-reactive-v0.1"
+            / "manifest.json"
+        ).read_text(encoding="utf-8"))
+        verification = manifest["source_verification"]
+        self.assertEqual(
+            verification["selected_compaction_sha256"],
+            "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68",
+        )
+        self.assertEqual(
+            verification["selected_raw_provenance_sha256"],
+            "5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8",
+        )
+
+    def test_undeclared_replay_fragment_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            for name in (
+                "replay-source.part-01.b64",
+                "replay-source.part-02.b64",
+            ):
+                (directory / name).write_text("x", encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "replay file set mismatch",
+            ):
+                _check_declared_replay_files(
+                    directory,
+                    ("replay-source.part-01.b64",),
+                )
+
     def test_manifest_provenance_and_selection_drift_is_rejected(self):
         manifest_path = (
             ROOT
@@ -179,6 +214,18 @@ class OperationalLedgerFrozenEvidenceTests(unittest.TestCase):
                 "replay_digest",
                 lambda value: value["storage"].__setitem__(
                     "compressed_sha256", "0" * 64
+                ),
+            ),
+            (
+                "artifact_compaction_root",
+                lambda value: value["source_verification"].__setitem__(
+                    "selected_compaction_sha256", "0" * 64
+                ),
+            ),
+            (
+                "artifact_raw_provenance_root",
+                lambda value: value["source_verification"].__setitem__(
+                    "selected_raw_provenance_sha256", "0" * 64
                 ),
             ),
             (
