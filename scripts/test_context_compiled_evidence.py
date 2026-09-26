@@ -7,7 +7,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from audit_context_compiled_v01 import build_comparison
+from audit_context_compiled_v01 import (
+    BOOTSTRAP_SAMPLER,
+    _bootstrap_index,
+    build_comparison,
+    check_frozen_comparison,
+    check_manifest,
+)
 from frozen_context_compiled_v01 import (
     EPISODES,
     load_frozen_context_compiled_source,
@@ -58,6 +64,27 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
             -40.6097479196513,
         )
         self.assertTrue(comparison["predeclared_gate"]["passed"])
+
+    def test_bootstrap_sample_plan_is_version_independent(self):
+        self.assertEqual(BOOTSTRAP_SAMPLER, "sha256-index-v1")
+        self.assertEqual(
+            [_bootstrap_index(0, draw) for draw in range(20)],
+            [15, 14, 18, 4, 14, 19, 0, 13, 6, 1,
+             18, 6, 1, 17, 16, 5, 17, 18, 4, 2],
+        )
+        self.assertEqual(
+            [_bootstrap_index(1, draw) for draw in range(20)],
+            [15, 3, 9, 5, 11, 16, 12, 8, 16, 12,
+             4, 17, 0, 1, 10, 15, 11, 12, 5, 19],
+        )
+
+    def test_frozen_comparison_replays_with_recorded_sampler(self):
+        check_manifest()
+        comparison = check_frozen_comparison()
+        self.assertEqual(
+            comparison["cluster_bootstrap"]["sampler"],
+            "sha256-index-v1",
+        )
 
     def test_key_long_horizon_failure_is_not_claimed_solved(self):
         comparison = build_comparison()
