@@ -42,7 +42,7 @@ It retains:
 - operationally relevant missing-information facts;
 - currently visible supplier identities;
 - all revealed event facts in compact form;
-- the latest **revealed** offer/revision per supplier and scope;
+- the latest revealed **awardable quote/revision** per supplier and scope;
 - revealed buyer requirement/quantity clarifications and changes;
 - compact accepted action history.
 
@@ -62,9 +62,12 @@ It must not add:
 - "needs follow-up", "must replan", or next-action hints;
 - hidden suppliers, future events, oracle outcomes, or episode-specific rules.
 
-`latest_offers` means only the last revealed offer-like event for a
-supplier/scope. It is a factual recency view, not a claim that the offer is
-currently valid after later requirement changes or withdrawal.
+`latest_offers` means only the last revealed runtime-awardable
+`quote_received` or `quote_revision` event for a supplier/scope. A
+`substitution_proposed` event remains visible in `event_history` because it
+can justify a later revision request, but it is not presented as an awardable
+offer. The recency view still does not claim that a quote remains valid after
+later requirement changes or withdrawal.
 
 ## Why this is first
 
