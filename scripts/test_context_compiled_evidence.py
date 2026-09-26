@@ -14,7 +14,6 @@ import audit_context_compiled_v01 as audit_module
 from audit_context_compiled_v01 import (
     BOOTSTRAP_SAMPLER,
     _bootstrap_index,
-    build_comparison,
     check_frozen_comparison,
     check_manifest,
 )
@@ -28,6 +27,8 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.source = load_frozen_context_compiled_source(ROOT)
+        check_manifest()
+        cls.comparison = check_frozen_comparison()
 
     def test_frozen_source_is_exact_twenty_by_three_grid(self):
         self.assertEqual(len(self.source), 60)
@@ -44,10 +45,9 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
         )
 
     def test_matched_comparison_preserves_key_result(self):
-        comparison = build_comparison()
-        raw = comparison["raw_history"]
-        compiled = comparison["context_compiled"]
-        delta = comparison["delta"]
+        raw = self.comparison["raw_history"]
+        compiled = self.comparison["context_compiled"]
+        delta = self.comparison["delta"]
 
         self.assertEqual(raw["terminal_feasible"], 49)
         self.assertEqual(compiled["terminal_feasible"], 46)
@@ -67,7 +67,9 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
             delta["total_tokens_pct"],
             -40.6097479196513,
         )
-        self.assertTrue(comparison["predeclared_gate"]["passed"])
+        self.assertTrue(
+            self.comparison["predeclared_gate"]["passed"]
+        )
 
     def test_bootstrap_sample_plan_is_version_independent(self):
         self.assertEqual(BOOTSTRAP_SAMPLER, "sha256-index-v1")
@@ -83,10 +85,8 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
         )
 
     def test_frozen_comparison_replays_with_recorded_sampler(self):
-        check_manifest()
-        comparison = check_frozen_comparison()
         self.assertEqual(
-            comparison["cluster_bootstrap"]["sampler"],
+            self.comparison["cluster_bootstrap"]["sampler"],
             "sha256-index-v1",
         )
 
@@ -139,12 +139,13 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
                         check_manifest()
 
     def test_key_long_horizon_failure_is_not_claimed_solved(self):
-        comparison = build_comparison()
         self.assertLess(
-            comparison["context_compiled"][
+            self.comparison["context_compiled"][
                 "feasible_obligation_success"
             ],
-            comparison["raw_history"]["feasible_obligation_success"] + 1,
+            self.comparison["raw_history"][
+                "feasible_obligation_success"
+            ] + 1,
         )
 
 
