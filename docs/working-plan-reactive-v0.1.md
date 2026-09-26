@@ -68,6 +68,15 @@ The plan is deliberately constrained so it cannot contain:
 A planned supplier may be named only if that supplier is already visible in the
 state used for the call.
 
+The semantic action and the auxiliary plan have separate validity consequences.
+If the action is valid but the proposed plan violates the bounded-plan contract
+(for example, more than four steps or a non-visible supplier), the harness
+records a **plan rejection**, keeps the previously accepted plan unchanged, and
+still sends the semantic action to the runtime. An invalid auxiliary plan must
+not truncate an otherwise valid episode. Any remaining `WorkingPlanError`
+indicates a policy lifecycle/internal consistency failure and fails live-run
+validation.
+
 ## Why this is distinct from the failed ledger
 
 Operational-ledger v0.1 accumulated open commitments and produced a strong
@@ -108,8 +117,15 @@ A single provider-compatibility smoke was then run on development episode 004:
 
 The smoke is **not part of the experiment result**. Its episode outcome was not
 used to change the prompt, schema, plan semantics, inclusion gate, or evaluation
-protocol. The working-plan treatment is frozen after this provider-compatibility
-check.
+protocol.
+
+Before the 20 × 3 run, code review identified two observability/correctness
+issues without using additional episode outcomes: locally invalid auxiliary plan
+updates could terminate an otherwise valid action, and plan-length/update
+diagnostics were missing from aggregate outputs. Those issues were fixed by
+rejecting only the invalid plan update while allowing the action to proceed, and
+by carrying plan diagnostics into `runs.csv` and `summary.json`. The
+working-plan treatment is re-frozen after these review fixes.
 
 ## Primary metrics
 
@@ -125,6 +141,7 @@ Also report:
 - unresolved-obligation categories;
 - max-action runs and action-type distribution;
 - tokens, calls, latency, and known API cost;
+- plan update and plan-rejection counts;
 - mean/max plan length and plan replacement trace diagnostics.
 
 ## Predeclared development inclusion gate
