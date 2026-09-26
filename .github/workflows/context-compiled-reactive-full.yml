@@ -2,6 +2,11 @@ name: Context-Compiled Reactive Full Run
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-context-compiled-full-20260926
+    paths:
+      - '.github/workflows/context-compiled-reactive-full.yml'
 
 permissions:
   contents: read
