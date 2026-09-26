@@ -215,6 +215,7 @@ class WorkingPlanPolicyTests(unittest.TestCase):
         self.assertIsNone(metadata["final_plan"])
         self.assertEqual(metadata["plan_updates"], 0)
         self.assertEqual(metadata["plan_rejections"], 1)
+        self.assertIsNone(metadata["mean_plan_steps"])
         self.assertIn(
             "non-visible supplier",
             metadata["plan_rejection_trace"][0]["message"],
