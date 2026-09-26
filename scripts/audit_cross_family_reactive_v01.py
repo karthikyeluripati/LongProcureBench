@@ -166,12 +166,30 @@ def build_summary(
             for record in records
             if record["episode_id"] == episode_id
         ]
-        item = _summary(episode_records)
-        item["terminal_minus_obligation_success_rate"] = (
-            item["terminal_feasible_rate"]
-            - item["feasible_obligation_success_rate"]
-        )
-        by_episode[episode_id] = item
+        full = _summary(episode_records)
+        by_episode[episode_id] = {
+            "runs": full["runs"],
+            "terminal_feasible": full["terminal_feasible"],
+            "terminal_feasible_rate": full["terminal_feasible_rate"],
+            "feasible_obligation_success": (
+                full["feasible_obligation_success"]
+            ),
+            "feasible_obligation_success_rate": (
+                full["feasible_obligation_success_rate"]
+            ),
+            "episode_success_v02": full["episode_success_v02"],
+            "episode_success_v02_rate": full["episode_success_v02_rate"],
+            "actionable_obligations": full["actionable_obligations"],
+            "resolved_obligations": full["resolved_obligations"],
+            "unresolved_obligations": full["unresolved_obligations"],
+            "unresolved_obligation_counts": (
+                full["unresolved_obligation_counts"]
+            ),
+            "terminal_minus_obligation_success_rate": (
+                full["terminal_feasible_rate"]
+                - full["feasible_obligation_success_rate"]
+            ),
+        }
 
     combined = _summary(records)
     return {
