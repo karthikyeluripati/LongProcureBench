@@ -407,6 +407,47 @@ class PilotTests(unittest.TestCase):
         self.assertEqual(summary["mean_plan_steps"], 2.0)
         self.assertEqual(summary["max_plan_steps"], 4)
 
+    def test_summary_excludes_zero_update_runs_from_plan_step_mean(self):
+        base = {
+            "model": "m",
+            "episode_success": False,
+            "episode_success_v02": False,
+            "feasible_process_success": False,
+            "feasible_obligation_success": False,
+            "terminal_feasible": True,
+            "economic_objective_satisfied": False,
+            "status": "completed",
+            "constraint_violations": [],
+            "incomplete_checkpoints": [],
+            "obligations_actionable": 0,
+            "obligations_resolved": 0,
+            "obligations_unresolved": 0,
+            "unresolved_obligations": [],
+            "accepted_actions": 1,
+            "total_tokens": 10,
+            "latency_ms": 1.0,
+            "cost_usd": 0.001,
+            "usage_incomplete": False,
+            "plan_rejections": 0,
+        }
+        rows = [
+            {
+                **base,
+                "plan_updates": 1,
+                "mean_plan_steps": 2.0,
+                "max_plan_steps": 2,
+            },
+            {
+                **base,
+                "plan_updates": 0,
+                "mean_plan_steps": 0.0,
+                "max_plan_steps": 0,
+            },
+        ]
+
+        summary = summarize(rows)["by_model"]["m"]
+        self.assertEqual(summary["mean_plan_steps"], 2.0)
+
     def test_live_status_validator_rejects_working_plan_error(self):
         rows = [{
             "status": "policy_error",
