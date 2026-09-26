@@ -130,6 +130,16 @@
       "replay-source.part-06b.b64"
     ],
     "compressed_bytes": 28669,
-    "compressed_sha256": "966c926f9396d157826f845488dde701575b72d8b2993bdc6e74749f0978dbe7"
+    "compressed_sha256": "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+  },
+  "source_verification": {
+    "verifier_script": "scripts/verify_operational_ledger_source_artifacts_v01.py",
+    "canonical_compaction": "JSON compact record with sort_keys=true, separators=(',', ':'), UTF-8, newline per selected record, ordered by episode index then repeat",
+    "selected_compaction_sha256": "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68",
+    "selected_raw_provenance_sha256": "5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8",
+    "original_raw_provenance_sha256": "fa7450237981ccf4b4f6e88feceb0e8925c510cdbeb4da743793b7334a263183",
+    "recovery_raw_provenance_sha256": "27ee6c9308d74f1ad1413053a2ca4ee7efd572fd7e516dd0dc8b486a9b53447c",
+    "provenance_line_format": "source_code|episode_index|repeat|sha256(exact raw run JSON bytes)",
+    "note": "The verifier checks the downloaded Actions ZIP digests, applies the frozen key-based recovery selection without parsing the discarded recovery 015/r1 outcome, compacts selected raw run JSON deterministically, and recomputes these roots."
   }
 }
