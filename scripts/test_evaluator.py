@@ -268,6 +268,46 @@ class EvaluatorTests(unittest.TestCase):
         )
         self.assertTrue(passed)
 
+    def test_award_scope_complete_rejects_duplicate_optional_line(self):
+        final_state = {
+            "initial_state": {
+                "line_items": [
+                    {"item_id": "base", "award_requirement": "required"},
+                    {"item_id": "alternate", "award_requirement": "optional"},
+                ]
+            },
+            "revealed_events": [],
+        }
+        terminal = {
+            "decision": "award",
+            "awards": [
+                {
+                    "scope": "lot-base",
+                    "supplier_id": "syn-test",
+                    "quote_event_id": "e1",
+                },
+                {
+                    "scope": "lot-alternate",
+                    "supplier_id": "syn-test",
+                    "quote_event_id": "e2",
+                },
+                {
+                    "scope": "lot-alternate",
+                    "supplier_id": "syn-other",
+                    "quote_event_id": "e3",
+                },
+            ],
+        }
+        passed, detail = self.evaluator._check_rule(
+            {"kind": "award_scope_complete"},
+            terminal,
+            {"suppliers": []},
+            final_state,
+            [],
+        )
+        self.assertFalse(passed)
+        self.assertIn("'alternate': 2", detail)
+
     def test_award_quote_equals_requires_non_null_value(self):
         config = copy.deepcopy(
             self.evaluator.load_config(
