@@ -2,6 +2,11 @@ name: Working Plan Reactive Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-working-plan-smoke-20260926
+    paths:
+      - '.github/workflows/working-plan-reactive-smoke.yml'
 
 permissions:
   contents: read
