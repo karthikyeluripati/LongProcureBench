@@ -44,6 +44,39 @@ All retained runs have complete usage/cost records. There are **49 completed**
 runs and **11 max-actions** runs; there are no retained provider/model execution
 errors.
 
+## Independent source verification
+
+The committed compact replay is additionally anchored to the two Actions
+artifacts, rather than only to manifest metadata.
+
+For the 60 selected episode/repeat keys, deterministic compaction directly from
+the downloaded source artifacts produces:
+
+- selected compact-record root:
+  `9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68`
+- selected raw-record provenance root:
+  `5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8`
+
+The raw provenance root hashes the exact source run JSON bytes together with
+`source_code|episode_index|repeat`. The compact-record root includes the
+source assignment and every compacted field. The frozen loader rejects compact
+records that do not reproduce the artifact-derived compact root.
+
+Independent verification from downloaded Actions ZIPs is available with:
+
+```sh
+python scripts/verify_operational_ledger_source_artifacts_v01.py \
+  --original-zip <original-artifact.zip> \
+  --recovery-zip <recovery-artifact.zip>
+```
+
+That verifier first checks each ZIP against the recorded GitHub artifact digest,
+applies the key-frozen recovery selection, and then recomputes both roots. The
+discarded recovery `015/r1` is excluded by key before its JSON is parsed.
+
+The durable replay source is explicitly the complete ten-part list recorded in
+the manifest; CI also rejects undeclared `replay-source*.b64` fragments.
+
 ## Matched comparison
 
 | Metric | Context compiled | Operational ledger | Delta |
