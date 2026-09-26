@@ -17,7 +17,17 @@ EXPECTED_EPISODES = 20
 EXPECTED_REPEATS = 3
 EXPECTED_ORIGINAL_RUNS = 43
 EXPECTED_RECOVERY_RUNS = 17
-EXPECTED_PARTS = 6
+EXPECTED_PARTS = (
+    "replay-source.part-01.b64",
+    "replay-source.part-02.b64",
+    "replay-source.part-03a.b64",
+    "replay-source.part-03b.b64",
+    "replay-source.part-04.b64",
+    "replay-source.part-05a.b64",
+    "replay-source.part-05b.b64",
+    "replay-source.part-06a.b64",
+    "replay-source.part-06b.b64",
+)
 MODEL = "openai/gpt-5.6-sol"
 
 EPISODES = [
@@ -65,8 +75,8 @@ def load_frozen_operational_ledger_source(
 ) -> list[dict[str, Any]]:
     directory = evidence_dir(repo_root)
     paths = [
-        directory / f"replay-source.part-{index:02d}.b64"
-        for index in range(1, EXPECTED_PARTS + 1)
+        directory / name
+        for name in EXPECTED_PARTS
     ]
     missing = [str(path) for path in paths if not path.is_file()]
     if missing:
