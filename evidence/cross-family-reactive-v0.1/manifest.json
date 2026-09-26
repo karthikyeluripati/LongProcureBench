@@ -1,0 +1,103 @@
+{
+  "schema_version": "0.1.0",
+  "purpose": "Durable replay source for the 180-run cross-family reactive baseline on frozen development episodes 001-020.",
+  "source_workflow_run_id": 36220188934,
+  "source_workflow_run_attempt": 1,
+  "benchmark_code_sha": "a32efbfd570840c2c685525fd7ad88eade7ae87f",
+  "execution_head_sha": "9bf6e72f27343f949b999dac535b928e7bec79ab",
+  "execution_head_delta": "One commit ahead of benchmark_code_sha; only .github/workflows/cross-family-reactive-full.yml changed to add the one-shot push trigger.",
+  "source_artifacts": [
+    {
+      "provider": "gemini",
+      "artifact_id": 10899520494,
+      "name": "cross-family-gemini-36220188934-1",
+      "digest": "sha256:f77351fe20591d8a16ed176e3afcc9e0398480d6aa4b8714bb4b0bb075c82e23"
+    },
+    {
+      "provider": "openai",
+      "artifact_id": 10899400826,
+      "name": "cross-family-openai-36220188934-1",
+      "digest": "sha256:aeeab60579c2e2b3f7b1c193874645881cf6b61a6eecb2ca09854dad76cb3899"
+    },
+    {
+      "provider": "anthropic",
+      "artifact_id": 10898449444,
+      "name": "cross-family-anthropic-36220188934-1",
+      "digest": "sha256:cbf32abc428515428a5792a3b67fc0e57f0abbcd439778ac8bfe77ce4ee1020e"
+    }
+  ],
+  "records": 180,
+  "models": 3,
+  "episodes": 20,
+  "repeats_per_model_episode": 3,
+  "model_index": {
+    "0": "anthropic/claude-opus-5-5",
+    "1": "gemini/gemini-3.8-flash",
+    "2": "openai/gpt-5.6-sol"
+  },
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "compact_record_schema": [
+    "model_index",
+    "episode_index",
+    "repeat",
+    "semantic_decisions",
+    "policy_metrics"
+  ],
+  "semantic_decision_schema": [
+    "type",
+    "supplier_id",
+    "arguments"
+  ],
+  "policy_metrics_schema": [
+    "model_calls_attempted",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "temperature",
+    "reasoning_effort"
+  ],
+  "storage": {
+    "format": "gzip(JSONL compact replay records) encoded as six base64 text chunks",
+    "chunk_pattern": "replay-source.b64.part01..06",
+    "compressed_bytes": 12196,
+    "compressed_sha256": "a5ebf60142d2278463357e5081d7edef64757de58b5eba0f751a5f4f850ef4d1"
+  },
+  "retained_for_replay": [
+    "model and episode identity",
+    "repeat",
+    "accepted semantic decisions",
+    "aggregate per-run token/latency/cost metrics"
+  ],
+  "compaction_note": "The full GitHub Actions artifacts contain prompts, observations, evaluator output, and per-call records. The durable source retains only information needed to reconstruct accepted actions, deterministically replay the benchmark evaluator, and reproduce aggregate efficiency metrics. All 180 source runs had status=completed and passed the live execution/evaluation validator before compaction.",
+  "summary_storage": {
+    "format": "gzip(JSON summary) encoded as base64 text",
+    "path": "summary.json.gz.b64",
+    "compressed_bytes": 2370,
+    "compressed_sha256": "1d19729574b1fd7588382b8e03c4ac3a659806ccec41f9dcebd7908481e9acb8",
+    "note": "The audit script regenerates this summary from deterministic replay, including per-model action-type counts and means, and compares canonical JSON."
+  }
+}

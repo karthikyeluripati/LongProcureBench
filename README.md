@@ -94,6 +94,15 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Aggregates failure modes without introducing a weighted score or ranking.
 - See [`docs/reactive-pilot.md`](docs/reactive-pilot.md).
 
+### Cross-Family Reactive Baseline v0.1
+
+- Frozen provider-diverse development experiment: **3 model families × 20 episodes × 3 repeats = 180 runs**.
+- Combined result: **62.8% terminal feasibility** vs **31.7% feasible-obligation success**; **134/241 actionable obligations resolved (55.6%)**.
+- The largest unresolved classes are supplier non-response follow-up and visible requirement-gap resolution.
+- Durable compact replay evidence is committed under `evidence/cross-family-reactive-v0.1/` and deterministically audited in CI.
+- The next architecture experiments are hypothesis-driven: context compilation, explicit operational state/obligation tracking, planning/reasoning, verification, and selective replanning are tested separately before any component enters ProcureHarness.
+- See [`docs/cross-family-reactive-v0.1-results.md`](docs/cross-family-reactive-v0.1-results.md) and [`docs/agent-design-hypotheses-v0.1.md`](docs/agent-design-hypotheses-v0.1.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -146,6 +155,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
 - `scripts/frozen_luna20_source.py` — verifies and reconstructs the durable 60-run Luna evidence source.
 - `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.
+- `scripts/frozen_cross_family_reactive_v01.py` — checksum-verified loader for the frozen 180-run cross-family replay source.
+- `scripts/audit_cross_family_reactive_v01.py` — deterministic replay/audit of all 180 cross-family trajectories.
+- `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
+- `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate
 
