@@ -141,6 +141,11 @@ def flatten_audited_result(
             "latency_ms": metrics.get("latency_ms"),
             "cost_usd": metrics.get("cost_usd"),
             "usage_incomplete": metrics.get("usage_incomplete"),
+            "state_strategy": metrics.get("state_strategy"),
+            "ledger_open_items": metrics.get("ledger_open_items"),
+            "ledger_resolved_items": metrics.get("ledger_resolved_items"),
+            "ledger_items_created": metrics.get("ledger_items_created"),
+            "ledger_max_open_items": metrics.get("ledger_max_open_items"),
             "error_type": (result.get("error") or {}).get("type"),
             "evaluation_error_type": (
                 result.get("evaluation_error") or {}
@@ -273,6 +278,11 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "latency_ms",
         "cost_usd",
         "usage_incomplete",
+        "state_strategy",
+        "ledger_open_items",
+        "ledger_resolved_items",
+        "ledger_items_created",
+        "ledger_max_open_items",
         "error_type",
         "evaluation_error_type",
     ]
