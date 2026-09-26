@@ -17,6 +17,7 @@ EXPECTED_EPISODES = 20
 EXPECTED_REPEATS = 3
 EXPECTED_ORIGINAL_RUNS = 43
 EXPECTED_RECOVERY_RUNS = 17
+EXPECTED_PARTS = 6
 MODEL = "openai/gpt-5.6-sol"
 
 EPISODES = [
@@ -62,13 +63,25 @@ def _expected_source_code(episode_index: int, repeat: int) -> int:
 def load_frozen_operational_ledger_source(
     repo_root: Path,
 ) -> list[dict[str, Any]]:
-    path = evidence_dir(repo_root) / "replay-source.b64"
-    if not path.is_file():
-        raise ValueError(f"Missing frozen replay source: {path}")
+    directory = evidence_dir(repo_root)
+    paths = [
+        directory / f"replay-source.part-{index:02d}.b64"
+        for index in range(1, EXPECTED_PARTS + 1)
+    ]
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise ValueError(
+            "Missing frozen ledger replay source part(s): "
+            + ", ".join(missing)
+        )
 
+    encoded = "".join(
+        path.read_text(encoding="utf-8").strip()
+        for path in paths
+    )
     try:
         compressed = base64.b64decode(
-            path.read_text(encoding="utf-8").strip(),
+            encoded,
             validate=True,
         )
     except Exception as exc:
