@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import argparse
 import base64
-import gzip
+import binascii
 from hashlib import sha256
 import json
+import struct
+import zlib
 from pathlib import Path
 import re
 import sys
@@ -111,6 +113,25 @@ def _compact_record(
         metrics.get("final_ledger"),
         metrics.get("ledger_trace"),
     ]
+
+
+def _deterministic_gzip(payload: bytes) -> bytes:
+    """Build a version-independent gzip stream with a fixed header."""
+    compressor = zlib.compressobj(
+        level=9,
+        method=zlib.DEFLATED,
+        wbits=-zlib.MAX_WBITS,
+        memLevel=8,
+        strategy=zlib.Z_DEFAULT_STRATEGY,
+    )
+    body = compressor.compress(payload) + compressor.flush()
+    header = b"\x1f\x8b\x08\x00\x00\x00\x00\x00\x02\xff"
+    trailer = struct.pack(
+        "<II",
+        binascii.crc32(payload) & 0xFFFFFFFF,
+        len(payload) & 0xFFFFFFFF,
+    )
+    return header + body + trailer
 
 
 def _canonical_compact_line(row: list) -> bytes:
@@ -237,11 +258,7 @@ def verify_artifacts(
             _canonical_compact_line(row)
             for row in compact_rows
         )
-        compressed = gzip.compress(
-            replay_payload,
-            compresslevel=9,
-            mtime=0,
-        )
+        compressed = _deterministic_gzip(replay_payload)
         if len(compressed) != EXPECTED_COMPRESSED_BYTES:
             raise ValueError(
                 "Regenerated replay source size mismatch"
