@@ -6,7 +6,6 @@ from hashlib import sha256
 import json
 import math
 from pathlib import Path
-import random
 import sys
 from typing import Any
 
@@ -31,6 +30,7 @@ MANIFEST_PATH = EVIDENCE_DIR / "manifest.json"
 COMPARISON_PATH = EVIDENCE_DIR / "comparison.json"
 BOOTSTRAP_SEED = 20260926
 BOOTSTRAP_RESAMPLES = 20000
+BOOTSTRAP_SAMPLER = "sha256-index-v1"
 
 
 def _evaluate_records(
@@ -158,11 +158,19 @@ def _quantile(values: list[float], probability: float) -> float:
     return ordered[low] + weight * (ordered[high] - ordered[low])
 
 
+def _bootstrap_index(resample: int, draw: int) -> int:
+    """Return a version-independent deterministic episode index."""
+    payload = (
+        f"longprocurebench-bootstrap-v1:"
+        f"{BOOTSTRAP_SEED}:{resample}:{draw}"
+    ).encode("utf-8")
+    return int.from_bytes(sha256(payload).digest(), "big") % len(EPISODES)
+
+
 def _bootstrap(
     raw: dict[str, dict[str, float]],
     compiled: dict[str, dict[str, float]],
 ) -> dict[str, list[float]]:
-    rng = random.Random(BOOTSTRAP_SEED)
     values = {
         name: []
         for name in (
@@ -176,10 +184,10 @@ def _bootstrap(
         )
     }
 
-    for _ in range(BOOTSTRAP_RESAMPLES):
+    for resample in range(BOOTSTRAP_RESAMPLES):
         sampled = [
-            rng.randrange(len(EPISODES))
-            for _ in range(len(EPISODES))
+            _bootstrap_index(resample, draw)
+            for draw in range(len(EPISODES))
         ]
 
         for field, output_name in (
@@ -315,6 +323,7 @@ def build_comparison() -> dict[str, Any]:
         "cluster_bootstrap": {
             "seed": BOOTSTRAP_SEED,
             "resamples": BOOTSTRAP_RESAMPLES,
+            "sampler": BOOTSTRAP_SAMPLER,
             "cluster": "episode_id",
             "95pct_ci": _bootstrap(
                 _per_episode(raw_records),
@@ -396,6 +405,8 @@ def check_manifest() -> None:
             )
 
     comparison = manifest.get("comparison") or {}
+    if comparison.get("bootstrap_sampler") != BOOTSTRAP_SAMPLER:
+        raise ValueError("Frozen context bootstrap sampler mismatch")
     payload = COMPARISON_PATH.read_bytes()
     if len(payload) != comparison.get("bytes"):
         raise ValueError("Frozen context comparison size mismatch")
