@@ -308,7 +308,7 @@ class WorkingPlanPolicyTests(unittest.TestCase):
                 next_plan=_plan("Continue.", next_steps=[]),
             ),
             _response(
-                "evaluate_quotes",
+                "request_buyer_clarification",
                 next_plan=_plan("Finish.", next_steps=[]),
             ),
         ])
