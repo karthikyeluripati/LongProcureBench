@@ -43,6 +43,29 @@ DEFAULT_EPISODES = [
     "electrical-barrie-transformer-005",
 ]
 
+DEVELOPMENT_EPISODES = [
+    "electrical-bongabon-generator-001",
+    "electrical-national-museum-lighting-002",
+    "electrical-neust-cable-003",
+    "electrical-dla-breaker-004",
+    "electrical-barrie-transformer-005",
+    "electrical-bfar-generator-006",
+    "electrical-negros-wire-007",
+    "electrical-burauen-generator-008",
+    "electrical-highpoint-transformer-009",
+    "electrical-painesville-switchgear-010",
+    "electrical-sagada-generator-011",
+    "electrical-dla-relay-012",
+    "electrical-dla-transformer-013",
+    "electrical-dla-battery-supply-014",
+    "electrical-dla-battery-charger-015",
+    "electrical-dla-power-supply-016",
+    "electrical-dla-qpl-breaker-017",
+    "electrical-highpoint-cable-018",
+    "electrical-usaf-ups-019",
+    "electrical-vre-generator-020",
+]
+
 
 def model_slug(model):
     readable = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-") or "model"
@@ -71,6 +94,7 @@ def flatten_result(result, model, repeat):
     evaluation = result.get("evaluation") or {}
     hard = evaluation.get("hard_constraints") or {}
     checkpoints = evaluation.get("required_checkpoints") or {}
+    obligations = evaluation.get("obligations") or {}
     metrics = result.get("policy_metrics") or {}
     return {
         "model": model,
@@ -79,7 +103,9 @@ def flatten_result(result, model, repeat):
         "run_id": result["run_id"],
         "status": result["status"],
         "episode_success": bool(evaluation.get("episode_success", False)),
+        "episode_success_v02": bool(evaluation.get("episode_success_v02", False)),
         "feasible_process_success": bool(evaluation.get("feasible_process_success", False)),
+        "feasible_obligation_success": bool(evaluation.get("feasible_obligation_success", False)),
         "terminal_feasible": bool((evaluation.get("terminal_outcome") or {}).get("correct", False)),
         "economic_objective_satisfied": bool((evaluation.get("economic_objective") or {}).get("satisfied", False)),
         "hard_constraints_passed": hard.get("passed"),
@@ -88,6 +114,17 @@ def flatten_result(result, model, repeat):
         "checkpoints_total": checkpoints.get("total"),
         "constraint_violations": list(evaluation.get("constraint_violations") or []),
         "incomplete_checkpoints": [x["checkpoint"] for x in checkpoints.get("results", []) if not x.get("complete", False)],
+        "obligations_actionable": obligations.get("actionable"),
+        "obligations_resolved": obligations.get("resolved"),
+        "obligations_unresolved": obligations.get("unresolved"),
+        "obligations_no_opportunity": obligations.get("no_opportunity"),
+        "obligations_not_applicable": obligations.get("not_applicable"),
+        "obligation_resolution_rate": obligations.get("resolution_rate"),
+        "unresolved_obligations": [
+            x.get("obligation")
+            for x in obligations.get("results", [])
+            if x.get("status") == "unresolved"
+        ],
         "accepted_actions": (evaluation.get("efficiency") or {}).get("accepted_actions", len(result.get("trajectory", []))),
         "model_calls": metrics.get("model_calls_attempted", metrics.get("model_calls")),
         "total_tokens": metrics.get("total_tokens"),
@@ -111,16 +148,41 @@ def summarize(rows):
         checkpoints = Counter(x for r in subset for x in r["incomplete_checkpoints"])
         statuses = Counter(r["status"] for r in subset)
         successes = sum(r["episode_success"] for r in subset)
+        successes_v02 = sum(r.get("episode_success_v02", False) for r in subset)
         terminal = sum(r["terminal_feasible"] for r in subset)
         process = sum(r["feasible_process_success"] for r in subset)
+        obligation_success = sum(
+            r.get("feasible_obligation_success", False) for r in subset
+        )
         economic = sum(r["economic_objective_satisfied"] for r in subset)
+        unresolved_obligations = Counter(
+            x
+            for r in subset
+            for x in (r.get("unresolved_obligations") or [])
+            if x
+        )
         by_model[model] = {
             "runs": len(subset),
             "episode_successes": successes,
             "episode_success_rate": successes / len(subset),
+            "episode_successes_v02": successes_v02,
+            "episode_success_rate_v02": successes_v02 / len(subset),
             "terminal_feasible_rate": terminal / len(subset),
             "feasible_process_success_rate": process / len(subset),
+            "feasible_obligation_success_rate": obligation_success / len(subset),
             "economic_objective_rate": economic / len(subset),
+            "actionable_obligations": sum(
+                int(r.get("obligations_actionable") or 0) for r in subset
+            ),
+            "resolved_obligations": sum(
+                int(r.get("obligations_resolved") or 0) for r in subset
+            ),
+            "unresolved_obligations": sum(
+                int(r.get("obligations_unresolved") or 0) for r in subset
+            ),
+            "unresolved_obligation_counts": dict(
+                sorted(unresolved_obligations.items())
+            ),
             "status_counts": dict(sorted(statuses.items())),
             "constraint_failure_counts": dict(sorted(constraints.items())),
             "checkpoint_failure_counts": dict(sorted(checkpoints.items())),
@@ -142,7 +204,7 @@ def summarize(rows):
 
 def write_csv(rows, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model","episode_id","repeat","run_id","status","episode_success","feasible_process_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","error_type"]
+    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","error_type"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -150,6 +212,9 @@ def write_csv(rows, path):
             x = dict(row)
             x["constraint_violations"] = ";".join(row["constraint_violations"])
             x["incomplete_checkpoints"] = ";".join(row["incomplete_checkpoints"])
+            x["unresolved_obligations"] = ";".join(
+                row.get("unresolved_obligations") or []
+            )
             w.writerow(x)
 
 
@@ -187,6 +252,11 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model", action="append", dest="models", required=True)
     p.add_argument("--episode", action="append", dest="episodes")
+    p.add_argument(
+        "--development-suite",
+        action="store_true",
+        help="Run all 20 frozen development/calibration episodes.",
+    )
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--max-actions", type=int, default=50)
     p.add_argument(
@@ -218,9 +288,16 @@ def main():
         )
     except ValueError as exc:
         p.error(str(exc))
+    if a.development_suite and a.episodes:
+        p.error("--development-suite cannot be combined with --episode")
+    episodes = (
+        DEVELOPMENT_EPISODES
+        if a.development_suite
+        else (a.episodes or DEFAULT_EPISODES)
+    )
     run_pilot(
         a.models,
-        a.episodes or DEFAULT_EPISODES,
+        episodes,
         a.repeats,
         Path(a.output_dir),
         a.max_actions,
