@@ -2,11 +2,6 @@ name: Working Plan Reactive Full Run
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - run-working-plan-full-20260926
-    paths:
-      - '.github/workflows/working-plan-reactive-full.yml'
 
 permissions:
   contents: read
