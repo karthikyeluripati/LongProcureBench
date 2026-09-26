@@ -14,6 +14,7 @@ import audit_context_compiled_v01 as audit_module
 from audit_context_compiled_v01 import (
     BOOTSTRAP_SAMPLER,
     _bootstrap_index,
+    evaluate_predeclared_gate,
     check_frozen_comparison,
     check_manifest,
 )
@@ -69,6 +70,37 @@ class ContextCompiledFrozenEvidenceTests(unittest.TestCase):
         )
         self.assertTrue(
             self.comparison["predeclared_gate"]["passed"]
+        )
+
+    def test_predeclared_gate_rejects_results_outside_both_branches(self):
+        verdict = evaluate_predeclared_gate({
+            "terminal_feasible_pp": -6.0,
+            "feasible_obligation_success_pp": 3.0,
+            "obligation_resolution_pp": 1.0,
+            "total_tokens_pct": -10.0,
+        })
+        self.assertFalse(verdict["passed"])
+        self.assertIsNone(verdict["matched_condition"])
+        self.assertFalse(verdict["quality_gain"]["passed"])
+        self.assertFalse(
+            verdict["efficiency_noninferiority"]["passed"]
+        )
+
+    def test_predeclared_gate_supports_efficiency_branch(self):
+        verdict = evaluate_predeclared_gate({
+            "terminal_feasible_pp": -20.0,
+            "feasible_obligation_success_pp": -1.0,
+            "obligation_resolution_pp": 1.5,
+            "total_tokens_pct": -20.0,
+        })
+        self.assertTrue(verdict["passed"])
+        self.assertEqual(
+            verdict["matched_condition"],
+            "efficiency_noninferiority",
+        )
+        self.assertFalse(verdict["quality_gain"]["passed"])
+        self.assertTrue(
+            verdict["efficiency_noninferiority"]["passed"]
         )
 
     def test_bootstrap_sample_plan_is_version_independent(self):
