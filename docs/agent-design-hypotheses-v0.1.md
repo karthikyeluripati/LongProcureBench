@@ -29,7 +29,7 @@ some combination.
 
 | Candidate | Failure hypothesis | Minimum controlled experiment | Inclusion gate |
 | --- | --- | --- | --- |
-| **Context-compiled reactive** | Raw chronological history contains the right facts but presents them with poor salience and token density. | Keep one model call per action and the same action space, but deterministically compile visible history into current requirement version, supplier status, latest quote per scope, open deltas, and unresolved work. | Keep if obligation resolution improves without materially increasing calls/cost; this isolates context engineering from extra reasoning. |
+| **Context-compiled reactive** | Raw chronological history contains the right facts but presents them with poor salience and token density. | Keep one model call per action and the same action space, but deterministically compile only **factual visible state**: current requirement/delta facts, visible supplier state, latest observed quote/revision per supplier/scope, and a compact action/event chronology. Do **not** label open obligations or inject evaluator-derived work. | Keep if obligation resolution improves without materially increasing calls/cost; this isolates serialization/salience/context engineering from obligation inference and extra reasoning. |
 | **ReAct-like working state** | The agent needs an explicit iterative reasoning/working-state loop to track and update its plan after observations. | Persist a concise externally represented working state/plan between actions; do not add oracle information or extra tools. | Keep if it improves over both raw-history and context-compiled reactive, not merely because ReAct is a known pattern. |
 | **Explicit plan-and-execute** | Long-horizon failures arise because locally plausible actions are not anchored to a maintained workflow plan. | Create a plan object and measure whether plan maintenance improves obligation completion. | Keep if gains survive matched model/action budgets and are distinct from context compilation. |
 | **Structured obligation/state ledger** | The key failure is losing actionable commitments after they are triggered. | Maintain a typed visible-state ledger of open/resolved obligations, requirement versions, supplier statuses, quote versions, and award dependencies using only agent-visible information. | High-priority candidate: keep if it directly reduces non-response, amendment, withdrawal, revision, and requirement-gap misses without evaluator leakage. |
@@ -143,9 +143,11 @@ that specific mechanism rather than adopt the name as an architectural goal.
 
 The default order after this evidence freeze is:
 
-1. **Context-compiled reactive** — cheapest causal test; no extra model calls.
-2. **Structured obligation/state ledger** — directly targets the dominant
-   failure classes.
+1. **Context-compiled reactive** — cheapest causal test; no extra model calls
+   and no derived obligation labels.
+2. **Structured obligation/state ledger** — add explicit open/resolved work only
+   after the factual-context baseline, directly targeting the dominant failure
+   classes.
 3. **ReAct-like maintained working state** and **explicit plan-and-execute** —
    test whether additional model-generated reasoning/planning provides benefit
    beyond better state.
