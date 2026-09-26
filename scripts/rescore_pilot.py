@@ -146,6 +146,10 @@ def flatten_audited_result(
             "ledger_resolved_items": metrics.get("ledger_resolved_items"),
             "ledger_items_created": metrics.get("ledger_items_created"),
             "ledger_max_open_items": metrics.get("ledger_max_open_items"),
+            "plan_updates": metrics.get("plan_updates"),
+            "plan_rejections": metrics.get("plan_rejections"),
+            "mean_plan_steps": metrics.get("mean_plan_steps"),
+            "max_plan_steps": metrics.get("max_plan_steps"),
             "error_type": (result.get("error") or {}).get("type"),
             "evaluation_error_type": (
                 result.get("evaluation_error") or {}
@@ -213,6 +217,32 @@ def summarize_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "mean_latency_ms": _mean(
                 [row["latency_ms"] for row in subset]
+            ),
+            "total_plan_updates": sum(
+                int(row.get("plan_updates") or 0)
+                for row in subset
+            ),
+            "mean_plan_updates": _mean(
+                [row.get("plan_updates") for row in subset]
+            ),
+            "total_plan_rejections": sum(
+                int(row.get("plan_rejections") or 0)
+                for row in subset
+            ),
+            "runs_with_plan_rejections": sum(
+                int(row.get("plan_rejections") or 0) > 0
+                for row in subset
+            ),
+            "mean_plan_steps": _mean(
+                [row.get("mean_plan_steps") for row in subset]
+            ),
+            "max_plan_steps": max(
+                (
+                    int(row["max_plan_steps"])
+                    for row in subset
+                    if row.get("max_plan_steps") is not None
+                ),
+                default=None,
             ),
             "total_known_cost_usd": sum(
                 float(row["cost_usd"])
@@ -283,6 +313,10 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "ledger_resolved_items",
         "ledger_items_created",
         "ledger_max_open_items",
+        "plan_updates",
+        "plan_rejections",
+        "mean_plan_steps",
+        "max_plan_steps",
         "error_type",
         "evaluation_error_type",
     ]
