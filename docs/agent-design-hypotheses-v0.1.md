@@ -65,6 +65,12 @@ Persistent retrieval becomes a first-class experiment if we add either:
 2. multi-session/cross-project experience where useful information is genuinely
    outside the active state.
 
+**MemGPT** is a relevant comparator specifically for that future condition:
+its contribution is virtual context management across memory tiers when useful
+context exceeds the active window. That is not the bottleneck demonstrated by
+the current 20-episode suite, so implementing it now would confound the state
+question rather than answer it.
+
 ### Continual learning and self-improvement
 
 Self-improvement is attractive, but it is a **separate learning axis** from the
@@ -81,6 +87,13 @@ If added, the safe experiment is development-only learning:
   evaluated.
 
 No held-out result may be used to update the system.
+
+The closest research prior to test here is **Agent Workflow Memory (AWM)**:
+rather than merely retrieving old text, it induces reusable workflows from prior
+agent trajectories and selectively supplies them on later tasks. That mechanism
+maps much more directly to procurement self-improvement than adding an
+undifferentiated vector-memory store. If we reach this stage, AWM-style workflow
+induction is the first experience-memory comparator to implement.
 
 This can become an optional ProcureHarness extension if the core state/replanning
 method plateaus and cross-episode learning gives additional generalization.
@@ -171,3 +184,9 @@ deliberation/state harness** rather than a collection of named agent patterns.
   https://arxiv.org/abs/2210.03629
 - Shinn et al., *Reflexion: Language Agents with Verbal Reinforcement Learning*:
   https://arxiv.org/abs/2303.11366
+- Wang et al., *Agent Workflow Memory*:
+  https://arxiv.org/abs/2409.07429
+- Packer et al., *MemGPT: Towards LLMs as Operating Systems*:
+  https://arxiv.org/abs/2310.08560
+- Wang et al., *Voyager: An Open-Ended Embodied Agent with Large Language Models*:
+  https://arxiv.org/abs/2305.16291
