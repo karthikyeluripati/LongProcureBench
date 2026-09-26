@@ -63,10 +63,14 @@ the ledger treatment passing. It is therefore dropped. The next causal question
 moves from **what commitments should remain salient?** to **what bounded plan
 should govern the next action, replanning trigger, and stopping condition?**
 
-Accordingly, the next controlled experiment should be an externally represented
-**maintained working plan / plan-and-execute treatment** over factual compiled
-context. Keep it separate from verifier and selective-replanning mechanisms so
-that any gain can be attributed before additional components are introduced.
+Accordingly, the next controlled experiment is an externally represented
+**maintained working plan** over factual compiled context. Its protocol is now
+frozen as a one-call-per-action treatment: the model sees one replaceable plan
+containing an objective, at most four prospective steps, and a stop condition,
+and emits the replacement plan alongside its semantic action. The plan commits
+only after action acceptance. There is still no separate planner call, verifier,
+or selective-replanning mechanism, so any gain can be attributed to bounded
+prospective working state before additional computation is introduced.
 
 ## Ideas that are intentionally deferred
 
@@ -176,9 +180,10 @@ The default order after this evidence freeze is:
    and no derived obligation labels.
 2. **Structured obligation/state ledger** — **tested and dropped** after failing
    the frozen reliability gate and producing clarification-loop fixation.
-3. **Maintained working plan / explicit plan-and-execute** — next causal test:
-   determine whether bounded prospective planning and explicit stopping/replan
-   state improves reliability beyond factual context compilation.
+3. **Maintained working plan** — **protocol frozen / next experiment**:
+   determine whether a bounded replaceable prospective plan and explicit stop
+   condition improve reliability beyond factual context compilation while
+   preserving one model call per action.
 4. **Always-replan + verifier** — quality-heavy comparator.
 5. **Selective replanning + verifier** — candidate efficient ProcureHarness.
 6. Add **operational state graph**, **dynamic routing**, or **experience-based

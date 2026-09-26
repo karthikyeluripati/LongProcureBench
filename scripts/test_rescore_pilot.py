@@ -10,6 +10,7 @@ from rescore_pilot import (
     failure_taxonomy,
     rescore_directory,
     rescore_result,
+    summarize_audit,
 )
 
 
@@ -102,6 +103,42 @@ class RescoreTests(unittest.TestCase):
             original["evaluation"],
             {"episode_success": True, "legacy": True},
         )
+
+    def test_audit_summary_excludes_zero_update_runs_from_plan_step_mean(self):
+        base = {
+            "model": "m",
+            "audit_status": "success",
+            "execution_status": "completed",
+            "episode_success": False,
+            "episode_success_v02": False,
+            "terminal_feasible": True,
+            "feasible_process_success": False,
+            "feasible_obligation_success": False,
+            "economic_objective_satisfied": False,
+            "accepted_actions": 1,
+            "total_tokens": 10,
+            "latency_ms": 1.0,
+            "cost_usd": 0.001,
+            "usage_incomplete": False,
+            "plan_rejections": 0,
+        }
+        rows = [
+            {
+                **base,
+                "plan_updates": 1,
+                "mean_plan_steps": 2.0,
+                "max_plan_steps": 2,
+            },
+            {
+                **base,
+                "plan_updates": 0,
+                "mean_plan_steps": 0.0,
+                "max_plan_steps": 0,
+            },
+        ]
+
+        summary = summarize_audit(rows)["by_model"]["m"]
+        self.assertEqual(summary["mean_plan_steps"], 2.0)
 
     def test_accepted_actions_come_only_from_saved_trajectory(self):
         actions = accepted_actions(raw_result())
