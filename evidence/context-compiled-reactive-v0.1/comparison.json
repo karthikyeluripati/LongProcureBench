@@ -1,0 +1,113 @@
+{
+  "cluster_bootstrap": {
+    "95pct_ci": {
+      "cost_pct": [
+        -38.857456053882714,
+        -12.263802150780853
+      ],
+      "episode_success_v02_pp": [
+        -19.999999999999996,
+        1.6666666666666663
+      ],
+      "feasible_obligation_success_pp": [
+        -18.333333333333336,
+        15.000000000000002
+      ],
+      "latency_pct": [
+        11.471874322048228,
+        34.565828638245385
+      ],
+      "obligation_resolution_pp": [
+        -5.251337902470606,
+        19.23613895507984
+      ],
+      "terminal_feasible_pp": [
+        -16.666666666666664,
+        4.999999999999993
+      ],
+      "total_tokens_pct": [
+        -47.22826042085202,
+        -33.14110419509382
+      ]
+    },
+    "cluster": "episode_id",
+    "resamples": 20000,
+    "seed": 20260926
+  },
+  "context_compiled": {
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "actionable_obligations": 86,
+    "completion_tokens": 42223,
+    "cost_usd": 4.608656400000002,
+    "episode_success_v02": 14,
+    "feasible_obligation_success": 40,
+    "latency_ms": 869561.2926909978,
+    "model_calls": 464,
+    "prompt_tokens": 931985,
+    "resolved_obligations": 72,
+    "terminal_feasible": 46,
+    "total_tokens": 974208,
+    "unresolved_obligations": 14
+  },
+  "delta": {
+    "completion_tokens_pct": 12.89874060803764,
+    "cost_pct": -27.463247062672036,
+    "episode_success_v02_pp": -8.333333333333332,
+    "feasible_obligation_success_pp": -1.6666666666666718,
+    "latency_pct": 23.010193214116814,
+    "model_calls_pct": 5.215419501133778,
+    "obligation_resolution_pp": 6.061355764473042,
+    "prompt_tokens_pct": -41.85817283248209,
+    "terminal_feasible_pp": -4.999999999999993,
+    "total_tokens_pct": -40.6097479196513
+  },
+  "episodes": 20,
+  "experiment": "context-compiled-reactive-v0.1",
+  "model": "openai/gpt-5.6-sol",
+  "predeclared_gate": {
+    "basis": "obligation resolution improved by 6.1 percentage points while terminal feasibility fell by exactly 5.0 points, satisfying the >=5-point improvement and <=5-point terminal guardrail",
+    "interpretation": "narrow mixed pass; retain as an efficiency-layer candidate, not as a reliability solution by itself",
+    "passed": true
+  },
+  "raw_history": {
+    "action_type_counts": {
+      "answer_supplier_question": 8,
+      "award_supplier": 57,
+      "evaluate_quotes": 64,
+      "identify_suppliers": 60,
+      "issue_amendment": 18,
+      "no_award": 3,
+      "request_buyer_clarification": 22,
+      "request_quote_revision": 42,
+      "send_follow_up": 2,
+      "send_rfq": 165
+    },
+    "actionable_obligations": 94,
+    "completion_tokens": 37399,
+    "cost_usd": 6.353546600000001,
+    "episode_success_v02": 19,
+    "feasible_obligation_success": 41,
+    "latency_ms": 706901.8184349992,
+    "model_calls": 441,
+    "prompt_tokens": 1602951,
+    "resolved_obligations": 73,
+    "terminal_feasible": 49,
+    "total_tokens": 1640350,
+    "unresolved_obligations": 21
+  },
+  "repeats": 3,
+  "runs_per_condition": 60,
+  "schema_version": "0.1.0",
+  "source_workflow_run_id": 36226304814
+}
