@@ -1,7 +1,9 @@
 """Audit the frozen operational-ledger experiment against context compilation."""
 from __future__ import annotations
 
+import base64
 from collections import Counter, defaultdict
+import gzip
 from hashlib import sha256
 import json
 import math
@@ -27,6 +29,8 @@ from frozen_operational_ledger_v01 import (
     EXPECTED_RECOVERY_RUNS,
     EXPECTED_REPEATS,
     EXPECTED_PARTS,
+    EXPECTED_PROVENANCE_BYTES,
+    EXPECTED_PROVENANCE_SHA256,
     EXPECTED_RUNS,
     EXPECTED_SELECTED_COMPACTION_SHA256,
     EXPECTED_SELECTED_RAW_PROVENANCE_SHA256,
@@ -40,6 +44,7 @@ from frozen_operational_ledger_v01 import (
 EVIDENCE_DIR = ROOT / "evidence" / "operational-ledger-reactive-v0.1"
 MANIFEST_PATH = EVIDENCE_DIR / "manifest.json"
 COMPARISON_PATH = EVIDENCE_DIR / "comparison.json"
+PROVENANCE_PATH = EVIDENCE_DIR / "source-provenance.txt"
 BOOTSTRAP_SEED = 20260926
 BOOTSTRAP_RESAMPLES = 20000
 BOOTSTRAP_SAMPLER = "sha256-index-v1"
@@ -500,6 +505,140 @@ def _check_declared_replay_files(
         )
 
 
+def _canonical_compact_line(row: Any) -> bytes:
+    return (
+        json.dumps(
+            row,
+            separators=(",", ":"),
+            sort_keys=True,
+            ensure_ascii=False,
+        ).encode("utf-8")
+        + b"\n"
+    )
+
+
+def _provenance_root(lines: list[str]) -> str:
+    return sha256(("\n".join(lines) + "\n").encode("utf-8")).hexdigest()
+
+
+def check_source_provenance() -> None:
+    payload = PROVENANCE_PATH.read_bytes()
+    if len(payload) != EXPECTED_PROVENANCE_BYTES:
+        raise ValueError("Ledger source provenance size mismatch")
+    if sha256(payload).hexdigest() != EXPECTED_PROVENANCE_SHA256:
+        raise ValueError("Ledger source provenance digest mismatch")
+
+    lines = [
+        line for line in payload.decode("utf-8").splitlines() if line
+    ]
+    if len(lines) != EXPECTED_RUNS:
+        raise ValueError(
+            f"Expected {EXPECTED_RUNS} provenance rows; found {len(lines)}"
+        )
+
+    entries: dict[tuple[int, int], tuple[int, str, str]] = {}
+    selected_raw_lines: list[str] = []
+    by_source: dict[int, list[str]] = {0: [], 1: []}
+    hexdigits = set("0123456789abcdef")
+
+    for line in lines:
+        fields = line.split("|")
+        if len(fields) != 5:
+            raise ValueError("Malformed ledger source provenance row")
+        source_text, episode_text, repeat_text, raw_sha, compact_sha = fields
+        try:
+            source_code = int(source_text)
+            episode_index = int(episode_text)
+            repeat = int(repeat_text)
+        except ValueError as exc:
+            raise ValueError("Non-integer ledger source provenance key") from exc
+
+        if not 1 <= episode_index <= EXPECTED_EPISODES:
+            raise ValueError("Invalid provenance episode index")
+        if not 1 <= repeat <= EXPECTED_REPEATS:
+            raise ValueError("Invalid provenance repeat")
+        expected_source = (
+            0
+            if episode_index <= 14
+            or (episode_index == 15 and repeat == 1)
+            else 1
+        )
+        if source_code != expected_source:
+            raise ValueError("Ledger provenance source assignment mismatch")
+        for digest in (raw_sha, compact_sha):
+            if (
+                len(digest) != 64
+                or any(ch not in hexdigits for ch in digest)
+            ):
+                raise ValueError("Malformed ledger provenance SHA-256")
+
+        key = (episode_index, repeat)
+        if key in entries:
+            raise ValueError("Duplicate ledger provenance key")
+        entries[key] = (source_code, raw_sha, compact_sha)
+        raw_line = (
+            f"{source_code}|{episode_index}|{repeat}|{raw_sha}"
+        )
+        selected_raw_lines.append(raw_line)
+        by_source[source_code].append(raw_line)
+
+    expected_keys = {
+        (episode_index, repeat)
+        for episode_index in range(1, EXPECTED_EPISODES + 1)
+        for repeat in range(1, EXPECTED_REPEATS + 1)
+    }
+    if set(entries) != expected_keys:
+        raise ValueError("Ledger provenance grid mismatch")
+
+    roots = {
+        "selected": _provenance_root(selected_raw_lines),
+        "original": _provenance_root(by_source[0]),
+        "recovery": _provenance_root(by_source[1]),
+    }
+    expected_roots = {
+        "selected": EXPECTED_SELECTED_RAW_PROVENANCE_SHA256,
+        "original": EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256,
+        "recovery": EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256,
+    }
+    if roots != expected_roots:
+        raise ValueError("Ledger raw source provenance root mismatch")
+
+    encoded = "".join(
+        (EVIDENCE_DIR / name).read_text(encoding="utf-8").strip()
+        for name in EXPECTED_PARTS
+    )
+    try:
+        compressed = base64.b64decode(encoded, validate=True)
+        raw_payload = gzip.decompress(compressed).decode("utf-8")
+    except Exception as exc:
+        raise ValueError(
+            "Ledger replay source cannot be decoded for provenance audit"
+        ) from exc
+
+    compact_rows = [
+        json.loads(line)
+        for line in raw_payload.splitlines()
+        if line.strip()
+    ]
+    if len(compact_rows) != EXPECTED_RUNS:
+        raise ValueError("Ledger provenance replay row count mismatch")
+
+    for row in compact_rows:
+        if not isinstance(row, list) or len(row) != 8:
+            raise ValueError("Malformed compact ledger row in provenance audit")
+        episode_index, repeat, source_code = row[:3]
+        key = (episode_index, repeat)
+        expected = entries.get(key)
+        if expected is None:
+            raise ValueError("Compact ledger row missing provenance entry")
+        expected_source, _raw_sha, expected_compact_sha = expected
+        if source_code != expected_source:
+            raise ValueError("Compact ledger row source/provenance mismatch")
+        compact_sha = sha256(_canonical_compact_line(row)).hexdigest()
+        if compact_sha != expected_compact_sha:
+            raise ValueError("Compact ledger row differs from artifact-derived compaction")
+
+
 def check_manifest() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -606,8 +745,13 @@ def check_manifest() -> None:
         "recovery_raw_provenance_sha256": (
             EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256
         ),
+        "record_provenance_path": "source-provenance.txt",
+        "record_provenance_bytes": EXPECTED_PROVENANCE_BYTES,
+        "record_provenance_sha256": EXPECTED_PROVENANCE_SHA256,
         "provenance_line_format": (
-            "source_code|episode_index|repeat|sha256(exact raw run JSON bytes)"
+            "source_code|episode_index|repeat|"
+            "sha256(exact raw run JSON bytes)|"
+            "sha256(canonical compact record line)"
         ),
     }
     for key, value in expected_source_verification.items():
@@ -662,6 +806,7 @@ def check_frozen_comparison() -> dict[str, Any]:
 
 def main() -> None:
     check_manifest()
+    check_source_provenance()
     comparison = check_frozen_comparison()
     delta = comparison["delta"]
     gate = comparison["predeclared_gate"]
