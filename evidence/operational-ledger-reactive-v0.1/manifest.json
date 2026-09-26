@@ -22,6 +22,14 @@
   },
   "episode_index": {
     "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
     "10": "electrical-painesville-switchgear-010",
     "11": "electrical-sagada-generator-011",
     "12": "electrical-dla-relay-012",
@@ -32,15 +40,7 @@
     "17": "electrical-dla-qpl-breaker-017",
     "18": "electrical-highpoint-cable-018",
     "19": "electrical-usaf-ups-019",
-    "2": "electrical-national-museum-lighting-002",
-    "20": "electrical-vre-generator-020",
-    "3": "electrical-neust-cable-003",
-    "4": "electrical-dla-breaker-004",
-    "5": "electrical-barrie-transformer-005",
-    "6": "electrical-bfar-generator-006",
-    "7": "electrical-negros-wire-007",
-    "8": "electrical-burauen-generator-008",
-    "9": "electrical-highpoint-transformer-009"
+    "20": "electrical-vre-generator-020"
   },
   "episodes": 20,
   "heldout_note": "No held-out episodes were authored or evaluated.",
@@ -117,9 +117,10 @@
     "1": "recovery"
   },
   "storage": {
+    "format": "gzip(JSONL compact replay records) encoded as base64 text across six chunks",
+    "part_count": 6,
+    "part_pattern": "replay-source.part-XX.b64",
     "compressed_bytes": 28669,
-    "compressed_sha256": "966c926f9396d157826f845488dde701575b72d8b2993bdc6e74749f0978dbe7",
-    "format": "gzip(JSONL compact replay records) encoded as base64 text",
-    "path": "replay-source.b64"
+    "compressed_sha256": "966c926f9396d157826f845488dde701575b72d8b2993bdc6e74749f0978dbe7"
   }
 }
