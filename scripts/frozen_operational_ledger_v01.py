@@ -8,9 +8,13 @@ import json
 from pathlib import Path
 from typing import Any
 
-EXPECTED_COMPRESSED_BYTES = 31054
+EXPECTED_COMPRESSED_BYTES = 28669
 EXPECTED_COMPRESSED_SHA256 = (
-    "9906ce45984c911b262f1b321d63344ef9c17aa65b56c74a06cde7fa315a8cc5"
+    "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+)
+EXPECTED_PROVENANCE_BYTES = 8193
+EXPECTED_PROVENANCE_SHA256 = (
+    "4af2fd2c3cfb7a1ca25658bdc05068829b74d146006144788e622cdd86c4e1e4"
 )
 EXPECTED_SELECTED_COMPACTION_SHA256 = (
     "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68"
@@ -32,7 +36,6 @@ EXPECTED_RECOVERY_RUNS = 17
 EXPECTED_PARTS = (
     "replay-source.part-01.b64",
     "replay-source.part-02.b64",
-    "replay-source.part-02a.b64",
     "replay-source.part-03a.b64",
     "replay-source.part-03b.b64",
     "replay-source.part-04.b64",
@@ -112,18 +115,18 @@ def load_frozen_operational_ledger_source(
             + ", ".join(missing)
         )
 
-    compressed_parts = []
+    encoded_parts = []
     for path in paths:
-        try:
-            compressed_parts.append(base64.b64decode(
-                path.read_text(encoding="utf-8").strip(),
-                validate=True,
-            ))
-        except Exception as exc:
-            raise ValueError(
-                f"Frozen ledger replay source part is invalid base64: {path.name}"
-            ) from exc
-    compressed = b"".join(compressed_parts)
+        encoded_parts.append(path.read_text(encoding="utf-8").strip())
+    try:
+        compressed = base64.b64decode(
+            "".join(encoded_parts),
+            validate=True,
+        )
+    except Exception as exc:
+        raise ValueError(
+            "Frozen ledger replay source is invalid concatenated base64"
+        ) from exc
 
     if len(compressed) != EXPECTED_COMPRESSED_BYTES:
         raise ValueError(
