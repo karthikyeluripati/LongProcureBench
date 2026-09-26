@@ -77,9 +77,16 @@
   "experiment": "context-compiled-reactive-v0.1",
   "model": "openai/gpt-5.6-sol",
   "predeclared_gate": {
-    "basis": "obligation resolution improved by 6.1 percentage points while terminal feasibility fell by exactly 5.0 points, satisfying the >=5-point improvement and <=5-point terminal guardrail",
-    "interpretation": "narrow mixed pass; retain as an efficiency-layer candidate, not as a reliability solution by itself",
-    "passed": true
+    "efficiency_noninferiority": {
+      "passed": false,
+      "rule": "both reliability metrics remain within +/-2 pp of raw history, AND total tokens fall by >=15%"
+    },
+    "matched_condition": "quality_gain",
+    "passed": true,
+    "quality_gain": {
+      "passed": true,
+      "rule": "feasible-obligation success OR obligation-resolution rate improves by >=5 pp, AND terminal feasibility does not fall by more than 5 pp"
+    }
   },
   "raw_history": {
     "action_type_counts": {
