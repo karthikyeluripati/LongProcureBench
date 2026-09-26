@@ -39,6 +39,35 @@ some combination.
 | **Pre-award verifier / guardrail** | Agents terminate once an award is feasible without checking remaining obligations or stale dependencies. | Before terminal action, evaluate generic visible procurement invariants and route failures back to planning. | Keep if it closes terminal-vs-obligation gaps without hard-coding episode or evaluator answers. |
 | **Dynamic model routing** | Routine actions do not need the same reasoning budget as replanning/verification. | Use a lean model for routine transitions and a stronger model only at gated decision points. | Add after trigger semantics are stable if quality/cost Pareto improvement is measurable. |
 
+## Development evidence update — operational ledger
+
+The first two controlled architecture tests are now complete:
+
+- **Factual context compilation** earned only a narrow efficiency-layer
+  inclusion: it cut total tokens by about 40.6% and cost by 27.5%, but did not
+  improve run-level long-horizon reliability.
+- **Operational-ledger reactive v0.1** failed its predeclared reliability gate.
+  Relative to factual context compilation, feasible-obligation success fell
+  **20.0 pp** and terminal feasibility fell **25.0 pp**, while total tokens rose
+  **295.4%** and model calls rose **132.1%**.
+
+The ledger did resolve a larger fraction of the obligations created on its own
+policy paths, but it also produced a strong clarification-loop failure: 652
+buyer-clarification actions versus 47 under factual context compilation, with
+11 runs reaching the 50-action cap. This is evidence against carrying this
+**persistent commitment-ledger formulation** forward, not evidence that all
+explicit state representations are harmful.
+
+The planned stateless/recomputed-ledger attribution ablation was conditional on
+the ledger treatment passing. It is therefore dropped. The next causal question
+moves from **what commitments should remain salient?** to **what bounded plan
+should govern the next action, replanning trigger, and stopping condition?**
+
+Accordingly, the next controlled experiment should be an externally represented
+**maintained working plan / plan-and-execute treatment** over factual compiled
+context. Keep it separate from verifier and selective-replanning mechanisms so
+that any gain can be attributed before additional components are introduced.
+
 ## Ideas that are intentionally deferred
 
 ### Knowledge graph / GraphRAG
@@ -145,12 +174,11 @@ The default order after this evidence freeze is:
 
 1. **Context-compiled reactive** — cheapest causal test; no extra model calls
    and no derived obligation labels.
-2. **Structured obligation/state ledger** — add explicit open/resolved work only
-   after the factual-context baseline, directly targeting the dominant failure
-   classes.
-3. **ReAct-like maintained working state** and **explicit plan-and-execute** —
-   test whether additional model-generated reasoning/planning provides benefit
-   beyond better state.
+2. **Structured obligation/state ledger** — **tested and dropped** after failing
+   the frozen reliability gate and producing clarification-loop fixation.
+3. **Maintained working plan / explicit plan-and-execute** — next causal test:
+   determine whether bounded prospective planning and explicit stopping/replan
+   state improves reliability beyond factual context compilation.
 4. **Always-replan + verifier** — quality-heavy comparator.
 5. **Selective replanning + verifier** — candidate efficient ProcureHarness.
 6. Add **operational state graph**, **dynamic routing**, or **experience-based
