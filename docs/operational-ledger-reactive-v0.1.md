@@ -88,6 +88,20 @@ The context-compiled baseline on the same 20 × 3 development grid achieved:
 - known API cost: **$4.61**
 - model calls: **464**
 
+## Development protocol freeze
+
+The live provider path was smoke-tested on development episode 016 before the
+full experiment. The first provider smoke exposed an unsupported JSON-schema
+keyword and made no model inference. A successful provider smoke then exposed a
+general concurrency weakness: when multiple visible facts created independent
+future work, the ledger could retain only one. The instruction was refined once
+to require separate open items for concurrent commitments.
+
+The final protocol smoke (workflow run `36230552854`) completed normally. It
+is **not included in the experiment result**. After that smoke, the treatment
+prompt/schema/state semantics are frozen for the 20 × 3 development run; no
+further tuning is allowed from episode outcomes.
+
 ## Primary metrics
 
 The primary reliability metric is **feasible-obligation success** because it is
