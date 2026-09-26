@@ -5,6 +5,7 @@ import unittest
 
 from longprocurebench import LongProcureBenchEnv
 from longprocurebench.operational_ledger_reactive import (
+    OperationalLedgerError,
     OperationalLedgerReactiveLLMPolicy,
 )
 
@@ -218,7 +219,7 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         )
         policy.reset(state)
         with self.assertRaisesRegex(
-            ValueError,
+            OperationalLedgerError,
             "unrevealed event",
         ):
             policy.act(state)
@@ -244,7 +245,7 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         )
         policy.reset(state)
         with self.assertRaisesRegex(
-            ValueError,
+            OperationalLedgerError,
             "non-visible supplier",
         ):
             policy.act(state)
@@ -265,7 +266,7 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         )
         policy.reset(state)
         with self.assertRaisesRegex(
-            ValueError,
+            OperationalLedgerError,
             "unknown open ledger item",
         ):
             policy.act(state)
@@ -378,7 +379,10 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             first.get("supplier_id"),
             first.get("arguments"),
         ))
-        with self.assertRaisesRegex(ValueError, "duplicate ledger item"):
+        with self.assertRaisesRegex(
+            OperationalLedgerError,
+            "duplicate ledger item",
+        ):
             policy.act(state)
 
     def test_response_schema_embeds_same_semantic_action_contract(self):
