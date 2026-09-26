@@ -16,6 +16,11 @@ if str(ROOT) not in sys.path:
 from longprocurebench import LongProcureBenchEvaluator
 from frozen_context_compiled_v01 import (
     EPISODES,
+    EXPECTED_COMPRESSED_BYTES,
+    EXPECTED_COMPRESSED_SHA256,
+    EXPECTED_EPISODES,
+    EXPECTED_REPEATS,
+    EXPECTED_RUNS,
     MODEL,
     load_frozen_context_compiled_source,
     reconstruct_actions as reconstruct_context_actions,
@@ -404,9 +409,51 @@ def check_manifest() -> None:
                 f"Context manifest provenance mismatch for {key}"
             )
 
+    dimensions = {
+        "model": MODEL,
+        "records": EXPECTED_RUNS,
+        "episodes": EXPECTED_EPISODES,
+        "repeats_per_episode": EXPECTED_REPEATS,
+    }
+    for key, value in dimensions.items():
+        if manifest.get(key) != value:
+            raise ValueError(
+                f"Context manifest experiment mismatch for {key}"
+            )
+
+    expected_episode_index = {
+        str(index): episode_id
+        for index, episode_id in enumerate(EPISODES, start=1)
+    }
+    if manifest.get("episode_index") != expected_episode_index:
+        raise ValueError("Context manifest episode index mismatch")
+
+    storage = manifest.get("storage") or {}
+    expected_storage = {
+        "path": "replay-source.b64",
+        "compressed_bytes": EXPECTED_COMPRESSED_BYTES,
+        "compressed_sha256": EXPECTED_COMPRESSED_SHA256,
+    }
+    for key, value in expected_storage.items():
+        if storage.get(key) != value:
+            raise ValueError(
+                f"Context manifest replay storage mismatch for {key}"
+            )
+
     comparison = manifest.get("comparison") or {}
-    if comparison.get("bootstrap_sampler") != BOOTSTRAP_SAMPLER:
-        raise ValueError("Frozen context bootstrap sampler mismatch")
+    expected_comparison = {
+        "path": "comparison.json",
+        "bootstrap_seed": BOOTSTRAP_SEED,
+        "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+        "bootstrap_cluster": "episode_id",
+        "bootstrap_sampler": BOOTSTRAP_SAMPLER,
+    }
+    for key, value in expected_comparison.items():
+        if comparison.get(key) != value:
+            raise ValueError(
+                f"Frozen context comparison manifest mismatch for {key}"
+            )
+
     payload = COMPARISON_PATH.read_bytes()
     if len(payload) != comparison.get("bytes"):
         raise ValueError("Frozen context comparison size mismatch")
