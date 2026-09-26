@@ -23,6 +23,7 @@ def invalid_rows(rows):
         row
         for row in rows
         if row.get("status") in INFRASTRUCTURE_ERRORS
+        or bool(row.get("evaluation_error_type"))
         or (
             row.get("status") == "policy_error"
             and row.get("error_type") not in MEASURED_POLICY_ERRORS
@@ -50,7 +51,8 @@ def main() -> None:
             print(
                 f"- {row.get('model')} | {row.get('episode_id')} | "
                 f"repeat={row.get('repeat')} | status={row.get('status')} | "
-                f"error={row.get('error_type')}"
+                f"error={row.get('error_type')} | "
+                f"evaluation_error={row.get('evaluation_error_type')}"
             )
         raise SystemExit(1)
 
