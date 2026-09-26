@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import base64
 from collections import Counter
+import gzip
 import json
 from pathlib import Path
 import sys
@@ -21,7 +23,10 @@ from frozen_cross_family_reactive_v01 import (
 )
 
 EVIDENCE_DIR = ROOT / "evidence" / "cross-family-reactive-v0.1"
-SUMMARY_PATH = EVIDENCE_DIR / "summary.json"
+SUMMARY_PATH = EVIDENCE_DIR / "summary.json.gz.b64"
+SUMMARY_COMPRESSED_SHA256 = (
+    "04e2f3f7e0224fbe56a9cdfd301ce4270ba976567e9fb6d2f93d8be098b3fc45"
+)
 
 
 def rescore_records(
@@ -170,24 +175,15 @@ def build_summary(
         by_episode[episode_id] = {
             "runs": full["runs"],
             "terminal_feasible": full["terminal_feasible"],
-            "terminal_feasible_rate": full["terminal_feasible_rate"],
             "feasible_obligation_success": (
                 full["feasible_obligation_success"]
             ),
-            "feasible_obligation_success_rate": (
-                full["feasible_obligation_success_rate"]
-            ),
             "episode_success_v02": full["episode_success_v02"],
-            "episode_success_v02_rate": full["episode_success_v02_rate"],
             "actionable_obligations": full["actionable_obligations"],
             "resolved_obligations": full["resolved_obligations"],
             "unresolved_obligations": full["unresolved_obligations"],
             "unresolved_obligation_counts": (
                 full["unresolved_obligation_counts"]
-            ),
-            "terminal_minus_obligation_success_rate": (
-                full["terminal_feasible_rate"]
-                - full["feasible_obligation_success_rate"]
             ),
         }
 
@@ -216,10 +212,33 @@ def _canonical(value: Any) -> str:
     )
 
 
-def check_frozen_summary(summary: dict[str, Any]) -> None:
+def load_frozen_summary() -> dict[str, Any]:
     if not SUMMARY_PATH.is_file():
         raise ValueError(f"Missing frozen summary: {SUMMARY_PATH}")
-    expected = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+    try:
+        compressed = base64.b64decode(
+            SUMMARY_PATH.read_text(encoding="utf-8").strip(),
+            validate=True,
+        )
+    except Exception as exc:
+        raise ValueError("Frozen summary base64 is invalid") from exc
+
+    from hashlib import sha256
+    digest = sha256(compressed).hexdigest()
+    if digest != SUMMARY_COMPRESSED_SHA256:
+        raise ValueError(
+            "Frozen summary digest mismatch: "
+            f"expected={SUMMARY_COMPRESSED_SHA256}, actual={digest}"
+        )
+
+    try:
+        return json.loads(gzip.decompress(compressed).decode("utf-8"))
+    except Exception as exc:
+        raise ValueError("Frozen summary payload is invalid") from exc
+
+
+def check_frozen_summary(summary: dict[str, Any]) -> None:
+    expected = load_frozen_summary()
     if _canonical(summary) != _canonical(expected):
         raise ValueError(
             "Frozen cross-family summary drifted from deterministic replay"
@@ -292,19 +311,23 @@ def report_markdown(summary: dict[str, Any]) -> str:
         "| Episode | Terminal feasible | Obligation success | Gap |",
         "| --- | ---: | ---: | ---: |",
     ]
+    def gap(item):
+        values = item[1]
+        return (
+            values["terminal_feasible"]
+            - values["feasible_obligation_success"]
+        ) / values["runs"]
+
     ordered = sorted(
         summary["by_episode"].items(),
-        key=lambda item: (
-            -item[1]["terminal_minus_obligation_success_rate"],
-            item[0],
-        ),
+        key=lambda item: (-gap(item), item[0]),
     )
     for episode_id, item in ordered[:10]:
         lines.append(
             f"| {episode_id} | "
             f"{item['terminal_feasible']}/{item['runs']} | "
             f"{item['feasible_obligation_success']}/{item['runs']} | "
-            f"{100 * item['terminal_minus_obligation_success_rate']:.1f} pp |"
+            f"{100 * gap((episode_id, item)):.1f} pp |"
         )
     lines.append("")
     return "\n".join(lines)
