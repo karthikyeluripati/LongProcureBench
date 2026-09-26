@@ -331,6 +331,56 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             2,
         )
 
+    def test_ledger_schema_uses_provider_safe_json_schema_subset(self):
+        state = LongProcureBenchEnv().reset(
+            "electrical-dla-power-supply-016"
+        )
+        schema = OperationalLedgerReactiveLLMPolicy._response_schema(state)
+        encoded = json.dumps(schema, sort_keys=True)
+        for unsupported in (
+            "uniqueItems",
+            "maxItems",
+            "maxLength",
+            "minLength",
+            "pattern",
+        ):
+            with self.subTest(keyword=unsupported):
+                self.assertNotIn(f'"{unsupported}"', encoded)
+
+    def test_duplicate_resolve_ids_are_rejected_locally(self):
+        client = FakeLedgerClient([
+            _response(
+                "identify_suppliers",
+                new_items=[
+                    _item(
+                        "Track requirement.",
+                        category="requirement",
+                    )
+                ],
+            ),
+            _response(
+                "request_buyer_clarification",
+                resolve_item_ids=["l001", "l001"],
+            ),
+        ])
+        policy = OperationalLedgerReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-bongabon-generator-001")
+        policy.reset(state)
+        first = policy.act(state)
+        state = env.step(_action(
+            state["episode_id"],
+            1,
+            first["type"],
+            first.get("supplier_id"),
+            first.get("arguments"),
+        ))
+        with self.assertRaisesRegex(ValueError, "duplicate ledger item"):
+            policy.act(state)
+
     def test_response_schema_embeds_same_semantic_action_contract(self):
         state = LongProcureBenchEnv().reset(
             "electrical-highpoint-cable-018"
