@@ -14,6 +14,7 @@ INFRASTRUCTURE_ERRORS = {
 MEASURED_POLICY_ERRORS = {
     "EnvironmentError",
     "OperationalLedgerError",
+    "WorkingPlanError",
     "ValidationError",
     "RunnerError",
 }
