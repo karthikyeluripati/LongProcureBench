@@ -433,6 +433,8 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         )
         self.assertEqual(metadata["ledger_open_items"], 1)
         self.assertEqual(metadata["ledger_resolved_items"], 0)
+        self.assertEqual(metadata["ledger_items_created"], 1)
+        self.assertEqual(metadata["ledger_max_open_items"], 1)
         self.assertEqual(len(metadata["ledger_trace"]), 1)
         self.assertEqual(
             metadata["ledger_trace"][0]["new_item_ids"],
