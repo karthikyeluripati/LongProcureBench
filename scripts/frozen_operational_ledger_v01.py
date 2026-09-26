@@ -8,9 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-EXPECTED_COMPRESSED_BYTES = 31058
+EXPECTED_COMPRESSED_BYTES = 31054
 EXPECTED_COMPRESSED_SHA256 = (
-    "687916d2fea8dd7fbad6c1750c3896c01b0cc21bc106256f0b73d01e43ea5491"
+    "9906ce45984c911b262f1b321d63344ef9c17aa65b56c74a06cde7fa315a8cc5"
 )
 EXPECTED_SELECTED_COMPACTION_SHA256 = (
     "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68"
@@ -112,17 +112,18 @@ def load_frozen_operational_ledger_source(
             + ", ".join(missing)
         )
 
-    encoded = "".join(
-        path.read_text(encoding="utf-8").strip()
-        for path in paths
-    )
-    try:
-        compressed = base64.b64decode(
-            encoded,
-            validate=True,
-        )
-    except Exception as exc:
-        raise ValueError("Frozen ledger replay source base64 is invalid") from exc
+    compressed_parts = []
+    for path in paths:
+        try:
+            compressed_parts.append(base64.b64decode(
+                path.read_text(encoding="utf-8").strip(),
+                validate=True,
+            ))
+        except Exception as exc:
+            raise ValueError(
+                f"Frozen ledger replay source part is invalid base64: {path.name}"
+            ) from exc
+    compressed = b"".join(compressed_parts)
 
     if len(compressed) != EXPECTED_COMPRESSED_BYTES:
         raise ValueError(
