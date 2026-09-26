@@ -39,5 +39,7 @@ jobs:
         run: python scripts/validate_benchmark_contract.py
       - name: Audit frozen cross-family reactive evidence
         run: python scripts/audit_cross_family_reactive_v01.py --check
+      - name: Audit frozen context-compiled evidence
+        run: python scripts/audit_context_compiled_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference

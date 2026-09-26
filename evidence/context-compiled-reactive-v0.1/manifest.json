@@ -1,0 +1,84 @@
+{
+  "schema_version": "0.1.0",
+  "purpose": "Durable replay source and matched analysis for the 60-run GPT-5.6 Sol factual context-compiled reactive experiment on frozen development episodes 001-020.",
+  "source_workflow_run_id": 36226304814,
+  "source_workflow_run_attempt": 1,
+  "source_artifact_id": 10901395062,
+  "source_artifact_name": "context-compiled-reactive-36226304814-1",
+  "source_artifact_digest": "sha256:7c73f651715e2e22dfcdc0b696739d850a9c5201441e6b0f2e25e028adca7ef0",
+  "benchmark_code_sha": "98a698654ef454a7b48af6f701e41cf49fea6638",
+  "execution_head_sha": "0673a425685b75a4317f89eed138d28a3436a769",
+  "execution_head_delta": "One commit ahead of benchmark_code_sha; only .github/workflows/context-compiled-reactive-full.yml changed to add the one-shot push trigger.",
+  "model": "openai/gpt-5.6-sol",
+  "records": 60,
+  "episodes": 20,
+  "repeats_per_episode": 3,
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "compact_record_schema": [
+    "episode_index",
+    "repeat",
+    "semantic_decisions",
+    "policy_metrics"
+  ],
+  "semantic_decision_schema": [
+    "type",
+    "supplier_id",
+    "arguments"
+  ],
+  "policy_metrics_schema": [
+    "model_calls_attempted",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "temperature",
+    "reasoning_effort",
+    "context_strategy"
+  ],
+  "storage": {
+    "format": "gzip(JSONL compact replay records) encoded as base64 text",
+    "path": "replay-source.b64",
+    "compressed_bytes": 5141,
+    "compressed_sha256": "aacc3d6e60ea87d7ccd5718689b480f6e0f71b2c0df606b306963be65f5b3939"
+  },
+  "comparison": {
+    "path": "comparison.json",
+    "bytes": 3477,
+    "sha256": "a95be89adc7026c9752e1de299bf16ef2d193dc47160c42ec2ff6da5a56a28f4",
+    "bootstrap_seed": 20260926,
+    "bootstrap_resamples": 20000,
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_sampler": "sha256-index-v1"
+  },
+  "retained_for_replay": [
+    "episode identity",
+    "repeat",
+    "accepted semantic decisions",
+    "aggregate per-run token/latency/cost metrics",
+    "context strategy"
+  ],
+  "compaction_note": "The Actions artifact contains full prompts, observations, evaluator output, and per-call records. The committed replay source retains the accepted semantic actions and aggregate usage needed for deterministic evaluator replay and matched efficiency analysis."
+}
