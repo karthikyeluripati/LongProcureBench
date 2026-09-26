@@ -144,13 +144,33 @@ class LongProcureBenchEvaluator:
             return passed, f"event_step={event_step}, first_action_step={action_step}"
 
         if kind == "award_scope_complete":
+            required_ids = {
+                item["item_id"]
+                for item in final_state["initial_state"]["line_items"]
+                if item.get("award_requirement", "required") == "required"
+            }
+            optional_ids = initial_ids - required_ids
             counts = {item_id: 0 for item_id in initial_ids}
             for award in awards:
                 for item_id in self._required_items(award["scope"], initial_ids):
                     if item_id in counts:
                         counts[item_id] += 1
-            passed = bool(counts) and all(v == 1 for v in counts.values())
-            return passed, f"award item counts={counts}"
+            required_complete = all(
+                counts[item_id] == 1 for item_id in required_ids
+            )
+            optional_not_duplicated = all(
+                counts[item_id] <= 1 for item_id in optional_ids
+            )
+            passed = (
+                bool(initial_ids)
+                and required_complete
+                and optional_not_duplicated
+            )
+            return passed, (
+                f"award item counts={counts}, "
+                f"required={sorted(required_ids)}, "
+                f"optional={sorted(optional_ids)}"
+            )
 
         applicable = [a for a in awards if check["scope"] is None or a["scope"] == check["scope"]]
         if not applicable:

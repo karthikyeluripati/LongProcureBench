@@ -38,6 +38,12 @@ CONTROLLED_REQUIREMENT_EVENT_TYPES = {
     "lead_time_change",
 }
 VALID_SPLITS = {"development_calibration", "held_out_test"}
+VALID_STATUSES = {
+    "pre_holdout_collection",
+    "holdout_collection_in_progress",
+    "holdout_states_frozen",
+    "holdout_episodes_frozen",
+}
 
 # These episodes were already used to build/debug the runtime, fairness audit,
 # Evaluator v0.2, and model diagnostics. They can never become untouched test
@@ -160,6 +166,10 @@ def validate_contract(
             "Observability matrix episode IDs do not match committed episodes"
         )
 
+    status = split.get("status")
+    if status not in VALID_STATUSES:
+        raise ValueError(f"Invalid benchmark split status: {status!r}")
+
     development = split.get("development_calibration_episodes")
     held_out = (split.get("held_out_test") or {}).get("episode_ids")
     if not isinstance(development, list) or not isinstance(held_out, list):
@@ -226,8 +236,20 @@ def validate_contract(
             f"stale_reservations={sorted(stale_reservations)}"
         )
 
-    if len(initial_state_package_ids) > held_out_config.get("target_count", 0):
+    target_count = held_out_config.get("target_count", 0)
+    if len(initial_state_package_ids) > target_count:
         raise ValueError("Collected held-out initial states exceed target count")
+    if status == "holdout_states_frozen":
+        if len(initial_state_package_ids) != target_count:
+            raise ValueError(
+                "Frozen held-out state pool must contain exactly target_count "
+                "initial states"
+            )
+        if held_out:
+            raise ValueError(
+                "Held-out episodes must remain empty while only the source-state "
+                "pool is frozen"
+            )
 
     if held_out_config.get("target_count") != 10:
         raise ValueError("Held-out target count must remain 10 for the v0.3 plan")

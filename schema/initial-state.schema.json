@@ -110,6 +110,14 @@
             "minLength": 1,
             "description": "Equipment/material identity enables matching."
           },
+          "award_requirement": {
+            "type": "string",
+            "enum": [
+              "required",
+              "optional"
+            ],
+            "description": "Whether this line must be included in a complete award. If omitted, required is assumed for backward compatibility."
+          },
           "quantity": {
             "type": [
               "number",

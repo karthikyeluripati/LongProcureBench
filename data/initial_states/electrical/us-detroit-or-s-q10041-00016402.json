@@ -1,0 +1,223 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-detroit-or-s-q10041-00016402",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Detroit, Oregon",
+    "project_name": "Silver Bullet Generator & ATS",
+    "project_description": "Design/build installation of a new diesel generator and automatic transfer switch at the Silver Bullet Pump Station.",
+    "location": "Silver Bullet Pump Station, Detroit, Oregon, USA"
+  },
+  "package_subscope": "Design/build services for a new diesel generator and automatic transfer switch, including equipment purchase and associated site/electrical work.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-03-23",
+    "boundary": "Buyer-authored requirements and solicitation metadata from the original posting only; excludes later amendment content, supplier responses, offered prices, negotiations, awards, and later outcomes."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Site work for Silver Bullet Generator & ATS project",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": null,
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    },
+    {
+      "item_id": "2",
+      "description": "Purchase of generator and automatic transfer switch equipment",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": "EA",
+      "technical_specifications": [
+        {
+          "summary": "New diesel generator and automatic transfer switch for the Silver Bullet Pump Station.",
+          "verbatim_excerpt": null,
+          "source_locator": "OregonBuys > Bulletin Description and Item Information"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-04-07 14:00 PT"
+  },
+  "supplier_eligibility_constraints": [
+    "Electrical contractor must be licensed and qualified.",
+    "A site visit is required."
+  ],
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Silver Bullet Generator & ATS - S-Q10041-00016402",
+      "url": "https://oregonbuys.gov/bso/external/bidDetail.sda?docId=S-Q10041-00016402",
+      "document_type": "notice_html",
+      "issued_date": "2026-03-23",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Official live OregonBuys solicitation URL retained for canonical identity and current access. Because the live record later accumulated amendment content, frozen original-posting scope is corroborated by the dated archival mirror in source-2."
+    },
+    {
+      "document_id": "source-2",
+      "title": "City of Detroit Silver Bullet Generator and ATS RFQ.pdf - dated archival mirror",
+      "url": "https://govtribe.com/file/government-file/city-of-detroit-silver-bullet-generator-and-ats-rfq-dot-pdf",
+      "document_type": "solicitation_pdf",
+      "issued_date": "2026-03-23",
+      "retrieved_date": "2026-09-25",
+      "sha256": null,
+      "snapshot_policy": "Dated archival mirror of the original buyer-authored RFQ, posted at solicitation release before later amendment content. Used to freeze original scope; this mirror is secondary archival evidence and is not agent input."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/unit",
+        "/line_items/1/item_id",
+        "/line_items/1/description",
+        "/line_items/1/quantity",
+        "/line_items/1/quantity_basis",
+        "/line_items/1/unit",
+        "/line_items/1/technical_specifications/0/summary",
+        "/line_items/1/technical_specifications/0/source_locator",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation source; see per-field source_locator values where provided.",
+      "interpretation": "Direct extraction, conservative paraphrase, or explicitly documented derivation from the cited buyer-authored public solicitation."
+    },
+    {
+      "field_paths": [
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/line_items/0/description",
+        "/line_items/1/description",
+        "/line_items/1/technical_specifications/0/summary",
+        "/schedule/bid_submission_deadline",
+        "/supplier_eligibility_constraints/0",
+        "/supplier_eligibility_constraints/1"
+      ],
+      "document_id": "source-2",
+      "locator": "Archived original RFQ > Project Background, Scope of Work, and quote requirements",
+      "interpretation": "Dated archival copy of the original buyer-authored RFQ corroborates the frozen pre-amendment scope independently of the mutable OregonBuys live record."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/technical_specifications",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/model",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/line_items/1/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated or not accessible in the reviewed public source; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured; checksum intentionally omitted."
+    },
+    {
+      "field_path": "/line_items",
+      "reason": "partial_extraction",
+      "detail": "The cited public solicitation is selectively summarized; detailed attachments and contractual clauses remain authoritative where applicable."
+    },
+    {
+      "field_path": "/supporting_documents/1/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "The archival mirror is retained by stable dated URL; local raw bytes were not captured, so no local checksum is asserted."
+    }
+  ]
+}

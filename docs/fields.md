@@ -1,6 +1,6 @@
 # LongProcureBench field guide
 
-All keys are required for a stable record shape. **Required** means a non-null value is necessary; **Optional value** means the key stays present but may be `null`. Never invent missing facts. Empty arrays are allowed only for `missing_information`; unknown lists use `null`.
+All established v0.1 keys are required for a stable record shape. **Required** means a non-null value is necessary; **Optional value** means the key stays present but may be `null`. `line_items[].award_requirement` is a backward-compatible optional key; omission means `required`. Never invent missing facts. Empty arrays are allowed only for `missing_information`; unknown lists use `null`.
 
 Provenance pointers identify scalar fields, not whole objects or arrays. Related
 fields may share a precise page/row/section locator. Every populated procurement
@@ -28,6 +28,7 @@ missing-information note. URI validation checks syntax offline, not link reachab
 | `line_items` | Required | All goods lines within the stated package scope. |
 | `line_items[].item_id` | Required | Stable source line/stock identifier, or explicitly curator-assigned identifier. |
 | `line_items[].description` | Required | Equipment/material identity enables matching. |
+| `line_items[].award_requirement` | Optional key | `required` or `optional`; omitted means required. Use `optional` for additive alternates that may correctly remain unawarded. |
 | `line_items[].quantity` | Optional value | Requested quantity; null if unknown. |
 | `line_items[].quantity_basis` | Optional value | Distinguishes estimates from firm demand. |
 | `line_items[].unit` | Optional value | Original unit token; avoids silent conversion. |
@@ -56,10 +57,10 @@ missing-information note. URI validation checks syntax offline, not link reachab
 | `schedule.bid_submission_deadline` | Optional value | Source-stated bidding deadline retained separately as context. |
 | `supplier_eligibility_constraints` | Optional value | Known eligibility requirements; null if unavailable. |
 | `certifications_compliance` | Optional value | Known compliance requirements; not a certification of any supplier. |
-| `supporting_documents` | Required | Primary-source document catalog. |
+| `supporting_documents` | Required | Source document catalog. Prefer primary buyer sources; a clearly labeled dated archival mirror may supplement a mutable primary page to freeze the reviewed version. |
 | `supporting_documents[].document_id` | Required | Local identifier used by provenance references. |
 | `supporting_documents[].title` | Required | Human-readable source title. |
-| `supporting_documents[].url` | Required | Original primary-source location. |
+| `supporting_documents[].url` | Required | Source location. Primary buyer URLs are preferred; archival mirrors must be explicitly identified in `snapshot_policy`. |
 | `supporting_documents[].document_type` | Required | Source medium. |
 | `supporting_documents[].issued_date` | Optional value | Original issue/publication date, not retrieval date. |
 | `supporting_documents[].retrieved_date` | Required | Date source bytes were retrieved. |
