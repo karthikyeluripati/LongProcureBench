@@ -129,6 +129,50 @@ class ContextCompilerTests(unittest.TestCase):
         }
         self.assertEqual(latest["syn-ps-a"], "e5")
 
+    def test_substitution_proposal_is_not_exposed_as_latest_offer(self):
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-highpoint-cable-018")
+        episode_id = state["episode_id"]
+
+        state = env.step(_action(
+            episode_id, 1, "identify_suppliers"
+        ))
+        state = env.step(_action(
+            episode_id, 2, "request_buyer_clarification"
+        ))
+        state = env.step(_action(
+            episode_id, 3, "send_rfq", "syn-hpc-b"
+        ))
+
+        compiled = compile_visible_state(state)
+        self.assertIn(
+            "e3",
+            [event["event_id"] for event in compiled["event_history"]],
+        )
+        self.assertNotIn(
+            "e3",
+            [offer["event_id"] for offer in compiled["latest_offers"]],
+        )
+
+        state = env.step(_action(
+            episode_id, 4, "request_quote_revision", "syn-hpc-b"
+        ))
+        compiled = compile_visible_state(state)
+        b_offers = [
+            offer
+            for offer in compiled["latest_offers"]
+            if offer["supplier_id"] == "syn-hpc-b"
+        ]
+        self.assertEqual(len(b_offers), 1)
+        self.assertEqual(b_offers[0]["event_id"], "e5")
+        self.assertEqual(
+            b_offers[0]["offer_scope"],
+            {
+                "kind": "items",
+                "item_ids": ["2904", "79", "80"],
+            },
+        )
+
     def test_compiler_does_not_add_obligation_or_oracle_fields(self):
         state = LongProcureBenchEnv().reset(
             "electrical-dla-power-supply-016"
