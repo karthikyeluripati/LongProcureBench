@@ -2,11 +2,6 @@ name: Operational Ledger Reactive Smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - run-operational-ledger-smoke2-20260926
-    paths:
-      - '.github/workflows/operational-ledger-reactive-smoke.yml'
 
 permissions:
   contents: read
