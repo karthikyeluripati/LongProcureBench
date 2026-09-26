@@ -66,8 +66,8 @@
   },
   "comparison": {
     "path": "comparison.json",
-    "bytes": 3389,
-    "sha256": "fc62e8f992ee294e5d06a9eb2b1d2175fb45e5512bac32705288a75c83904d51",
+    "bytes": 3381,
+    "sha256": "1ec992a14c535c3439a44a2f242ecdf0f10d7024f15636ad82922a0d880c1ba0",
     "bootstrap_seed": 20260926,
     "bootstrap_resamples": 20000,
     "bootstrap_cluster": "episode_id",
