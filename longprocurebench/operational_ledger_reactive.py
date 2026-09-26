@@ -119,6 +119,9 @@ The ledger is external task state, not private reasoning:
   Initial-state work may use an empty source_event_ids list.
 - supplier_id may be non-null only for a currently visible supplier.
 - Do not duplicate an item that is already open.
+- When several independent visible facts create concurrent future work, keep a
+  separate open item for each commitment. Acting on one commitment must not
+  erase, replace, or implicitly resolve another.
 - Resolve only a previously open item. If resolution depends on a future
   supplier/buyer response, keep the item open until that response is visible.
 - The chosen action may resolve a prior item only when that action itself
@@ -365,6 +368,14 @@ Return only the structured action plus ledger_update object."""
         metadata["state_strategy"] = self.state_strategy
         metadata["ledger_open_items"] = len(self._open_items)
         metadata["ledger_resolved_items"] = len(self._resolved_items)
+        metadata["ledger_items_created"] = self._ledger_sequence
+        metadata["ledger_max_open_items"] = max(
+            (
+                len(row["open_item_ids_after"])
+                for row in self._ledger_trace
+            ),
+            default=0,
+        )
         metadata["final_ledger"] = self._ledger_view()
         metadata["ledger_trace"] = deepcopy(self._ledger_trace)
         return metadata
