@@ -38,15 +38,10 @@ NEW_LEDGER_ITEM_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": {
                 "type": "string",
-                "minLength": 1,
             },
-            "uniqueItems": True,
-            "maxItems": 12,
         },
         "description": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 240,
         },
     },
     "required": [
@@ -64,16 +59,12 @@ LEDGER_UPDATE_SCHEMA: dict[str, Any] = {
         "new_items": {
             "type": "array",
             "items": NEW_LEDGER_ITEM_SCHEMA,
-            "maxItems": 8,
         },
         "resolve_item_ids": {
             "type": "array",
             "items": {
                 "type": "string",
-                "pattern": "^l[0-9]{3,}$",
             },
-            "uniqueItems": True,
-            "maxItems": 16,
         },
     },
     "required": [
@@ -217,15 +208,50 @@ Return only the structured action plus ledger_update object."""
         state: dict[str, Any],
     ) -> None:
         resolve_ids = update["resolve_item_ids"]
+        if len(resolve_ids) > 16:
+            raise ValueError("Ledger update resolves more than 16 items")
+        if len(set(resolve_ids)) != len(resolve_ids):
+            raise ValueError("Ledger update contains duplicate ledger item IDs")
         for item_id in resolve_ids:
+            if (
+                not isinstance(item_id, str)
+                or len(item_id) < 4
+                or not item_id.startswith("l")
+                or not item_id[1:].isdigit()
+            ):
+                raise ValueError(f"Invalid ledger item ID: {item_id!r}")
             if item_id not in self._open_items:
                 raise ValueError(
                     f"Cannot resolve unknown open ledger item: {item_id}"
                 )
 
+        new_items = update["new_items"]
+        if len(new_items) > 8:
+            raise ValueError("Ledger update creates more than 8 items")
+
         visible_events = self._visible_event_ids(state)
         visible_suppliers = self._visible_supplier_ids(state)
-        for item in update["new_items"]:
+        for item in new_items:
+            description = item["description"]
+            if (
+                not isinstance(description, str)
+                or not description.strip()
+                or len(description) > 240
+            ):
+                raise ValueError(
+                    "Ledger item description must be 1-240 characters"
+                )
+
+            source_event_ids = item["source_event_ids"]
+            if len(source_event_ids) > 12:
+                raise ValueError(
+                    "Ledger item references more than 12 source events"
+                )
+            if len(set(source_event_ids)) != len(source_event_ids):
+                raise ValueError(
+                    "Ledger item contains duplicate source event IDs"
+                )
+
             supplier_id = item["supplier_id"]
             if (
                 supplier_id is not None
@@ -235,7 +261,11 @@ Return only the structured action plus ledger_update object."""
                     "Ledger item references non-visible supplier: "
                     f"{supplier_id}"
                 )
-            for event_id in item["source_event_ids"]:
+            for event_id in source_event_ids:
+                if not isinstance(event_id, str) or not event_id:
+                    raise ValueError(
+                        "Ledger source_event_ids must be non-empty strings"
+                    )
                 if event_id not in visible_events:
                     raise ValueError(
                         "Ledger item references unrevealed event: "
@@ -251,7 +281,7 @@ Return only the structured action plus ledger_update object."""
             resolved_now.append(item_id)
 
         new_ids = []
-        for item in update["new_items"]:
+        for item in new_items:
             self._ledger_sequence += 1
             item_id = f"l{self._ledger_sequence:03d}"
             stored = {
