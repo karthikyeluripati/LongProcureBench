@@ -132,6 +132,7 @@ Return only the structured action plus next_plan object."""
         self.policy_id = f"working-plan-reactive--{model}"
         self._current_plan: dict[str, Any] | None = None
         self._plan_trace: list[dict[str, Any]] = []
+        self._plan_rejection_trace: list[dict[str, Any]] = []
         self._pending_plan: dict[str, Any] | None = None
         self._pending_action: dict[str, Any] | None = None
         self._pending_state_step: int | None = None
@@ -140,6 +141,7 @@ Return only the structured action plus next_plan object."""
         super().reset(state)
         self._current_plan = None
         self._plan_trace = []
+        self._plan_rejection_trace = []
         self._pending_plan = None
         self._pending_action = None
         self._pending_state_step = None
@@ -314,9 +316,19 @@ Return only the structured action plus next_plan object."""
         self._calls.append(normalized_metrics)
 
         Draft202012Validator(response_schema).validate(response)
-        next_plan = deepcopy(response["next_plan"])
-        self._validate_plan(next_plan, state)
         runtime_action = self._runtime_decision(response["action"])
+        next_plan = deepcopy(response["next_plan"])
+
+        try:
+            self._validate_plan(next_plan, state)
+        except WorkingPlanError as exc:
+            self._plan_rejection_trace.append({
+                "model_call": len(self._calls),
+                "state_step": state.get("step"),
+                "message": str(exc),
+                "rejected_plan": deepcopy(next_plan),
+            })
+            return runtime_action
 
         self._pending_plan = next_plan
         self._pending_action = deepcopy(runtime_action)
@@ -332,6 +344,7 @@ Return only the structured action plus next_plan object."""
         metadata["context_strategy"] = self.context_strategy
         metadata["state_strategy"] = self.state_strategy
         metadata["plan_updates"] = len(self._plan_trace)
+        metadata["plan_rejections"] = len(self._plan_rejection_trace)
         metadata["mean_plan_steps"] = (
             sum(plan_lengths) / len(plan_lengths)
             if plan_lengths
@@ -340,4 +353,7 @@ Return only the structured action plus next_plan object."""
         metadata["max_plan_steps"] = max(plan_lengths, default=0)
         metadata["final_plan"] = deepcopy(self._current_plan)
         metadata["plan_trace"] = deepcopy(self._plan_trace)
+        metadata["plan_rejection_trace"] = deepcopy(
+            self._plan_rejection_trace
+        )
         return metadata
