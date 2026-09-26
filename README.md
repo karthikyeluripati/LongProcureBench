@@ -103,6 +103,15 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - The next architecture experiments are hypothesis-driven: context compilation, explicit operational state/obligation tracking, planning/reasoning, verification, and selective replanning are tested separately before any component enters ProcureHarness.
 - See [`docs/cross-family-reactive-v0.1-results.md`](docs/cross-family-reactive-v0.1-results.md) and [`docs/agent-design-hypotheses-v0.1.md`](docs/agent-design-hypotheses-v0.1.md).
 
+### Context-Compiled Reactive Baseline v0.1
+
+- First controlled architecture experiment after the cross-family evidence freeze.
+- Keeps the same reactive policy, model-call cadence, action schema, system prompt, runtime, evaluator, and GPT-5.6 Sol reasoning configuration.
+- Changes only the model-facing state serialization: strips provenance/bookkeeping and compiles factual requirements, revealed events, latest revealed offers, and compact action history.
+- Explicitly does **not** infer obligations, stale/feasible labels, next actions, or evaluator state.
+- Development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats.
+- See [`docs/context-compiled-reactive-v0.1.md`](docs/context-compiled-reactive-v0.1.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -132,6 +141,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/runner.py` — standard policy execution and result generation.
 - `longprocurebench/reference.py` — oracle-aware reference control.
 - `longprocurebench/reactive_llm.py` — naive reactive model baseline.
+- `longprocurebench/context_compiled_reactive.py` — deterministic factual context compiler and matched reactive policy.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -152,6 +162,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/validate_episodes.py` — episode validation.
 - `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
 - `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
+- `scripts/run_context_compiled_pilot.py` — repeated context-compiled matched-policy experiment runner.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
 - `scripts/frozen_luna20_source.py` — verifies and reconstructs the durable 60-run Luna evidence source.
 - `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.
