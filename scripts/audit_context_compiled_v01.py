@@ -417,7 +417,18 @@ def check_manifest() -> None:
 def check_frozen_comparison() -> dict[str, Any]:
     expected = json.loads(COMPARISON_PATH.read_text(encoding="utf-8"))
     actual = build_comparison()
-    _close(actual, expected)
+    try:
+        _close(actual, expected)
+    except ValueError:
+        print(
+            "Replay-derived comparison that failed the frozen check:",
+            file=sys.stderr,
+        )
+        print(
+            json.dumps(actual, indent=2, sort_keys=True),
+            file=sys.stderr,
+        )
+        raise
     return actual
 
 
