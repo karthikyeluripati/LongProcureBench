@@ -94,6 +94,23 @@ The factual context-compiled baseline on the same 20 × 3 development grid is:
 - model calls: **464**
 - max-action runs: **0**
 
+## Development protocol freeze
+
+The offline regression suite passed on Python 3.10 and 3.12 before live use.
+
+A single provider-compatibility smoke was then run on development episode 004:
+
+- workflow run: `36242197100`
+- execution head: `84cb5d4adfc9d343aea8f7251c64ead3c988f750`
+- artifact: `10906856017`
+- GPT-5.6 Sol call path, structured schema, runtime execution, evaluator coverage,
+  and artifact upload all completed successfully.
+
+The smoke is **not part of the experiment result**. Its episode outcome was not
+used to change the prompt, schema, plan semantics, inclusion gate, or evaluation
+protocol. The working-plan treatment is frozen after this provider-compatibility
+check.
+
 ## Primary metrics
 
 Primary reliability metric:
