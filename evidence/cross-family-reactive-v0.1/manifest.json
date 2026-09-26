@@ -92,5 +92,12 @@
     "accepted semantic decisions",
     "aggregate per-run token/latency/cost metrics"
   ],
-  "compaction_note": "The full GitHub Actions artifacts contain prompts, observations, evaluator output, and per-call records. The durable source retains only information needed to reconstruct accepted actions, deterministically replay the benchmark evaluator, and reproduce aggregate efficiency metrics. All 180 source runs had status=completed and passed the live execution/evaluation validator before compaction."
+  "compaction_note": "The full GitHub Actions artifacts contain prompts, observations, evaluator output, and per-call records. The durable source retains only information needed to reconstruct accepted actions, deterministically replay the benchmark evaluator, and reproduce aggregate efficiency metrics. All 180 source runs had status=completed and passed the live execution/evaluation validator before compaction.",
+  "summary_storage": {
+    "format": "gzip(JSON summary) encoded as base64 text",
+    "path": "summary.json.gz.b64",
+    "compressed_bytes": 1922,
+    "compressed_sha256": "04e2f3f7e0224fbe56a9cdfd301ce4270ba976567e9fb6d2f93d8be098b3fc45",
+    "note": "The audit script regenerates this summary from deterministic replay and compares canonical JSON."
+  }
 }
