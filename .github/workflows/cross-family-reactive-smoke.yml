@@ -62,6 +62,14 @@ jobs:
         run: |
           python scripts/run_reactive_pilot.py             --model gemini/gemini-3.8-flash             --episode electrical-bongabon-generator-001             --repeats 1             --max-actions 12             --omit-temperature             --output-dir "$SMOKE_ROOT/gemini"
 
+      - name: Validate smoke execution and evaluation statuses
+        shell: bash
+        run: |
+          for provider in openai anthropic gemini; do
+            python scripts/validate_live_pilot_statuses.py \
+              "$SMOKE_ROOT/$provider/runs.csv"
+          done
+
       - name: Summarize smoke costs and statuses
         shell: bash
         run: |
@@ -93,22 +101,6 @@ jobs:
                   f"obligation_success={row['feasible_obligation_success']}"
               )
 
-          bad = [
-              row for row in rows
-              if row["status"] in {
-                  "setup_error",
-                  "evaluation_error",
-                  "metadata_error",
-              }
-              or (
-                  row["status"] == "policy_error"
-                  and row["error_type"] not in {
-                      "EnvironmentError",
-                      "ValidationError",
-                      "RunnerError",
-                  }
-              )
-          ]
           known_costs = [
               float(row["cost_usd"])
               for row in rows
@@ -133,10 +125,6 @@ jobs:
               json.dumps(summary, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
           )
-          if bad:
-              raise SystemExit(
-                  f"{len(bad)} provider smoke run(s) had infrastructure/model errors"
-              )
           PY
 
       - name: Upload smoke evidence
