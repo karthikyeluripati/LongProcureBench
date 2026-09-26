@@ -17,6 +17,7 @@ from audit_operational_ledger_v01 import (
     _check_declared_replay_files,
     check_frozen_comparison,
     check_manifest,
+    check_source_provenance,
     evaluate_predeclared_gate,
 )
 from frozen_operational_ledger_v01 import (
@@ -30,6 +31,7 @@ class OperationalLedgerFrozenEvidenceTests(unittest.TestCase):
     def setUpClass(cls):
         cls.source = load_frozen_operational_ledger_source(ROOT)
         check_manifest()
+        check_source_provenance()
         cls.comparison = check_frozen_comparison()
 
     def test_frozen_source_is_exact_twenty_by_three_grid(self):
@@ -186,6 +188,33 @@ class OperationalLedgerFrozenEvidenceTests(unittest.TestCase):
                     directory,
                     ("replay-source.part-01.b64",),
                 )
+
+    def test_record_provenance_drift_is_rejected(self):
+        provenance_path = (
+            ROOT
+            / "evidence"
+            / "operational-ledger-reactive-v0.1"
+            / "source-provenance.txt"
+        )
+        original = provenance_path.read_text(encoding="utf-8")
+        lines = original.splitlines()
+        fields = lines[0].split("|")
+        fields[-1] = "0" * 64
+        lines[0] = "|".join(fields)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            changed = Path(tmp) / "source-provenance.txt"
+            changed.write_text(
+                "\n".join(lines) + "\n",
+                encoding="utf-8",
+            )
+            with patch.object(
+                audit_module,
+                "PROVENANCE_PATH",
+                changed,
+            ):
+                with self.assertRaises(ValueError):
+                    check_source_provenance()
 
     def test_manifest_provenance_and_selection_drift_is_rejected(self):
         manifest_path = (
