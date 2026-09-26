@@ -12,6 +12,7 @@ from run_reactive_pilot import (
     summarize,
     validate_episode_id,
 )
+from validate_live_pilot_statuses import invalid_rows
 
 
 class StubPolicy:
@@ -142,6 +143,20 @@ class PilotTests(unittest.TestCase):
                 DEVELOPMENT_EPISODES, start=1
             ))
         )
+
+    def test_live_status_validator_allows_agent_rejection(self):
+        rows = [{
+            "status": "policy_error",
+            "error_type": "ValidationError",
+        }]
+        self.assertEqual(invalid_rows(rows), [])
+
+    def test_live_status_validator_rejects_model_failure(self):
+        rows = [{
+            "status": "policy_error",
+            "error_type": "ModelCallError",
+        }]
+        self.assertEqual(invalid_rows(rows), rows)
 
     def test_repeated_invocation_refuses_nonempty_output_dir(self):
         runner = StubRunner()
