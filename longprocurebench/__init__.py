@@ -10,6 +10,10 @@ from .reactive_llm import ReactiveLLMPolicy
 from .reference import ScriptedReferencePolicy
 from .runner import AgentPolicy, BenchmarkRunner, RunnerError
 from .runtime import EnvironmentError, LongProcureBenchEnv
+from .working_plan_reactive import (
+    WorkingPlanError,
+    WorkingPlanReactiveLLMPolicy,
+)
 
 __all__ = [
     "AgentPolicy",
@@ -24,4 +28,6 @@ __all__ = [
     "ReactiveLLMPolicy",
     "RunnerError",
     "ScriptedReferencePolicy",
+    "WorkingPlanError",
+    "WorkingPlanReactiveLLMPolicy",
 ]
