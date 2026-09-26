@@ -4,7 +4,14 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from run_reactive_pilot import model_slug, resolve_sampling_options, run_pilot, summarize, validate_episode_id
+from run_reactive_pilot import (
+    DEVELOPMENT_EPISODES,
+    model_slug,
+    resolve_sampling_options,
+    run_pilot,
+    summarize,
+    validate_episode_id,
+)
 
 
 class StubPolicy:
@@ -29,11 +36,25 @@ class StubRunner:
             "evaluation": {
                 "episode_id": episode_id,
                 "episode_success": success,
+                "episode_success_v02": success,
                 "feasible_process_success": success,
+                "feasible_obligation_success": success,
                 "terminal_outcome": {"correct": success},
                 "economic_objective": {"satisfied": success},
                 "hard_constraints": {"passed": 4 if success else 3, "total": 4},
                 "required_checkpoints": {"completed": 3 if success else 2, "total": 3, "results": [{"checkpoint": "evaluate_quotes", "complete": success}]},
+                "obligations": {
+                    "actionable": 2,
+                    "resolved": 2 if success else 1,
+                    "unresolved": 0 if success else 1,
+                    "no_opportunity": 0,
+                    "not_applicable": 1,
+                    "resolution_rate": 1.0 if success else 0.5,
+                    "results": [] if success else [{
+                        "obligation": "follow_up_nonresponse",
+                        "status": "unresolved",
+                    }],
+                },
                 "constraint_violations": [] if success else ["c2"],
                 "efficiency": {"accepted_actions": 1},
                 "terminated": True,
@@ -77,6 +98,50 @@ class PilotTests(unittest.TestCase):
         self.assertEqual(s["mean_accepted_actions"], 6.0)
         self.assertEqual(s["mean_total_tokens"], 150.0)
 
+
+    def test_summary_includes_v02_obligation_metrics(self):
+        rows = [
+            {
+                "model": "m",
+                "episode_success": False,
+                "episode_success_v02": True,
+                "feasible_process_success": False,
+                "feasible_obligation_success": True,
+                "terminal_feasible": True,
+                "economic_objective_satisfied": True,
+                "status": "completed",
+                "constraint_violations": [],
+                "incomplete_checkpoints": [],
+                "obligations_actionable": 3,
+                "obligations_resolved": 2,
+                "obligations_unresolved": 1,
+                "unresolved_obligations": ["handle_amendment"],
+                "accepted_actions": 6,
+                "total_tokens": 120,
+                "latency_ms": 25.0,
+                "cost_usd": 0.02,
+                "usage_incomplete": False,
+            }
+        ]
+        s = summarize(rows)["by_model"]["m"]
+        self.assertEqual(s["episode_success_rate_v02"], 1.0)
+        self.assertEqual(s["feasible_obligation_success_rate"], 1.0)
+        self.assertEqual(s["actionable_obligations"], 3)
+        self.assertEqual(s["resolved_obligations"], 2)
+        self.assertEqual(s["unresolved_obligations"], 1)
+        self.assertEqual(
+            s["unresolved_obligation_counts"],
+            {"handle_amendment": 1},
+        )
+
+    def test_development_suite_has_twenty_frozen_episodes(self):
+        self.assertEqual(len(DEVELOPMENT_EPISODES), 20)
+        self.assertEqual(len(set(DEVELOPMENT_EPISODES)), 20)
+        self.assertTrue(
+            all(episode.endswith(f"-{n:03d}") for n, episode in enumerate(
+                DEVELOPMENT_EPISODES, start=1
+            ))
+        )
 
     def test_repeated_invocation_refuses_nonempty_output_dir(self):
         runner = StubRunner()
