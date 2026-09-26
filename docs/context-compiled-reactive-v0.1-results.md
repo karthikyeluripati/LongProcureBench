@@ -39,16 +39,23 @@ latency increased.
 
 ## Predeclared gate
 
-The development inclusion gate was frozen before the experiment:
+The development inclusion gate was frozen before the experiment. Keep the
+component if **either**:
 
-> Keep the component if feasible-obligation success **or** obligation-resolution
-> rate improves by at least 5 percentage points while terminal feasibility does
-> not fall by more than 5 points.
+1. feasible-obligation success **or** obligation-resolution rate improves by at
+   least **5 percentage points**, while terminal feasibility does not fall by
+   more than **5 points**; **or**
+2. both reliability metrics remain within **2 points** of the raw baseline,
+   while total tokens fall by at least **15%**.
 
-The experiment passes **by the boundary of that rule**:
+This result passes through **condition 1**, at the boundary of its terminal
+guardrail:
 
 - obligation resolution: **+6.1 pp**
 - terminal feasibility: **-5.0 pp exactly**
+
+Condition 2 is not the basis for this result because obligation resolution moved
+by more than 2 points.
 
 This must not be interpreted as an overall quality win. Feasible-obligation
 success fell 1.7 pp and strict v0.2 success fell 8.3 pp.
