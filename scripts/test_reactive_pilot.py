@@ -136,6 +136,59 @@ class PilotTests(unittest.TestCase):
             {"handle_amendment": 1},
         )
 
+    def test_summary_aggregates_optional_ledger_metrics(self):
+        rows = [
+            {
+                "model": "m",
+                "episode_success": False,
+                "episode_success_v02": False,
+                "feasible_process_success": False,
+                "feasible_obligation_success": False,
+                "terminal_feasible": True,
+                "economic_objective_satisfied": False,
+                "status": "completed",
+                "constraint_violations": [],
+                "incomplete_checkpoints": [],
+                "obligations_actionable": 1,
+                "obligations_resolved": 0,
+                "obligations_unresolved": 1,
+                "unresolved_obligations": ["follow_up_nonresponse"],
+                "accepted_actions": 5,
+                "total_tokens": 100,
+                "latency_ms": 20.0,
+                "cost_usd": 0.01,
+                "usage_incomplete": False,
+                "ledger_items_created": 4,
+                "ledger_max_open_items": 2,
+            },
+            {
+                "model": "m",
+                "episode_success": True,
+                "episode_success_v02": True,
+                "feasible_process_success": True,
+                "feasible_obligation_success": True,
+                "terminal_feasible": True,
+                "economic_objective_satisfied": True,
+                "status": "completed",
+                "constraint_violations": [],
+                "incomplete_checkpoints": [],
+                "obligations_actionable": 2,
+                "obligations_resolved": 2,
+                "obligations_unresolved": 0,
+                "unresolved_obligations": [],
+                "accepted_actions": 6,
+                "total_tokens": 120,
+                "latency_ms": 25.0,
+                "cost_usd": 0.02,
+                "usage_incomplete": False,
+                "ledger_items_created": 6,
+                "ledger_max_open_items": 4,
+            },
+        ]
+        summary = summarize(rows)["by_model"]["m"]
+        self.assertEqual(summary["mean_ledger_items_created"], 5.0)
+        self.assertEqual(summary["mean_ledger_max_open_items"], 3.0)
+
     def test_development_suite_has_twenty_frozen_episodes(self):
         self.assertEqual(len(DEVELOPMENT_EPISODES), 20)
         self.assertEqual(len(set(DEVELOPMENT_EPISODES)), 20)
