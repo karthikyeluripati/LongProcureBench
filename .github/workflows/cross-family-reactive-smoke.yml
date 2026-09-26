@@ -1,15 +1,6 @@
 name: Cross-Family Reactive Smoke
 
 on:
-  push:
-    branches:
-      - codex/cross-family-reactive-v0.1
-    paths:
-      - 'scripts/run_reactive_pilot.py'
-      - 'scripts/test_reactive_pilot.py'
-      - 'longprocurebench/litellm_client.py'
-      - 'longprocurebench/reactive_llm.py'
-      - '.github/workflows/cross-family-reactive-smoke.yml'
   workflow_dispatch:
 
 permissions:
