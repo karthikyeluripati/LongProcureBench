@@ -11,7 +11,6 @@ from .reactive_llm import ReactiveLLMPolicy
 OFFER_EVENT_TYPES = {
     "quote_received",
     "quote_revision",
-    "substitution_proposed",
 }
 REQUIREMENT_UPDATE_TYPES = {
     "buyer_clarification",
