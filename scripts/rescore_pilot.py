@@ -234,7 +234,11 @@ def summarize_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 for row in subset
             ),
             "mean_plan_steps": _mean(
-                [row.get("mean_plan_steps") for row in subset]
+                [
+                    row.get("mean_plan_steps")
+                    for row in subset
+                    if int(row.get("plan_updates") or 0) > 0
+                ]
             ),
             "max_plan_steps": max(
                 (
