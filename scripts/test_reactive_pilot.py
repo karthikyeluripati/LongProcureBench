@@ -51,7 +51,7 @@ class StubRunner:
                     "not_applicable": 1,
                     "resolution_rate": 1.0 if success else 0.5,
                     "results": [] if success else [{
-                        "obligation": "follow_up_nonresponse",
+                        "checkpoint": "follow_up_nonresponse",
                         "status": "unresolved",
                     }],
                 },
