@@ -142,6 +142,9 @@ def flatten_audited_result(
             "cost_usd": metrics.get("cost_usd"),
             "usage_incomplete": metrics.get("usage_incomplete"),
             "error_type": (result.get("error") or {}).get("type"),
+            "evaluation_error_type": (
+                result.get("evaluation_error") or {}
+            ).get("type"),
         }
 
     row["source_status"] = result.get("source_status")
@@ -271,6 +274,7 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "cost_usd",
         "usage_incomplete",
         "error_type",
+        "evaluation_error_type",
     ]
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
