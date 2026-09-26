@@ -110,7 +110,9 @@ Action contract:
 - When reason is irrelevant, set arguments.reason = null.
 
 You also maintain the persistent operational ledger shown in the state.
-The ledger is external task state, not private reasoning:
+The ledger is external task state, not private reasoning. The prompt includes
+full open items plus only a resolved-item count; completed-item details remain
+available in action history and audit metadata:
 - Add a concise open item only when visible facts create future procurement
   work that could otherwise be forgotten.
 - Do not add evaluator checkpoints, hidden requirements, predictions, or
@@ -148,6 +150,9 @@ Return only the structured action plus ledger_update object."""
         self._resolved_items: list[dict[str, Any]] = []
         self._ledger_sequence = 0
         self._ledger_trace: list[dict[str, Any]] = []
+        self._pending_ledger_update: dict[str, Any] | None = None
+        self._pending_ledger_action: dict[str, Any] | None = None
+        self._pending_ledger_state_step: int | None = None
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
@@ -155,6 +160,9 @@ Return only the structured action plus ledger_update object."""
         self._resolved_items = []
         self._ledger_sequence = 0
         self._ledger_trace = []
+        self._pending_ledger_update = None
+        self._pending_ledger_action = None
+        self._pending_ledger_state_step = None
 
     @classmethod
     def _response_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -172,6 +180,7 @@ Return only the structured action plus ledger_update object."""
         }
 
     def _ledger_view(self) -> dict[str, Any]:
+        """Full ledger retained for result metadata and audit."""
         return {
             "open_items": [
                 deepcopy(item)
@@ -180,9 +189,21 @@ Return only the structured action plus ledger_update object."""
             "resolved_items": deepcopy(self._resolved_items),
         }
 
+    def _ledger_prompt_view(self) -> dict[str, Any]:
+        """Compact model-facing ledger; completed work stays out of context."""
+        return {
+            "open_items": [
+                deepcopy(item)
+                for item in self._open_items.values()
+            ],
+            "resolved_count": len(self._resolved_items),
+        }
+
     def _prompt_state(self, state: dict[str, Any]) -> dict[str, Any]:
         compiled = compile_visible_state(state)
-        compiled["persistent_operational_ledger"] = self._ledger_view()
+        compiled["persistent_operational_ledger"] = (
+            self._ledger_prompt_view()
+        )
         return compiled
 
     @staticmethod
@@ -209,16 +230,20 @@ Return only the structured action plus ledger_update object."""
             and isinstance(supplier.get("supplier_id"), str)
         }
 
-    def _apply_ledger_update(
+    def _validate_ledger_update(
         self,
         update: dict[str, Any],
         state: dict[str, Any],
     ) -> None:
         resolve_ids = update["resolve_item_ids"]
         if len(resolve_ids) > 16:
-            raise OperationalLedgerError("Ledger update resolves more than 16 items")
+            raise OperationalLedgerError(
+                "Ledger update resolves more than 16 items"
+            )
         if len(set(resolve_ids)) != len(resolve_ids):
-            raise OperationalLedgerError("Ledger update contains duplicate ledger item IDs")
+            raise OperationalLedgerError(
+                "Ledger update contains duplicate ledger item IDs"
+            )
         for item_id in resolve_ids:
             if (
                 not isinstance(item_id, str)
@@ -226,7 +251,9 @@ Return only the structured action plus ledger_update object."""
                 or not item_id.startswith("l")
                 or not item_id[1:].isdigit()
             ):
-                raise OperationalLedgerError(f"Invalid ledger item ID: {item_id!r}")
+                raise OperationalLedgerError(
+                    f"Invalid ledger item ID: {item_id!r}"
+                )
             if item_id not in self._open_items:
                 raise OperationalLedgerError(
                     f"Cannot resolve unknown open ledger item: {item_id}"
@@ -234,7 +261,9 @@ Return only the structured action plus ledger_update object."""
 
         new_items = update["new_items"]
         if len(new_items) > 8:
-            raise OperationalLedgerError("Ledger update creates more than 8 items")
+            raise OperationalLedgerError(
+                "Ledger update creates more than 8 items"
+            )
 
         visible_events = self._visible_event_ids(state)
         visible_suppliers = self._visible_supplier_ids(state)
@@ -279,8 +308,15 @@ Return only the structured action plus ledger_update object."""
                         f"{event_id}"
                     )
 
+    def _commit_ledger_update(
+        self,
+        update: dict[str, Any],
+        *,
+        proposed_state_step: int | None,
+        accepted_state_step: int | None,
+    ) -> None:
         resolved_now = []
-        for item_id in resolve_ids:
+        for item_id in update["resolve_item_ids"]:
             item = self._open_items.pop(item_id)
             resolved = deepcopy(item)
             resolved["resolved_on_model_call"] = len(self._calls)
@@ -288,7 +324,7 @@ Return only the structured action plus ledger_update object."""
             resolved_now.append(item_id)
 
         new_ids = []
-        for item in new_items:
+        for item in update["new_items"]:
             self._ledger_sequence += 1
             item_id = f"l{self._ledger_sequence:03d}"
             stored = {
@@ -300,7 +336,8 @@ Return only the structured action plus ledger_update object."""
 
         self._ledger_trace.append({
             "model_call": len(self._calls),
-            "state_step": state.get("step"),
+            "proposed_state_step": proposed_state_step,
+            "accepted_state_step": accepted_state_step,
             "new_item_ids": new_ids,
             "resolved_item_ids": resolved_now,
             "open_item_ids_after": list(self._open_items),
@@ -309,7 +346,40 @@ Return only the structured action plus ledger_update object."""
             ],
         })
 
+    def on_action_accepted(
+        self,
+        action: dict[str, Any],
+        state: dict[str, Any],
+    ) -> None:
+        """Commit the model's pending ledger update after env acceptance."""
+        if self._pending_ledger_update is None:
+            return
+        expected = self._pending_ledger_action
+        accepted = {
+            "type": action.get("type"),
+            "supplier_id": action.get("supplier_id"),
+            "arguments": deepcopy(action.get("arguments") or {}),
+        }
+        if accepted != expected:
+            raise OperationalLedgerError(
+                "Accepted action does not match pending ledger update"
+            )
+
+        self._commit_ledger_update(
+            self._pending_ledger_update,
+            proposed_state_step=self._pending_ledger_state_step,
+            accepted_state_step=state.get("step"),
+        )
+        self._pending_ledger_update = None
+        self._pending_ledger_action = None
+        self._pending_ledger_state_step = None
+
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
+        if self._pending_ledger_update is not None:
+            raise OperationalLedgerError(
+                "Previous ledger update is still pending action acceptance"
+            )
+
         allowed_scopes = self._allowed_award_scopes(state)
         response_schema = self._response_schema(state)
         prompt_state = self._prompt_state(state)
@@ -359,8 +429,13 @@ Return only the structured action plus ledger_update object."""
         self._calls.append(normalized_metrics)
 
         Draft202012Validator(response_schema).validate(response)
-        self._apply_ledger_update(response["ledger_update"], state)
-        return self._runtime_decision(response["action"])
+        update = deepcopy(response["ledger_update"])
+        self._validate_ledger_update(update, state)
+        runtime_action = self._runtime_decision(response["action"])
+        self._pending_ledger_update = update
+        self._pending_ledger_action = deepcopy(runtime_action)
+        self._pending_ledger_state_step = state.get("step")
+        return runtime_action
 
     def get_run_metadata(self) -> dict[str, Any]:
         metadata = super().get_run_metadata()
