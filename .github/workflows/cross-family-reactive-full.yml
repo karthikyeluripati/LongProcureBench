@@ -2,9 +2,6 @@ name: Cross-Family Reactive Full Run
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - run-cross-family-reactive-v01-20260926
 
 permissions:
   contents: read
