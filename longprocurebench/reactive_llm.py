@@ -152,6 +152,10 @@ Return only the structured action. Do not include reasoning or prose."""
         }
         return schema
 
+    def _prompt_state(self, state: dict[str, Any]) -> dict[str, Any]:
+        """Return the agent-visible state representation sent to the model."""
+        return state
+
     @staticmethod
     def _runtime_decision(decision: dict[str, Any]) -> dict[str, Any]:
         arguments = decision.get("arguments")
@@ -173,6 +177,7 @@ Return only the structured action. Do not include reasoning or prose."""
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
         allowed_scopes = self._allowed_award_scopes(state)
         action_schema = self._action_schema(state)
+        prompt_state = self._prompt_state(state)
         messages = [
             {"role": "system", "content": self.SYSTEM_PROMPT},
             {
@@ -181,7 +186,7 @@ Return only the structured action. Do not include reasoning or prose."""
                     "Allowed award scope values this episode: "
                     + ", ".join(allowed_scopes)
                     + "\n\nCurrent agent-visible benchmark state:\n"
-                    + json.dumps(state, sort_keys=True)
+                    + json.dumps(prompt_state, sort_keys=True)
                 ),
             },
         ]
