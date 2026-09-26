@@ -183,7 +183,7 @@ class WorkingPlanPolicyTests(unittest.TestCase):
             ],
         )
 
-    def test_plan_rejects_non_visible_supplier_reference(self):
+    def test_invalid_supplier_plan_is_rejected_without_dropping_action(self):
         client = FakePlanClient([
             _response(
                 "identify_suppliers",
@@ -203,17 +203,24 @@ class WorkingPlanPolicyTests(unittest.TestCase):
             "fake/test-model",
             client=client,
         )
-        state = LongProcureBenchEnv().reset(
-            "electrical-dla-power-supply-016"
-        )
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-dla-power-supply-016")
         policy.reset(state)
-        with self.assertRaisesRegex(
-            WorkingPlanError,
-            "non-visible supplier",
-        ):
-            policy.act(state)
 
-    def test_plan_is_bounded_to_four_future_steps(self):
+        decision = policy.act(state)
+        self.assertEqual(decision["type"], "identify_suppliers")
+        state = _accept(policy, env, state, decision)
+
+        metadata = policy.get_run_metadata()
+        self.assertIsNone(metadata["final_plan"])
+        self.assertEqual(metadata["plan_updates"], 0)
+        self.assertEqual(metadata["plan_rejections"], 1)
+        self.assertIn(
+            "non-visible supplier",
+            metadata["plan_rejection_trace"][0]["message"],
+        )
+
+    def test_overlong_plan_is_rejected_without_dropping_action(self):
         client = FakePlanClient([
             _response(
                 "identify_suppliers",
@@ -230,15 +237,22 @@ class WorkingPlanPolicyTests(unittest.TestCase):
             "fake/test-model",
             client=client,
         )
-        state = LongProcureBenchEnv().reset(
-            "electrical-dla-power-supply-016"
-        )
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-dla-power-supply-016")
         policy.reset(state)
-        with self.assertRaisesRegex(
-            WorkingPlanError,
+
+        decision = policy.act(state)
+        self.assertEqual(decision["type"], "identify_suppliers")
+        state = _accept(policy, env, state, decision)
+
+        metadata = policy.get_run_metadata()
+        self.assertIsNone(metadata["final_plan"])
+        self.assertEqual(metadata["plan_updates"], 0)
+        self.assertEqual(metadata["plan_rejections"], 1)
+        self.assertIn(
             "more than 4",
-        ):
-            policy.act(state)
+            metadata["plan_rejection_trace"][0]["message"],
+        )
 
     def test_runtime_rejected_action_does_not_commit_plan(self):
         client = FakePlanClient([
@@ -380,8 +394,10 @@ class WorkingPlanPolicyTests(unittest.TestCase):
         metadata = policy.get_run_metadata()
         self.assertEqual(metadata["state_strategy"], "maintained_working_plan_v0.1")
         self.assertEqual(metadata["plan_updates"], 2)
+        self.assertEqual(metadata["plan_rejections"], 0)
         self.assertEqual(metadata["max_plan_steps"], 1)
         self.assertEqual(len(metadata["plan_trace"]), 2)
+        self.assertEqual(metadata["plan_rejection_trace"], [])
 
         second_prompt = client.calls[1]["messages"][1]["content"]
         self.assertIn("Get offers.", second_prompt)
