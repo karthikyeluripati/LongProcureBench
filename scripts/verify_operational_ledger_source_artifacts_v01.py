@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import gzip
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -15,6 +17,8 @@ if str(ROOT) not in sys.path:
 
 from frozen_operational_ledger_v01 import (
     EPISODES,
+    EXPECTED_COMPRESSED_BYTES,
+    EXPECTED_COMPRESSED_SHA256,
     EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256,
     EXPECTED_PROVENANCE_BYTES,
     EXPECTED_PROVENANCE_SHA256,
@@ -126,7 +130,12 @@ def _provenance_root(lines: list[str]) -> str:
     return sha256(payload).hexdigest()
 
 
-def verify_artifacts(original_zip: Path, recovery_zip: Path) -> dict:
+def verify_artifacts(
+    original_zip: Path,
+    recovery_zip: Path,
+    *,
+    replay_output: Path | None = None,
+) -> dict:
     if _artifact_digest(original_zip) != ORIGINAL_ARTIFACT_SHA256:
         raise ValueError("Original artifact ZIP digest mismatch")
     if _artifact_digest(recovery_zip) != RECOVERY_ARTIFACT_SHA256:
@@ -223,6 +232,30 @@ def verify_artifacts(original_zip: Path, recovery_zip: Path) -> dict:
             + json.dumps({"expected": expected, "actual": actual})
         )
 
+    if replay_output is not None:
+        replay_payload = b"".join(
+            _canonical_compact_line(row)
+            for row in compact_rows
+        )
+        compressed = gzip.compress(
+            replay_payload,
+            compresslevel=9,
+            mtime=0,
+        )
+        if len(compressed) != EXPECTED_COMPRESSED_BYTES:
+            raise ValueError(
+                "Regenerated replay source size mismatch"
+            )
+        if sha256(compressed).hexdigest() != EXPECTED_COMPRESSED_SHA256:
+            raise ValueError(
+                "Regenerated replay source digest mismatch"
+            )
+        replay_output.parent.mkdir(parents=True, exist_ok=True)
+        replay_output.write_text(
+            base64.b64encode(compressed).decode("ascii") + "\n",
+            encoding="utf-8",
+        )
+
     provenance_payload = (
         "\n".join(record_provenance) + "\n"
     ).encode("utf-8")
@@ -248,11 +281,17 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--original-zip", required=True)
     parser.add_argument("--recovery-zip", required=True)
+    parser.add_argument("--write-replay-source")
     args = parser.parse_args()
 
     result = verify_artifacts(
         Path(args.original_zip),
         Path(args.recovery_zip),
+        replay_output=(
+            Path(args.write_replay_source)
+            if args.write_replay_source
+            else None
+        ),
     )
     print("Operational-ledger source artifacts verified.")
     print(json.dumps(result, indent=2, sort_keys=True))
