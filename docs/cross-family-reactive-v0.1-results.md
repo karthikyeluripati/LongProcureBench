@@ -79,11 +79,13 @@ Other large cross-model gaps include:
 
 ## Action-induced obligations
 
-The raw action counts also expose an efficiency mechanism that the method should
-not ignore. Mean RFQs per run were approximately **2.75** for GPT-5.6 Sol,
-**3.02** for Claude Opus 5.5, and **3.05** for Gemini 3.8 Flash. In contrast,
-observed follow-up actions were only **2**, **8**, and **0** respectively across
-60 runs per model.
+The audited frozen action counts also expose an efficiency mechanism that the
+method should not ignore. The agents issued **165**, **181**, and **183** RFQs
+for GPT-5.6 Sol, Claude Opus 5.5, and Gemini 3.8 Flash respectively — **2.75**,
+**3.02**, and **3.05** RFQs per run. In contrast, audited
+`send_follow_up` counts were only **2**, **8**, and **0** respectively across
+60 runs per model. These counts are derived from the checksum-locked semantic
+action replay source and frozen in the audited summary.
 
 This matters because agent actions can create downstream work. Soliciting an
 additional supplier can reveal a non-response, question, revision need, or
