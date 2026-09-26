@@ -125,9 +125,23 @@ descriptive uncertainty. Efficiency is reported but is not a pass condition for
 this experiment because the ledger intentionally adds structured output and
 persistent state.
 
+## Attribution discipline
+
+This treatment necessarily changes two coupled things relative to factual
+context compilation: it asks the model to emit structured commitment state, and
+it carries that state forward across steps. Therefore a positive result is
+evidence for the **structured commitment-state treatment**, but is not yet
+sufficient to attribute the gain specifically to persistence.
+
+If this treatment passes the inclusion gate, run a follow-up persistence
+ablation before making that narrower claim: use the same structured commitment
+output discipline and one-call budget, but recompute the commitment view from
+visible history rather than carrying prior ledger items forward. Only a further
+gain from the persistent version supports a persistence-specific conclusion.
+
 ## Interpretation discipline
 
-A positive result would support the claim that **explicit persistent commitment
+A positive result would support the claim that **explicit structured commitment
 state** matters beyond factual context engineering.
 
 It would not by itself establish that:
