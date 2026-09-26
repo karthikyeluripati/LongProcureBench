@@ -8,9 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-EXPECTED_COMPRESSED_BYTES = 28669
+EXPECTED_COMPRESSED_BYTES = 28677
 EXPECTED_COMPRESSED_SHA256 = (
-    "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+    "bc31f37e0c29c8814d54db6c2c8a9e9464aedf354162bf86bc000edf4f9c7a7f"
 )
 EXPECTED_PROVENANCE_BYTES = 8193
 EXPECTED_PROVENANCE_SHA256 = (
@@ -34,15 +34,7 @@ EXPECTED_REPEATS = 3
 EXPECTED_ORIGINAL_RUNS = 43
 EXPECTED_RECOVERY_RUNS = 17
 EXPECTED_PARTS = (
-    "replay-source.part-01.b64",
-    "replay-source.part-02.b64",
-    "replay-source.part-03a.b64",
-    "replay-source.part-03b.b64",
-    "replay-source.part-04.b64",
-    "replay-source.part-05a.b64",
-    "replay-source.part-05b.b64",
-    "replay-source.part-06a.b64",
-    "replay-source.part-06b.b64",
+    "replay-source.b64",
 )
 MODEL = "openai/gpt-5.6-sol"
 
