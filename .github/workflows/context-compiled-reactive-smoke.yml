@@ -2,6 +2,11 @@ name: Context-Compiled Reactive Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-context-compiled-smoke-credits-20260926
+    paths:
+      - '.github/workflows/context-compiled-reactive-smoke.yml'
 
 permissions:
   contents: read
