@@ -122,6 +122,16 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Durable replay evidence is committed under `evidence/operational-ledger-reactive-v0.1/`.
 - See [`docs/operational-ledger-reactive-v0.1.md`](docs/operational-ledger-reactive-v0.1.md) and [`docs/operational-ledger-reactive-v0.1-results.md`](docs/operational-ledger-reactive-v0.1-results.md).
 
+### Maintained Working-Plan Reactive Baseline v0.1
+
+- Third controlled architecture experiment after factual context compilation and the dropped persistent-ledger treatment.
+- Keeps one GPT-5.6 Sol model call per semantic action and the same factual compiled context.
+- Adds one **bounded, replaceable prospective plan**: objective, at most four future steps, and an explicit stop condition.
+- The plan commits only after an accepted action and fully replaces prior plan state; it is guidance, not an append-only obligation memory.
+- No separate planner call, verifier, ReAct trace, knowledge graph, evaluator state, or held-out data is introduced.
+- Matched development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats against the frozen context-compiled baseline.
+- See [`docs/working-plan-reactive-v0.1.md`](docs/working-plan-reactive-v0.1.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -153,6 +163,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/reactive_llm.py` — naive reactive model baseline.
 - `longprocurebench/context_compiled_reactive.py` — deterministic factual context compiler and matched reactive policy.
 - `longprocurebench/operational_ledger_reactive.py` — model-maintained persistent commitment ledger over compiled context.
+- `longprocurebench/working_plan_reactive.py` — bounded replaceable prospective working-plan policy over compiled context.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -175,6 +186,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
 - `scripts/run_context_compiled_pilot.py` — repeated context-compiled matched-policy experiment runner.
 - `scripts/run_operational_ledger_pilot.py` — repeated persistent-ledger matched-policy experiment runner.
+- `scripts/run_working_plan_pilot.py` — repeated maintained-working-plan matched-policy experiment runner.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
 - `scripts/frozen_luna20_source.py` — verifies and reconstructs the durable 60-run Luna evidence source.
 - `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.
