@@ -148,6 +148,7 @@ class PilotTests(unittest.TestCase):
         rows = [{
             "status": "policy_error",
             "error_type": "ValidationError",
+            "evaluation_error_type": "",
         }]
         self.assertEqual(invalid_rows(rows), [])
 
@@ -155,6 +156,23 @@ class PilotTests(unittest.TestCase):
         rows = [{
             "status": "policy_error",
             "error_type": "ModelCallError",
+            "evaluation_error_type": "",
+        }]
+        self.assertEqual(invalid_rows(rows), rows)
+
+    def test_live_status_validator_rejects_environment_failure(self):
+        rows = [{
+            "status": "environment_error",
+            "error_type": "RuntimeError",
+            "evaluation_error_type": "",
+        }]
+        self.assertEqual(invalid_rows(rows), rows)
+
+    def test_live_status_validator_rejects_masked_evaluation_failure(self):
+        rows = [{
+            "status": "policy_error",
+            "error_type": "ValidationError",
+            "evaluation_error_type": "EvaluationError",
         }]
         self.assertEqual(invalid_rows(rows), rows)
 
