@@ -152,6 +152,14 @@ class PilotTests(unittest.TestCase):
         }]
         self.assertEqual(invalid_rows(rows), [])
 
+    def test_live_status_validator_allows_ledger_protocol_failure(self):
+        rows = [{
+            "status": "policy_error",
+            "error_type": "OperationalLedgerError",
+            "evaluation_error_type": "",
+        }]
+        self.assertEqual(invalid_rows(rows), [])
+
     def test_live_status_validator_rejects_model_failure(self):
         rows = [{
             "status": "policy_error",
