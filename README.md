@@ -106,11 +106,20 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 ### Context-Compiled Reactive Baseline v0.1
 
 - First controlled architecture experiment after the cross-family evidence freeze.
-- Keeps the same reactive policy, model-call cadence, action schema, system prompt, runtime, evaluator, and GPT-5.6 Sol reasoning configuration.
-- Changes only the model-facing state serialization: strips provenance/bookkeeping and compiles factual requirements, revealed events, latest revealed offers, and compact action history.
-- Explicitly does **not** infer obligations, stale/feasible labels, next actions, or evaluator state.
-- Development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats.
-- See [`docs/context-compiled-reactive-v0.1.md`](docs/context-compiled-reactive-v0.1.md).
+- Keeps the same reactive policy, model-call cadence, action schema, runtime, evaluator, and GPT-5.6 Sol reasoning configuration.
+- Changes only the model-facing factual state serialization; no inferred obligations, planner, verifier, or hidden memory.
+- Frozen 60-run result vs raw history: **-40.6% total tokens**, **-27.5% known API cost**, **+6.1 pp aggregate obligation resolution**, but **-1.7 pp feasible-obligation success** and **-5.0 pp terminal feasibility**.
+- Retained only as an **efficiency/context layer candidate**, not as the long-horizon reliability mechanism.
+- See [`docs/context-compiled-reactive-v0.1.md`](docs/context-compiled-reactive-v0.1.md) and [`docs/context-compiled-reactive-v0.1-results.md`](docs/context-compiled-reactive-v0.1-results.md).
+
+### Operational-Ledger Reactive Baseline v0.1
+
+- Next controlled architecture experiment: factual compiled context plus a persistent, model-maintained ledger of open/resolved procurement commitments.
+- The model updates the ledger in the **same single call** that chooses the next semantic action; no extra planning call is introduced.
+- The harness assigns stable ledger IDs and rejects references to hidden events, hidden suppliers, or unknown ledger items.
+- No evaluator checkpoints, oracle obligations, chain-of-thought, ReAct planner, verifier, or knowledge graph are added.
+- Matched development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats against the frozen context-compiled baseline.
+- See [`docs/operational-ledger-reactive-v0.1.md`](docs/operational-ledger-reactive-v0.1.md).
 
 ### Checkpoint fairness audit v0.1
 
@@ -142,6 +151,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/reference.py` — oracle-aware reference control.
 - `longprocurebench/reactive_llm.py` — naive reactive model baseline.
 - `longprocurebench/context_compiled_reactive.py` — deterministic factual context compiler and matched reactive policy.
+- `longprocurebench/operational_ledger_reactive.py` — model-maintained persistent commitment ledger over compiled context.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -163,6 +173,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
 - `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
 - `scripts/run_context_compiled_pilot.py` — repeated context-compiled matched-policy experiment runner.
+- `scripts/run_operational_ledger_pilot.py` — repeated persistent-ledger matched-policy experiment runner.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
 - `scripts/frozen_luna20_source.py` — verifies and reconstructs the durable 60-run Luna evidence source.
 - `scripts/rescore_luna20_v02.py` — zero-call Evaluator v0.2 rescore of the frozen 60 Luna trajectories.

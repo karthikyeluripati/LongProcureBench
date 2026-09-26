@@ -6,6 +6,7 @@ import unittest
 
 from run_reactive_pilot import (
     DEVELOPMENT_EPISODES,
+    flatten_result,
     model_slug,
     resolve_sampling_options,
     run_pilot,
@@ -135,6 +136,59 @@ class PilotTests(unittest.TestCase):
             {"handle_amendment": 1},
         )
 
+    def test_summary_aggregates_optional_ledger_metrics(self):
+        rows = [
+            {
+                "model": "m",
+                "episode_success": False,
+                "episode_success_v02": False,
+                "feasible_process_success": False,
+                "feasible_obligation_success": False,
+                "terminal_feasible": True,
+                "economic_objective_satisfied": False,
+                "status": "completed",
+                "constraint_violations": [],
+                "incomplete_checkpoints": [],
+                "obligations_actionable": 1,
+                "obligations_resolved": 0,
+                "obligations_unresolved": 1,
+                "unresolved_obligations": ["follow_up_nonresponse"],
+                "accepted_actions": 5,
+                "total_tokens": 100,
+                "latency_ms": 20.0,
+                "cost_usd": 0.01,
+                "usage_incomplete": False,
+                "ledger_items_created": 4,
+                "ledger_max_open_items": 2,
+            },
+            {
+                "model": "m",
+                "episode_success": True,
+                "episode_success_v02": True,
+                "feasible_process_success": True,
+                "feasible_obligation_success": True,
+                "terminal_feasible": True,
+                "economic_objective_satisfied": True,
+                "status": "completed",
+                "constraint_violations": [],
+                "incomplete_checkpoints": [],
+                "obligations_actionable": 2,
+                "obligations_resolved": 2,
+                "obligations_unresolved": 0,
+                "unresolved_obligations": [],
+                "accepted_actions": 6,
+                "total_tokens": 120,
+                "latency_ms": 25.0,
+                "cost_usd": 0.02,
+                "usage_incomplete": False,
+                "ledger_items_created": 6,
+                "ledger_max_open_items": 4,
+            },
+        ]
+        summary = summarize(rows)["by_model"]["m"]
+        self.assertEqual(summary["mean_ledger_items_created"], 5.0)
+        self.assertEqual(summary["mean_ledger_max_open_items"], 3.0)
+
     def test_development_suite_has_twenty_frozen_episodes(self):
         self.assertEqual(len(DEVELOPMENT_EPISODES), 20)
         self.assertEqual(len(set(DEVELOPMENT_EPISODES)), 20)
@@ -148,6 +202,14 @@ class PilotTests(unittest.TestCase):
         rows = [{
             "status": "policy_error",
             "error_type": "ValidationError",
+            "evaluation_error_type": "",
+        }]
+        self.assertEqual(invalid_rows(rows), [])
+
+    def test_live_status_validator_allows_ledger_protocol_failure(self):
+        rows = [{
+            "status": "policy_error",
+            "error_type": "OperationalLedgerError",
             "evaluation_error_type": "",
         }]
         self.assertEqual(invalid_rows(rows), [])
@@ -175,6 +237,62 @@ class PilotTests(unittest.TestCase):
             "evaluation_error_type": "EvaluationError",
         }]
         self.assertEqual(invalid_rows(rows), rows)
+
+    def test_flatten_result_preserves_optional_ledger_metrics(self):
+        result = {
+            "run_id": "r1",
+            "episode_id": "episode-one",
+            "status": "completed",
+            "trajectory": [],
+            "evaluation": {
+                "episode_success": False,
+                "episode_success_v02": False,
+                "feasible_process_success": False,
+                "feasible_obligation_success": False,
+                "terminal_outcome": {"correct": True},
+                "economic_objective": {"satisfied": False},
+                "hard_constraints": {"passed": 1, "total": 1},
+                "required_checkpoints": {
+                    "completed": 0,
+                    "total": 0,
+                    "results": [],
+                },
+                "obligations": {
+                    "actionable": 0,
+                    "resolved": 0,
+                    "unresolved": 0,
+                    "no_opportunity": 0,
+                    "not_applicable": 0,
+                    "resolution_rate": None,
+                    "results": [],
+                },
+                "constraint_violations": [],
+                "efficiency": {"accepted_actions": 0},
+            },
+            "policy_metrics": {
+                "model_calls_attempted": 2,
+                "total_tokens": 200,
+                "latency_ms": 30.0,
+                "cost_usd": 0.02,
+                "usage_incomplete": False,
+                "state_strategy": "operational_ledger_v0.1",
+                "ledger_open_items": 2,
+                "ledger_resolved_items": 3,
+                "ledger_items_created": 5,
+                "ledger_max_open_items": 4,
+            },
+            "error": None,
+            "evaluation_error": None,
+        }
+        row = flatten_result(result, "m", 1)
+        self.assertEqual(
+            row["state_strategy"],
+            "operational_ledger_v0.1",
+        )
+        self.assertEqual(row["ledger_open_items"], 2)
+        self.assertEqual(row["ledger_resolved_items"], 3)
+        self.assertEqual(row["ledger_items_created"], 5)
+        self.assertEqual(row["ledger_max_open_items"], 4)
 
     def test_pilot_supports_matched_policy_run_identity(self):
         runner = StubRunner()

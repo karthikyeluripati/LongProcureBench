@@ -246,6 +246,22 @@ class BenchmarkRunner:
                 }
             )
 
+            accepted_hook = getattr(
+                policy,
+                "on_action_accepted",
+                None,
+            )
+            if callable(accepted_hook):
+                try:
+                    accepted_hook(
+                        deepcopy(action),
+                        deepcopy(state),
+                    )
+                except Exception as exc:
+                    status = "policy_error"
+                    run_error = self._error(exc)
+                    break
+
         if status != "setup_error":
             accepted_actions = [row["action"] for row in trajectory]
             try:
