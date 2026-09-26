@@ -198,6 +198,12 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
             "mean_accepted_actions": _mean([r["accepted_actions"] for r in subset]),
             "mean_total_tokens": _mean([r["total_tokens"] for r in subset]),
             "mean_latency_ms": _mean([r["latency_ms"] for r in subset]),
+            "mean_ledger_items_created": _mean([
+                r.get("ledger_items_created") for r in subset
+            ]),
+            "mean_ledger_max_open_items": _mean([
+                r.get("ledger_max_open_items") for r in subset
+            ]),
             "total_known_cost_usd": sum(
                 float(r["cost_usd"])
                 for r in subset
