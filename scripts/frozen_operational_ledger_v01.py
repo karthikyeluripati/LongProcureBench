@@ -10,7 +10,19 @@ from typing import Any
 
 EXPECTED_COMPRESSED_BYTES = 28669
 EXPECTED_COMPRESSED_SHA256 = (
-    "966c926f9396d157826f845488dde701575b72d8b2993bdc6e74749f0978dbe7"
+    "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+)
+EXPECTED_SELECTED_COMPACTION_SHA256 = (
+    "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68"
+)
+EXPECTED_SELECTED_RAW_PROVENANCE_SHA256 = (
+    "5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8"
+)
+EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256 = (
+    "fa7450237981ccf4b4f6e88feceb0e8925c510cdbeb4da743793b7334a263183"
+)
+EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256 = (
+    "27ee6c9308d74f1ad1413053a2ca4ee7efd572fd7e516dd0dc8b486a9b53447c"
 )
 EXPECTED_RUNS = 60
 EXPECTED_EPISODES = 20
@@ -70,6 +82,20 @@ def _expected_source_code(episode_index: int, repeat: int) -> int:
     return 1
 
 
+def compact_rows_sha256(rows: list[Any]) -> str:
+    """Canonical digest of compact records, including their source assignment."""
+    payload = b"".join(
+        json.dumps(
+            row,
+            separators=(",", ":"),
+            sort_keys=True,
+            ensure_ascii=False,
+        ).encode("utf-8") + b"\n"
+        for row in rows
+    )
+    return sha256(payload).hexdigest()
+
+
 def load_frozen_operational_ledger_source(
     repo_root: Path,
 ) -> list[dict[str, Any]]:
@@ -122,6 +148,14 @@ def load_frozen_operational_ledger_source(
     if len(rows) != EXPECTED_RUNS:
         raise ValueError(
             f"Expected {EXPECTED_RUNS} frozen runs; found {len(rows)}"
+        )
+
+    compaction_digest = compact_rows_sha256(rows)
+    if compaction_digest != EXPECTED_SELECTED_COMPACTION_SHA256:
+        raise ValueError(
+            "Frozen ledger artifact-derived compaction mismatch: "
+            f"expected={EXPECTED_SELECTED_COMPACTION_SHA256}, "
+            f"actual={compaction_digest}"
         )
 
     records = []
