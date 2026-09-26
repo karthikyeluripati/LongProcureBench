@@ -24,9 +24,49 @@ from frozen_cross_family_reactive_v01 import (
 
 EVIDENCE_DIR = ROOT / "evidence" / "cross-family-reactive-v0.1"
 SUMMARY_PATH = EVIDENCE_DIR / "summary.json.gz.b64"
+MANIFEST_PATH = EVIDENCE_DIR / "manifest.json"
 SUMMARY_COMPRESSED_SHA256 = (
-    "04e2f3f7e0224fbe56a9cdfd301ce4270ba976567e9fb6d2f93d8be098b3fc45"
+    "1d19729574b1fd7588382b8e03c4ac3a659806ccec41f9dcebd7908481e9acb8"
 )
+EXPECTED_MANIFEST_PROVENANCE = {
+    "source_workflow_run_id": 36220188934,
+    "source_workflow_run_attempt": 1,
+    "benchmark_code_sha": (
+        "a32efbfd570840c2c685525fd7ad88eade7ae87f"
+    ),
+    "execution_head_sha": (
+        "9bf6e72f27343f949b999dac535b928e7bec79ab"
+    ),
+    "source_artifacts": [
+        {
+            "provider": "gemini",
+            "artifact_id": 10899520494,
+            "name": "cross-family-gemini-36220188934-1",
+            "digest": (
+                "sha256:f77351fe20591d8a16ed176e3afcc9e0398480d6"
+                "aa4b8714bb4b0bb075c82e23"
+            ),
+        },
+        {
+            "provider": "openai",
+            "artifact_id": 10899400826,
+            "name": "cross-family-openai-36220188934-1",
+            "digest": (
+                "sha256:aeeab60579c2e2b3f7b1c193874645881cf6b61a"
+                "6eecb2ca09854dad76cb3899"
+            ),
+        },
+        {
+            "provider": "anthropic",
+            "artifact_id": 10898449444,
+            "name": "cross-family-anthropic-36220188934-1",
+            "digest": (
+                "sha256:cbf32abc428515428a5792a3b67fc0e57f0abbcd"
+                "439778ac8bfe77ce4ee1020e"
+            ),
+        },
+    ],
+}
 
 
 def rescore_records(
@@ -45,6 +85,10 @@ def rescore_records(
             "episode_id": record["episode_id"],
             "repeat": record["repeat"],
             "decisions": len(record["decisions"]),
+            "action_type_counts": dict(Counter(
+                decision["type"]
+                for decision in record["decisions"]
+            )),
             "policy_metrics": dict(record["policy_metrics"]),
             "evaluation": evaluation,
         })
@@ -55,6 +99,7 @@ def _summary(records: list[dict[str, Any]]) -> dict[str, Any]:
     runs = len(records)
     unresolved_types: Counter[str] = Counter()
     no_opportunity_types: Counter[str] = Counter()
+    action_types: Counter[str] = Counter()
 
     terminal = 0
     hard = 0
@@ -102,6 +147,7 @@ def _summary(records: list[dict[str, Any]]) -> dict[str, Any]:
                 no_opportunity_types[obligation["checkpoint"]] += 1
 
         actions += record["decisions"]
+        action_types.update(record["action_type_counts"])
         calls += metrics["model_calls_attempted"]
         prompt_tokens += metrics["prompt_tokens"]
         completion_tokens += metrics["completion_tokens"]
@@ -142,6 +188,11 @@ def _summary(records: list[dict[str, Any]]) -> dict[str, Any]:
         ),
         "accepted_actions": actions,
         "mean_accepted_actions": actions / runs if runs else None,
+        "action_type_counts": dict(sorted(action_types.items())),
+        "mean_action_type_counts_per_run": {
+            name: count / runs
+            for name, count in sorted(action_types.items())
+        } if runs else {},
         "model_calls_attempted": calls,
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
@@ -210,6 +261,52 @@ def _canonical(value: Any) -> str:
         separators=(",", ":"),
         ensure_ascii=True,
     )
+
+
+def load_manifest() -> dict[str, Any]:
+    if not MANIFEST_PATH.is_file():
+        raise ValueError(f"Missing evidence manifest: {MANIFEST_PATH}")
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def check_manifest() -> None:
+    manifest = load_manifest()
+    for field, expected in EXPECTED_MANIFEST_PROVENANCE.items():
+        actual = manifest.get(field)
+        if actual != expected:
+            raise ValueError(
+                f"Evidence manifest provenance mismatch for {field}: "
+                f"expected={expected!r}, actual={actual!r}"
+            )
+
+    if manifest.get("records") != 180:
+        raise ValueError("Evidence manifest records must remain 180")
+    if manifest.get("models") != 3:
+        raise ValueError("Evidence manifest models must remain 3")
+    if manifest.get("episodes") != 20:
+        raise ValueError("Evidence manifest episodes must remain 20")
+    if manifest.get("repeats_per_model_episode") != 3:
+        raise ValueError(
+            "Evidence manifest repeats_per_model_episode must remain 3"
+        )
+
+    storage = manifest.get("storage") or {}
+    if storage.get("compressed_bytes") != 12196:
+        raise ValueError("Evidence manifest replay size mismatch")
+    if storage.get("compressed_sha256") != (
+        "a5ebf60142d2278463357e5081d7edef64757de58b5eba0f751a5f4f850ef4d1"
+    ):
+        raise ValueError("Evidence manifest replay digest mismatch")
+
+    summary_storage = manifest.get("summary_storage") or {}
+    if summary_storage.get("path") != "summary.json.gz.b64":
+        raise ValueError("Evidence manifest summary path mismatch")
+    if summary_storage.get("compressed_bytes") != 2370:
+        raise ValueError("Evidence manifest summary size mismatch")
+    if summary_storage.get("compressed_sha256") != (
+        SUMMARY_COMPRESSED_SHA256
+    ):
+        raise ValueError("Evidence manifest summary digest mismatch")
 
 
 def load_frozen_summary() -> dict[str, Any]:
@@ -344,6 +441,7 @@ def main() -> None:
     summary = build_summary(records)
 
     if args.check:
+        check_manifest()
         check_frozen_summary(summary)
 
     if args.output:
