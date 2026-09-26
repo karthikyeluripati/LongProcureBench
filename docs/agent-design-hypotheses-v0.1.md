@@ -59,18 +59,38 @@ buyer-clarification actions versus 47 under factual context compilation, with
 explicit state representations are harmful.
 
 The planned stateless/recomputed-ledger attribution ablation was conditional on
-the ledger treatment passing. It is therefore dropped. The next causal question
-moves from **what commitments should remain salient?** to **what bounded plan
-should govern the next action, replanning trigger, and stopping condition?**
+the ledger treatment passing, so it was dropped.
 
-Accordingly, the next controlled experiment is an externally represented
-**maintained working plan** over factual compiled context. Its protocol is now
-frozen as a one-call-per-action treatment: the model sees one replaceable plan
-containing an objective, at most four prospective steps, and a stop condition,
-and emits the replacement plan alongside its semantic action. The plan commits
-only after action acceptance. There is still no separate planner call, verifier,
-or selective-replanning mechanism, so any gain can be attributed to bounded
-prospective working state before additional computation is introduced.
+The subsequent **maintained working-plan v0.1** experiment is also complete.
+It kept the factual compiled context and one-call-per-action cadence while
+adding a bounded replaceable objective / next-steps / stop-condition plan. The
+plan was clearly active: 473 plan updates were accepted and, when a planned
+next step existed, its action type matched the following accepted action 85.3%
+of the time. Nevertheless, relative to factual context compilation:
+
+- feasible-obligation success fell **21.7 pp**;
+- terminal feasibility fell **8.3 pp**;
+- strict v0.2 success rose **5.0 pp**;
+- total tokens rose **35.1%** and known API cost rose **70.3%**.
+
+The working plan therefore fails its predeclared gate and is dropped in this
+form. The result argues against spending another development cycle on a new
+persistent representation while keeping the same single-pass action-selection
+budget.
+
+The next causal question is now narrower:
+
+> Does **additional deliberation and verification**, rather than another state
+> representation, recover long-horizon obligations and prevent premature or
+> locally plausible terminal decisions?
+
+The next quality-heavy comparator should therefore add explicit extra
+computation: **always replan from current visible state and run a separate
+pre-terminal verifier** over generic visible procurement invariants. This is not
+yet the efficient ProcureHarness method; it is an upper-cost test of whether
+more deliberate computation can improve reliability at all. Only if that works
+should selective event-triggered replanning be tested as the efficiency
+mechanism.
 
 ## Ideas that are intentionally deferred
 
@@ -174,36 +194,43 @@ that specific mechanism rather than adopt the name as an architectural goal.
 
 ## Proposed next experiment order
 
-The default order after this evidence freeze is:
+The evidence-driven order is now:
 
-1. **Context-compiled reactive** — cheapest causal test; no extra model calls
-   and no derived obligation labels.
+1. **Context-compiled reactive** — **tested; retain only as an efficiency/context
+   layer**. It substantially reduced tokens/cost but did not improve end-to-end
+   reliability.
 2. **Structured obligation/state ledger** — **tested and dropped** after failing
    the frozen reliability gate and producing clarification-loop fixation.
-3. **Maintained working plan** — **protocol frozen / next experiment**:
-   determine whether a bounded replaceable prospective plan and explicit stop
-   condition improve reliability beyond factual context compilation while
-   preserving one model call per action.
-4. **Always-replan + verifier** — quality-heavy comparator.
-5. **Selective replanning + verifier** — candidate efficient ProcureHarness.
+3. **Maintained working plan** — **tested and dropped** after feasible-obligation
+   success fell 21.7 pp and terminal feasibility fell 8.3 pp despite active
+   plan use.
+4. **Always-replan + pre-terminal verifier** — **next experiment**. Add explicit
+   additional computation and ask whether a quality-heavy deliberation/checking
+   treatment can recover reliability.
+5. **Selective event-triggered replanning + verifier** — test only if the
+   quality-heavy comparator works; this becomes the candidate efficient
+   ProcureHarness mechanism.
 6. Add **operational state graph**, **dynamic routing**, or **experience-based
    self-improvement** only when the preceding experiments identify a concrete
    need.
 
-This order is a starting experimental plan, not a promise that all components
-will survive.
+Components remain conditional on evidence; this is not a commitment to carry
+the entire stack into the final method.
 
 ## Candidate ProcureHarness contribution, if supported
 
-The strongest current method hypothesis is:
+The surviving method hypothesis is now deliberately narrower:
 
-> Maintain an explicit operational state of requirements, suppliers, quote
-> versions, dependencies, and open obligations; compile only the decision-relevant
-> context; invoke expensive replanning/verification when state transitions make
-> it necessary rather than at every step.
+> Compile a compact factual view of the evolving procurement environment, use
+> additional deliberation and verification when decisions are consequential,
+> and—if the quality-heavy version works—trigger that extra computation only
+> when visible state changes justify it.
 
-If experiments support that hypothesis, ProcureHarness becomes a **selective
-deliberation/state harness** rather than a collection of named agent patterns.
+The development evidence does **not** currently support persistent commitment
+memory or a maintained prospective plan as required components. If the next
+experiments support the hypothesis above, ProcureHarness becomes a
+**selective-deliberation and verification harness**, not a collection of named
+agent patterns.
 
 ## References
 
