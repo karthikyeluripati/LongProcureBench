@@ -140,10 +140,11 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         )
         policy.reset(state)
         first = policy.act(state)
-        state = LongProcureBenchEnv().reset(
-            "electrical-bongabon-generator-001"
-        )
-        state = state
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-bongabon-generator-001")
+        state = env.step(_action(
+            state["episode_id"], 1, "identify_suppliers"
+        ))
         second = policy.act(state)
 
         self.assertEqual(first["type"], "identify_suppliers")
@@ -268,6 +269,45 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             "unknown open ledger item",
         ):
             policy.act(state)
+
+    def test_reset_clears_persistent_ledger_between_episodes(self):
+        client = FakeLedgerClient([
+            _response(
+                "identify_suppliers",
+                new_items=[
+                    _item(
+                        "Remember this only for the first episode.",
+                        category="other",
+                    )
+                ],
+            )
+        ])
+        policy = OperationalLedgerReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        first = LongProcureBenchEnv().reset(
+            "electrical-dla-power-supply-016"
+        )
+        policy.reset(first)
+        policy.act(first)
+        self.assertEqual(
+            policy.get_run_metadata()["ledger_open_items"],
+            1,
+        )
+
+        second = LongProcureBenchEnv().reset(
+            "electrical-vre-generator-020"
+        )
+        policy.reset(second)
+        self.assertEqual(
+            policy.get_run_metadata()["ledger_open_items"],
+            0,
+        )
+        self.assertEqual(
+            policy.get_run_metadata()["ledger_resolved_items"],
+            0,
+        )
 
     def test_policy_uses_one_model_call_per_action(self):
         client = FakeLedgerClient([
