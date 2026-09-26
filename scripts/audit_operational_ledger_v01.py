@@ -556,7 +556,7 @@ def check_manifest() -> None:
 
     storage = manifest.get("storage") or {}
     expected_storage = {
-        "part_count": EXPECTED_PARTS,
+        "parts": list(EXPECTED_PARTS),
         "compressed_bytes": EXPECTED_COMPRESSED_BYTES,
         "compressed_sha256": EXPECTED_COMPRESSED_SHA256,
     }
