@@ -29,7 +29,8 @@ Matched settings:
 The necessary treatment differences are:
 
 1. the response schema also contains a structured `ledger_update`;
-2. the prompt includes the ledger accumulated from prior model calls;
+2. the prompt includes persistent **open** commitments accumulated from prior
+   accepted actions plus only a compact resolved-item count;
 3. the system instruction defines the narrow ledger-update contract.
 
 ## Ledger contract
@@ -66,6 +67,16 @@ The ledger deliberately does **not** contain:
 The model itself decides whether a visible fact creates an open commitment and
 when that commitment is resolved. That is the mechanism under test.
 
+Ledger updates use two-phase commit semantics. A model call may **propose** a
+ledger update together with its semantic action, but the harness commits that
+update only after the runtime accepts the action. A runtime-rejected action
+therefore cannot change the persistent ledger, trace, or ledger counts.
+
+Only open items are repeated in the model-facing prompt. Completed-item details
+are omitted from later prompts because accepted action history already carries
+the observable execution history; the prompt includes only `resolved_count`.
+The full resolved-item history remains in result metadata for auditing.
+
 ## Why this is narrower than a full state harness
 
 The factual compiler already carries current requirements, visible suppliers,
@@ -98,9 +109,13 @@ future work, the ledger could retain only one. The instruction was refined once
 to require separate open items for concurrent commitments.
 
 The final protocol smoke (workflow run `36230552854`) completed normally. It
-is **not included in the experiment result**. After that smoke, the treatment
-prompt/schema/state semantics are frozen for the 20 × 3 development run; no
-further tuning is allowed from episode outcomes.
+is **not included in the experiment result**. Subsequent code review identified
+two treatment-correctness issues before the 20 × 3 run: ledger updates were
+being committed before runtime action acceptance, and resolved-item details
+were being replayed unnecessarily in every prompt. Those issues were fixed
+without using additional episode outcomes. The treatment is re-frozen after
+these review fixes; no further outcome-driven tuning is allowed before the
+development run.
 
 ## Primary metrics
 
