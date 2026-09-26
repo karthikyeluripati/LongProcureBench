@@ -1,0 +1,173 @@
+name: Cross-Family Reactive Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SMOKE_ROOT: results/cross-family-reactive-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run reactive harness regressions
+        run: |
+          python -m unittest discover -s scripts -p "test_reactive_llm.py" -v
+          python -m unittest discover -s scripts -p "test_reactive_pilot.py" -v
+
+      - name: Verify provider credentials
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          for name in OPENAI_API_KEY ANTHROPIC_API_KEY GEMINI_API_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "$name repository secret is not configured."
+              exit 1
+            fi
+          done
+          echo "All three provider secrets are configured."
+
+      - name: OpenAI one-episode smoke
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/run_reactive_pilot.py             --model openai/gpt-5.6-sol             --episode electrical-bongabon-generator-001             --repeats 1             --max-actions 12             --omit-temperature             --reasoning-effort medium             --output-dir "$SMOKE_ROOT/openai"
+
+      - name: Anthropic one-episode smoke
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python scripts/run_reactive_pilot.py             --model anthropic/claude-opus-5-5             --episode electrical-bongabon-generator-001             --repeats 1             --max-actions 12             --omit-temperature             --output-dir "$SMOKE_ROOT/anthropic"
+
+      - name: Gemini one-episode smoke
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python scripts/run_reactive_pilot.py             --model gemini/gemini-3.8-flash             --episode electrical-bongabon-generator-001             --repeats 1             --max-actions 12             --omit-temperature             --output-dir "$SMOKE_ROOT/gemini"
+
+      - name: Summarize smoke costs and statuses
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["SMOKE_ROOT"])
+          root.mkdir(parents=True, exist_ok=True)
+          rows = []
+          models = []
+          missing_outputs = []
+
+          for provider in ("openai", "anthropic", "gemini"):
+              path = root / provider / "runs.csv"
+              if not path.is_file():
+                  missing_outputs.append(provider)
+                  models.append({
+                      "provider": provider,
+                      "model": None,
+                      "status": "missing_output",
+                      "model_calls": None,
+                      "total_tokens": None,
+                      "cost_usd": None,
+                  })
+                  print(f"{provider}: missing runs.csv")
+                  continue
+
+              with path.open(newline="", encoding="utf-8") as handle:
+                  provider_rows = list(csv.DictReader(handle))
+
+              if len(provider_rows) != 1:
+                  missing_outputs.append(provider)
+                  models.append({
+                      "provider": provider,
+                      "model": None,
+                      "status": f"unexpected_run_count:{len(provider_rows)}",
+                      "model_calls": None,
+                      "total_tokens": None,
+                      "cost_usd": None,
+                  })
+                  print(
+                      f"{provider}: expected one smoke run, "
+                      f"found {len(provider_rows)}"
+                  )
+                  continue
+
+              row = provider_rows[0]
+              rows.append(row)
+              models.append({
+                  "provider": provider,
+                  "model": row["model"],
+                  "status": row["status"],
+                  "model_calls": row["model_calls"],
+                  "total_tokens": row["total_tokens"],
+                  "cost_usd": (
+                      None
+                      if row["cost_usd"] in ("", "None")
+                      else float(row["cost_usd"])
+                  ),
+              })
+              print(
+                  f"{provider}: model={row['model']} status={row['status']} "
+                  f"calls={row['model_calls']} tokens={row['total_tokens']} "
+                  f"cost_usd={row['cost_usd']} "
+                  f"obligation_success={row['feasible_obligation_success']}"
+              )
+
+          known_costs = [
+              float(row["cost_usd"])
+              for row in rows
+              if row["cost_usd"] not in ("", "None")
+          ]
+          summary = {
+              "expected_providers": 3,
+              "runs": len(rows),
+              "known_cost_usd": sum(known_costs),
+              "unknown_cost_runs": (
+                  len(rows) - len(known_costs) + len(missing_outputs)
+              ),
+              "missing_outputs": missing_outputs,
+              "models": models,
+          }
+          (root / "smoke-summary.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Validate smoke execution and evaluation statuses
+        if: always()
+        shell: bash
+        run: |
+          for provider in openai anthropic gemini; do
+            python scripts/validate_live_pilot_statuses.py \
+              "$SMOKE_ROOT/$provider/runs.csv"
+          done
+
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cross-family-reactive-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.SMOKE_ROOT }}
+          if-no-files-found: warn
+          retention-days: 30

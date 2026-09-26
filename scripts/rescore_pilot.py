@@ -115,7 +115,9 @@ def flatten_audited_result(
             "repeat": repeat,
             "run_id": result.get("run_id"),
             "episode_success": None,
+            "episode_success_v02": None,
             "feasible_process_success": None,
+            "feasible_obligation_success": None,
             "terminal_feasible": None,
             "economic_objective_satisfied": None,
             "hard_constraints_passed": None,
@@ -124,6 +126,13 @@ def flatten_audited_result(
             "checkpoints_total": None,
             "constraint_violations": [],
             "incomplete_checkpoints": [],
+            "obligations_actionable": None,
+            "obligations_resolved": None,
+            "obligations_unresolved": None,
+            "obligations_no_opportunity": None,
+            "obligations_not_applicable": None,
+            "obligation_resolution_rate": None,
+            "unresolved_obligations": [],
             "accepted_actions": len(result.get("trajectory") or []),
             "model_calls": metrics.get(
                 "model_calls_attempted", metrics.get("model_calls")
@@ -133,6 +142,9 @@ def flatten_audited_result(
             "cost_usd": metrics.get("cost_usd"),
             "usage_incomplete": metrics.get("usage_incomplete"),
             "error_type": (result.get("error") or {}).get("type"),
+            "evaluation_error_type": (
+                result.get("evaluation_error") or {}
+            ).get("type"),
         }
 
     row["source_status"] = result.get("source_status")
@@ -167,9 +179,13 @@ def summarize_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "audited_runs": len(audited),
             "audit_failed_runs": len(subset) - len(audited),
             "episode_success_rate": rate("episode_success"),
+            "episode_success_rate_v02": rate("episode_success_v02"),
             "terminal_feasible_rate": rate("terminal_feasible"),
             "feasible_process_success_rate": rate(
                 "feasible_process_success"
+            ),
+            "feasible_obligation_success_rate": rate(
+                "feasible_obligation_success"
             ),
             "economic_objective_rate": rate(
                 "economic_objective_satisfied"
@@ -233,7 +249,9 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "audit_status",
         "audit_error_type",
         "episode_success",
+        "episode_success_v02",
         "feasible_process_success",
+        "feasible_obligation_success",
         "terminal_feasible",
         "economic_objective_satisfied",
         "hard_constraints_passed",
@@ -242,6 +260,13 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "checkpoints_total",
         "constraint_violations",
         "incomplete_checkpoints",
+        "obligations_actionable",
+        "obligations_resolved",
+        "obligations_unresolved",
+        "obligations_no_opportunity",
+        "obligations_not_applicable",
+        "obligation_resolution_rate",
+        "unresolved_obligations",
         "accepted_actions",
         "model_calls",
         "total_tokens",
@@ -249,6 +274,7 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "cost_usd",
         "usage_incomplete",
         "error_type",
+        "evaluation_error_type",
     ]
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
@@ -260,6 +286,9 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
             )
             record["incomplete_checkpoints"] = ";".join(
                 row["incomplete_checkpoints"]
+            )
+            record["unresolved_obligations"] = ";".join(
+                row.get("unresolved_obligations") or []
             )
             writer.writerow(record)
 
