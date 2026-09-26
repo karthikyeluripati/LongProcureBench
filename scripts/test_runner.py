@@ -49,6 +49,26 @@ class BogusActionPolicy:
 
 
 
+class AcceptedHookPolicy(LoopPolicy):
+    policy_id = "accepted-hook"
+
+    def __init__(self):
+        self.accepted = []
+
+    def on_action_accepted(self, action, state):
+        self.accepted.append((action, state))
+
+
+class RejectedHookPolicy(BogusActionPolicy):
+    policy_id = "rejected-hook"
+
+    def __init__(self):
+        self.accepted = []
+
+    def on_action_accepted(self, action, state):
+        self.accepted.append((action, state))
+
+
 class MetadataFailPolicy(LoopPolicy):
     policy_id = "metadata-fail"
     def get_run_metadata(self):
@@ -86,6 +106,33 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result["error"]["type"], "RuntimeError")
         self.assertEqual(len(result["attempts"]), 1)
         self.assertFalse(result["attempts"][0]["accepted"])
+
+    def test_runner_calls_acceptance_hook_only_after_environment_accepts(self):
+        policy = AcceptedHookPolicy()
+        result = self.runner.run(
+            policy,
+            "electrical-bongabon-generator-001",
+            max_actions=1,
+        )
+        self.assertEqual(result["status"], "max_actions")
+        self.assertEqual(len(policy.accepted), 1)
+        action, state = policy.accepted[0]
+        self.assertEqual(action["action_id"], "a1")
+        self.assertEqual(state["step"], 1)
+        self.assertEqual(
+            state["action_history"][-1]["action_id"],
+            "a1",
+        )
+
+    def test_runner_does_not_call_acceptance_hook_for_rejected_action(self):
+        policy = RejectedHookPolicy()
+        result = self.runner.run(
+            policy,
+            "electrical-bongabon-generator-001",
+        )
+        self.assertEqual(result["status"], "policy_error")
+        self.assertEqual(policy.accepted, [])
+        self.assertEqual(result["trajectory"], [])
 
     def test_max_actions_stops_nonterminating_policy(self):
         result = self.runner.run(LoopPolicy(), "electrical-bongabon-generator-001", max_actions=2)
