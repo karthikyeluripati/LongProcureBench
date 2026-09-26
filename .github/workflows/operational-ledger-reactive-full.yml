@@ -2,13 +2,18 @@ name: Operational Ledger Reactive Full Run
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - recover-operational-ledger-missing-20260926
+    paths:
+      - '.github/workflows/operational-ledger-reactive-full.yml'
 
 permissions:
   contents: read
 
 jobs:
   openai:
-    name: GPT-5.6 Sol operational-ledger 20x3
+    name: GPT-5.6 Sol operational-ledger recovery 6x3
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
@@ -39,7 +44,12 @@ jobs:
           test -n "$OPENAI_API_KEY" || (echo "OPENAI_API_KEY is missing" && exit 1)
           python scripts/run_operational_ledger_pilot.py \
             --model openai/gpt-5.6-sol \
-            --development-suite \
+            --episode electrical-dla-battery-charger-015 \
+            --episode electrical-dla-power-supply-016 \
+            --episode electrical-dla-qpl-breaker-017 \
+            --episode electrical-highpoint-cable-018 \
+            --episode electrical-usaf-ups-019 \
+            --episode electrical-vre-generator-020 \
             --repeats 3 \
             --max-actions 50 \
             --omit-temperature \
