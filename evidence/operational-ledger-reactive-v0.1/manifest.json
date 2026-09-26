@@ -1,0 +1,140 @@
+{
+  "benchmark_code_sha": "4a3ef65b40f37b14816926e1e2d48110705c78f5",
+  "compact_record_schema": [
+    "episode_index",
+    "repeat",
+    "source_code",
+    "status",
+    "semantic_decisions",
+    "policy_metrics",
+    "final_ledger",
+    "ledger_trace"
+  ],
+  "compaction_note": "Full provider prompts/responses and per-call records remain in the Actions artifacts. The committed replay source retains accepted actions, aggregate usage, and the model-maintained ledger state/trace needed for deterministic evaluator replay and mechanism analysis.",
+  "comparison": {
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_resamples": 20000,
+    "bootstrap_sampler": "sha256-index-v1",
+    "bootstrap_seed": 20260926,
+    "bytes": 4524,
+    "path": "comparison.json",
+    "sha256": "65c6a94dce55eb7269e6c9f853a4025b97cc02951648d47a48c9e2502896e28a"
+  },
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "episodes": 20,
+  "heldout_note": "No held-out episodes were authored or evaluated.",
+  "model": "openai/gpt-5.6-sol",
+  "policy_metrics_schema": [
+    "model_calls_attempted",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "temperature",
+    "reasoning_effort",
+    "context_strategy",
+    "state_strategy",
+    "ledger_open_items",
+    "ledger_resolved_items",
+    "ledger_items_created",
+    "ledger_max_open_items"
+  ],
+  "purpose": "Durable selected-grid replay source and matched analysis for the GPT-5.6 Sol operational-ledger reactive development experiment.",
+  "records": 60,
+  "recovery_selection": {
+    "discard_rule": "The duplicate recovery 015/r1 is excluded by key before its JSON outcome is read; the original valid 015/r1 is retained.",
+    "discarded_recovery_key": "electrical-dla-battery-charger-015/r1",
+    "original_retained": "episodes 001-014 repeats 1-3 plus episode 015 repeat 1",
+    "reason": "The original run exhausted OpenAI credits after the retained 43-run prefix; all 17 excluded original keys ended in ModelCallError attributable to no remaining credits.",
+    "recovery_retained": "episode 015 repeats 2-3 plus episodes 016-020 repeats 1-3"
+  },
+  "repeats_per_episode": 3,
+  "retained_for_replay": [
+    "episode identity and repeat",
+    "selected source artifact",
+    "accepted semantic decisions",
+    "run status",
+    "aggregate per-run token/latency/cost metrics",
+    "ledger summary metrics",
+    "full final ledger",
+    "accepted-action ledger trace"
+  ],
+  "schema_version": "0.1.0",
+  "semantic_decision_schema": [
+    "type",
+    "supplier_id",
+    "arguments"
+  ],
+  "source_artifacts": {
+    "original": {
+      "artifact_digest": "sha256:801decf63bc6e24f6bba2a20d6326dd482065aedd5bab266e8d9ff66c895e950",
+      "artifact_id": 10902813768,
+      "artifact_name": "operational-ledger-reactive-36231717716-1",
+      "candidate_runs": 60,
+      "execution_head_delta": "One commit ahead of benchmark_code_sha; only .github/workflows/operational-ledger-reactive-full.yml changed to add a one-shot push trigger.",
+      "execution_head_sha": "da3e0236b862b36f0eb607e9af5b72ecbdbe71c3",
+      "retained_runs": 43,
+      "workflow_run_attempt": 1,
+      "workflow_run_id": 36231717716
+    },
+    "recovery": {
+      "artifact_digest": "sha256:53c4de34d9f8ce85935e7dd783d05b2e122b5dcc7d80b74d432ea87189f0be9b",
+      "artifact_id": 10904540560,
+      "artifact_name": "operational-ledger-reactive-36235841640-1",
+      "candidate_runs": 18,
+      "execution_head_delta": "Workflow-only recovery invocation: one-shot push trigger plus episodes 015-020 instead of the full development suite; treatment code remained benchmark_code_sha.",
+      "execution_head_sha": "55f5cba2c6349723bc46753b6025d37edd0640d3",
+      "retained_runs": 17,
+      "workflow_run_attempt": 1,
+      "workflow_run_id": 36235841640
+    }
+  },
+  "source_code": {
+    "0": "original",
+    "1": "recovery"
+  },
+  "storage": {
+    "format": "deterministic gzip(JSONL compact replay records, mtime=0) encoded once as base64 text",
+    "parts": [
+      "replay-source.b64"
+    ],
+    "compressed_bytes": 28677,
+    "compressed_sha256": "bc31f37e0c29c8814d54db6c2c8a9e9464aedf354162bf86bc000edf4f9c7a7f"
+  },
+  "source_verification": {
+    "verifier_script": "scripts/verify_operational_ledger_source_artifacts_v01.py",
+    "canonical_compaction": "JSON compact record with sort_keys=true, separators=(',', ':'), UTF-8, newline per selected record, ordered by episode index then repeat",
+    "selected_compaction_sha256": "9c1651f0ecb07877259dc56e2f75a8d0d1a7506ab527aaceb9ed8c650ed89c68",
+    "selected_raw_provenance_sha256": "5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8",
+    "original_raw_provenance_sha256": "fa7450237981ccf4b4f6e88feceb0e8925c510cdbeb4da743793b7334a263183",
+    "recovery_raw_provenance_sha256": "27ee6c9308d74f1ad1413053a2ca4ee7efd572fd7e516dd0dc8b486a9b53447c",
+    "provenance_line_format": "source_code|episode_index|repeat|sha256(exact raw run JSON bytes)|sha256(canonical compact record line)",
+    "note": "The committed per-record provenance map is generated from the two Actions ZIPs after verifying their artifact digests. CI binds every compact replay row to the expected source code, exact raw-run JSON hash, and canonical compact-row hash; the verifier script can independently reproduce the map from the downloaded artifacts.",
+    "record_provenance_path": "source-provenance.txt",
+    "record_provenance_bytes": 8193,
+    "record_provenance_sha256": "4af2fd2c3cfb7a1ca25658bdc05068829b74d146006144788e622cdd86c4e1e4"
+  }
+}

@@ -41,5 +41,7 @@ jobs:
         run: python scripts/audit_cross_family_reactive_v01.py --check
       - name: Audit frozen context-compiled evidence
         run: python scripts/audit_context_compiled_v01.py
+      - name: Audit frozen operational-ledger evidence
+        run: python scripts/audit_operational_ledger_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference

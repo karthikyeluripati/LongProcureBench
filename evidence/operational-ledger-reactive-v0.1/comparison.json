@@ -1,0 +1,155 @@
+{
+  "cluster_bootstrap": {
+    "95pct_ci": {
+      "cost_pct": [
+        207.96627038960247,
+        530.7672124589129
+      ],
+      "episode_success_v02_pp": [
+        -6.666666666666665,
+        23.33333333333333
+      ],
+      "feasible_obligation_success_pp": [
+        -38.33333333333334,
+        0.0
+      ],
+      "latency_pct": [
+        195.3352355983936,
+        365.8140949347362
+      ],
+      "model_calls_pct": [
+        58.885937804165856,
+        213.4561795569372
+      ],
+      "obligation_resolution_pp": [
+        -4.448104681640985,
+        19.25315773679613
+      ],
+      "terminal_feasible_pp": [
+        -41.66666666666667,
+        -8.333333333333332
+      ],
+      "total_tokens_pct": [
+        144.9067486871755,
+        447.60025117889995
+      ]
+    },
+    "cluster": "episode_id",
+    "resamples": 20000,
+    "sampler": "sha256-index-v1",
+    "seed": 20260926
+  },
+  "context_compiled": {
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "actionable_obligations": 86,
+    "completion_tokens": 42223,
+    "cost_usd": 4.608656400000002,
+    "episode_success_v02": 14,
+    "feasible_obligation_success": 40,
+    "latency_ms": 869561.292690998,
+    "model_calls": 464,
+    "prompt_tokens": 931985,
+    "resolved_obligations": 72,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 46,
+    "total_tokens": 974208,
+    "unresolved_obligations": 14
+  },
+  "delta": {
+    "completion_tokens_pct": 372.76129123937193,
+    "cost_pct": 371.77997474491684,
+    "episode_success_v02_pp": 8.333333333333332,
+    "feasible_obligation_success_pp": -19.999999999999996,
+    "latency_pct": 276.7878249926063,
+    "model_calls_pct": 132.11206896551727,
+    "obligation_resolution_pp": 6.279069767441858,
+    "prompt_tokens_pct": 291.9369946941206,
+    "terminal_feasible_pp": -25.0,
+    "total_tokens_pct": 295.4399881750099
+  },
+  "episodes": 20,
+  "experiment": "operational-ledger-reactive-v0.1",
+  "model": "openai/gpt-5.6-sol",
+  "operational_ledger": {
+    "action_type_counts": {
+      "answer_supplier_question": 10,
+      "award_supplier": 36,
+      "evaluate_quotes": 63,
+      "identify_suppliers": 49,
+      "issue_amendment": 14,
+      "no_award": 13,
+      "request_buyer_clarification": 652,
+      "request_quote_revision": 46,
+      "send_follow_up": 51,
+      "send_rfq": 143
+    },
+    "actionable_obligations": 90,
+    "completion_tokens": 199614,
+    "cost_usd": 21.742718000000004,
+    "episode_success_v02": 19,
+    "feasible_obligation_success": 28,
+    "latency_ms": 3276401.0817080024,
+    "ledger_items_created": 263,
+    "mean_final_open_items": 1.55,
+    "mean_final_resolved_items": 2.8333333333333335,
+    "mean_ledger_items_created": 4.383333333333334,
+    "mean_ledger_max_open_items": 3.283333333333333,
+    "model_calls": 1077,
+    "prompt_tokens": 3652794,
+    "resolved_obligations": 81,
+    "status_counts": {
+      "completed": 49,
+      "max_actions": 11
+    },
+    "terminal_feasible": 31,
+    "total_tokens": 3852408,
+    "unresolved_obligations": 9
+  },
+  "predeclared_gate": {
+    "feasible_obligation_gain": {
+      "passed": false,
+      "rule": "feasible-obligation success improves by >=5 pp AND terminal feasibility does not fall by more than 5 pp"
+    },
+    "matched_condition": null,
+    "passed": false,
+    "strict_gain_guardrailed": {
+      "passed": false,
+      "rule": "strict v0.2 success improves by >=5 pp AND feasible-obligation success does not fall by more than 2 pp AND terminal feasibility does not fall by more than 5 pp"
+    }
+  },
+  "recovery_selection": {
+    "discard_rule": "discard recovery 015/r1 before outcome inspection; retain original valid 015/r1",
+    "discarded_recovery_key": "electrical-dla-battery-charger-015/r1",
+    "original_artifact_id": 10902813768,
+    "original_retained_runs": 43,
+    "recovery_artifact_id": 10904540560,
+    "recovery_retained_runs": 17
+  },
+  "repeats": 3,
+  "runs_per_condition": 60,
+  "schema_version": "0.1.0",
+  "source_workflow_runs": [
+    36231717716,
+    36235841640
+  ],
+  "unresolved_obligation_counts": {
+    "follow_up_nonresponse": 2,
+    "handle_amendment": 1,
+    "recover_from_withdrawal": 4,
+    "request_quote_revision": 1,
+    "resolve_requirement_gap": 1
+  }
+}
