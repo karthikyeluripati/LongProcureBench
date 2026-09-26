@@ -66,11 +66,12 @@
   },
   "comparison": {
     "path": "comparison.json",
-    "bytes": 3357,
-    "sha256": "15cd10fe60e4a62c4acfa76b7396d4cfa482802a938488d13cc9481a39b615b0",
+    "bytes": 3389,
+    "sha256": "fc62e8f992ee294e5d06a9eb2b1d2175fb45e5512bac32705288a75c83904d51",
     "bootstrap_seed": 20260926,
     "bootstrap_resamples": 20000,
-    "bootstrap_cluster": "episode_id"
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_sampler": "sha256-index-v1"
   },
   "retained_for_replay": [
     "episode identity",
