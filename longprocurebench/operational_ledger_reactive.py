@@ -16,6 +16,10 @@ from .litellm_client import ModelCallError
 from .reactive_llm import ActionModelClient
 
 
+class OperationalLedgerError(ValueError):
+    """Raised when a model emits an invalid operational-ledger update."""
+
+
 LEDGER_CATEGORIES = [
     "requirement",
     "supplier",
@@ -209,9 +213,9 @@ Return only the structured action plus ledger_update object."""
     ) -> None:
         resolve_ids = update["resolve_item_ids"]
         if len(resolve_ids) > 16:
-            raise ValueError("Ledger update resolves more than 16 items")
+            raise OperationalLedgerError("Ledger update resolves more than 16 items")
         if len(set(resolve_ids)) != len(resolve_ids):
-            raise ValueError("Ledger update contains duplicate ledger item IDs")
+            raise OperationalLedgerError("Ledger update contains duplicate ledger item IDs")
         for item_id in resolve_ids:
             if (
                 not isinstance(item_id, str)
@@ -219,15 +223,15 @@ Return only the structured action plus ledger_update object."""
                 or not item_id.startswith("l")
                 or not item_id[1:].isdigit()
             ):
-                raise ValueError(f"Invalid ledger item ID: {item_id!r}")
+                raise OperationalLedgerError(f"Invalid ledger item ID: {item_id!r}")
             if item_id not in self._open_items:
-                raise ValueError(
+                raise OperationalLedgerError(
                     f"Cannot resolve unknown open ledger item: {item_id}"
                 )
 
         new_items = update["new_items"]
         if len(new_items) > 8:
-            raise ValueError("Ledger update creates more than 8 items")
+            raise OperationalLedgerError("Ledger update creates more than 8 items")
 
         visible_events = self._visible_event_ids(state)
         visible_suppliers = self._visible_supplier_ids(state)
@@ -238,17 +242,17 @@ Return only the structured action plus ledger_update object."""
                 or not description.strip()
                 or len(description) > 240
             ):
-                raise ValueError(
+                raise OperationalLedgerError(
                     "Ledger item description must be 1-240 characters"
                 )
 
             source_event_ids = item["source_event_ids"]
             if len(source_event_ids) > 12:
-                raise ValueError(
+                raise OperationalLedgerError(
                     "Ledger item references more than 12 source events"
                 )
             if len(set(source_event_ids)) != len(source_event_ids):
-                raise ValueError(
+                raise OperationalLedgerError(
                     "Ledger item contains duplicate source event IDs"
                 )
 
@@ -257,17 +261,17 @@ Return only the structured action plus ledger_update object."""
                 supplier_id is not None
                 and supplier_id not in visible_suppliers
             ):
-                raise ValueError(
+                raise OperationalLedgerError(
                     "Ledger item references non-visible supplier: "
                     f"{supplier_id}"
                 )
             for event_id in source_event_ids:
                 if not isinstance(event_id, str) or not event_id:
-                    raise ValueError(
+                    raise OperationalLedgerError(
                         "Ledger source_event_ids must be non-empty strings"
                     )
                 if event_id not in visible_events:
-                    raise ValueError(
+                    raise OperationalLedgerError(
                         "Ledger item references unrevealed event: "
                         f"{event_id}"
                     )
