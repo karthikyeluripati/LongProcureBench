@@ -26,7 +26,13 @@ EXPECTED_SELECTED_RAW_PROVENANCE_SHA256 = (
 EXPECTED_RUNS = 60
 EXPECTED_EPISODES = 20
 EXPECTED_REPEATS = 3
-EXPECTED_PARTS = ("replay-source.b64",)
+EXPECTED_PARTS = (
+    "replay-source.part-01.b64",
+    "replay-source.part-02.b64",
+    "replay-source.part-03.b64",
+    "replay-source.part-04.b64",
+    "replay-source.part-05.b64",
+)
 MODEL = "openai/gpt-5.6-sol"
 
 EPISODES = [
