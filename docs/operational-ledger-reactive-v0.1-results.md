@@ -58,9 +58,12 @@ the downloaded source artifacts produces:
   `5a960571e1f3bed0613d77881062982844987243db462f4ca62399e7d95af4e8`
 
 The raw provenance root hashes the exact source run JSON bytes together with
-`source_code|episode_index|repeat`. The compact-record root includes the
-source assignment and every compacted field. The frozen loader rejects compact
-records that do not reproduce the artifact-derived compact root.
+`source_code|episode_index|repeat`. In addition,
+`source-provenance.txt` binds every selected episode/repeat key to its source
+artifact, exact raw-run SHA-256, and canonical compact-record SHA-256. CI checks
+each committed replay row against that per-record map, so changing a row or
+assigning it to the wrong source cannot be hidden by updating only the compact
+replay and manifest together.
 
 Independent verification from downloaded Actions ZIPs is available with:
 
@@ -74,8 +77,11 @@ That verifier first checks each ZIP against the recorded GitHub artifact digest,
 applies the key-frozen recovery selection, and then recomputes both roots. The
 discarded recovery `015/r1` is excluded by key before its JSON is parsed.
 
-The durable replay source is explicitly the complete ten-part list recorded in
-the manifest; CI also rejects undeclared `replay-source*.b64` fragments.
+The durable replay is one canonical deterministic gzip/base64 file,
+`replay-source.b64`. It is regenerated from the verified Actions artifacts,
+has compressed SHA-256
+`bc31f37e0c29c8814d54db6c2c8a9e9464aedf354162bf86bc000edf4f9c7a7f`,
+and CI rejects any undeclared `replay-source*.b64` fragments.
 
 ## Matched comparison
 
