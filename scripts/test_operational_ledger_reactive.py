@@ -3,7 +3,7 @@ from copy import deepcopy
 import json
 import unittest
 
-from longprocurebench import LongProcureBenchEnv
+from longprocurebench import BenchmarkRunner, LongProcureBenchEnv
 from longprocurebench.operational_ledger_reactive import (
     OperationalLedgerError,
     OperationalLedgerReactiveLLMPolicy,
@@ -83,6 +83,20 @@ def _action(episode_id, number, action_type, supplier_id=None, arguments=None):
     }
 
 
+def _accept(policy, env, state, decision):
+    number = len(state.get("action_history") or []) + 1
+    action = _action(
+        state["episode_id"],
+        number,
+        decision["type"],
+        decision.get("supplier_id"),
+        decision.get("arguments"),
+    )
+    next_state = env.step(action)
+    policy.on_action_accepted(action, next_state)
+    return next_state
+
+
 class OperationalLedgerPolicyTests(unittest.TestCase):
     def test_first_call_sees_empty_ledger_and_persists_new_item(self):
         client = FakeLedgerClient([
@@ -110,6 +124,14 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         prompt = client.calls[0]["messages"][1]["content"]
         self.assertIn('"open_items": []', prompt)
 
+        self.assertEqual(
+            policy.get_run_metadata()["final_ledger"]["open_items"],
+            [],
+        )
+        env = LongProcureBenchEnv()
+        accepted_state = env.reset("electrical-bongabon-generator-001")
+        accepted_state = _accept(policy, env, accepted_state, decision)
+
         metadata = policy.get_run_metadata()
         ledger = metadata["final_ledger"]
         self.assertEqual(len(ledger["open_items"]), 1)
@@ -136,22 +158,18 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             "fake/test-model",
             client=client,
         )
-        state = LongProcureBenchEnv().reset(
-            "electrical-bongabon-generator-001"
-        )
-        policy.reset(state)
-        first = policy.act(state)
         env = LongProcureBenchEnv()
         state = env.reset("electrical-bongabon-generator-001")
-        state = env.step(_action(
-            state["episode_id"], 1, "identify_suppliers"
-        ))
+        policy.reset(state)
+        first = policy.act(state)
+        state = _accept(policy, env, state, first)
         second = policy.act(state)
 
         self.assertEqual(first["type"], "identify_suppliers")
         self.assertEqual(second["type"], "request_buyer_clarification")
         second_prompt = client.calls[1]["messages"][1]["content"]
         self.assertIn('"item_id": "l001"', second_prompt)
+        state = _accept(policy, env, state, second)
         metadata = policy.get_run_metadata()
         self.assertEqual(metadata["final_ledger"]["open_items"], [])
         self.assertEqual(
@@ -190,7 +208,8 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             client=client,
         )
         policy.reset(state)
-        policy.act(state)
+        decision = policy.act(state)
+        state = _accept(policy, env, state, decision)
         self.assertEqual(
             policy.get_run_metadata()["final_ledger"]["open_items"][0][
                 "source_event_ids"
@@ -291,7 +310,10 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             "electrical-dla-power-supply-016"
         )
         policy.reset(first)
-        policy.act(first)
+        first_env = LongProcureBenchEnv()
+        first = first_env.reset("electrical-dla-power-supply-016")
+        decision = policy.act(first)
+        first = _accept(policy, first_env, first, decision)
         self.assertEqual(
             policy.get_run_metadata()["ledger_open_items"],
             1,
@@ -324,17 +346,97 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             "fake/test-model",
             client=client,
         )
-        state = LongProcureBenchEnv().reset(
-            "electrical-dla-power-supply-016"
-        )
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-dla-power-supply-016")
         policy.reset(state)
-        policy.act(state)
-        policy.act(state)
+        first = policy.act(state)
+        state = _accept(policy, env, state, first)
+        second = policy.act(state)
+        state = _accept(policy, env, state, second)
 
         self.assertEqual(len(client.calls), 2)
         self.assertEqual(
             policy.get_run_metadata()["model_calls_attempted"],
             2,
+        )
+
+    def test_runtime_rejected_action_does_not_commit_ledger_update(self):
+        client = FakeLedgerClient([
+            _response(
+                "award_supplier",
+                supplier_id="syn-ps-a",
+                awards=[{
+                    "scope": "package",
+                    "supplier_id": "syn-ps-a",
+                    "quote_event_id": "e1",
+                }],
+                new_items=[
+                    _item(
+                        "This must not survive a rejected award.",
+                        category="decision",
+                    )
+                ],
+            )
+        ])
+        policy = OperationalLedgerReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        result = BenchmarkRunner().run(
+            policy,
+            "electrical-dla-power-supply-016",
+            max_actions=1,
+        )
+
+        self.assertEqual(result["status"], "policy_error")
+        self.assertEqual(result["trajectory"], [])
+        metadata = result["policy_metrics"]
+        self.assertEqual(metadata["final_ledger"]["open_items"], [])
+        self.assertEqual(metadata["final_ledger"]["resolved_items"], [])
+        self.assertEqual(metadata["ledger_trace"], [])
+        self.assertEqual(metadata["ledger_items_created"], 0)
+
+    def test_prompt_omits_resolved_item_details_but_metadata_keeps_them(self):
+        completed_description = "Completed commercial clarification."
+        client = FakeLedgerClient([
+            _response(
+                "identify_suppliers",
+                new_items=[
+                    _item(
+                        completed_description,
+                        category="requirement",
+                    )
+                ],
+            ),
+            _response(
+                "request_buyer_clarification",
+                resolve_item_ids=["l001"],
+            ),
+            _response("evaluate_quotes"),
+        ])
+        policy = OperationalLedgerReactiveLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-bongabon-generator-001")
+        policy.reset(state)
+
+        first = policy.act(state)
+        state = _accept(policy, env, state, first)
+        second = policy.act(state)
+        state = _accept(policy, env, state, second)
+        policy.act(state)
+
+        third_prompt = client.calls[2]["messages"][1]["content"]
+        self.assertIn('"resolved_count": 1', third_prompt)
+        self.assertNotIn('"resolved_items"', third_prompt)
+        self.assertNotIn(completed_description, third_prompt)
+
+        metadata = policy.get_run_metadata()
+        self.assertEqual(
+            metadata["final_ledger"]["resolved_items"][0]["description"],
+            completed_description,
         )
 
     def test_ledger_schema_uses_provider_safe_json_schema_subset(self):
@@ -377,13 +479,7 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
         state = env.reset("electrical-bongabon-generator-001")
         policy.reset(state)
         first = policy.act(state)
-        state = env.step(_action(
-            state["episode_id"],
-            1,
-            first["type"],
-            first.get("supplier_id"),
-            first.get("arguments"),
-        ))
+        state = _accept(policy, env, state, first)
         with self.assertRaisesRegex(
             OperationalLedgerError,
             "duplicate ledger item",
@@ -420,7 +516,10 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             "electrical-dla-power-supply-016"
         )
         policy.reset(state)
-        policy.act(state)
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-dla-power-supply-016")
+        decision = policy.act(state)
+        state = _accept(policy, env, state, decision)
         metadata = policy.get_run_metadata()
 
         self.assertEqual(
