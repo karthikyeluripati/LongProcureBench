@@ -348,7 +348,7 @@ Return only the structured action plus next_plan object."""
         metadata["mean_plan_steps"] = (
             sum(plan_lengths) / len(plan_lengths)
             if plan_lengths
-            else 0.0
+            else None
         )
         metadata["max_plan_steps"] = max(plan_lengths, default=0)
         metadata["final_plan"] = deepcopy(self._current_plan)
