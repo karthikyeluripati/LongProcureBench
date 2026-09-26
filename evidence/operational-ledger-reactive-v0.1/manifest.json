@@ -117,20 +117,12 @@
     "1": "recovery"
   },
   "storage": {
-    "format": "gzip(JSONL compact replay records) encoded once as base64, then split across declared text fragments",
+    "format": "deterministic gzip(JSONL compact replay records, mtime=0) encoded once as base64 text",
     "parts": [
-      "replay-source.part-01.b64",
-      "replay-source.part-02.b64",
-      "replay-source.part-03a.b64",
-      "replay-source.part-03b.b64",
-      "replay-source.part-04.b64",
-      "replay-source.part-05a.b64",
-      "replay-source.part-05b.b64",
-      "replay-source.part-06a.b64",
-      "replay-source.part-06b.b64"
+      "replay-source.b64"
     ],
-    "compressed_bytes": 28669,
-    "compressed_sha256": "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+    "compressed_bytes": 28677,
+    "compressed_sha256": "bc31f37e0c29c8814d54db6c2c8a9e9464aedf354162bf86bc000edf4f9c7a7f"
   },
   "source_verification": {
     "verifier_script": "scripts/verify_operational_ledger_source_artifacts_v01.py",
