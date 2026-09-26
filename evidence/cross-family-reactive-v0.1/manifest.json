@@ -96,8 +96,8 @@
   "summary_storage": {
     "format": "gzip(JSON summary) encoded as base64 text",
     "path": "summary.json.gz.b64",
-    "compressed_bytes": 1922,
-    "compressed_sha256": "04e2f3f7e0224fbe56a9cdfd301ce4270ba976567e9fb6d2f93d8be098b3fc45",
-    "note": "The audit script regenerates this summary from deterministic replay and compares canonical JSON."
+    "compressed_bytes": 2370,
+    "compressed_sha256": "1d19729574b1fd7588382b8e03c4ac3a659806ccec41f9dcebd7908481e9acb8",
+    "note": "The audit script regenerates this summary from deterministic replay, including per-model action-type counts and means, and compares canonical JSON."
   }
 }
