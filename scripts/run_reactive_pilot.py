@@ -144,7 +144,7 @@ def _mean(values):
     return sum(known) / len(known) if known else None
 
 
-def summarize(rows):
+def summarize(rows, baseline_name="reactive-llm-v0.1"):
     by_model = {}
     for model in sorted({r["model"] for r in rows}):
         subset = [r for r in rows if r["model"] == model]
@@ -203,7 +203,7 @@ def summarize(rows):
             ),
             "runs_with_incomplete_usage": sum(bool(r["usage_incomplete"]) for r in subset),
         }
-    return {"schema_version": "0.1.0", "benchmark": "LongProcureBench", "baseline": "reactive-llm-v0.1", "runs": len(rows), "by_model": by_model}
+    return {"schema_version": "0.1.0", "benchmark": "LongProcureBench", "baseline": baseline_name, "runs": len(rows), "by_model": by_model}
 
 
 def write_csv(rows, path):
@@ -222,7 +222,18 @@ def write_csv(rows, path):
             w.writerow(x)
 
 
-def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None, policy_factory=ReactiveLLMPolicy, policy_kwargs=None):
+def run_pilot(
+    models,
+    episodes,
+    repeats,
+    output_dir,
+    max_actions=50,
+    runner=None,
+    policy_factory=ReactiveLLMPolicy,
+    policy_kwargs=None,
+    run_prefix="reactive-v0.1",
+    baseline_name="reactive-llm-v0.1",
+):
     if not models:
         raise ValueError("At least one model is required")
     if repeats < 1:
@@ -239,13 +250,13 @@ def run_pilot(models, episodes, repeats, output_dir, max_actions=50, runner=None
         for episode_id in validated_episodes:
             for repeat in range(1, repeats + 1):
                 policy = policy_factory(model, **policy_kwargs)
-                rid = f"reactive-v0.1--{model_slug(model)}--{episode_id}--r{repeat:03d}"
+                rid = f"{run_prefix}--{model_slug(model)}--{episode_id}--r{repeat:03d}"
                 path = output_dir / model_slug(model) / episode_id / f"run-{repeat:03d}.json"
                 result = runner.run(policy, episode_id, max_actions=max_actions, run_id=rid, result_path=path)
                 row = flatten_result(result, model, repeat)
                 rows.append(row)
                 print(f"{model} | {episode_id} | r{repeat}: status={row['status']} success={row['episode_success']} actions={row['accepted_actions']} tokens={row['total_tokens']}")
-    summary = summarize(rows)
+    summary = summarize(rows, baseline_name=baseline_name)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     write_csv(rows, output_dir / "runs.csv")

@@ -176,6 +176,31 @@ class PilotTests(unittest.TestCase):
         }]
         self.assertEqual(invalid_rows(rows), rows)
 
+    def test_pilot_supports_matched_policy_run_identity(self):
+        runner = StubRunner()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            rows, summary = run_pilot(
+                ["provider/a"],
+                ["episode-one"],
+                1,
+                out,
+                runner=runner,
+                policy_factory=StubPolicy,
+                run_prefix="context-compiled-reactive-v0.1",
+                baseline_name="context-compiled-reactive-v0.1",
+            )
+            self.assertEqual(len(rows), 1)
+            self.assertTrue(
+                rows[0]["run_id"].startswith(
+                    "context-compiled-reactive-v0.1--"
+                )
+            )
+            self.assertEqual(
+                summary["baseline"],
+                "context-compiled-reactive-v0.1",
+            )
+
     def test_repeated_invocation_refuses_nonempty_output_dir(self):
         runner = StubRunner()
         with tempfile.TemporaryDirectory() as tmp:
