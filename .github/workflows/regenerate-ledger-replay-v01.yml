@@ -1,0 +1,66 @@
+name: Regenerate Ledger Replay Source
+
+on:
+  push:
+    branches:
+      - codex/freeze-operational-ledger-v0.1
+    paths:
+      - '.github/workflows/regenerate-ledger-replay-v01.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Download frozen Actions artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/10902813768/zip" \
+            -o /tmp/original.zip
+          curl -fL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/10904540560/zip" \
+            -o /tmp/recovery.zip
+
+      - name: Regenerate canonical replay source
+        run: |
+          python scripts/verify_operational_ledger_source_artifacts_v01.py \
+            --original-zip /tmp/original.zip \
+            --recovery-zip /tmp/recovery.zip \
+            --write-replay-source evidence/operational-ledger-reactive-v0.1/replay-source.b64
+          rm -f evidence/operational-ledger-reactive-v0.1/replay-source.part-*.b64
+          python -m unittest discover -s scripts -p "test_operational_ledger_evidence.py" -v
+          python scripts/audit_operational_ledger_v01.py
+
+      - name: Commit canonical evidence source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/regenerate-ledger-replay-v01.yml
+          git add -A evidence/operational-ledger-reactive-v0.1
+          git diff --cached --check
+          git commit -m "Regenerate canonical operational ledger replay source"
+          git push origin HEAD:codex/freeze-operational-ledger-v0.1
