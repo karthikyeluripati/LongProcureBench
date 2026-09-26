@@ -121,6 +121,7 @@
     "parts": [
       "replay-source.part-01.b64",
       "replay-source.part-02.b64",
+      "replay-source.part-02a.b64",
       "replay-source.part-03a.b64",
       "replay-source.part-03b.b64",
       "replay-source.part-04.b64",
@@ -129,8 +130,8 @@
       "replay-source.part-06a.b64",
       "replay-source.part-06b.b64"
     ],
-    "compressed_bytes": 28669,
-    "compressed_sha256": "794e12b072fa3c453b23d196c9a9ca83c33437ba50d2d2c43ab10dff8c540c4f"
+    "compressed_bytes": 31058,
+    "compressed_sha256": "687916d2fea8dd7fbad6c1750c3896c01b0cc21bc106256f0b73d01e43ea5491"
   },
   "source_verification": {
     "verifier_script": "scripts/verify_operational_ledger_source_artifacts_v01.py",
