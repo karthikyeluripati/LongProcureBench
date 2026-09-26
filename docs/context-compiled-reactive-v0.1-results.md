@@ -56,17 +56,18 @@ success fell 1.7 pp and strict v0.2 success fell 8.3 pp.
 ## Cluster bootstrap
 
 A paired cluster bootstrap over the 20 episode IDs (20,000 resamples,
-seed `20260926`) gives descriptive 95% intervals:
+seed `20260926`, version-independent sampler `sha256-index-v1`) gives
+descriptive 95% intervals:
 
 | Delta | 95% interval |
 | --- | ---: |
 | Terminal feasible | **[-16.7, +5.0] pp** |
 | Feasible-obligation success | **[-18.3, +15.0] pp** |
 | Strict v0.2 success | **[-20.0, +1.7] pp** |
-| Obligation resolution | **[-5.3, +19.2] pp** |
-| Total tokens | **[-47.2%, -33.1%]** |
-| Cost | **[-38.9%, -12.3%]** |
-| Aggregate model latency | **[+11.5%, +34.6%]** |
+| Obligation resolution | **[-5.5, +19.5] pp** |
+| Total tokens | **[-47.3%, -33.1%]** |
+| Cost | **[-38.9%, -12.4%]** |
+| Aggregate model latency | **[+11.4%, +34.7%]** |
 
 The reliability intervals are wide and cross zero. The efficiency signal is much
 clearer: token and cost reduction are consistent across episode-cluster
@@ -82,9 +83,11 @@ Compared with raw history, the compiled policy produced:
 - quote evaluations: **64 → 74**
 
 This is consistent with factual salience changing the policy's action
-distribution. It reduced unresolved obligations from **21 to 14**, especially
-visible requirement gaps and non-response follow-ups, but introduced enough
-terminal/economic regressions that end-to-end success did not improve.
+distribution. Unresolved actionable obligation instances changed from
+**21/94** to **14/86**. Because the number and type of triggered obligations also
+changed with the policy's actions, that absolute reduction is descriptive rather
+than a like-for-like reliability improvement. Terminal/economic regressions were
+large enough that end-to-end success did not improve.
 
 ## The central failure remains
 
