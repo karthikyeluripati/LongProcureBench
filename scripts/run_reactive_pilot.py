@@ -222,7 +222,9 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
                 for r in subset
             ),
             "mean_plan_steps": _mean([
-                r.get("mean_plan_steps") for r in subset
+                r.get("mean_plan_steps")
+                for r in subset
+                if int(r.get("plan_updates") or 0) > 0
             ]),
             "max_plan_steps": max(
                 (
