@@ -30,7 +30,11 @@ EXPECTED_PARTS = (
     "replay-source.part-01.b64",
     "replay-source.part-02.b64",
     "replay-source.part-03.b64",
-    "replay-source.part-04.b64",
+    "replay-source.part-04a.b64",
+    "replay-source.part-04b1.b64",
+    "replay-source.part-04b2.b64",
+    "replay-source.part-04b3.b64",
+    "replay-source.part-04b4.b64",
     "replay-source.part-05.b64",
 )
 MODEL = "openai/gpt-5.6-sol"
