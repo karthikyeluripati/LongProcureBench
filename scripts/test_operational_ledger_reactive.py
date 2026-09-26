@@ -310,6 +310,11 @@ class OperationalLedgerPolicyTests(unittest.TestCase):
             0,
         )
 
+    def test_prompt_requires_separate_concurrent_commitments(self):
+        prompt = OperationalLedgerReactiveLLMPolicy.SYSTEM_PROMPT
+        self.assertIn("separate open item", prompt)
+        self.assertIn("concurrent", prompt)
+
     def test_policy_uses_one_model_call_per_action(self):
         client = FakeLedgerClient([
             _response("identify_suppliers"),
