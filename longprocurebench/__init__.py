@@ -2,7 +2,10 @@
 
 from .context_compiled_reactive import ContextCompiledReactiveLLMPolicy
 from .evaluator import EvaluationError, LongProcureBenchEvaluator
-from .operational_ledger_reactive import OperationalLedgerReactiveLLMPolicy
+from .operational_ledger_reactive import (
+    OperationalLedgerError,
+    OperationalLedgerReactiveLLMPolicy,
+)
 from .reactive_llm import ReactiveLLMPolicy
 from .reference import ScriptedReferencePolicy
 from .runner import AgentPolicy, BenchmarkRunner, RunnerError
@@ -16,6 +19,7 @@ __all__ = [
     "EvaluationError",
     "LongProcureBenchEnv",
     "LongProcureBenchEvaluator",
+    "OperationalLedgerError",
     "OperationalLedgerReactiveLLMPolicy",
     "ReactiveLLMPolicy",
     "RunnerError",
