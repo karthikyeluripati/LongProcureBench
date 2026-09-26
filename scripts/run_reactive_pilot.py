@@ -132,6 +132,11 @@ def flatten_result(result, model, repeat):
         "latency_ms": metrics.get("latency_ms"),
         "cost_usd": metrics.get("cost_usd"),
         "usage_incomplete": metrics.get("usage_incomplete"),
+        "state_strategy": metrics.get("state_strategy"),
+        "ledger_open_items": metrics.get("ledger_open_items"),
+        "ledger_resolved_items": metrics.get("ledger_resolved_items"),
+        "ledger_items_created": metrics.get("ledger_items_created"),
+        "ledger_max_open_items": metrics.get("ledger_max_open_items"),
         "error_type": (result.get("error") or {}).get("type"),
         "evaluation_error_type": (
             result.get("evaluation_error") or {}
@@ -208,7 +213,7 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
 
 def write_csv(rows, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","error_type","evaluation_error_type"]
+    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","state_strategy","ledger_open_items","ledger_resolved_items","ledger_items_created","ledger_max_open_items","error_type","evaluation_error_type"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
