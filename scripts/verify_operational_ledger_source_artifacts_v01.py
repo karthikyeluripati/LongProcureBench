@@ -16,6 +16,8 @@ if str(ROOT) not in sys.path:
 from frozen_operational_ledger_v01 import (
     EPISODES,
     EXPECTED_ORIGINAL_RAW_PROVENANCE_SHA256,
+    EXPECTED_PROVENANCE_BYTES,
+    EXPECTED_PROVENANCE_SHA256,
     EXPECTED_RECOVERY_RAW_PROVENANCE_SHA256,
     EXPECTED_SELECTED_COMPACTION_SHA256,
     EXPECTED_SELECTED_RAW_PROVENANCE_SHA256,
@@ -107,6 +109,18 @@ def _compact_record(
     ]
 
 
+def _canonical_compact_line(row: list) -> bytes:
+    return (
+        json.dumps(
+            row,
+            separators=(",", ":"),
+            sort_keys=True,
+            ensure_ascii=False,
+        ).encode("utf-8")
+        + b"\n"
+    )
+
+
 def _provenance_root(lines: list[str]) -> str:
     payload = ("\n".join(lines) + "\n").encode("utf-8")
     return sha256(payload).hexdigest()
@@ -130,6 +144,7 @@ def verify_artifacts(original_zip: Path, recovery_zip: Path) -> dict:
     compact_rows = []
     provenance = []
     provenance_by_source = {0: [], 1: []}
+    record_provenance = []
 
     archives = {
         source_code: zipfile.ZipFile(path)
@@ -162,12 +177,19 @@ def verify_artifacts(original_zip: Path, recovery_zip: Path) -> dict:
                     raise ValueError(
                         f"Selected run is not execution-valid: {key}"
                     )
-                compact_rows.append(_compact_record(
+                compact = _compact_record(
                     raw,
                     episode_index=episode_index,
                     repeat=repeat,
                     source_code=source_code,
-                ))
+                )
+                compact_rows.append(compact)
+                compact_sha = sha256(
+                    _canonical_compact_line(compact)
+                ).hexdigest()
+                record_provenance.append(
+                    f"{line}|{compact_sha}"
+                )
     finally:
         for archive in archives.values():
             archive.close()
@@ -199,6 +221,25 @@ def verify_artifacts(original_zip: Path, recovery_zip: Path) -> dict:
         raise ValueError(
             "Artifact-derived source verification mismatch: "
             + json.dumps({"expected": expected, "actual": actual})
+        )
+
+    provenance_payload = (
+        "\n".join(record_provenance) + "\n"
+    ).encode("utf-8")
+    provenance_path = (
+        ROOT
+        / "evidence"
+        / "operational-ledger-reactive-v0.1"
+        / "source-provenance.txt"
+    )
+    committed = provenance_path.read_bytes()
+    if len(committed) != EXPECTED_PROVENANCE_BYTES:
+        raise ValueError("Committed source provenance size mismatch")
+    if sha256(committed).hexdigest() != EXPECTED_PROVENANCE_SHA256:
+        raise ValueError("Committed source provenance digest mismatch")
+    if committed != provenance_payload:
+        raise ValueError(
+            "Committed source provenance does not match artifact-derived records"
         )
     return actual
 
