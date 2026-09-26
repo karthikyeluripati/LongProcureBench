@@ -121,9 +121,10 @@ def flatten_result(result, model, repeat):
         "obligations_not_applicable": obligations.get("not_applicable"),
         "obligation_resolution_rate": obligations.get("resolution_rate"),
         "unresolved_obligations": [
-            x.get("obligation")
+            x.get("checkpoint")
             for x in obligations.get("results", [])
             if x.get("status") == "unresolved"
+            and x.get("checkpoint")
         ],
         "accepted_actions": (evaluation.get("efficiency") or {}).get("accepted_actions", len(result.get("trajectory", []))),
         "model_calls": metrics.get("model_calls_attempted", metrics.get("model_calls")),
