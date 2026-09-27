@@ -213,11 +213,11 @@ Return only the structured executor response."""
 
     def _validate_plan(self, plan: dict[str, Any]) -> None:
         Draft202012Validator(PLAN_SCHEMA).validate(plan)
-        self._bounded_text(plan["objective"], "objective", 240)
+        self._bounded_text(plan["objective"], "objective", 600)
         self._bounded_text(
             plan["completion_condition"],
             "completion_condition",
-            300,
+            600,
         )
         steps = plan["steps"]
         expected_ids = list(range(1, len(steps) + 1))
@@ -227,8 +227,8 @@ Return only the structured executor response."""
                 "Plan step_id values must be sequential from 1"
             )
         for step in steps:
-            self._bounded_text(step["purpose"], "step purpose", 220)
-            self._bounded_text(step["condition"], "step condition", 260)
+            self._bounded_text(step["purpose"], "step purpose", 600)
+            self._bounded_text(step["condition"], "step condition", 600)
 
     def _generate_plan(self, state: dict[str, Any]) -> None:
         if self._fixed_plan is not None:
