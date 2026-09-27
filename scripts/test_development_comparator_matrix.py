@@ -41,7 +41,116 @@ class DevelopmentComparatorMatrixTests(unittest.TestCase):
         matrix["heldout_protocol"]["expected_model_backed_runs"] = 180
         with self.assertRaisesRegex(
             ValueError,
-            "Held-out eligible row set changed",
+            "Held-out eligible row count changed",
+        ):
+            validate_matrix(matrix)
+
+    def test_extra_development_method_is_rejected(self):
+        matrix = deepcopy(self.matrix)
+        matrix["development_methods"].append({
+            "id": "new-development-method-v0.1",
+            "role": "development_only",
+            "status": "dropped",
+            "heldout_eligible": False,
+            "models": ["openai/gpt-5.6-sol"],
+            "evidence": "evidence/new/",
+            "development_runs": 60,
+            "gate_passed": False,
+        })
+        with self.assertRaisesRegex(
+            ValueError,
+            "Frozen development method set changed",
+        ):
+            validate_matrix(matrix)
+
+    def test_heldout_model_mapping_is_frozen_per_row(self):
+        matrix = deepcopy(self.matrix)
+        rows = {
+            row["id"]: row
+            for row in matrix["heldout_protocol"]["eligible_rows"]
+        }
+        rows["raw-reactive-openai"]["model"] = (
+            "gemini/gemini-3.8-flash"
+        )
+        rows["raw-reactive-openai"]["execution_settings"]["model"] = (
+            "gemini/gemini-3.8-flash"
+        )
+        rows["raw-reactive-openai"]["execution_settings"]["provider"] = (
+            "gemini"
+        )
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out row contract changed for raw-reactive-openai",
+        ):
+            validate_matrix(matrix)
+
+    def test_per_row_run_counts_cannot_shift_while_total_stays_same(self):
+        matrix = deepcopy(self.matrix)
+        rows = {
+            row["id"]: row
+            for row in matrix["heldout_protocol"]["eligible_rows"]
+        }
+        rows["raw-reactive-openai"]["runs_if_10_episodes"] = 60
+        rows["raw-reactive-gemini"]["runs_if_10_episodes"] = 0
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out row contract changed",
+        ):
+            validate_matrix(matrix)
+
+    def test_reference_control_count_is_frozen(self):
+        matrix = deepcopy(self.matrix)
+        rows = {
+            row["id"]: row
+            for row in matrix["heldout_protocol"]["eligible_rows"]
+        }
+        rows["reference-control"]["runs_if_10_episodes"] = 9
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out row contract changed for reference-control",
+        ):
+            validate_matrix(matrix)
+
+    def test_sampling_settings_are_frozen_per_row(self):
+        matrix = deepcopy(self.matrix)
+        rows = {
+            row["id"]: row
+            for row in matrix["heldout_protocol"]["eligible_rows"]
+        }
+        rows["raw-reactive-openai"]["execution_settings"][
+            "reasoning_effort"
+        ] = None
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out row contract changed for raw-reactive-openai",
+        ):
+            validate_matrix(matrix)
+
+    def test_table_rows_are_frozen(self):
+        matrix = deepcopy(self.matrix)
+        table = next(
+            table
+            for table in matrix["paper_tables"]
+            if table["id"] == "table-openai-matched-methods"
+        )
+        table["rows"].remove("react-openai")
+        with self.assertRaisesRegex(
+            ValueError,
+            "Frozen paper table changed for table-openai-matched-methods",
+        ):
+            validate_matrix(matrix)
+
+    def test_table_columns_are_frozen(self):
+        matrix = deepcopy(self.matrix)
+        table = next(
+            table
+            for table in matrix["paper_tables"]
+            if table["id"] == "table-openai-matched-methods"
+        )
+        table["columns"].remove("feasible_obligation_success")
+        with self.assertRaisesRegex(
+            ValueError,
+            "Frozen paper table changed for table-openai-matched-methods",
         ):
             validate_matrix(matrix)
 
