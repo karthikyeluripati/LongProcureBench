@@ -7,8 +7,13 @@ import gzip
 from hashlib import sha256
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from longprocurebench.context_compiled_reactive import compact_visible_event
 EVIDENCE_DIR = ROOT / "evidence" / "react-comparator-v0.1"
 
 EXPECTED_COMPRESSED_BYTES = 12554
@@ -120,6 +125,7 @@ def _validate_raw_run(run: dict, episode_id: str) -> None:
     if metrics.get("model_calls_attempted") != len(trajectory):
         raise ValueError("ReAct must use one model call per accepted action")
 
+    thought_lengths = []
     for trajectory_row, react_row in zip(trajectory, transcript):
         action = trajectory_row.get("action") or {}
         react_action = react_row.get("action") or {}
@@ -132,9 +138,70 @@ def _validate_raw_run(run: dict, episode_id: str) -> None:
             raise ValueError(
                 "ReAct transcript action does not match accepted trajectory"
             )
+
+        if react_row.get("step") != trajectory_row.get("step"):
+            raise ValueError(
+                "ReAct transcript step does not match accepted trajectory"
+            )
+
+        expected_observation = [
+            compact
+            for compact in (
+                compact_visible_event(event)
+                for event in (trajectory_row.get("observations") or [])
+            )
+            if compact is not None
+        ]
+        if react_row.get("observation") != expected_observation:
+            raise ValueError(
+                "ReAct transcript observation does not match executed "
+                "factual-visible observation"
+            )
+
         thought = react_row.get("thought_summary")
         if not isinstance(thought, str) or not thought.strip():
             raise ValueError("ReAct transcript contains empty thought summary")
+        thought_lengths.append(len(thought))
+
+    thought_total = sum(thought_lengths)
+    thought_mean = (
+        thought_total / len(thought_lengths)
+        if thought_lengths
+        else 0.0
+    )
+    thought_max = max(thought_lengths, default=0)
+    if metrics.get("react_thought_chars_total") != thought_total:
+        raise ValueError("ReAct thought-character total mismatch")
+    if not isinstance(metrics.get("react_thought_chars_mean"), (int, float)):
+        raise ValueError("ReAct thought-character mean is missing")
+    if abs(
+        float(metrics["react_thought_chars_mean"]) - thought_mean
+    ) > 1e-9:
+        raise ValueError("ReAct thought-character mean mismatch")
+    if metrics.get("react_thought_chars_max") != thought_max:
+        raise ValueError("ReAct thought-character max mismatch")
+
+
+def _compact_transcript_row(run: dict, repeat: int) -> list:
+    episode_id = run["episode_id"]
+    transcript = []
+    for react_row in run["policy_metrics"]["react_transcript"]:
+        action = react_row["action"]
+        transcript.append([
+            react_row["step"],
+            react_row["thought_summary"],
+            [
+                action["type"],
+                action.get("supplier_id"),
+                action.get("arguments") or {},
+            ],
+            react_row.get("observation") or [],
+        ])
+    return [
+        EPISODE_INDEX[episode_id],
+        repeat,
+        transcript,
+    ]
 
 
 def _compact_record(path: Path, artifact_root: Path):
@@ -189,7 +256,8 @@ def _compact_record(path: Path, artifact_root: Path):
         f"{path.relative_to(artifact_root).as_posix()}|"
         f"{sha256(raw).hexdigest()}|{sha256(line).hexdigest()}\n"
     )
-    return row, provenance
+    transcript_row = _compact_transcript_row(run, repeat)
+    return row, provenance, transcript_row
 
 
 def materialize(artifact_root: Path) -> None:
@@ -200,15 +268,19 @@ def materialize(artifact_root: Path) -> None:
         )
 
     rows = []
+    transcript_rows = []
     provenance_lines = []
     keys = set()
     for path in files:
-        row, provenance = _compact_record(path, artifact_root)
+        row, provenance, transcript_row = _compact_record(
+            path, artifact_root
+        )
         key = (row[0], row[1])
         if key in keys:
             raise ValueError(f"Duplicate compact run key: {key}")
         keys.add(key)
         rows.append(row)
+        transcript_rows.append(transcript_row)
         provenance_lines.append(provenance)
 
     expected = {
@@ -255,9 +327,24 @@ def materialize(artifact_root: Path) -> None:
             f"bytes={len(provenance)} sha256={provenance_digest}"
         )
 
+    transcript_payload = b"".join(
+        _canonical_line(row) for row in transcript_rows
+    )
+    transcript_compressed = bytearray(
+        gzip.compress(transcript_payload, compresslevel=9, mtime=0)
+    )
+    transcript_compressed[9] = 255
+    transcript_compressed = bytes(transcript_compressed)
+    transcript_digest = sha256(transcript_compressed).hexdigest()
+    transcript_rows_digest = sha256(transcript_payload).hexdigest()
+
     EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
     (EVIDENCE_DIR / "replay-source.b64").write_text(
         base64.b64encode(compressed).decode("ascii") + "\n",
+        encoding="utf-8",
+    )
+    (EVIDENCE_DIR / "transcript-source.b64").write_text(
+        base64.b64encode(transcript_compressed).decode("ascii") + "\n",
         encoding="utf-8",
     )
     (EVIDENCE_DIR / "source-provenance.txt").write_bytes(provenance)
@@ -265,6 +352,14 @@ def materialize(artifact_root: Path) -> None:
         "Materialized ReAct comparator evidence: "
         f"rows={len(rows)} compressed={len(compressed)} "
         f"sha256={compressed_digest}"
+    )
+    print(
+        "Materialized durable ReAct transcript: "
+        f"rows={len(transcript_rows)} "
+        f"jsonl_bytes={len(transcript_payload)} "
+        f"jsonl_sha256={transcript_rows_digest} "
+        f"compressed_bytes={len(transcript_compressed)} "
+        f"compressed_sha256={transcript_digest}"
     )
 
 
