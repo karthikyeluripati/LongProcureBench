@@ -1,0 +1,1034 @@
+{
+  "episode_effect_counts_vs_context": {
+    "raw-reactive-openai": {
+      "economic_objective": {
+        "improved": 2,
+        "tied": 6,
+        "worsened": 2
+      },
+      "episode_success_v02": {
+        "improved": 1,
+        "tied": 7,
+        "worsened": 2
+      },
+      "feasible_obligation_success": {
+        "improved": 1,
+        "tied": 4,
+        "worsened": 5
+      },
+      "terminal_feasible": {
+        "improved": 2,
+        "tied": 7,
+        "worsened": 1
+      }
+    },
+    "react-openai": {
+      "economic_objective": {
+        "improved": 6,
+        "tied": 4,
+        "worsened": 0
+      },
+      "episode_success_v02": {
+        "improved": 6,
+        "tied": 3,
+        "worsened": 1
+      },
+      "feasible_obligation_success": {
+        "improved": 1,
+        "tied": 8,
+        "worsened": 1
+      },
+      "terminal_feasible": {
+        "improved": 2,
+        "tied": 7,
+        "worsened": 1
+      }
+    }
+  },
+  "experiment": "heldout-paper-evaluation-v0.1",
+  "failure_taxonomy": [
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 14,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 24,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 24,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 2,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 3,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    }
+  ],
+  "matched_deltas_vs_context": {
+    "raw-reactive-openai": {
+      "accepted_actions_pct": 4.92610837438423,
+      "cost_pct": 6.414501327541733,
+      "economic_objective_pp": 6.666666666666665,
+      "episode_success_v02_pp": -10.0,
+      "feasible_obligation_success_pp": -26.66666666666666,
+      "latency_pct": 0.4059556053757962,
+      "model_calls_pct": 4.92610837438423,
+      "obligation_resolution_pp": -19.039825422804146,
+      "terminal_feasible_pp": 9.999999999999998,
+      "total_tokens_pct": 37.51811198666164
+    },
+    "react-openai": {
+      "accepted_actions_pct": 20.197044334975377,
+      "cost_pct": 98.27944389601325,
+      "economic_objective_pp": 36.666666666666664,
+      "episode_success_v02_pp": 30.0,
+      "feasible_obligation_success_pp": 0.0,
+      "latency_pct": 57.18237084190469,
+      "model_calls_pct": 20.197044334975377,
+      "obligation_resolution_pp": 7.27367870225013,
+      "terminal_feasible_pp": 3.3333333333333326,
+      "total_tokens_pct": 73.89778774626237
+    }
+  },
+  "matched_openai": {
+    "context-compiled-openai": {
+      "accepted_actions": 203,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 28,
+        "evaluate_quotes": 34,
+        "identify_suppliers": 30,
+        "issue_amendment": 2,
+        "no_award": 2,
+        "request_buyer_clarification": 27,
+        "request_quote_revision": 3,
+        "send_follow_up": 6,
+        "send_rfq": 68
+      },
+      "completion_tokens": 17671,
+      "economic_objective_satisfied": [
+        8,
+        30
+      ],
+      "episode_success_v02": [
+        6,
+        30
+      ],
+      "feasible_obligation_success": [
+        20,
+        30
+      ],
+      "known_cost_usd": 2.1550358000000003,
+      "latency_ms": 416517.238242,
+      "mean_accepted_actions": 6.766666666666667,
+      "model_calls": 203,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        29,
+        39
+      ],
+      "prompt_tokens": 435758,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        23,
+        30
+      ],
+      "total_tokens": 453429
+    },
+    "raw-reactive-openai": {
+      "accepted_actions": 213,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 30,
+        "evaluate_quotes": 35,
+        "identify_suppliers": 30,
+        "issue_amendment": 7,
+        "request_buyer_clarification": 13,
+        "request_quote_revision": 6,
+        "send_follow_up": 1,
+        "send_rfq": 88
+      },
+      "completion_tokens": 16723,
+      "economic_objective_satisfied": [
+        10,
+        30
+      ],
+      "episode_success_v02": [
+        3,
+        30
+      ],
+      "feasible_obligation_success": [
+        12,
+        30
+      ],
+      "known_cost_usd": 2.2932706,
+      "latency_ms": 418208.1133179998,
+      "mean_accepted_actions": 7.1,
+      "model_calls": 213,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        26,
+        47
+      ],
+      "prompt_tokens": 606824,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        26,
+        30
+      ],
+      "total_tokens": 623547
+    },
+    "react-openai": {
+      "accepted_actions": 244,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 26,
+        "evaluate_quotes": 33,
+        "identify_suppliers": 30,
+        "issue_amendment": 4,
+        "no_award": 4,
+        "request_buyer_clarification": 27,
+        "request_quote_revision": 15,
+        "send_follow_up": 12,
+        "send_rfq": 90
+      },
+      "completion_tokens": 34424,
+      "economic_objective_satisfied": [
+        19,
+        30
+      ],
+      "episode_success_v02": [
+        15,
+        30
+      ],
+      "feasible_obligation_success": [
+        20,
+        30
+      ],
+      "known_cost_usd": 4.2729930000000005,
+      "latency_ms": 654691.6700340001,
+      "mean_accepted_actions": 8.133333333333333,
+      "model_calls": 244,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        40,
+        49
+      ],
+      "prompt_tokens": 754079,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        24,
+        30
+      ],
+      "total_tokens": 788503
+    }
+  },
+  "model_backed_runs": 150,
+  "model_backed_totals": {
+    "accepted_actions": 1042,
+    "completion_tokens": 202563,
+    "known_cost_usd": 13.6037599,
+    "latency_ms": 2632801.3286389983,
+    "model_calls": 1042,
+    "prompt_tokens": 3281709,
+    "runs": 150,
+    "total_tokens": 3484272
+  },
+  "paired_episode_cluster_bootstrap_vs_context": {
+    "cluster": "episode_id",
+    "episodes": 10,
+    "raw-reactive-openai": {
+      "accepted_actions_pct": [
+        -3.65296803652968,
+        13.541666666666675
+      ],
+      "cost_pct": [
+        -9.502953871625188,
+        22.28188852325661
+      ],
+      "economic_objective_pp": [
+        -13.33333333333333,
+        26.666666666666668
+      ],
+      "episode_success_v02_pp": [
+        -36.66666666666667,
+        13.333333333333334
+      ],
+      "feasible_obligation_success_pp": [
+        -56.666666666666664,
+        3.3333333333333326
+      ],
+      "latency_pct": [
+        -10.029449700277942,
+        10.867402256643643
+      ],
+      "model_calls_pct": [
+        -3.65296803652968,
+        13.541666666666675
+      ],
+      "obligation_resolution_pp": [
+        -39.18381136238279,
+        -1.1162466574831922
+      ],
+      "terminal_feasible_pp": [
+        -6.666666666666677,
+        33.333333333333336
+      ],
+      "total_tokens_pct": [
+        24.167896340111856,
+        52.76097093854801
+      ]
+    },
+    "react-openai": {
+      "accepted_actions_pct": [
+        16.24365482233503,
+        24.736842105263168
+      ],
+      "cost_pct": [
+        83.69123511241814,
+        116.41965200934506
+      ],
+      "economic_objective_pp": [
+        13.333333333333336,
+        60.00000000000001
+      ],
+      "episode_success_v02_pp": [
+        6.666666666666665,
+        56.666666666666664
+      ],
+      "feasible_obligation_success_pp": [
+        -9.999999999999998,
+        9.999999999999998
+      ],
+      "latency_pct": [
+        44.5546175234352,
+        73.2030967824711
+      ],
+      "model_calls_pct": [
+        16.24365482233503,
+        24.736842105263168
+      ],
+      "obligation_resolution_pp": [
+        -4.8872180451127845,
+        17.97385620915033
+      ],
+      "terminal_feasible_pp": [
+        -6.666666666666677,
+        13.333333333333341
+      ],
+      "total_tokens_pct": [
+        60.852076949238196,
+        87.77840703916279
+      ]
+    },
+    "resamples": 20000,
+    "sampler": "sha256-index-v1",
+    "seed": 20260926
+  },
+  "per_episode_quality": {
+    "context-compiled-openai": {
+      "electrical-columbus-switchgear-021": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-detroit-generator-ats-030": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-eweb-transformer-022": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 3,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-greenport-transformers-026": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-lompoc-transformer-023": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-njang-generator-024": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-philadelphia-switchgear-mcc-029": {
+        "economic_objective_satisfied": 1,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 2
+      },
+      "electrical-port-angeles-transformers-025": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-san-bruno-ev-chargers-027": {
+        "economic_objective_satisfied": 1,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-shelter-island-solar-bess-028": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 3,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      }
+    },
+    "raw-reactive-anthropic": {
+      "electrical-columbus-switchgear-021": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-detroit-generator-ats-030": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-eweb-transformer-022": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-greenport-transformers-026": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-lompoc-transformer-023": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 1
+      },
+      "electrical-njang-generator-024": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-philadelphia-switchgear-mcc-029": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-port-angeles-transformers-025": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-san-bruno-ev-chargers-027": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-shelter-island-solar-bess-028": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      }
+    },
+    "raw-reactive-gemini": {
+      "electrical-columbus-switchgear-021": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-detroit-generator-ats-030": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-eweb-transformer-022": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-greenport-transformers-026": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-lompoc-transformer-023": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-njang-generator-024": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-philadelphia-switchgear-mcc-029": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-port-angeles-transformers-025": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-san-bruno-ev-chargers-027": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-shelter-island-solar-bess-028": {
+        "economic_objective_satisfied": 2,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 2
+      }
+    },
+    "raw-reactive-openai": {
+      "electrical-columbus-switchgear-021": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-detroit-generator-ats-030": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 2,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-eweb-transformer-022": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 1,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-greenport-transformers-026": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-lompoc-transformer-023": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-njang-generator-024": {
+        "economic_objective_satisfied": 2,
+        "episode_success_v02": 2,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-philadelphia-switchgear-mcc-029": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-port-angeles-transformers-025": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-san-bruno-ev-chargers-027": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-shelter-island-solar-bess-028": {
+        "economic_objective_satisfied": 2,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 2
+      }
+    },
+    "react-openai": {
+      "electrical-columbus-switchgear-021": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 3,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-detroit-generator-ats-030": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 0,
+        "runs": 3,
+        "terminal_feasible": 0
+      },
+      "electrical-eweb-transformer-022": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 2,
+        "feasible_obligation_success": 2,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-greenport-transformers-026": {
+        "economic_objective_satisfied": 0,
+        "episode_success_v02": 0,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-lompoc-transformer-023": {
+        "economic_objective_satisfied": 1,
+        "episode_success_v02": 1,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-njang-generator-024": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 3,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-philadelphia-switchgear-mcc-029": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 1,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 3
+      },
+      "electrical-port-angeles-transformers-025": {
+        "economic_objective_satisfied": 1,
+        "episode_success_v02": 1,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 1
+      },
+      "electrical-san-bruno-ev-chargers-027": {
+        "economic_objective_satisfied": 2,
+        "episode_success_v02": 1,
+        "feasible_obligation_success": 1,
+        "runs": 3,
+        "terminal_feasible": 2
+      },
+      "electrical-shelter-island-solar-bess-028": {
+        "economic_objective_satisfied": 3,
+        "episode_success_v02": 3,
+        "feasible_obligation_success": 3,
+        "runs": 3,
+        "terminal_feasible": 3
+      }
+    }
+  },
+  "provider_diverse_raw_reactive": {
+    "raw-reactive-anthropic": {
+      "accepted_actions": 187,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 30,
+        "evaluate_quotes": 17,
+        "identify_suppliers": 30,
+        "issue_amendment": 3,
+        "request_buyer_clarification": 3,
+        "request_quote_revision": 6,
+        "send_follow_up": 6,
+        "send_rfq": 89
+      },
+      "completion_tokens": 20444,
+      "economic_objective_satisfied": [
+        18,
+        30
+      ],
+      "episode_success_v02": [
+        0,
+        30
+      ],
+      "feasible_obligation_success": [
+        4,
+        30
+      ],
+      "known_cost_usd": 4.021084,
+      "latency_ms": 532803.1846529982,
+      "mean_accepted_actions": 6.233333333333333,
+      "model_calls": 187,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        18,
+        42
+      ],
+      "prompt_tokens": 903051,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        22,
+        30
+      ],
+      "total_tokens": 923495
+    },
+    "raw-reactive-gemini": {
+      "accepted_actions": 195,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 30,
+        "evaluate_quotes": 30,
+        "identify_suppliers": 30,
+        "issue_amendment": 3,
+        "request_buyer_clarification": 3,
+        "request_quote_revision": 6,
+        "send_rfq": 90
+      },
+      "completion_tokens": 113301,
+      "economic_objective_satisfied": [
+        11,
+        30
+      ],
+      "episode_success_v02": [
+        0,
+        30
+      ],
+      "feasible_obligation_success": [
+        6,
+        30
+      ],
+      "known_cost_usd": 0.8613765,
+      "latency_ms": 610581.1223920002,
+      "mean_accepted_actions": 6.5,
+      "model_calls": 195,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        15,
+        45
+      ],
+      "prompt_tokens": 581997,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        23,
+        30
+      ],
+      "total_tokens": 695298
+    },
+    "raw-reactive-openai": {
+      "accepted_actions": 213,
+      "action_type_counts": {
+        "answer_supplier_question": 3,
+        "award_supplier": 30,
+        "evaluate_quotes": 35,
+        "identify_suppliers": 30,
+        "issue_amendment": 7,
+        "request_buyer_clarification": 13,
+        "request_quote_revision": 6,
+        "send_follow_up": 1,
+        "send_rfq": 88
+      },
+      "completion_tokens": 16723,
+      "economic_objective_satisfied": [
+        10,
+        30
+      ],
+      "episode_success_v02": [
+        3,
+        30
+      ],
+      "feasible_obligation_success": [
+        12,
+        30
+      ],
+      "known_cost_usd": 2.2932706,
+      "latency_ms": 418208.1133179998,
+      "mean_accepted_actions": 7.1,
+      "model_calls": 213,
+      "model_calls_failed": 0,
+      "obligation_resolution": [
+        26,
+        47
+      ],
+      "prompt_tokens": 606824,
+      "runs": 30,
+      "status_counts": {
+        "completed": 30
+      },
+      "terminal_feasible": [
+        26,
+        30
+      ],
+      "total_tokens": 623547
+    }
+  },
+  "reference_control": {
+    "accepted_actions": 82,
+    "action_type_counts": {
+      "answer_supplier_question": 2,
+      "award_supplier": 10,
+      "evaluate_quotes": 12,
+      "identify_suppliers": 10,
+      "issue_amendment": 1,
+      "request_buyer_clarification": 9,
+      "request_quote_revision": 6,
+      "send_follow_up": 2,
+      "send_rfq": 30
+    },
+    "completion_tokens": 0,
+    "economic_objective_satisfied": [
+      10,
+      10
+    ],
+    "episode_success_v02": [
+      10,
+      10
+    ],
+    "feasible_obligation_success": [
+      10,
+      10
+    ],
+    "known_cost_usd": 0.0,
+    "latency_ms": 0.0,
+    "mean_accepted_actions": 8.2,
+    "model_calls": 0,
+    "model_calls_failed": 0,
+    "obligation_resolution": [
+      20,
+      20
+    ],
+    "prompt_tokens": 0,
+    "runs": 10,
+    "status_counts": {
+      "completed": 10
+    },
+    "terminal_feasible": [
+      10,
+      10
+    ],
+    "total_tokens": 0
+  },
+  "reference_control_runs": 10,
+  "run_attempt": 1,
+  "schema_version": "0.1.0",
+  "source_head_sha": "cf725f239fcc76cba1f0e2e51fee9d726fbca590",
+  "source_workflow_run_id": 36329287113,
+  "total_runs": 160
+}

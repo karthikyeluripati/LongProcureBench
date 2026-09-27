@@ -1,0 +1,166 @@
+{
+  "experiment": "heldout-paper-evaluation-v0.1",
+  "rows": [
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 47,
+      "method": "raw-reactive-openai",
+      "resolution_rate": 0.5531914893617021,
+      "resolved_count": 26,
+      "unresolved_count": 14,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 42,
+      "method": "raw-reactive-anthropic",
+      "resolution_rate": 0.42857142857142855,
+      "resolved_count": 18,
+      "unresolved_count": 24,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 45,
+      "method": "raw-reactive-gemini",
+      "resolution_rate": 0.3333333333333333,
+      "resolved_count": 15,
+      "unresolved_count": 24,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 2,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 1,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 39,
+      "method": "context-compiled-openai",
+      "resolution_rate": 0.7435897435897436,
+      "resolved_count": 29,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "follow_up_nonresponse"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 3,
+      "unresolved_obligation_class": "recover_from_withdrawal"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 0,
+      "unresolved_obligation_class": "request_quote_revision"
+    },
+    {
+      "actionable_count": 49,
+      "method": "react-openai",
+      "resolution_rate": 0.8163265306122449,
+      "resolved_count": 40,
+      "unresolved_count": 6,
+      "unresolved_obligation_class": "resolve_requirement_gap"
+    }
+  ],
+  "schema_version": "0.1.0"
+}

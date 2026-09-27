@@ -1,0 +1,96 @@
+{
+  "durability": "The exact seven workflow artifact ZIPs are committed in the repository, including all 160 raw result JSON files, row CSV/summary validation products, full ReAct transcripts, and the aggregate artifact. Evidence no longer depends on Actions artifact retention.",
+  "experiment": "heldout-paper-evaluation-v0.1",
+  "interpretation_rule": "Freeze and report the measured held-out matrix without using these outcomes to modify methods, prompts, episodes, evaluator semantics, model settings, or reporting tables.",
+  "next_step": "Finalize manuscript tables/figures and claims from the frozen development and held-out evidence; do not reopen architecture search.",
+  "outputs": {
+    "failure-taxonomy.json": {
+      "bytes": 5029,
+      "sha256": "5f60b0f295a8f9fa6ef79278593b4bdf82431ead8527bc06e0d0bee24972854b"
+    },
+    "results.json": {
+      "bytes": 28611,
+      "sha256": "63edb2523f55e92d28824305f88d69426bd6a9247c592e14c23607f088f1eedc"
+    }
+  },
+  "paper_contract": {
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_resamples": 20000,
+    "bootstrap_sampler": "sha256-index-v1",
+    "bootstrap_seed": 20260926,
+    "matched_baseline": "context-compiled-openai",
+    "no_weighted_composite": true,
+    "primary_quality_metric": "feasible_obligation_success"
+  },
+  "schema_version": "0.1.0",
+  "source_artifacts": {
+    "aggregate": {
+      "artifact_id": 10935910728,
+      "artifact_name": "heldout-paper-matrix-36329287113",
+      "bytes": 9323,
+      "git_blob_sha": "e63673701a4307f7ec7b92fbde932ca87052a8ed",
+      "path": "source-artifacts/heldout-paper-matrix-36329287113.zip",
+      "sha256": "805ff7e625f564e263d772995df8d4407538f01401af1b91356f2cc565ea6e53"
+    },
+    "context-compiled-openai": {
+      "artifact_id": 10935671643,
+      "artifact_name": "heldout-context-compiled-openai-36329287113",
+      "bytes": 103738,
+      "git_blob_sha": "50144e3a84a0371b94973c70aa783f3f2fa009a3",
+      "path": "source-artifacts/heldout-context-compiled-openai-36329287113.zip",
+      "sha256": "1533556c1f59b338a53fd81dce7eb43e0d64dcdea19977b7e3c4e5f90aba6e20"
+    },
+    "raw-reactive-anthropic": {
+      "artifact_id": 10935671154,
+      "artifact_name": "heldout-raw-reactive-anthropic-36329287113",
+      "bytes": 101808,
+      "git_blob_sha": "1764c3047255b075450a6715ddac0685fcb351b8",
+      "path": "source-artifacts/heldout-raw-reactive-anthropic-36329287113.zip",
+      "sha256": "63825363ec04321de0c8b75596e932e394605a97999f5d35d5f3def667019a68"
+    },
+    "raw-reactive-gemini": {
+      "artifact_id": 10935288077,
+      "artifact_name": "heldout-raw-reactive-gemini-36329287113",
+      "bytes": 100872,
+      "git_blob_sha": "85c32853001ed2cb02e54cc8288242b48b7aee8e",
+      "path": "source-artifacts/heldout-raw-reactive-gemini-36329287113.zip",
+      "sha256": "107a696e1b744e877c6dd5170f8558a96e04da2aae604317792ced72227c4313"
+    },
+    "raw-reactive-openai": {
+      "artifact_id": 10935062553,
+      "artifact_name": "heldout-raw-reactive-openai-36329287113",
+      "bytes": 103221,
+      "git_blob_sha": "43adf1aa586688563945aa5e2c7ef6b424a5035c",
+      "path": "source-artifacts/heldout-raw-reactive-openai-36329287113.zip",
+      "sha256": "7aca3f5ff235b391ea79b2d2e877837382365f929f29fda7ba309ca64cf81ddd"
+    },
+    "react-openai": {
+      "artifact_id": 10935443329,
+      "artifact_name": "heldout-react-openai-36329287113",
+      "bytes": 142047,
+      "git_blob_sha": "0e93f32c8e4f3fc0e12173c68540ff681b085a74",
+      "path": "source-artifacts/heldout-react-openai-36329287113.zip",
+      "sha256": "9c1448ad33b0db4a237cf62e6983d44de9f30fddf7aaff567503d0125db3fc11"
+    },
+    "reference-control": {
+      "artifact_id": 10934782476,
+      "artifact_name": "heldout-reference-control-36329287113",
+      "bytes": 30675,
+      "git_blob_sha": "48a1328f7d49e8877ad5d39d70e455b1ad7d2da6",
+      "path": "source-artifacts/heldout-reference-control-36329287113.zip",
+      "sha256": "13baa4585a098347fe418ce28732082e198ff6d1b4508df6a1e97fd7a257a2b4"
+    }
+  },
+  "source_head_sha": "cf725f239fcc76cba1f0e2e51fee9d726fbca590",
+  "source_workflow_conclusion": "success",
+  "source_workflow_run_attempt": 1,
+  "source_workflow_run_id": 36329287113,
+  "status": "heldout_results_frozen",
+  "validated_grid": {
+    "episodes": 10,
+    "model_backed_rows": 5,
+    "model_backed_runs": 150,
+    "reference_control_runs": 10,
+    "total_runs": 160
+  }
+}
