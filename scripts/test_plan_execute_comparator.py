@@ -142,6 +142,15 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         self.assertEqual(metrics["plan_step_usage"], {"1": 1, "2": 1})
         self.assertEqual(metrics["fixed_plan"], _plan())
 
+    def test_planner_accepts_bounded_descriptive_step_text(self):
+        plan = _plan()
+        plan["steps"][0]["purpose"] = "p" * 400
+        plan["steps"][0]["condition"] = "c" * 400
+        PlanExecuteLLMPolicy._validate_plan(
+            PlanExecuteLLMPolicy.__new__(PlanExecuteLLMPolicy),
+            plan,
+        )
+
     def test_selected_plan_step_must_match_action_type(self):
         state = LongProcureBenchEnv().reset(
             "electrical-dla-transformer-013"
