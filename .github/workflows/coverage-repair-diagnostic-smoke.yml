@@ -2,6 +2,9 @@ name: Coverage-Repair Diagnostic Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - codex/coverage-repair-smoke-run
 
 permissions:
   contents: read
