@@ -145,6 +145,17 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Durable replay evidence is committed under `evidence/always-replan-verifier-v0.1/`.
 - See [`docs/always-replan-verifier-v0.1.md`](docs/always-replan-verifier-v0.1.md) and [`docs/always-replan-verifier-v0.1-results.md`](docs/always-replan-verifier-v0.1-results.md).
 
+### Progress-Aware Reactive v0.1
+
+- Controlled test of factual compiled context plus a visible-evidence no-progress guard.
+- Frozen development grid: **20 episodes × 3 repeats = 60 completed runs**.
+- Compared with context compilation, terminal feasibility rose **1.7 pp** and strict v0.2 rose **1.7 pp**, but feasible-obligation success fell **16.7 pp** and obligation resolution fell **10.0 pp**.
+- Total tokens rose **6.9%**, while known API cost fell **12.5%** and aggregate model latency fell **7.6%**.
+- The guard recorded **15 no-progress marks across 13/60 runs but fired 0 interventions**, so the blocking/retry mechanism itself did not establish a reliability benefit.
+- The predeclared gate **failed**. Per the frozen protocol, bespoke architecture search stops here; the next phase is recognizable external comparators, beginning with true ReAct, followed by the held-out paper evaluation after the development comparator set is frozen.
+- Durable replay evidence is committed under `evidence/progress-aware-reactive-v0.1/`.
+- See [`docs/progress-aware-reactive-v0.1.md`](docs/progress-aware-reactive-v0.1.md) and [`docs/progress-aware-reactive-v0.1-results.md`](docs/progress-aware-reactive-v0.1-results.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -178,6 +189,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/operational_ledger_reactive.py` — model-maintained persistent commitment ledger over compiled context.
 - `longprocurebench/working_plan_reactive.py` — bounded replaceable prospective working-plan policy over compiled context.
 - `longprocurebench/always_replan_verifier.py` — quality-heavy fresh-planning and pre-terminal-verification policy over compiled context.
+- `longprocurebench/progress_aware_reactive.py` — visible-evidence no-progress guard over the factual compiled reactive policy.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -213,11 +225,16 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/frozen_always_replan_verifier_v01.py` — checksum-verified loader for the frozen 60-run always-replan/verifier evidence.
 - `scripts/audit_always_replan_verifier_v01.py` — deterministic matched replay/audit of the always-replan/verifier experiment.
 - `scripts/materialize_always_replan_verifier_evidence_v01.py` — artifact-to-replay evidence materializer with exact provenance checks.
+- `scripts/frozen_progress_aware_v01.py` — checksum-verified loader for the frozen 60-run progress-aware evidence.
+- `scripts/audit_progress_aware_v01.py` — deterministic matched replay/audit of the progress-aware experiment.
+- `scripts/materialize_progress_aware_evidence_v01.py` — artifact-to-replay progress-aware evidence materializer.
+- `scripts/verify_progress_aware_source_artifact_v01.py` — independent progress-aware source-artifact provenance verifier.
 - `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
 - `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.
 - `docs/working-plan-reactive-v0.1-results.md` — frozen working-plan matched result, plan diagnostics, and negative decision.
 - `docs/always-replan-verifier-v0.1-results.md` — frozen always-replan/verifier matched result, failure mechanism, and negative decision.
+- `docs/progress-aware-reactive-v0.1-results.md` — frozen progress-aware matched result, inactive-guard diagnostic, and architecture-search stop decision.
 - `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate
