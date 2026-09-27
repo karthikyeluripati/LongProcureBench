@@ -80,5 +80,31 @@
     "The observability matrix marks all 10 episodes held_out_test and preserves the same policy information boundary as development.",
     "No model/API result is used to author, repair, or select these episodes."
   ],
-  "execution_gate": "Do not launch the frozen 150 model-backed held-out runs until this package is merged with all offline CI/reference-control checks passing."
+  "execution_gate": "Do not launch the frozen 150 model-backed held-out runs until this package is merged with all offline CI/reference-control checks passing.",
+  "frozen_git_blobs": {
+    "data/episodes/electrical/electrical-columbus-switchgear-021.json": "f3bd22707071ad69cf7809ae72cccb78b9ba4081",
+    "data/episodes/electrical/electrical-eweb-transformer-022.json": "7c6f57f5372c47370889cc06985f6f72e92c5310",
+    "data/episodes/electrical/electrical-lompoc-transformer-023.json": "234f04b36044b46bd3bfe408c57b1bffe2d1cf31",
+    "data/episodes/electrical/electrical-njang-generator-024.json": "03c2e2ebde3e17f194c78450ac2bd0c233762131",
+    "data/episodes/electrical/electrical-port-angeles-transformers-025.json": "c957d7f24df2c0132d4b2b9998fa20b88843822b",
+    "data/episodes/electrical/electrical-greenport-transformers-026.json": "a8e67a826b0dcad643c504b0f545be77596d68f7",
+    "data/episodes/electrical/electrical-san-bruno-ev-chargers-027.json": "307787d728c007038afbc82ef56c5a309be2fa51",
+    "data/episodes/electrical/electrical-shelter-island-solar-bess-028.json": "812cea434a90412f4548e91592625f7367a6c02c",
+    "data/episodes/electrical/electrical-philadelphia-switchgear-mcc-029.json": "53d26f61adb864570dccce034bddaadd8f7bad0d",
+    "data/episodes/electrical/electrical-detroit-generator-ats-030.json": "3cc3f81f1b29a37d15e1a574474c7160ca0e9cf1",
+    "data/evaluation/electrical/electrical-columbus-switchgear-021.json": "138f75990d515c7dc94e6ae3e6afa4e20bd6fba5",
+    "data/evaluation/electrical/electrical-eweb-transformer-022.json": "06f175507db55b47dad8163c6c809d6da27e08eb",
+    "data/evaluation/electrical/electrical-lompoc-transformer-023.json": "b84443398c0441eeb9f2e66bf61b3bf0d2212119",
+    "data/evaluation/electrical/electrical-njang-generator-024.json": "825f35b30bca285829f43427c30214e5e7ee6e35",
+    "data/evaluation/electrical/electrical-port-angeles-transformers-025.json": "ed191b1d2953d3f8d9c0bb7f31dd32c6d25f7cd2",
+    "data/evaluation/electrical/electrical-greenport-transformers-026.json": "53503420d5fd741b9be8ed988afd11f864092a1a",
+    "data/evaluation/electrical/electrical-san-bruno-ev-chargers-027.json": "eedbd8f6582501163da9894090ed45d5986aaa73",
+    "data/evaluation/electrical/electrical-shelter-island-solar-bess-028.json": "27278f066bd02e453ef4183515ba7dab2969d3d3",
+    "data/evaluation/electrical/electrical-philadelphia-switchgear-mcc-029.json": "db6e39648f36f9aa95f21c114a4653d3e4325224",
+    "data/evaluation/electrical/electrical-detroit-generator-ats-030.json": "8a7bc4147aaf681fd021e58356141bb0e6099064",
+    "longprocurebench/reference.py": "607b8983bcff5a699cb04b5f70da75d3ee5e0a84",
+    "data/splits/electrical-v0.3-plan.json": "d4cf2a334269346114325ba86e502f03643905ca",
+    "OBSERVABILITY_MATRIX.csv": "d490169a165dde82e23e8aa180097b6538edb95c"
+  },
+  "blob_freeze_note": "Git blob IDs pin the exact held-out episodes, evaluator configs, reference controls, split metadata, and observability matrix present at package freeze. CI recomputes them from working-tree bytes."
 }
