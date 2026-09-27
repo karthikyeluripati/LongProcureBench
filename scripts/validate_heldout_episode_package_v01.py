@@ -101,8 +101,8 @@ def validate_heldout_package() -> dict:
     ):
         raise ValueError("Held-out manifest development-freeze provenance drift")
     frozen_blobs = manifest.get("frozen_git_blobs")
-    if not isinstance(frozen_blobs, dict) or len(frozen_blobs) != 23:
-        raise ValueError("Held-out frozen file-blob map must contain 23 files")
+    if not isinstance(frozen_blobs, dict) or len(frozen_blobs) != 33:
+        raise ValueError("Held-out frozen file-blob map must contain 33 files")
     for relative, expected_blob in sorted(frozen_blobs.items()):
         path = ROOT / relative
         if not path.is_file():
