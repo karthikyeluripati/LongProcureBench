@@ -172,18 +172,15 @@ Return only the structured executor response."""
     ) -> None:
         if metrics is not None:
             normalized = deepcopy(metrics)
-            normalized.setdefault("success", error is None)
+            normalized["success"] = error is None
             normalized.setdefault("usage_available", True)
-            normalized.setdefault(
-                "error",
-                (
-                    {
-                        "type": type(error).__name__,
-                        "message": str(error),
-                    }
-                    if error is not None
-                    else None
-                ),
+            normalized["error"] = (
+                {
+                    "type": type(error).__name__,
+                    "message": str(error),
+                }
+                if error is not None
+                else None
             )
             self._calls.append(normalized)
             return
