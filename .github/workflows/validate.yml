@@ -55,5 +55,7 @@ jobs:
         run: python scripts/validate_development_comparator_matrix_v01.py
       - name: Validate frozen held-out episode package
         run: python scripts/validate_heldout_episode_package_v01.py
+      - name: Validate frozen held-out execution plan
+        run: python scripts/validate_heldout_execution_plan_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference
