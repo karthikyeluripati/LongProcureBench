@@ -124,13 +124,14 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 
 ### Maintained Working-Plan Reactive Baseline v0.1
 
-- Third controlled architecture experiment after factual context compilation and the dropped persistent-ledger treatment.
-- Keeps one GPT-5.6 Sol model call per semantic action and the same factual compiled context.
-- Adds one **bounded, replaceable prospective plan**: objective, at most four future steps, and an explicit stop condition.
-- The plan commits only after an accepted action and fully replaces prior plan state; it is guidance, not an append-only obligation memory.
-- No separate planner call, verifier, ReAct trace, knowledge graph, evaluator state, or held-out data is introduced.
-- Matched development experiment: GPT-5.6 Sol × 20 frozen development episodes × 3 repeats against the frozen context-compiled baseline.
-- See [`docs/working-plan-reactive-v0.1.md`](docs/working-plan-reactive-v0.1.md).
+- Controlled test of factual compiled context plus one bounded, replaceable prospective plan, still using one GPT-5.6 Sol call per semantic action.
+- Frozen development grid: **20 episodes × 3 repeats = 60 completed runs**.
+- Compared with context compilation, terminal feasibility fell **8.3 pp** and feasible-obligation success fell **21.7 pp**, while strict v0.2 rose **5.0 pp**.
+- The treatment used **+35.1% total tokens**, **+70.3% known API cost**, and **+74.8% aggregate model latency**.
+- The plan was active (85.3% first-step action-type agreement with the next accepted action), but the predeclared inclusion gate **failed**.
+- This one-call working-plan formulation is dropped. The next causal axis is **additional deliberation/verification**, starting with an always-replan + pre-award-verifier quality comparator.
+- Durable replay evidence is committed under `evidence/working-plan-reactive-v0.1/`.
+- See [`docs/working-plan-reactive-v0.1.md`](docs/working-plan-reactive-v0.1.md) and [`docs/working-plan-reactive-v0.1-results.md`](docs/working-plan-reactive-v0.1-results.md).
 
 ### Checkpoint fairness audit v0.1
 
@@ -194,8 +195,12 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/audit_cross_family_reactive_v01.py` — deterministic replay/audit of all 180 cross-family trajectories.
 - `scripts/frozen_operational_ledger_v01.py` — checksum-verified loader for the selected 60-run operational-ledger evidence.
 - `scripts/audit_operational_ledger_v01.py` — deterministic matched replay/audit of the operational-ledger experiment.
+- `scripts/frozen_working_plan_v01.py` — checksum-verified loader for the frozen 60-run working-plan evidence.
+- `scripts/audit_working_plan_v01.py` — deterministic matched replay/audit of the working-plan experiment.
+- `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
 - `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.
+- `docs/working-plan-reactive-v0.1-results.md` — frozen working-plan matched result, plan diagnostics, and negative decision.
 - `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate

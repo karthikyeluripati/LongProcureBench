@@ -1,0 +1,78 @@
+{
+  "benchmark_code_sha": "aee79caf71dc3301f7ddc7db99f9d96289878403",
+  "comparison": {
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_resamples": 20000,
+    "bootstrap_sampler": "sha256-index-v1",
+    "bootstrap_seed": 20260926,
+    "bytes": 11733,
+    "path": "comparison.json",
+    "sha256": "93c3f223d670b39d34e40cb2cdae4fa0b8fd4ffddb6a034032261247e2085d1b"
+  },
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "episodes": 20,
+  "evaluation_version": "0.2.0",
+  "execution_head_delta": "workflow trigger only",
+  "execution_head_sha": "e43b5a90685d1da5409637fe220df21f4ff61e8e",
+  "experiment": "working-plan-reactive-v0.1",
+  "known_cost_runs": 60,
+  "model": "openai/gpt-5.6-sol",
+  "records": 60,
+  "repeats_per_episode": 3,
+  "schema_version": "0.1.0",
+  "source_artifact_bytes": 280188,
+  "source_artifact_digest": "sha256:924443c9bde20b687a2a3b9fe0c8058f8a224604d8532d6c325c6a9c89fd6c9b",
+  "source_artifact_id": 10907187177,
+  "source_artifact_name": "working-plan-reactive-36243953648-1",
+  "source_verification": {
+    "provenance_line_format": "episode_index|repeat|artifact_member_path|sha256(exact raw run JSON bytes)|sha256(canonical compact record line)",
+    "record_provenance_bytes": 12606,
+    "record_provenance_path": "source-provenance.txt",
+    "record_provenance_sha256": "25f55c2ecfd5b7f7e46a85b4b89039a621275f385aec232eec8f1f068bacd759",
+    "selected_compaction_sha256": "392060d51c9e8b430156428f53dd20c7c4caae4da062d23b51bc7a6eb6b92923",
+    "selected_raw_provenance_sha256": "8395185f72bf3b52e624385e2f524d87113582065075852be08223b23584d8a3",
+    "verifier_script": "scripts/verify_working_plan_source_artifact_v01.py"
+  },
+  "source_workflow_run_attempt": 1,
+  "source_workflow_run_id": 36243953648,
+  "status_counts": {
+    "completed": 60
+  },
+  "storage": {
+    "compressed_bytes": 43177,
+    "compressed_sha256": "d889aac2249d7b8dce9e89c489bef32f356fefde3b4b907236192f8a23e2a057",
+    "parts": [
+      "replay-source.part-01.b64",
+      "replay-source.part-02.b64",
+      "replay-source.part-03.b64",
+      "replay-source.part-04a.b64",
+      "replay-source.part-04b1.b64",
+      "replay-source.part-04b2.b64",
+      "replay-source.part-04b3.b64",
+      "replay-source.part-04b4.b64",
+      "replay-source.part-05.b64"
+    ]
+  },
+  "usage_complete_runs": 60
+}
