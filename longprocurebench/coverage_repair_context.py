@@ -52,6 +52,8 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
         self._forced_followups = 0
         self._forced_answers = 0
         self._handled_repair_event_ids: set[str] = set()
+        self._seen_requirement_change_ids: set[str] = set()
+        self._required_amendment_count = 0
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
@@ -86,36 +88,58 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
         )
 
     @classmethod
-    def _has_unamended_requirement_change(
-        cls,
-        compiled: dict[str, Any],
-    ) -> bool:
-        """Return whether visible requirement changes still need model action.
-
-        The factual compiler strips event trigger metadata, so this gate uses
-        only the same compact event/action history visible to the model. Each
-        revealed requirement/quantity change requires a later model-selected
-        amendment before deterministic supplier coverage/repair may resume.
-        """
-        events = compiled.get("event_history")
-        if not isinstance(events, list):
-            return False
-
-        visible_changes = sum(
-            1
-            for event in events
-            if isinstance(event, dict)
-            and event.get("type") in REQUIREMENT_CHANGE_EVENT_TYPES
-        )
-        if visible_changes == 0:
-            return False
-
-        amendments = sum(
+    def _amendment_count(cls, compiled: dict[str, Any]) -> int:
+        return sum(
             1
             for action in cls._history(compiled)
             if action.get("type") == "issue_amendment"
         )
-        return amendments < visible_changes
+
+    def _has_unamended_requirement_change(
+        self,
+        compiled: dict[str, Any],
+    ) -> bool:
+        """Return whether a newly visible change still needs a later amendment.
+
+        The controller only sees factual_compiled_v0.1, which intentionally
+        strips runtime trigger metadata. Ordering is therefore preserved
+        statefully: when a requirement/quantity change event first becomes
+        visible, record how many amendments had already happened and require
+        the amendment count to increase before deterministic actions resume.
+
+        This prevents an amendment issued *before* a later change from
+        accidentally satisfying that later change.
+        """
+        amendments = self._amendment_count(compiled)
+        events = compiled.get("event_history")
+        if not isinstance(events, list):
+            return amendments < self._required_amendment_count
+
+        new_change_seen = False
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            event_id = event.get("event_id")
+            if (
+                event.get("type") not in REQUIREMENT_CHANGE_EVENT_TYPES
+                or not isinstance(event_id, str)
+                or not event_id
+                or event_id in self._seen_requirement_change_ids
+            ):
+                continue
+            self._seen_requirement_change_ids.add(event_id)
+            new_change_seen = True
+
+        if new_change_seen:
+            # One amendment after the newly observed change(s) is required.
+            # Multiple changes revealed in the same observation batch may be
+            # addressed by that same model-selected amendment.
+            self._required_amendment_count = max(
+                self._required_amendment_count,
+                amendments + 1,
+            )
+
+        return amendments < self._required_amendment_count
 
     def _unresolved_visible_repair(
         self,
