@@ -7,7 +7,7 @@
     "semantic_decisions",
     "policy_metrics"
   ],
-  "compaction_note": "The Actions artifact contains full ReAct thought summaries, compact observations, prompts, evaluator output, and per-call records. The committed replay source retains accepted semantic actions plus aggregate ReAct and usage metrics needed for deterministic evaluator replay, comparator diagnostics, and matched efficiency analysis.",
+  "compaction_note": "The durable replay retains accepted semantic actions and aggregate usage for deterministic evaluator replay. Full ReAct Thought/Action/Observation transcripts are separately committed in transcript-source.b64, including bounded thought summaries and factual-visible observations, so mechanism diagnostics remain inspectable after the temporary Actions artifact expires.",
   "comparison": {
     "baseline_evidence_path": "evidence/context-compiled-reactive-v0.1/",
     "baseline_source_artifact_id": 10901395062,
@@ -27,6 +27,14 @@
   },
   "episode_index": {
     "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
     "10": "electrical-painesville-switchgear-010",
     "11": "electrical-sagada-generator-011",
     "12": "electrical-dla-relay-012",
@@ -37,15 +45,7 @@
     "17": "electrical-dla-qpl-breaker-017",
     "18": "electrical-highpoint-cable-018",
     "19": "electrical-usaf-ups-019",
-    "2": "electrical-national-museum-lighting-002",
-    "20": "electrical-vre-generator-020",
-    "3": "electrical-neust-cable-003",
-    "4": "electrical-dla-breaker-004",
-    "5": "electrical-barrie-transformer-005",
-    "6": "electrical-bfar-generator-006",
-    "7": "electrical-negros-wire-007",
-    "8": "electrical-burauen-generator-008",
-    "9": "electrical-highpoint-transformer-009"
+    "20": "electrical-vre-generator-020"
   },
   "episodes": 20,
   "evaluation_version": "0.2.0",
@@ -73,7 +73,16 @@
     "model_calls_failed"
   ],
   "purpose": "Durable replay source and matched analysis for the 60-run GPT-5.6 Sol ReAct external comparator on frozen development episodes 001-020.",
-  "react_step_schema": null,
+  "react_step_schema": [
+    "step",
+    "thought_summary",
+    [
+      "type",
+      "supplier_id",
+      "arguments"
+    ],
+    "observation"
+  ],
   "records": 60,
   "repeats_per_episode": 3,
   "schema_version": "0.1.0",
@@ -101,5 +110,24 @@
     "format": "gzip(JSONL compact replay records) encoded as base64 text",
     "path": "replay-source.b64"
   },
-  "usage_complete_runs": 60
+  "usage_complete_runs": 60,
+  "transcript_storage": {
+    "format": "gzip(JSONL compact Thought/Action/Observation transcript records) encoded as base64 text",
+    "path": "transcript-source.b64",
+    "records": 60,
+    "transcript_rows_bytes": 262900,
+    "transcript_rows_sha256": "dc073660375b68febef010da284cc867b24f11beb2e52c846957bf726c3a5ba8",
+    "compressed_bytes": 30180,
+    "compressed_sha256": "a7cbe4277c70abe62d157df683efa34a58bb29cc39eeb951e0d253353b7e7456",
+    "retained_fields": [
+      "episode identity",
+      "repeat",
+      "step",
+      "thought_summary",
+      "semantic action",
+      "factual-visible observation"
+    ],
+    "durability": "Committed repository evidence; independent of GitHub Actions artifact retention."
+  },
+  "source_artifact_retention_note": "The original GitHub Actions artifact is temporary (30-day retention). Durable replay, provenance, and the full compact ReAct Thought/Action/Observation transcript are committed in this repository. The source-artifact verifier can be run while the original artifact is still retained; the committed transcript remains inspectable afterwards."
 }
