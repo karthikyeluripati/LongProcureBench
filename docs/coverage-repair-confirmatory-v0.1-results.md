@@ -131,8 +131,23 @@ requirement-gap handling, and deciding when more evidence is worth acquiring.
 
 ## Evidence status
 
-This is development evidence. The exact Actions artifact is retained temporarily
-and its ID/digest are frozen under
-`evidence/coverage-repair-confirmatory-v0.1/`. If this diagnostic is promoted
-into final paper evidence, materialize a compact replay source before the
-Actions artifact expires.
+This is development evidence, but it is now durable and replayable from the
+repository. The 60 accepted semantic trajectories plus provider usage/cost
+metrics are stored as three checksum-locked compact replay chunks under
+`evidence/coverage-repair-confirmatory-v0.1/`. Four checksum-locked provenance
+chunks map every compact record to the exact raw JSON member and raw-byte digest
+from Actions artifact `10941001111`.
+
+`python scripts/audit_coverage_repair_confirmatory_v01.py`
+
+replays all 60 trajectories through Evaluator v0.2, re-derives the frozen
+Context/ReAct/Coverage+Repair comparison, intervention totals, unresolved
+obligation taxonomy, ReAct-gain recovery, and both predeclared verdicts.
+
+While the temporary source artifact remains available, verify the complete
+raw-artifact -> compact-replay linkage with:
+
+`python scripts/verify_coverage_repair_confirmatory_source_artifact_v01.py --artifact-zip <artifact.zip>`
+
+The source ZIP may expire on October 27, 2026; the committed compact replay is
+sufficient for deterministic re-evaluation after that date.
