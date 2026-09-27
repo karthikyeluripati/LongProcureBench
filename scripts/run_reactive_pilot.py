@@ -141,6 +141,14 @@ def flatten_result(result, model, repeat):
         "plan_rejections": metrics.get("plan_rejections"),
         "mean_plan_steps": metrics.get("mean_plan_steps"),
         "max_plan_steps": metrics.get("max_plan_steps"),
+        "evidence_epoch": metrics.get("evidence_epoch"),
+        "no_progress_marks": metrics.get("no_progress_marks"),
+        "progress_events": metrics.get("progress_events"),
+        "guard_interventions": metrics.get("guard_interventions"),
+        "guard_retry_calls": metrics.get("guard_retry_calls"),
+        "guard_retry_noncompliance": metrics.get(
+            "guard_retry_noncompliance"
+        ),
         "error_type": (result.get("error") or {}).get("type"),
         "evaluation_error_type": (
             result.get("evaluation_error") or {}
@@ -234,6 +242,38 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
                 ),
                 default=None,
             ),
+            "total_no_progress_marks": sum(
+                int(r.get("no_progress_marks") or 0) for r in subset
+            ),
+            "runs_with_no_progress_marks": sum(
+                int(r.get("no_progress_marks") or 0) > 0
+                for r in subset
+            ),
+            "total_progress_events": sum(
+                int(r.get("progress_events") or 0) for r in subset
+            ),
+            "total_guard_interventions": sum(
+                int(r.get("guard_interventions") or 0) for r in subset
+            ),
+            "runs_with_guard_interventions": sum(
+                int(r.get("guard_interventions") or 0) > 0
+                for r in subset
+            ),
+            "total_guard_retry_calls": sum(
+                int(r.get("guard_retry_calls") or 0) for r in subset
+            ),
+            "total_guard_retry_noncompliance": sum(
+                int(r.get("guard_retry_noncompliance") or 0)
+                for r in subset
+            ),
+            "max_evidence_epoch": max(
+                (
+                    int(r["evidence_epoch"])
+                    for r in subset
+                    if r.get("evidence_epoch") is not None
+                ),
+                default=None,
+            ),
             "total_known_cost_usd": sum(
                 float(r["cost_usd"])
                 for r in subset
@@ -249,7 +289,7 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
 
 def write_csv(rows, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","state_strategy","ledger_open_items","ledger_resolved_items","ledger_items_created","ledger_max_open_items","plan_updates","plan_rejections","mean_plan_steps","max_plan_steps","error_type","evaluation_error_type"]
+    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","state_strategy","ledger_open_items","ledger_resolved_items","ledger_items_created","ledger_max_open_items","plan_updates","plan_rejections","mean_plan_steps","max_plan_steps","evidence_epoch","no_progress_marks","progress_events","guard_interventions","guard_retry_calls","guard_retry_noncompliance","error_type","evaluation_error_type"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()

@@ -259,6 +259,36 @@ class RescoreTests(unittest.TestCase):
         )
         self.assertIsNone(rescored["evaluation"])
 
+    def test_failed_audit_preserves_progress_metrics(self):
+        class FailingEvaluator:
+            def evaluate_actions(self, episode_id, actions):
+                raise ValueError("forced audit failure")
+
+        original = raw_result()
+        original["policy_metrics"].update({
+            "state_strategy": "progress_aware_no_progress_guard_v0.1",
+            "evidence_epoch": 4,
+            "no_progress_marks": 5,
+            "progress_events": 4,
+            "guard_interventions": 3,
+            "guard_retry_calls": 3,
+            "guard_retry_noncompliance": 1,
+        })
+        rescored = rescore_result(original, FailingEvaluator())
+        from rescore_pilot import flatten_audited_result
+        row = flatten_audited_result(
+            rescored,
+            model="fake/model",
+            repeat=1,
+        )
+        self.assertEqual(row["audit_status"], "evaluation_error")
+        self.assertEqual(row["evidence_epoch"], 4)
+        self.assertEqual(row["no_progress_marks"], 5)
+        self.assertEqual(row["progress_events"], 4)
+        self.assertEqual(row["guard_interventions"], 3)
+        self.assertEqual(row["guard_retry_calls"], 3)
+        self.assertEqual(row["guard_retry_noncompliance"], 1)
+
     def test_directory_continues_after_one_audit_failure(self):
         class MixedEvaluator:
             def __init__(self):
@@ -365,7 +395,19 @@ class RescoreTests(unittest.TestCase):
                 evaluator=StubEvaluator(),
             )
             self.assertNotIn("status", rows[0])
-            self.assertTrue((output / "runs.csv").is_file())
+            csv_path = output / "runs.csv"
+            self.assertTrue(csv_path.is_file())
+            header = csv_path.read_text(encoding="utf-8").splitlines()[0]
+            for field in (
+                "evidence_epoch",
+                "no_progress_marks",
+                "progress_events",
+                "guard_interventions",
+                "guard_retry_calls",
+                "guard_retry_noncompliance",
+            ):
+                with self.subTest(field=field):
+                    self.assertIn(field, header.split(","))
 
     def test_taxonomy_legacy_rows_default_to_successful_audit(self):
         rows = [{
