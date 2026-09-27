@@ -226,37 +226,97 @@
         "id": "reference-control",
         "model": null,
         "runs_if_10_episodes": 10,
-        "competitive": false
+        "competitive": false,
+        "execution_settings": {
+          "provider": null,
+          "model": null,
+          "temperature": null,
+          "reasoning_effort": null,
+          "max_actions": 50,
+          "policy_kind": "scripted_reference_control",
+          "context_strategy": null,
+          "agent_pattern": null
+        }
       },
       {
         "id": "raw-reactive-openai",
         "model": "openai/gpt-5.6-sol",
         "runs_if_10_episodes": 30,
-        "competitive": true
+        "competitive": true,
+        "execution_settings": {
+          "provider": "openai",
+          "model": "openai/gpt-5.6-sol",
+          "temperature": null,
+          "reasoning_effort": "medium",
+          "max_actions": 50,
+          "policy_kind": "llm_reactive_baseline",
+          "context_strategy": null,
+          "agent_pattern": null
+        }
       },
       {
         "id": "raw-reactive-anthropic",
         "model": "anthropic/claude-opus-5-5",
         "runs_if_10_episodes": 30,
-        "competitive": true
+        "competitive": true,
+        "execution_settings": {
+          "provider": "anthropic",
+          "model": "anthropic/claude-opus-5-5",
+          "temperature": null,
+          "reasoning_effort": null,
+          "max_actions": 50,
+          "policy_kind": "llm_reactive_baseline",
+          "context_strategy": null,
+          "agent_pattern": null
+        }
       },
       {
         "id": "raw-reactive-gemini",
         "model": "gemini/gemini-3.8-flash",
         "runs_if_10_episodes": 30,
-        "competitive": true
+        "competitive": true,
+        "execution_settings": {
+          "provider": "gemini",
+          "model": "gemini/gemini-3.8-flash",
+          "temperature": null,
+          "reasoning_effort": null,
+          "max_actions": 50,
+          "policy_kind": "llm_reactive_baseline",
+          "context_strategy": null,
+          "agent_pattern": null
+        }
       },
       {
         "id": "context-compiled-openai",
         "model": "openai/gpt-5.6-sol",
         "runs_if_10_episodes": 30,
-        "competitive": true
+        "competitive": true,
+        "execution_settings": {
+          "provider": "openai",
+          "model": "openai/gpt-5.6-sol",
+          "temperature": null,
+          "reasoning_effort": "medium",
+          "max_actions": 50,
+          "policy_kind": "llm_context_compiled_reactive",
+          "context_strategy": "factual_compiled_v0.1",
+          "agent_pattern": null
+        }
       },
       {
         "id": "react-openai",
         "model": "openai/gpt-5.6-sol",
         "runs_if_10_episodes": 30,
-        "competitive": true
+        "competitive": true,
+        "execution_settings": {
+          "provider": "openai",
+          "model": "openai/gpt-5.6-sol",
+          "temperature": null,
+          "reasoning_effort": "medium",
+          "max_actions": 50,
+          "policy_kind": "llm_react_comparator",
+          "context_strategy": "factual_compiled_v0.1",
+          "agent_pattern": "react_v0.1"
+        }
       }
     ],
     "expected_model_backed_runs": 150,
@@ -267,7 +327,8 @@
       "No prompt, planner, verifier, memory, context compiler, action contract, evaluator, or model setting is tuned from held-out outcomes.",
       "No exact-model substitution is allowed because a frozen model performs poorly; provider unavailability must be documented rather than silently substituted.",
       "No held-out trajectory or evaluator result may update a method."
-    ]
+    ],
+    "settings_rule": "Held-out runs must use the exact provider, model identifier, temperature omission/value, reasoning_effort, max_actions, policy kind, context strategy, and agent pattern frozen per eligible row. CLI overrides that change these values are prohibited."
   },
   "paper_tables": [
     {
