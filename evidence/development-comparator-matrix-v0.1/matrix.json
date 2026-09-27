@@ -235,7 +235,8 @@
           "max_actions": 50,
           "policy_kind": "reference_control",
           "context_strategy": null,
-          "agent_pattern": null
+          "agent_pattern": null,
+          "temperature_mode": "not_applicable"
         }
       },
       {
@@ -251,7 +252,8 @@
           "max_actions": 50,
           "policy_kind": "llm_reactive_baseline",
           "context_strategy": null,
-          "agent_pattern": null
+          "agent_pattern": null,
+          "temperature_mode": "omitted"
         }
       },
       {
@@ -267,7 +269,8 @@
           "max_actions": 50,
           "policy_kind": "llm_reactive_baseline",
           "context_strategy": null,
-          "agent_pattern": null
+          "agent_pattern": null,
+          "temperature_mode": "omitted"
         }
       },
       {
@@ -283,7 +286,8 @@
           "max_actions": 50,
           "policy_kind": "llm_reactive_baseline",
           "context_strategy": null,
-          "agent_pattern": null
+          "agent_pattern": null,
+          "temperature_mode": "omitted"
         }
       },
       {
@@ -299,7 +303,8 @@
           "max_actions": 50,
           "policy_kind": "llm_context_compiled_reactive",
           "context_strategy": "factual_compiled_v0.1",
-          "agent_pattern": null
+          "agent_pattern": null,
+          "temperature_mode": "omitted"
         }
       },
       {
@@ -315,7 +320,8 @@
           "max_actions": 50,
           "policy_kind": "llm_react_comparator",
           "context_strategy": "factual_compiled_v0.1",
-          "agent_pattern": "react_v0.1"
+          "agent_pattern": "react_v0.1",
+          "temperature_mode": "omitted"
         }
       }
     ],
