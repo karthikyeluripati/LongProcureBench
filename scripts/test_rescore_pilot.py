@@ -365,7 +365,19 @@ class RescoreTests(unittest.TestCase):
                 evaluator=StubEvaluator(),
             )
             self.assertNotIn("status", rows[0])
-            self.assertTrue((output / "runs.csv").is_file())
+            csv_path = output / "runs.csv"
+            self.assertTrue(csv_path.is_file())
+            header = csv_path.read_text(encoding="utf-8").splitlines()[0]
+            for field in (
+                "evidence_epoch",
+                "no_progress_marks",
+                "progress_events",
+                "guard_interventions",
+                "guard_retry_calls",
+                "guard_retry_noncompliance",
+            ):
+                with self.subTest(field=field):
+                    self.assertIn(field, header.split(","))
 
     def test_taxonomy_legacy_rows_default_to_successful_audit(self):
         rows = [{
