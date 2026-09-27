@@ -143,6 +143,39 @@ def validate_execution_plan() -> dict:
                 f"Held-out workflow does not execute frozen row: {row_id}"
             )
 
+    expected_artifact_names = {
+        "heldout-reference-control-${{ github.run_id }}",
+        "heldout-raw-reactive-openai-${{ github.run_id }}",
+        "heldout-raw-reactive-anthropic-${{ github.run_id }}",
+        "heldout-raw-reactive-gemini-${{ github.run_id }}",
+        "heldout-context-compiled-openai-${{ github.run_id }}",
+        "heldout-react-openai-${{ github.run_id }}",
+        "heldout-paper-matrix-${{ github.run_id }}",
+    }
+    artifact_name_lines = [
+        line.strip()[len("name: "):]
+        for line in workflow.splitlines()
+        if line.strip().startswith("name: heldout-")
+    ]
+    observed_artifact_names = set(artifact_name_lines)
+    if observed_artifact_names != expected_artifact_names:
+        raise ValueError(
+            "Held-out artifact names changed: "
+            f"expected={sorted(expected_artifact_names)}, "
+            f"actual={sorted(observed_artifact_names)}"
+        )
+    if any(
+        "${{ github.run_attempt }}" in name
+        for name in artifact_name_lines
+    ):
+        raise ValueError(
+            "Held-out artifact names must be stable across job retries"
+        )
+    if workflow.count("overwrite: true") != 7:
+        raise ValueError(
+            "Each held-out upload must overwrite its stable artifact on retry"
+        )
+
     return plan
 
 
