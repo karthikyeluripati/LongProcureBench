@@ -21,6 +21,12 @@ MATRIX_PATH = (
     / "development-comparator-matrix-v0.1"
     / "matrix.json"
 )
+MANIFEST_PATH = (
+    ROOT
+    / "evidence"
+    / "heldout-episode-package-v0.1"
+    / "manifest.json"
+)
 
 EXPECTED = {
     "electrical-columbus-switchgear-021": "us-columbus-rfq029445",
@@ -77,6 +83,27 @@ def validate_heldout_package() -> dict:
         raise ValueError(
             "Held-out reserved package order changed from frozen package"
         )
+
+    manifest = _load(MANIFEST_PATH)
+    if manifest.get("status") != "heldout_episode_package_frozen":
+        raise ValueError("Held-out package manifest is not frozen")
+    if manifest.get("model_evaluations_run") is not False:
+        raise ValueError("Held-out manifest must record zero model evaluations")
+    if manifest.get("development_comparator_freeze_merge_sha") != (
+        DEVELOPMENT_FREEZE_SHA
+    ):
+        raise ValueError("Held-out manifest development-freeze provenance drift")
+    manifest_rows = manifest.get("episodes") or []
+    expected_manifest = [
+        {
+            "episode_id": episode_id,
+            "initial_state_package_id": package_id,
+            "expected_reference_outcome": "o1",
+        }
+        for episode_id, package_id in EXPECTED.items()
+    ]
+    if manifest_rows != expected_manifest:
+        raise ValueError("Held-out package manifest episode mapping drift")
 
     matrix = _load(MATRIX_PATH)
     if matrix.get("status") != "development_comparator_set_frozen":
@@ -177,6 +204,17 @@ def validate_heldout_package() -> dict:
         if not evaluation["economic_objective"]["satisfied"]:
             raise ValueError(
                 f"Held-out reference economic objective failed: {episode_id}"
+            )
+        expected_outcome = next(
+            row["expected_reference_outcome"]
+            for row in manifest_rows
+            if row["episode_id"] == episode_id
+        )
+        if evaluation["terminal_outcome"]["matched_outcome_id"] != (
+            expected_outcome
+        ):
+            raise ValueError(
+                f"Held-out reference outcome drift: {episode_id}"
             )
         if evaluation["obligations"]["unresolved"] != 0:
             raise ValueError(
