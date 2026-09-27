@@ -9,5 +9,78 @@
   "source_artifact_expires_at": "2026-10-27T19:57:25Z",
   "protocol_commit": "005c526416eb18789a2431d347c1cc3f635f035d",
   "execution_commit": "e2bdf265bd284cfbebab5eddf16629acd1a0a885",
-  "note": "The Actions artifact is temporary development evidence. Materialize a compact replay source before expiry if this diagnostic is promoted into final paper evidence."
+  "note": "Durable compact replay and source provenance are committed; evidence no longer depends on GitHub Actions retention for deterministic evaluator replay and aggregate metrics.",
+  "model": "openai/gpt-5.6-sol",
+  "records": 60,
+  "episodes": 20,
+  "repeats_per_episode": 3,
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "compact_record_schema": [
+    "episode_index",
+    "repeat",
+    "status",
+    "semantic_decisions",
+    "policy_metrics"
+  ],
+  "semantic_decision_schema": [
+    "type",
+    "supplier_id",
+    "arguments"
+  ],
+  "policy_metrics_schema": [
+    "model_calls_attempted",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "temperature",
+    "reasoning_effort",
+    "context_strategy",
+    "agent_pattern",
+    "coverage_repair_interventions",
+    "coverage_forced_rfqs",
+    "coverage_forced_followups",
+    "coverage_forced_answers",
+    "model_calls_failed"
+  ],
+  "storage": {
+    "format": "gzip(JSONL compact replay records) encoded as base64 text",
+    "path": "replay-source.b64",
+    "compact_rows_bytes": 39183,
+    "compact_rows_sha256": "ab5054761af6af31f91fa88526d2a393e278b657c5f7a2618552241cd1477607",
+    "compressed_bytes": 4949,
+    "compressed_sha256": "6b0cbb6602b3654e7c3301831b841b219b16846da767e209733ad0cf7868b9c8"
+  },
+  "source_verification": {
+    "verifier_script": "scripts/verify_coverage_repair_source_artifact_v01.py",
+    "record_provenance_path": "source-provenance.txt",
+    "record_provenance_bytes": 12606,
+    "record_provenance_sha256": "016fd2f237854356d34f85fae65096b28273c27301c52909f51d8470abd7d122",
+    "provenance_line_format": "episode_index|repeat|artifact_member_path|sha256(exact raw run JSON bytes)|sha256(canonical compact record line)"
+  },
+  "durable_audit_script": "scripts/audit_coverage_repair_confirmatory_v01.py",
+  "source_artifact_retention_note": "The original GitHub Actions artifact expires on 2026-10-27. The committed replay-source.b64 and source-provenance.txt remain durable after artifact expiry; the source-artifact verifier can be run while the original ZIP is retained."
 }
