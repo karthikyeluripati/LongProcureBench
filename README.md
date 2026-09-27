@@ -156,6 +156,18 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Durable replay evidence is committed under `evidence/progress-aware-reactive-v0.1/`.
 - See [`docs/progress-aware-reactive-v0.1.md`](docs/progress-aware-reactive-v0.1.md) and [`docs/progress-aware-reactive-v0.1-results.md`](docs/progress-aware-reactive-v0.1-results.md).
 
+### ReAct External Comparator v0.1
+
+- Recognizable Thought -> Action -> Observation external comparator over the retained factual compiled context.
+- Frozen development grid: **20 episodes × 3 repeats = 60 completed runs**.
+- Compared with context compilation, terminal feasibility rose **10.0 pp**, feasible-obligation success rose **1.7 pp**, and strict v0.2 success rose **21.7 pp**.
+- The quality gain costs materially more inference: **+49.3% total tokens**, **+73.2% known API cost**, and **+46.6% aggregate model latency**.
+- The paired episode-cluster bootstrap keeps the strict-success delta positive (**+10.0 to +35.0 pp**) but the feasible-obligation delta spans zero.
+- ReAct is frozen as an **external quality/cost comparator**, not promoted into ProcureHarness and not used to reopen bespoke architecture search.
+- Durable replay evidence is committed under `evidence/react-comparator-v0.1/`.
+- Next: freeze the final development comparator/reporting matrix before any held-out episode authoring or evaluation.
+- See [`docs/react-comparator-v0.1.md`](docs/react-comparator-v0.1.md) and [`docs/react-comparator-v0.1-results.md`](docs/react-comparator-v0.1-results.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -190,6 +202,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/working_plan_reactive.py` — bounded replaceable prospective working-plan policy over compiled context.
 - `longprocurebench/always_replan_verifier.py` — quality-heavy fresh-planning and pre-terminal-verification policy over compiled context.
 - `longprocurebench/progress_aware_reactive.py` — visible-evidence no-progress guard over the factual compiled reactive policy.
+- `longprocurebench/react_comparator.py` — explicit Thought -> Action -> Observation external comparator over factual compiled context.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -229,12 +242,17 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/audit_progress_aware_v01.py` — deterministic matched replay/audit of the progress-aware experiment.
 - `scripts/materialize_progress_aware_evidence_v01.py` — artifact-to-replay progress-aware evidence materializer.
 - `scripts/verify_progress_aware_source_artifact_v01.py` — independent progress-aware source-artifact provenance verifier.
+- `scripts/frozen_react_comparator_v01.py` — checksum-verified loader for frozen ReAct comparator evidence.
+- `scripts/audit_react_comparator_v01.py` — deterministic matched replay/bootstrap audit for the ReAct comparator.
+- `scripts/materialize_react_comparator_evidence_v01.py` — source-artifact to compact ReAct replay materializer.
+- `scripts/verify_react_source_artifact_v01.py` — independent ReAct source-artifact provenance verifier.
 - `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
 - `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.
 - `docs/working-plan-reactive-v0.1-results.md` — frozen working-plan matched result, plan diagnostics, and negative decision.
 - `docs/always-replan-verifier-v0.1-results.md` — frozen always-replan/verifier matched result, failure mechanism, and negative decision.
 - `docs/progress-aware-reactive-v0.1-results.md` — frozen progress-aware matched result, inactive-guard diagnostic, and architecture-search stop decision.
+- `docs/react-comparator-v0.1-results.md` — frozen ReAct matched quality/cost result and external-comparator interpretation.
 - `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate
