@@ -112,6 +112,8 @@ Action contract:
   must contain exactly scope, supplier_id, and quote_event_id. scope must be
   one of the allowed award-scope values. quote_event_id must refer to a
   revealed quote/revision from that supplier and cover the award scope.
+  For one award, top-level supplier_id may name that supplier; for multiple
+  awards, top-level supplier_id must be null.
 - no_award may use arguments.reason.
 - For every non-award action set arguments.awards = null.
 - When reason is irrelevant set arguments.reason = null.
@@ -191,20 +193,20 @@ award_supplier or no_award. Do not assume hidden or future information."""
         name: str,
         maximum_items: int,
         maximum_chars: int,
-    ) -> None:
-        if not isinstance(values, list) or len(values) > maximum_items:
+    ) -> list[str]:
+        if not isinstance(values, list):
             raise DeliberationProtocolError(
-                f"{name} must contain at most {maximum_items} items"
+                f"{name} must be an array"
             )
-        for value in values:
-            if (
-                not isinstance(value, str)
-                or not value.strip()
-                or len(value) > maximum_chars
-            ):
+
+        normalized: list[str] = []
+        for value in values[:maximum_items]:
+            if not isinstance(value, str) or not value.strip():
                 raise DeliberationProtocolError(
-                    f"{name} entries must be 1-{maximum_chars} characters"
+                    f"{name} entries must be non-empty strings"
                 )
+            normalized.append(value[:maximum_chars])
+        return normalized
 
     def _validate_supplier_reference(
         self,
@@ -218,51 +220,52 @@ award_supplier or no_award. Do not assume hidden or future information."""
                 f"Structured deliberation references non-visible supplier: {supplier_id}"
             )
 
-    def _validate_plan(
+    def _normalize_plan(
         self,
         plan: dict[str, Any],
         state: dict[str, Any],
-    ) -> None:
-        objective = plan["objective"]
-        if (
-            not isinstance(objective, str)
-            or not objective.strip()
-            or len(objective) > 240
-        ):
+    ) -> dict[str, Any]:
+        normalized = deepcopy(plan)
+        objective = normalized["objective"]
+        if not isinstance(objective, str) or not objective.strip():
             raise DeliberationProtocolError(
-                "objective must be 1-240 characters"
+                "objective must be a non-empty string"
             )
-        self._bounded_strings(
-            plan["key_facts"],
+        normalized["objective"] = objective[:240]
+        normalized["key_facts"] = self._bounded_strings(
+            normalized["key_facts"],
             name="key_facts",
             maximum_items=6,
             maximum_chars=220,
         )
-        self._bounded_strings(
-            plan["risks"],
+        normalized["risks"] = self._bounded_strings(
+            normalized["risks"],
             name="risks",
             maximum_items=4,
             maximum_chars=220,
         )
-        self._validate_supplier_reference(plan["supplier_id"], state)
+        self._validate_supplier_reference(normalized["supplier_id"], state)
+        return normalized
 
-    def _validate_verification(
+    def _normalize_verification(
         self,
         verdict: dict[str, Any],
         state: dict[str, Any],
-    ) -> None:
-        self._bounded_strings(
-            verdict["issues"],
+    ) -> dict[str, Any]:
+        normalized = deepcopy(verdict)
+        normalized["issues"] = self._bounded_strings(
+            normalized["issues"],
             name="issues",
             maximum_items=4,
             maximum_chars=240,
         )
-        self._validate_supplier_reference(verdict["supplier_id"], state)
-        if not verdict["approve"]:
-            if verdict["recommended_action_type"] in TERMINAL_ACTIONS:
+        self._validate_supplier_reference(normalized["supplier_id"], state)
+        if not normalized["approve"]:
+            if normalized["recommended_action_type"] in TERMINAL_ACTIONS:
                 raise DeliberationProtocolError(
                     "Rejected terminal decision must recommend a non-terminal action"
                 )
+        return normalized
 
     @classmethod
     def _nonterminal_action_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -335,7 +338,7 @@ award_supplier or no_award. Do not assume hidden or future information."""
             ],
             schema=deepcopy(PLAN_SCHEMA),
         )
-        self._validate_plan(plan, state)
+        plan = self._normalize_plan(plan, state)
         self._deliberation_trace.append({
             "state_step": state.get("step"),
             "plan": deepcopy(plan),
@@ -393,7 +396,7 @@ award_supplier or no_award. Do not assume hidden or future information."""
             ],
             schema=deepcopy(VERIFIER_SCHEMA),
         )
-        self._validate_verification(verdict, state)
+        verdict = self._normalize_verification(verdict, state)
         self._verification_trace.append({
             "state_step": state.get("step"),
             "proposed_action": deepcopy(decision),
