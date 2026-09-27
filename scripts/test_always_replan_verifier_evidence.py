@@ -1,7 +1,15 @@
 """Regression checks for frozen always-replan + verifier evidence."""
+import json
+from pathlib import Path
+import tempfile
 import unittest
 
-from audit_always_replan_verifier_v01 import _gate, build_comparison
+from audit_always_replan_verifier_v01 import (
+    _gate,
+    build_comparison,
+    check_provenance_entries,
+)
+from materialize_always_replan_verifier_evidence_v01 import _compact_record
 from frozen_always_replan_verifier_v01 import (
     EXPECTED_EPISODES,
     EXPECTED_REPEATS,
@@ -18,6 +26,71 @@ class FrozenAlwaysReplanVerifierEvidenceTests(unittest.TestCase):
         self.assertEqual({r['repeat'] for r in records}, set(range(1, EXPECTED_REPEATS + 1)))
         self.assertTrue(all(not r['policy_metrics']['usage_incomplete'] for r in records))
         self.assertTrue(all(r['policy_metrics']['model_calls_failed'] == 0 for r in records))
+
+    def test_provenance_entries_are_linked_to_compact_replay(self):
+        root = Path(__file__).resolve().parents[1]
+        records = load_frozen_always_replan_verifier_source(root)
+        check_provenance_entries(records)
+
+        source = (
+            root
+            / "evidence"
+            / "always-replan-verifier-v0.1"
+            / "source-provenance.txt"
+        ).read_text(encoding="utf-8")
+        lines = source.splitlines()
+        fields = lines[0].split("|")
+        fields[4] = "0" * 64
+        lines[0] = "|".join(fields)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "source-provenance.txt"
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "does not match frozen replay",
+            ):
+                check_provenance_entries(records, path)
+
+    def test_materializer_rejects_bad_execution_or_evaluation_state(self):
+        base = {
+            "episode_id": "electrical-bongabon-generator-001",
+            "status": "completed",
+            "error": None,
+            "evaluation_error": None,
+            "evaluation": {
+                "evaluation_version": "0.2.0",
+                "episode_id": "electrical-bongabon-generator-001",
+            },
+            "trajectory": [],
+            "policy_metrics": {},
+        }
+        cases = (
+            ("execution", {**base, "error": {"type": "RuntimeError"}}),
+            (
+                "evaluation_error",
+                {**base, "evaluation_error": {"type": "EvaluationError"}},
+            ),
+            (
+                "evaluation_version",
+                {
+                    **base,
+                    "evaluation": {
+                        **base["evaluation"],
+                        "evaluation_version": "0.1.0",
+                    },
+                },
+            ),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            episode_dir = root / "electrical-bongabon-generator-001"
+            episode_dir.mkdir(parents=True)
+            path = episode_dir / "run-001.json"
+            for name, payload in cases:
+                with self.subTest(name=name):
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                    with self.assertRaises(ValueError):
+                        _compact_record(path, root)
 
     def test_predeclared_gate_rejects_frozen_result(self):
         comparison = build_comparison()
