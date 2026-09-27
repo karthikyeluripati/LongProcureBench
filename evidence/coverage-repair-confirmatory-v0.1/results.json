@@ -1,0 +1,164 @@
+{
+  "schema_version": "0.1.0",
+  "experiment": "coverage-repair-confirmatory-v0.1",
+  "source": {
+    "workflow_run_id": 36345529581,
+    "artifact_id": 10941001111,
+    "artifact_digest": "sha256:c8a0c85e6ec00af8199d0085a9bcbc64ea46826d92d0a20a0df00aad485474a5",
+    "artifact_expires_at": "2026-10-27T19:57:25Z",
+    "protocol_commit": "005c526416eb18789a2431d347c1cc3f635f035d",
+    "execution_commit": "e2bdf265bd284cfbebab5eddf16629acd1a0a885",
+    "grid": "20 development episodes x 3 repeats"
+  },
+  "rows": {
+    "factual_context": {
+      "runs": 60,
+      "terminal_feasible": [
+        46,
+        60
+      ],
+      "feasible_obligation_success": [
+        40,
+        60
+      ],
+      "strict_v02": [
+        14,
+        60
+      ],
+      "economic_objective": [
+        14,
+        60
+      ],
+      "accepted_actions": 464,
+      "model_calls": 464,
+      "total_tokens": 974208,
+      "latency_ms": 869561.2926909978,
+      "known_cost_usd": 4.6086564
+    },
+    "react": {
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        41,
+        60
+      ],
+      "strict_v02": [
+        27,
+        60
+      ],
+      "economic_objective": [
+        28,
+        60
+      ],
+      "accepted_actions": 488,
+      "model_calls": 488,
+      "total_tokens": 1454192,
+      "latency_ms": 1275207.3713140013,
+      "known_cost_usd": 7.9842032
+    },
+    "coverage_repair": {
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        50,
+        60
+      ],
+      "strict_v02": [
+        30,
+        60
+      ],
+      "economic_objective": [
+        30,
+        60
+      ],
+      "accepted_actions": 476,
+      "model_calls": 324,
+      "total_tokens": 687462,
+      "latency_ms": 667333.2807259995,
+      "known_cost_usd": 2.9776718
+    }
+  },
+  "coverage_repair_diagnostics": {
+    "interventions": 152,
+    "forced_rfqs": 123,
+    "forced_followups": 21,
+    "forced_answers": 8
+  },
+  "deltas": {
+    "versus_context": {
+      "terminal_pp": 10,
+      "feasible_obligation_pp": 16.6666666667,
+      "strict_pp": 26.6666666667,
+      "economic_pp": 26.6666666667,
+      "model_calls_pct": -30.1724137931,
+      "tokens_pct": -29.4337554198,
+      "latency_pct": -23.2563263412,
+      "cost_pct": -35.389589903
+    },
+    "versus_react": {
+      "terminal_pp": 0,
+      "feasible_obligation_pp": 15,
+      "strict_pp": 5,
+      "economic_pp": 3.3333333333,
+      "model_calls_pct": -33.606557377,
+      "tokens_pct": -52.7254997965,
+      "latency_pct": -47.6686462345,
+      "cost_pct": -62.7054607027
+    }
+  },
+  "react_gain_recovery": {
+    "strict_v02": 1.2307692308,
+    "economic_objective": 1.1428571429
+  },
+  "predeclared_verdict": {
+    "substantial_workflow_explanation": true,
+    "near_react_workflow_explanation": true
+  },
+  "unresolved_obligations": {
+    "factual_context": {
+      "actionable": 86,
+      "resolved": 72,
+      "unresolved": 14,
+      "by_class": {
+        "follow_up_nonresponse": 4,
+        "handle_amendment": 3,
+        "recover_from_withdrawal": 3,
+        "request_quote_revision": 3,
+        "resolve_requirement_gap": 1
+      }
+    },
+    "react": {
+      "actionable": 112,
+      "resolved": 95,
+      "unresolved": 17,
+      "by_class": {
+        "follow_up_nonresponse": 10,
+        "recover_from_withdrawal": 3,
+        "request_quote_revision": 3,
+        "resolve_requirement_gap": 1
+      }
+    },
+    "coverage_repair": {
+      "actionable": 98,
+      "resolved": 90,
+      "unresolved": 8,
+      "by_class": {
+        "recover_from_withdrawal": 3,
+        "request_quote_revision": 3,
+        "resolve_requirement_gap": 2
+      }
+    }
+  },
+  "interpretation": [
+    "Coverage+Repair passes both predeclared diagnostic interpretation branches on development.",
+    "Coverage+Repair is not established as statistically superior to ReAct; the quality point estimates are close and require cautious interpretation.",
+    "The result shows that a substantial portion of the apparent ReAct advantage can be recovered by deterministic supplier coverage and bounded visible repair with fewer model calls and materially lower token/cost/latency.",
+    "This is development evidence only and is not a final held-out claim or a ProcureHarness method."
+  ]
+}
