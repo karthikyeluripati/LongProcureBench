@@ -23,7 +23,10 @@ from run_heldout_paper_row import (
     load_execution_plan,
 )
 from run_reactive_pilot import model_slug
-from validate_heldout_row_results_v01 import validate_row_results
+from validate_heldout_row_results_v01 import (
+    _assert_json_equivalent,
+    validate_row_results,
+)
 
 EVIDENCE_DIR = (
     ROOT / "evidence" / "heldout-paper-evaluation-v0.1"
@@ -1158,10 +1161,17 @@ def audit_committed_outputs() -> dict[str, Any]:
     expected_results = json.loads(
         RESULTS_PATH.read_text(encoding="utf-8")
     )
-    if results != expected_results:
-        raise ValueError(
-            "Committed held-out results.json does not match source evidence"
+    try:
+        _assert_json_equivalent(
+            expected_results,
+            results,
+            path="heldout.results",
         )
+    except ValueError as exc:
+        raise ValueError(
+            "Committed held-out results.json does not match source evidence: "
+            f"{exc}"
+        ) from exc
 
     expected_taxonomy = json.loads(
         TAXONOMY_PATH.read_text(encoding="utf-8")
@@ -1171,11 +1181,17 @@ def audit_committed_outputs() -> dict[str, Any]:
         "experiment": "heldout-paper-evaluation-v0.1",
         "rows": taxonomy,
     }
-    if expected_taxonomy != actual_taxonomy:
+    try:
+        _assert_json_equivalent(
+            expected_taxonomy,
+            actual_taxonomy,
+            path="heldout.failure_taxonomy",
+        )
+    except ValueError as exc:
         raise ValueError(
             "Committed held-out failure taxonomy does not match source "
-            "evidence"
-        )
+            f"evidence: {exc}"
+        ) from exc
 
     results_bytes = RESULTS_PATH.read_bytes()
     taxonomy_bytes = TAXONOMY_PATH.read_bytes()
