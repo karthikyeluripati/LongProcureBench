@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -96,6 +97,80 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
                 f"expected={CSV_FIELDS}, actual={fields}"
             )
         return list(reader)
+
+
+def _assert_json_equivalent(
+    actual: Any,
+    expected: Any,
+    *,
+    path: str = "root",
+) -> None:
+    if isinstance(actual, bool) or isinstance(expected, bool):
+        if actual != expected:
+            raise ValueError(
+                f"JSON value drift at {path}: "
+                f"expected={expected!r}, actual={actual!r}"
+            )
+        return
+
+    if isinstance(actual, (int, float)) and isinstance(
+        expected,
+        (int, float),
+    ):
+        if isinstance(actual, float) or isinstance(expected, float):
+            if not math.isclose(
+                float(actual),
+                float(expected),
+                rel_tol=1e-12,
+                abs_tol=1e-9,
+            ):
+                raise ValueError(
+                    f"JSON numeric drift at {path}: "
+                    f"expected={expected!r}, actual={actual!r}"
+                )
+        elif actual != expected:
+            raise ValueError(
+                f"JSON integer drift at {path}: "
+                f"expected={expected!r}, actual={actual!r}"
+            )
+        return
+
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        if set(actual) != set(expected):
+            raise ValueError(
+                f"JSON key drift at {path}: "
+                f"missing={sorted(set(expected) - set(actual))}, "
+                f"extra={sorted(set(actual) - set(expected))}"
+            )
+        for key in sorted(actual):
+            _assert_json_equivalent(
+                actual[key],
+                expected[key],
+                path=f"{path}.{key}",
+            )
+        return
+
+    if isinstance(actual, list) and isinstance(expected, list):
+        if len(actual) != len(expected):
+            raise ValueError(
+                f"JSON list-length drift at {path}: "
+                f"expected={len(expected)}, actual={len(actual)}"
+            )
+        for index, (actual_item, expected_item) in enumerate(
+            zip(actual, expected)
+        ):
+            _assert_json_equivalent(
+                actual_item,
+                expected_item,
+                path=f"{path}[{index}]",
+            )
+        return
+
+    if actual != expected:
+        raise ValueError(
+            f"JSON value drift at {path}: "
+            f"expected={expected!r}, actual={actual!r}"
+        )
 
 
 def _csv_projection(row: dict[str, Any]) -> dict[str, str]:
@@ -347,10 +422,17 @@ def validate_row_results(
         baseline_name=expected_baseline,
     )
     summary = _load_json(summary_path)
-    if summary != expected_summary:
-        raise ValueError(
-            f"{row_id} summary.json disagrees with raw result evidence"
+    try:
+        _assert_json_equivalent(
+            summary,
+            expected_summary,
+            path=f"{row_id}.summary",
         )
+    except ValueError as exc:
+        raise ValueError(
+            f"{row_id} summary.json disagrees with raw result evidence: "
+            f"{exc}"
+        ) from exc
 
     validation = {
         "schema_version": "0.1.0",

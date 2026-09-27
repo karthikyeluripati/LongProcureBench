@@ -259,12 +259,17 @@ The controlled architecture-search sequence is now complete:
 8. **Freeze the final development-time comparator set and reporting matrix** —
    complete. Held-out eligibility, paper metrics/tables, exact model identities,
    repeat counts, and anti-tuning rules are now fixed.
-9. **Author + deterministically validate the 10 held-out episodes** — next.
-   Freeze that episode/evaluator package before making any model/API calls on it.
-10. **Run the frozen held-out matrix** only after the held-out package freeze:
-    three raw-reactive model families + GPT-5.6 Sol context compilation + GPT-5.6
-    Sol ReAct, with three repeats per model-backed row and one reference control
-    per episode.
+9. **Author + deterministically validate the 10 held-out episodes** —
+   complete and frozen before any model-backed held-out call.
+10. **Run the frozen held-out matrix** — complete. Workflow run
+    `36329287113` produced **150 model-backed + 10 reference = 160/160
+    validated runs** under the preregistered matrix. The primary
+    feasible-obligation rate is **20/30 (66.7%)** for both factual context and
+    ReAct; ReAct raises strict v0.2 from **6/30 (20.0%)** to
+    **15/30 (50.0%)** at a substantial inference premium.
+11. **Freeze evidence and write the paper** — current phase. Preserve exact raw
+    held-out artifacts, finalize preregistered tables/figures/limitations, and
+    do not reopen architecture search from held-out outcomes.
 
 Do not add operational state graphs, dynamic routing, memory systems,
 multi-agent orchestration, or self-improvement merely to continue architecture
@@ -279,11 +284,18 @@ efficiency layer, every bespoke reliability mechanism tested failed its
 predeclared gate, and ReAct is retained only as an external quality/cost
 comparator.
 
-Development-time selection is now frozen. The paper proceeds as
+Development-time selection and the final held-out evaluation are now complete.
+The held-out evidence preserves the same conclusion: the paper proceeds as
 **LongProcureBench + controlled empirical failure analysis + external agent
-baselines**. No new bespoke mechanism may be introduced before or during
-held-out evaluation. The next research artifact is the held-out episode package,
-not another architecture.
+baselines**. Factual context compilation improves obligation handling/efficiency
+relative to raw GPT-5.6 Sol on the frozen test, while ReAct improves strict
+completion at substantial inference cost but does not improve the preregistered
+primary feasible-obligation rate over factual context.
+
+The final evidence does **not** justify reopening bespoke mechanism search or
+relabeling the failed ledger/planner/verifier/progress variants as a successful
+ProcureHarness reliability architecture. The next artifact is the manuscript,
+not another agent design.
 
 ## References
 
