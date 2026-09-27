@@ -62,7 +62,7 @@ EXPECTED_HELDOUT_ROWS = {
             "temperature": None,
             "reasoning_effort": None,
             "max_actions": 50,
-            "policy_kind": "scripted_reference_control",
+            "policy_kind": "reference_control",
             "context_strategy": None,
             "agent_pattern": None,
         },
