@@ -57,9 +57,31 @@ jobs:
 
           path = Path(os.environ["OUTPUT_DIR"]) / "coverage-repair-diagnostics.json"
           payload = json.loads(path.read_text(encoding="utf-8"))
+
+          per_run = payload.get("per_run") or []
+          if payload.get("runs") != 3 or len(per_run) != 3:
+              raise SystemExit(
+                  f"expected exactly 3 smoke runs, got {payload.get('runs')}"
+              )
+
+          incomplete = [
+              row for row in per_run
+              if row.get("status") != "completed"
+          ]
+          if incomplete:
+              detail = ", ".join(
+                  f"{row.get('episode_id')}={row.get('status')}"
+                  for row in incomplete
+              )
+              raise SystemExit(
+                  "smoke requires every run to complete; "
+                  f"non-completed runs: {detail}"
+              )
+
           interventions = payload["totals"]["coverage_repair_interventions"]
           if interventions < 1:
               raise SystemExit("coverage-repair controller never activated")
+
           print(json.dumps(payload["totals"], indent=2, sort_keys=True))
           PY
 
