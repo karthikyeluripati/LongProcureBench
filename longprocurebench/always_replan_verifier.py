@@ -419,6 +419,12 @@ award_supplier or no_award. Do not assume hidden or future information."""
         verdict: dict[str, Any],
     ) -> dict[str, Any]:
         self._repair_calls += 1
+        repair_verdict = {
+            "approve": verdict["approve"],
+            "issues": deepcopy(verdict["issues"]),
+            "recommended_action_type": verdict["recommended_action_type"],
+            "supplier_id": verdict["supplier_id"],
+        }
         repaired = self._call(
             role="repair_action",
             messages=[
@@ -429,7 +435,7 @@ award_supplier or no_award. Do not assume hidden or future information."""
                         "Fresh external deliberation:\n"
                         + json.dumps(plan, sort_keys=True)
                         + "\n\nVerifier feedback:\n"
-                        + json.dumps(verdict, sort_keys=True)
+                        + json.dumps(repair_verdict, sort_keys=True)
                         + "\n\nCurrent agent-visible benchmark state:\n"
                         + json.dumps(prompt_state, sort_keys=True)
                     ),
