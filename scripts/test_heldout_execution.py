@@ -116,6 +116,37 @@ class HeldoutExecutionTests(unittest.TestCase):
         self.assertIn("--row", option_strings)
         self.assertIn("--output-dir", option_strings)
 
+    def test_workflow_artifacts_are_retry_stable(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (
+            root
+            / ".github/workflows/heldout-paper-evaluation-v0.1.yml"
+        ).read_text(encoding="utf-8")
+        artifact_name_lines = [
+            line.strip()
+            for line in workflow.splitlines()
+            if line.strip().startswith("name: heldout-")
+        ]
+        self.assertTrue(artifact_name_lines)
+        self.assertTrue(
+            all(
+                "${{ github.run_attempt }}" not in line
+                for line in artifact_name_lines
+            )
+        )
+        self.assertEqual(workflow.count("overwrite: true"), 7)
+
+        expected = {
+            "name: heldout-reference-control-${{ github.run_id }}",
+            "name: heldout-raw-reactive-openai-${{ github.run_id }}",
+            "name: heldout-raw-reactive-anthropic-${{ github.run_id }}",
+            "name: heldout-raw-reactive-gemini-${{ github.run_id }}",
+            "name: heldout-context-compiled-openai-${{ github.run_id }}",
+            "name: heldout-react-openai-${{ github.run_id }}",
+            "name: heldout-paper-matrix-${{ github.run_id }}",
+        }
+        self.assertEqual(set(artifact_name_lines), expected)
+
     def test_unknown_or_dropped_row_cannot_execute(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError, "not frozen"):
