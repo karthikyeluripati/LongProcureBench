@@ -20,6 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FrozenProgressAwareEvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.comparison = build_comparison()
+
     def test_frozen_grid_and_usage_contract(self):
         records = load_frozen_progress_aware_source(ROOT)
         self.assertEqual(len(records), EXPECTED_RUNS)
@@ -45,7 +49,7 @@ class FrozenProgressAwareEvidenceTests(unittest.TestCase):
         )
 
     def test_predeclared_gate_rejects_frozen_result(self):
-        comparison = build_comparison()
+        comparison = self.comparison
         gate = comparison["predeclared_gate"]
         self.assertFalse(gate["passed"])
         self.assertLess(
@@ -68,7 +72,7 @@ class FrozenProgressAwareEvidenceTests(unittest.TestCase):
         })["branch2"]["passed"])
 
     def test_mechanism_diagnostic_records_zero_interventions(self):
-        comparison = build_comparison()
+        comparison = self.comparison
         diagnostic = comparison["mechanism_diagnostic"]
         self.assertEqual(diagnostic["no_progress_marks"], 15)
         self.assertEqual(diagnostic["runs_with_no_progress_marks"], 13)
@@ -84,7 +88,7 @@ class FrozenProgressAwareEvidenceTests(unittest.TestCase):
         )
 
     def test_frozen_matched_result_is_preserved(self):
-        comparison = build_comparison()
+        comparison = self.comparison
         self.assertEqual(
             comparison["context_compiled"]["feasible_obligation_success"],
             40,
