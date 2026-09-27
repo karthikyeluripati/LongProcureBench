@@ -2,11 +2,6 @@ name: Progress-Aware Reactive Full Run
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - run-progress-aware-full-20260927
-    paths:
-      - ".github/workflows/progress-aware-reactive-full.yml"
 
 permissions:
   contents: read
