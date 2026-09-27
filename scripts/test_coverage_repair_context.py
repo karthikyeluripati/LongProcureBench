@@ -196,6 +196,68 @@ class CoverageRepairPolicyTests(unittest.TestCase):
         metrics = policy.get_run_metadata()
         self.assertEqual(metrics["coverage_repair_interventions"], 0)
 
+    def test_requirement_change_yields_to_model_before_forced_followup(self):
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-dla-power-supply-016")
+        episode_id = state["episode_id"]
+        state = env.step(_env_action(
+            episode_id,
+            1,
+            _model_action("identify_suppliers"),
+        ))
+
+        client = SequenceActionClient([
+            _model_action("send_rfq", "syn-ps-a"),
+            _model_action("issue_amendment"),
+        ])
+        policy = CoverageRepairContextPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        policy.reset(state)
+
+        first = policy.act(state)
+        self.assertEqual(first["type"], "send_rfq")
+        self.assertEqual(first["supplier_id"], "syn-ps-a")
+        state = env.step(_env_action(episode_id, 2, first))
+
+        second = policy.act(state)
+        self.assertEqual(second["type"], "send_rfq")
+        self.assertEqual(second["supplier_id"], "syn-ps-b")
+        state = env.step(_env_action(episode_id, 3, second))
+
+        third = policy.act(state)
+        self.assertEqual(third["type"], "send_rfq")
+        self.assertEqual(third["supplier_id"], "syn-ps-c")
+        state = env.step(_env_action(episode_id, 4, third))
+
+        observed = {row["event_id"] for row in state["observations"]}
+        self.assertEqual(observed, {"e3", "e4"})
+
+        # The visible requirement change blocks deterministic follow-up and
+        # yields the next decision back to the model.
+        fourth = policy.act(state)
+        self.assertEqual(fourth["type"], "issue_amendment")
+        self.assertEqual(len(client.calls), 2)
+        state = env.step(_env_action(episode_id, 5, fourth))
+
+        # Only after the amendment may deterministic non-response repair resume.
+        fifth = policy.act(state)
+        self.assertEqual(fifth, {
+            "type": "send_follow_up",
+            "supplier_id": "syn-ps-c",
+            "arguments": {},
+        })
+        self.assertEqual(len(client.calls), 2)
+        state = env.step(_env_action(episode_id, 6, fifth))
+
+        quote_ids = {
+            row["event_id"]
+            for row in state["observations"]
+            if row["type"] in {"quote_received", "quote_revision"}
+        }
+        self.assertEqual(quote_ids, {"e7"})
+
     def test_controller_receives_only_compiled_event_fields(self):
         env = LongProcureBenchEnv()
         state = env.reset("electrical-bongabon-generator-001")
