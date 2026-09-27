@@ -105,13 +105,21 @@ def _compact_row_from_record(record: dict[str, Any]) -> list[Any]:
 def load_frozen_coverage_repair_source(
     repo_root: Path,
 ) -> list[dict[str, Any]]:
-    path = evidence_dir(repo_root) / "replay-source.b64"
-    if not path.is_file():
-        raise ValueError(f"Missing frozen Coverage+Repair replay source: {path}")
+    parts = sorted(
+        evidence_dir(repo_root).glob("replay-source.b64.part*")
+    )
+    if len(parts) != 7:
+        raise ValueError(
+            f"Expected 7 frozen Coverage+Repair replay chunks; found {len(parts)}"
+        )
 
+    encoded = "".join(
+        path.read_text(encoding="utf-8").strip()
+        for path in parts
+    )
     try:
         compressed = base64.b64decode(
-            path.read_text(encoding="utf-8").strip(),
+            encoded,
             validate=True,
         )
     except Exception as exc:
