@@ -1,0 +1,47 @@
+name: Materialize Always-Replan Evidence
+
+on:
+  push:
+    branches:
+      - codex/freeze-always-replan-verifier-v0.1
+    paths:
+      - .github/workflows/materialize-always-replan-evidence.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/freeze-always-replan-verifier-v0.1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api             -H "Accept: application/vnd.github+json"             /repos/${GITHUB_REPOSITORY}/actions/artifacts/10924959171/zip             > /tmp/always-replan-verifier.zip
+          mkdir -p /tmp/always-replan-verifier
+          unzip -q /tmp/always-replan-verifier.zip -d /tmp/always-replan-verifier
+
+      - name: Regenerate durable replay evidence
+        run: |
+          python scripts/materialize_always_replan_verifier_evidence_v01.py             --artifact-dir /tmp/always-replan-verifier
+
+      - name: Commit evidence parts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evidence/always-replan-verifier-v0.1/
+          git diff --cached --quiet && exit 0
+          git commit -m "Materialize always-replan verifier replay evidence"
+          git push origin HEAD:codex/freeze-always-replan-verifier-v0.1
