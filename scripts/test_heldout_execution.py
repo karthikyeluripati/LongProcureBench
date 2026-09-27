@@ -1,10 +1,12 @@
 """Regression tests for the frozen held-out paper execution contract."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import tempfile
 import unittest
 
+from validate_heldout_row_results_v01 import validate_row_results
 from run_heldout_paper_row import (
     EXPECTED_HELDOUT_EPISODES,
     EXPECTED_ROW_IDS,
@@ -138,12 +140,14 @@ class HeldoutExecutionTests(unittest.TestCase):
                 self.calls.append(
                     (episode_id, max_actions, run_id, result_path)
                 )
-                return {
+                result = {
                     "episode_id": episode_id,
                     "run_id": run_id,
                     "status": "completed",
+                    "policy": {"policy_kind": "reference_control"},
                     "trajectory": [{"step": 1}],
                     "evaluation": {
+                        "evaluation_version": "0.2.0",
                         "episode_success": True,
                         "episode_success_v02": True,
                         "feasible_process_success": True,
@@ -172,16 +176,29 @@ class HeldoutExecutionTests(unittest.TestCase):
                     "error": None,
                     "evaluation_error": None,
                 }
+                result_path.parent.mkdir(parents=True, exist_ok=True)
+                result_path.write_text(
+                    json.dumps(result),
+                    encoding="utf-8",
+                )
+                return result
 
         runner = StubRunner()
         with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "reference"
             rows, summary = run_row(
                 "reference-control",
-                Path(tmp) / "reference",
+                output_dir,
                 runner=runner,
+            )
+            validation = validate_row_results(
+                "reference-control",
+                output_dir,
             )
         self.assertEqual(len(rows), 10)
         self.assertEqual(summary["runs"], 10)
+        self.assertEqual(validation["validated_runs"], 10)
+        self.assertEqual(validation["infrastructure_failures"], 0)
         self.assertEqual(
             tuple(call[0] for call in runner.calls),
             EXPECTED_HELDOUT_EPISODES,
