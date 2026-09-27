@@ -1,0 +1,264 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-njang-generator-024",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-njang-w50s8f26qa022",
+    "path": "data/initial_states/electrical/us-njang-w50s8f26qa022.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Small-business generator and maintenance package with incomplete service term",
+    "summary": "The real requirement combines a 200 kW generator/ATS with preventive maintenance and is a small-business set-aside. Controlled clarification supplies the missing maintenance term and commercial ceiling; a cheaper synthetic supplier is ineligible.",
+    "difficulty": "medium",
+    "tags": [
+      "requirement_gap",
+      "multi_lot",
+      "supplier_eligibility",
+      "quote_received",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The 200 kW generator/ATS requirement, preventive-maintenance scope, and small-business set-aside are frozen public facts. Maintenance term, budget, delivery, supplier profiles, and quote values are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-njang-a",
+      "display_name": "Synthetic NJANG Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Eligible controlled small-business supplier."
+    },
+    {
+      "supplier_id": "syn-njang-b",
+      "display_name": "Synthetic NJANG Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Lower-price supplier that is not eligible under the controlled set-aside representation."
+    },
+    {
+      "supplier_id": "syn-njang-c",
+      "display_name": "Synthetic NJANG Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Eligible controlled small-business supplier."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: preventive maintenance term is 12 months; maximum package price USD 225,000; delivery within 150 days.",
+      "details": {
+        "maintenance_months": 12,
+        "max_total_price_usd": 225000,
+        "max_lead_time_days": 150
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-njang-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-njang-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 210,000 for the 200 kW generator, ATS, and 12 months of preventive maintenance with 120-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 210000,
+        "generator_quantity": 1,
+        "power_kw": 200,
+        "ats_included": true,
+        "maintenance_months": 12,
+        "lead_time_days": 120,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-njang-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-njang-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 190,000 for the complete package with 100-day delivery but is not eligible for the controlled set-aside.",
+      "details": {
+        "currency": "USD",
+        "total_price": 190000,
+        "generator_quantity": 1,
+        "power_kw": 200,
+        "ats_included": true,
+        "maintenance_months": 12,
+        "lead_time_days": 100,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-njang-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-njang-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 205,000 for the complete package with 130-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 205000,
+        "generator_quantity": 1,
+        "power_kw": 200,
+        "ats_included": true,
+        "maintenance_months": 12,
+        "lead_time_days": 130,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The missing maintenance term and commercial terms must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Award must include one 200 kW generator and automatic transfer capability."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Award must include 12 months of preventive maintenance."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Awarded price must not exceed USD 225,000."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Delivery must be within 150 days."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must be eligible under the small-business set-aside."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "Both required initial-state line items must be covered exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-njang-c",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "Supplier C is the lowest-price eligible complete package.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-njang-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A is eligible and feasible but more expensive than Supplier C.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "RFQ before maintenance/commercial clarification.",
+      "Awarding the ineligible lower-price Supplier B.",
+      "Awarding a quote that omits the ATS or preventive-maintenance scope."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
