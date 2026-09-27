@@ -149,6 +149,18 @@ def flatten_result(result, model, repeat):
         "guard_retry_noncompliance": metrics.get(
             "guard_retry_noncompliance"
         ),
+        "agent_pattern": metrics.get("agent_pattern"),
+        "react_steps_proposed": metrics.get("react_steps_proposed"),
+        "react_steps_accepted": metrics.get("react_steps_accepted"),
+        "react_thought_chars_total": metrics.get(
+            "react_thought_chars_total"
+        ),
+        "react_thought_chars_mean": metrics.get(
+            "react_thought_chars_mean"
+        ),
+        "react_thought_chars_max": metrics.get(
+            "react_thought_chars_max"
+        ),
         "error_type": (result.get("error") or {}).get("type"),
         "evaluation_error_type": (
             result.get("evaluation_error") or {}
@@ -274,6 +286,47 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
                 ),
                 default=None,
             ),
+            "total_react_steps_proposed": sum(
+                int(r.get("react_steps_proposed") or 0)
+                for r in subset
+            ),
+            "total_react_steps_accepted": sum(
+                int(r.get("react_steps_accepted") or 0)
+                for r in subset
+            ),
+            "runs_with_react_steps": sum(
+                int(r.get("react_steps_proposed") or 0) > 0
+                for r in subset
+            ),
+            "total_react_thought_chars": sum(
+                int(r.get("react_thought_chars_total") or 0)
+                for r in subset
+            ),
+            "mean_react_thought_chars": (
+                (
+                    sum(
+                        int(r.get("react_thought_chars_total") or 0)
+                        for r in subset
+                    )
+                    / sum(
+                        int(r.get("react_steps_accepted") or 0)
+                        for r in subset
+                    )
+                )
+                if sum(
+                    int(r.get("react_steps_accepted") or 0)
+                    for r in subset
+                ) > 0
+                else None
+            ),
+            "max_react_thought_chars": max(
+                (
+                    int(r["react_thought_chars_max"])
+                    for r in subset
+                    if r.get("react_thought_chars_max") is not None
+                ),
+                default=None,
+            ),
             "total_known_cost_usd": sum(
                 float(r["cost_usd"])
                 for r in subset
@@ -289,7 +342,7 @@ def summarize(rows, baseline_name="reactive-llm-v0.1"):
 
 def write_csv(rows, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","state_strategy","ledger_open_items","ledger_resolved_items","ledger_items_created","ledger_max_open_items","plan_updates","plan_rejections","mean_plan_steps","max_plan_steps","evidence_epoch","no_progress_marks","progress_events","guard_interventions","guard_retry_calls","guard_retry_noncompliance","error_type","evaluation_error_type"]
+    fields = ["model","episode_id","repeat","run_id","status","episode_success","episode_success_v02","feasible_process_success","feasible_obligation_success","terminal_feasible","economic_objective_satisfied","hard_constraints_passed","hard_constraints_total","checkpoints_completed","checkpoints_total","constraint_violations","incomplete_checkpoints","obligations_actionable","obligations_resolved","obligations_unresolved","obligations_no_opportunity","obligations_not_applicable","obligation_resolution_rate","unresolved_obligations","accepted_actions","model_calls","total_tokens","latency_ms","cost_usd","usage_incomplete","state_strategy","ledger_open_items","ledger_resolved_items","ledger_items_created","ledger_max_open_items","plan_updates","plan_rejections","mean_plan_steps","max_plan_steps","evidence_epoch","no_progress_marks","progress_events","guard_interventions","guard_retry_calls","guard_retry_noncompliance","agent_pattern","react_steps_proposed","react_steps_accepted","react_thought_chars_total","react_thought_chars_mean","react_thought_chars_max","error_type","evaluation_error_type"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
