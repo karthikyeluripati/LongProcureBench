@@ -253,11 +253,18 @@ award_supplier or no_award. Do not assume hidden or future information."""
         state: dict[str, Any],
     ) -> dict[str, Any]:
         normalized = deepcopy(verdict)
+        raw_issues = deepcopy(normalized["issues"])
         normalized["issues"] = self._bounded_strings(
-            normalized["issues"],
+            raw_issues,
             name="issues",
             maximum_items=4,
             maximum_chars=240,
+        )
+        # Preserve the verifier's complete feedback for repair and audit even
+        # when the provider-safe schema cannot enforce the requested bound.
+        normalized["raw_issues"] = raw_issues
+        normalized["issues_were_bounded"] = (
+            raw_issues != normalized["issues"]
         )
         self._validate_supplier_reference(normalized["supplier_id"], state)
         if not normalized["approve"]:
