@@ -120,123 +120,130 @@ class CoverageRepairPolicyTests(unittest.TestCase):
         self.assertEqual(metrics["coverage_forced_rfqs"], 2)
         self.assertEqual(metrics["coverage_forced_followups"], 1)
         self.assertEqual(metrics["coverage_forced_answers"], 0)
-        self.assertEqual(metrics["coverage_forced_amendments"], 0)
         self.assertEqual(metrics["model_calls"], 2)
 
-    def test_supplier_question_repair_precedes_remaining_coverage(self):
-        state = {
+    def test_supplier_question_repair_is_once_and_precedes_coverage(self):
+        policy = CoverageRepairContextPolicy(
+            "fake/test-model",
+            client=SequenceActionClient([]),
+        )
+        compiled = {
             "visible_suppliers": [
                 {"supplier_id": "syn-a"},
                 {"supplier_id": "syn-b"},
             ],
             "action_history": [
                 {
+                    "sequence": 1,
                     "type": "identify_suppliers",
                     "supplier_id": None,
                     "arguments": {},
                 },
                 {
+                    "sequence": 2,
                     "type": "send_rfq",
                     "supplier_id": "syn-a",
                     "arguments": {},
                 },
             ],
-            "revealed_events": [
+            "event_history": [
                 {
                     "event_id": "e1",
                     "type": "supplier_question",
                     "supplier_id": "syn-a",
-                    "trigger": {
-                        "kind": "after_action",
-                        "action_type": "send_rfq",
-                        "supplier_id": "syn-a",
-                        "step": None,
-                    },
+                    "observation": "Supplier asks a visible requirement question.",
+                    "details": {},
                 },
             ],
         }
 
-        forced = CoverageRepairContextPolicy._forced_action(
-            CoverageRepairContextPolicy.__new__(
-                CoverageRepairContextPolicy
-            ),
-            state,
-        )
-        self.assertEqual(forced, {
+        event_id, repair = policy._unresolved_visible_repair(compiled)
+        self.assertEqual(event_id, "e1")
+        self.assertEqual(repair, {
             "type": "answer_supplier_question",
             "supplier_id": "syn-a",
             "arguments": {},
         })
 
-    def test_requirement_change_is_amended_once_then_coverage_resumes(self):
-        state = {
-            "visible_suppliers": [
-                {"supplier_id": "syn-a"},
-                {"supplier_id": "syn-b"},
-            ],
-            "action_history": [
-                {
-                    "type": "send_rfq",
-                    "supplier_id": "syn-a",
-                    "arguments": {},
-                },
-            ],
-            "revealed_events": [
-                {
-                    "event_id": "e-change",
-                    "type": "requirement_change",
-                    "supplier_id": None,
-                    "trigger": {
-                        "kind": "at_step",
-                        "action_type": None,
-                        "supplier_id": None,
-                        "step": 1,
-                    },
-                },
-            ],
-        }
-
-        policy = CoverageRepairContextPolicy.__new__(
-            CoverageRepairContextPolicy
+        policy._handled_repair_event_ids.add("e1")
+        self.assertIsNone(policy._unresolved_visible_repair(compiled))
+        self.assertEqual(
+            policy._uncovered_supplier_action(compiled),
+            {
+                "type": "send_rfq",
+                "supplier_id": "syn-b",
+                "arguments": {},
+            },
         )
-        forced = policy._forced_action(state)
-        self.assertEqual(forced, {
-            "type": "issue_amendment",
-            "supplier_id": None,
-            "arguments": {},
-        })
-
-        state["action_history"].append({
-            "type": "issue_amendment",
-            "supplier_id": None,
-            "arguments": {},
-        })
-        forced = policy._forced_action(state)
-        self.assertEqual(forced, {
-            "type": "send_rfq",
-            "supplier_id": "syn-b",
-            "arguments": {},
-        })
 
     def test_controller_does_not_start_sourcing_on_its_own(self):
-        state = {
-            "visible_suppliers": [
-                {"supplier_id": "syn-a"},
-                {"supplier_id": "syn-b"},
-            ],
-            "action_history": [
-                {
-                    "type": "identify_suppliers",
-                    "supplier_id": None,
-                    "arguments": {},
-                },
-            ],
-            "revealed_events": [],
-        }
-        policy = CoverageRepairContextPolicy.__new__(
-            CoverageRepairContextPolicy
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-columbus-switchgear-021")
+        episode_id = state["episode_id"]
+        state = env.step(_env_action(
+            episode_id,
+            1,
+            _model_action("request_buyer_clarification"),
+        ))
+        state = env.step(_env_action(
+            episode_id,
+            2,
+            _model_action("identify_suppliers"),
+        ))
+
+        client = SequenceActionClient([
+            _model_action("evaluate_quotes"),
+        ])
+        policy = CoverageRepairContextPolicy(
+            "fake/test-model",
+            client=client,
         )
-        self.assertIsNone(policy._forced_action(state))
+        policy.reset(state)
+
+        decision = policy.act(state)
+        self.assertEqual(decision["type"], "evaluate_quotes")
+        self.assertEqual(len(client.calls), 1)
+        metrics = policy.get_run_metadata()
+        self.assertEqual(metrics["coverage_repair_interventions"], 0)
+
+    def test_controller_receives_only_compiled_event_fields(self):
+        env = LongProcureBenchEnv()
+        state = env.reset("electrical-columbus-switchgear-021")
+        episode_id = state["episode_id"]
+        state = env.step(_env_action(
+            episode_id,
+            1,
+            _model_action("request_buyer_clarification"),
+        ))
+        state = env.step(_env_action(
+            episode_id,
+            2,
+            _model_action("identify_suppliers"),
+        ))
+        state = env.step(_env_action(
+            episode_id,
+            3,
+            _model_action("send_rfq", "syn-columbus-c"),
+        ))
+
+        client = SequenceActionClient([])
+        policy = CoverageRepairContextPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        policy.reset(state)
+
+        # The visible raw runtime event contains trigger metadata, but the
+        # controller's behavior must be derivable from the compiled view only.
+        compiled = policy._prompt_state(state)
+        event = next(
+            row for row in compiled["event_history"]
+            if row["event_id"] == "e4"
+        )
+        self.assertNotIn("trigger", event)
+        repair = policy._unresolved_visible_repair(compiled)
+        self.assertEqual(repair[0], "e4")
+        self.assertEqual(repair[1]["type"], "send_follow_up")
 
 
 if __name__ == "__main__":
