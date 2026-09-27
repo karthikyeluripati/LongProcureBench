@@ -64,12 +64,18 @@ class FrozenAlwaysReplanVerifierEvidenceTests(unittest.TestCase):
             "trajectory": [],
             "policy_metrics": {},
         }
+        missing_error = dict(base)
+        missing_error.pop("error")
+        missing_evaluation_error = dict(base)
+        missing_evaluation_error.pop("evaluation_error")
         cases = (
             ("execution", {**base, "error": {"type": "RuntimeError"}}),
+            ("missing_execution_state", missing_error),
             (
                 "evaluation_error",
                 {**base, "evaluation_error": {"type": "EvaluationError"}},
             ),
+            ("missing_evaluation_error_state", missing_evaluation_error),
             (
                 "evaluation_version",
                 {
