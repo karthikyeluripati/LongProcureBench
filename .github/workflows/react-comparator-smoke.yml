@@ -2,6 +2,11 @@ name: ReAct Comparator Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-react-smoke-20260927
+    paths:
+      - ".github/workflows/react-comparator-smoke.yml"
 
 permissions:
   contents: read
