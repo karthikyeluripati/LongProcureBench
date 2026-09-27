@@ -20,7 +20,7 @@ MAX_THOUGHT_CHARS = 400
 REACT_STEP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "thought_summary": {"type": "string", "minLength": 1},
+        "thought_summary": {"type": "string"},
         "action": deepcopy(SEMANTIC_ACTION_SCHEMA),
     },
     "required": ["thought_summary", "action"],
