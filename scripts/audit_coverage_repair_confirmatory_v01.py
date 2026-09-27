@@ -132,6 +132,103 @@ def _close(actual: Any, expected: Any, path: str) -> None:
         )
 
 
+def _check_frozen_chunks(manifest: dict[str, Any]) -> None:
+    storage = manifest.get("storage") or {}
+    expected_replay_chunks = [
+        {
+            "path": "replay-source.b64.part00",
+            "bytes": 2200,
+            "sha256": "760149ed1a2f5081a6b0b1a966bdc0d1dc5941bb762f3e933323f84f8c184ba2",
+        },
+        {
+            "path": "replay-source.b64.part01",
+            "bytes": 2200,
+            "sha256": "5d5ef0f2d853538c63c810e1abf78dc9bd48473a7aaf4e8ee6b19bc4ba04fdaf",
+        },
+        {
+            "path": "replay-source.b64.part02",
+            "bytes": 2200,
+            "sha256": "703632f14cbd0b512b869cc6956069f6aa1fbcf7a8a1b40c89b6c7112807a9dc",
+        },
+    ]
+    _close(
+        storage.get("format"),
+        "gzip(JSONL canonical compact replay records) encoded as base64 text and split into checksum-locked chunks",
+        "manifest.storage.format",
+    )
+    _close(storage.get("chunks"), expected_replay_chunks, "manifest.storage.chunks")
+    _close(storage.get("encoded_bytes"), 6600, "manifest.storage.encoded_bytes")
+    for row in expected_replay_chunks:
+        path = EVIDENCE_DIR / row["path"]
+        if not path.is_file():
+            raise ValueError(f"Missing Coverage + Repair replay chunk: {path}")
+        payload = path.read_bytes()
+        _close(len(payload), row["bytes"], f"{row['path']}.bytes")
+        _close(
+            sha256(payload).hexdigest(),
+            row["sha256"],
+            f"{row['path']}.sha256",
+        )
+
+    provenance = manifest.get("provenance") or {}
+    expected_provenance_chunks = [
+        {
+            "path": "source-provenance.txt.part00",
+            "bytes": 3156,
+            "sha256": "7087beaf7a98c1747d301922fffeb11cf4902f5ceba898cdef5e59c661d5610b",
+        },
+        {
+            "path": "source-provenance.txt.part01",
+            "bytes": 3168,
+            "sha256": "38b21672de5ed560b46b13b049e581eb6b3ef68648d96b28973a5588a5f177a8",
+        },
+        {
+            "path": "source-provenance.txt.part02",
+            "bytes": 3156,
+            "sha256": "08c5a448dd5907e9504a0937cfe0903becd987045ac3c200a85359c611494d9b",
+        },
+        {
+            "path": "source-provenance.txt.part03",
+            "bytes": 3126,
+            "sha256": "519bb470b4dcc1f011d624a2a8c2cb31a5e9ca99f8a88c19c453efe01a74e7f2",
+        },
+    ]
+    _close(
+        provenance.get("chunks"),
+        expected_provenance_chunks,
+        "manifest.provenance.chunks",
+    )
+    _close(provenance.get("bytes"), 12606, "manifest.provenance.bytes")
+    _close(
+        provenance.get("sha256"),
+        "016fd2f237854356d34f85fae65096b28273c27301c52909f51d8470abd7d122",
+        "manifest.provenance.sha256",
+    )
+    _close(
+        provenance.get("raw_provenance_sha256"),
+        "ba74befd2b64dd07e5ea08d2621941407fd11fa7a7f32c2fa76876318a80b97f",
+        "manifest.provenance.raw_provenance_sha256",
+    )
+    joined = b""
+    for row in expected_provenance_chunks:
+        path = EVIDENCE_DIR / row["path"]
+        if not path.is_file():
+            raise ValueError(f"Missing Coverage + Repair provenance chunk: {path}")
+        payload = path.read_bytes()
+        _close(len(payload), row["bytes"], f"{row['path']}.bytes")
+        _close(
+            sha256(payload).hexdigest(),
+            row["sha256"],
+            f"{row['path']}.sha256",
+        )
+        joined += payload
+    _close(
+        sha256(joined).hexdigest(),
+        provenance["sha256"],
+        "joined provenance sha256",
+    )
+
+
 def check_provenance(records: list[dict[str, Any]]) -> None:
     parts = sorted(EVIDENCE_DIR.glob("source-provenance.txt.part*"))
     if len(parts) != 4:
@@ -209,6 +306,8 @@ def main() -> None:
         "source_artifact_digest": (
             "sha256:c8a0c85e6ec00af8199d0085a9bcbc64ea46826d92d0a20a0df00aad485474a5"
         ),
+        "source_artifact_bytes": 206620,
+        "model": "openai/gpt-5.6-sol",
         "records": 60,
         "episodes": 20,
         "repeats_per_episode": 3,
@@ -218,7 +317,6 @@ def main() -> None:
 
     storage = manifest.get("storage") or {}
     expected_storage = {
-        "path": "replay-source.b64",
         "compact_rows_bytes": EXPECTED_COMPACT_ROWS_BYTES,
         "compact_rows_sha256": EXPECTED_COMPACT_ROWS_SHA256,
         "compressed_bytes": EXPECTED_COMPRESSED_BYTES,
@@ -226,6 +324,7 @@ def main() -> None:
     }
     for key, value in expected_storage.items():
         _close(storage.get(key), value, f"manifest.storage.{key}")
+    _check_frozen_chunks(manifest)
 
     evaluator = LongProcureBenchEvaluator(repo_root=ROOT)
     coverage_source = load_frozen_coverage_repair_source(ROOT)
