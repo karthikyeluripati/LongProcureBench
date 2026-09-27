@@ -58,7 +58,10 @@ reference row exactly 10. Row validation rejects:
 - failed model calls.
 
 The aggregate artifact is created only after all six row artifacts independently
-pass their contracts. It must contain exactly **160** rows.
+pass their contracts. It must contain exactly **160** rows. Before aggregation,
+every `runs.csv` row and the complete `summary.json` are deterministically
+reconstructed from the raw result JSON and must match exactly; stale or edited
+reporting files are rejected.
 
 Agent mistakes that are valid benchmark outcomes remain measurements; they are
 not converted into infrastructure failures and are not retried for performance.
@@ -76,9 +79,13 @@ After the first model-backed held-out call, no held-out outcome may change:
 - reporting metrics/tables;
 - held-out inclusion/exclusion.
 
-A provider outage or execution failure may be documented and the failed job
-re-run with the **same frozen settings**; it may not be replaced with another
-model or configuration.
+A provider outage or execution failure may be documented and the **failed job
+only** may be re-run with the same frozen settings; successful paid rows should
+not be repeated. Row artifacts use stable workflow-run IDs rather than
+`run_attempt` in their names, and a retried failed row overwrites only its own
+partial artifact. The aggregate job therefore reuses successful artifacts from
+earlier attempts in the same workflow run. A failed row may not be replaced
+with another model or configuration.
 
 ## After the workflow
 
