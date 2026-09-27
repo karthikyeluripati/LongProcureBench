@@ -2,6 +2,11 @@ name: ReAct Comparator Full Run
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-react-full-20260927
+    paths:
+      - ".github/workflows/react-comparator-full.yml"
 
 permissions:
   contents: read
