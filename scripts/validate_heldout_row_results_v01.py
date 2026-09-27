@@ -11,7 +11,11 @@ from run_heldout_paper_row import (
     EXPECTED_HELDOUT_EPISODES,
     load_execution_plan,
 )
-from run_reactive_pilot import model_slug
+from run_reactive_pilot import (
+    flatten_result,
+    model_slug,
+    summarize,
+)
 from validate_live_pilot_statuses import invalid_rows
 
 INFRA_STATUS = {
@@ -21,6 +25,62 @@ INFRA_STATUS = {
     "metadata_error",
 }
 
+CSV_FIELDS = [
+    "model",
+    "episode_id",
+    "repeat",
+    "run_id",
+    "status",
+    "episode_success",
+    "episode_success_v02",
+    "feasible_process_success",
+    "feasible_obligation_success",
+    "terminal_feasible",
+    "economic_objective_satisfied",
+    "hard_constraints_passed",
+    "hard_constraints_total",
+    "checkpoints_completed",
+    "checkpoints_total",
+    "constraint_violations",
+    "incomplete_checkpoints",
+    "obligations_actionable",
+    "obligations_resolved",
+    "obligations_unresolved",
+    "obligations_no_opportunity",
+    "obligations_not_applicable",
+    "obligation_resolution_rate",
+    "unresolved_obligations",
+    "accepted_actions",
+    "model_calls",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "state_strategy",
+    "ledger_open_items",
+    "ledger_resolved_items",
+    "ledger_items_created",
+    "ledger_max_open_items",
+    "plan_updates",
+    "plan_rejections",
+    "mean_plan_steps",
+    "max_plan_steps",
+    "evidence_epoch",
+    "no_progress_marks",
+    "progress_events",
+    "guard_interventions",
+    "guard_retry_calls",
+    "guard_retry_noncompliance",
+    "agent_pattern",
+    "react_steps_proposed",
+    "react_steps_accepted",
+    "react_thought_chars_total",
+    "react_thought_chars_mean",
+    "react_thought_chars_max",
+    "error_type",
+    "evaluation_error_type",
+]
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -28,7 +88,35 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8") as handle:
-        return list(csv.DictReader(handle))
+        reader = csv.DictReader(handle)
+        fields = list(reader.fieldnames or [])
+        if fields != CSV_FIELDS:
+            raise ValueError(
+                "Held-out runs.csv schema drift: "
+                f"expected={CSV_FIELDS}, actual={fields}"
+            )
+        return list(reader)
+
+
+def _csv_projection(row: dict[str, Any]) -> dict[str, str]:
+    projected = dict(row)
+    projected["constraint_violations"] = ";".join(
+        row.get("constraint_violations") or []
+    )
+    projected["incomplete_checkpoints"] = ";".join(
+        row.get("incomplete_checkpoints") or []
+    )
+    projected["unresolved_obligations"] = ";".join(
+        row.get("unresolved_obligations") or []
+    )
+    return {
+        field: (
+            ""
+            if projected.get(field) is None
+            else str(projected.get(field))
+        )
+        for field in CSV_FIELDS
+    }
 
 
 def _expected_keys(spec: dict[str, Any]) -> set[tuple[str, int]]:
@@ -109,13 +197,13 @@ def validate_row_results(
             f"extra={sorted(actual_keys - expected_keys)}"
         )
 
-    bad = invalid_rows(rows)
-    if bad:
-        raise ValueError(
-            f"{row_id} contains {len(bad)} infrastructure/model failure rows"
-        )
+    rows_by_key = {}
+    for row in rows:
+        key = (row["episode_id"], int(row["repeat"]))
+        rows_by_key[key] = row
 
     raw_results = []
+    raw_flat_rows = []
     for episode_id, repeat in sorted(actual_keys):
         path = _result_path(
             output_dir,
@@ -224,14 +312,45 @@ def validate_row_results(
                 )
 
         raw_results.append(result)
-
-    summary = _load_json(summary_path)
-    if summary.get("runs") != spec["expected_runs"]:
-        raise ValueError(
-            f"{row_id} summary run count drift: {summary.get('runs')!r}"
+        expected_flat = flatten_result(
+            result,
+            expected_model,
+            repeat,
         )
-    if set((summary.get("by_model") or {})) != {expected_model}:
-        raise ValueError(f"{row_id} summary model set drift")
+        raw_flat_rows.append(expected_flat)
+        expected_csv = _csv_projection(expected_flat)
+        actual_csv = rows_by_key[(episode_id, repeat)]
+        if actual_csv != expected_csv:
+            changed = sorted(
+                field
+                for field in CSV_FIELDS
+                if actual_csv.get(field) != expected_csv.get(field)
+            )
+            raise ValueError(
+                f"{row_id} runs.csv disagrees with raw result for "
+                f"{episode_id} r{repeat}: changed_fields={changed}"
+            )
+
+    bad = invalid_rows(raw_flat_rows)
+    if bad:
+        raise ValueError(
+            f"{row_id} contains {len(bad)} infrastructure/model failure rows"
+        )
+
+    expected_baseline = (
+        "heldout-reference-control-v0.1"
+        if row_id == "reference-control"
+        else f"heldout-paper-v0.1--{row_id}"
+    )
+    expected_summary = summarize(
+        raw_flat_rows,
+        baseline_name=expected_baseline,
+    )
+    summary = _load_json(summary_path)
+    if summary != expected_summary:
+        raise ValueError(
+            f"{row_id} summary.json disagrees with raw result evidence"
+        )
 
     validation = {
         "schema_version": "0.1.0",
