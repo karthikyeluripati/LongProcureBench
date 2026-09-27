@@ -2,9 +2,6 @@ name: Always Replan Verifier Smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - run-always-replan-verifier-smoke-20260926
 
 permissions:
   contents: read
