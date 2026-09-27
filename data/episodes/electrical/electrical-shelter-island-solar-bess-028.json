@@ -1,0 +1,311 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-shelter-island-solar-bess-028",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-shelter-island-solar-bess-2026",
+    "path": "data/initial_states/electrical/us-shelter-island-solar-bess-2026.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Rooftop PV buy with optional BESS and supplier clarification",
+    "summary": "The real Shelter Island package requires a rooftop PV system and treats BESS as an additive optional alternate. Controlled clarification establishes budget/schedule, and one supplier asks whether the BESS alternate is mandatory before quoting itemized PV/BESS pricing.",
+    "difficulty": "medium",
+    "tags": [
+      "requirement_gap",
+      "supplier_question",
+      "multi_lot",
+      "quote_received",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The rooftop PV requirement, 480 V three-phase interconnection, and BESS-as-additive-alternate structure are frozen public facts. Budget, schedule, supplier behavior, and prices are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-si-a",
+      "display_name": "Synthetic Shelter Island Solar Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-si-b",
+      "display_name": "Synthetic Shelter Island Solar Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Asks whether the optional BESS must be included before quoting."
+    },
+    {
+      "supplier_id": "syn-si-c",
+      "display_name": "Synthetic Shelter Island Solar Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: base PV budget ceiling USD 450,000 and commissioning within 180 days; the BESS remains an optional additive alternate.",
+      "details": {
+        "base_pv_max_price_usd": 450000,
+        "max_lead_time_days": 180,
+        "bess_optional": true
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-si-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-si-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes the required PV system for USD 420,000 with 160-day commissioning.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": {
+            "price": 420000,
+            "lead_time_days": 160,
+            "pv_voltage": 480,
+            "pv_system": true
+          }
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1"
+        ]
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-si-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-si-b",
+        "step": null
+      },
+      "observation": "Supplier B asks whether the BESS additive alternate is mandatory for award.",
+      "details": {
+        "question": "Is the BESS additive alternate mandatory?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-si-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-si-b",
+        "step": null
+      },
+      "observation": "After confirmation that BESS is optional, Supplier B quotes PV at USD 390,000 and an optional integrated BESS at USD 110,000, both with 150-day commissioning.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": {
+            "price": 390000,
+            "lead_time_days": 150,
+            "pv_voltage": 480,
+            "pv_system": true
+          },
+          "2": {
+            "price": 110000,
+            "lead_time_days": 150,
+            "bess_integrated": true
+          }
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-si-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-si-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes the required PV system for USD 405,000 but requires 190 days.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "1": {
+            "price": 405000,
+            "lead_time_days": 190,
+            "pv_voltage": 480,
+            "pv_system": true
+          }
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "1"
+        ]
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Missing commercial terms and optional-BESS treatment must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Awarded required PV scope must interconnect at 480 V and be a complete PV system."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Required PV price must not exceed USD 450,000."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Required PV commissioning must be within 180 days."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "The required PV line item must be awarded exactly once; the BESS alternate may be omitted or awarded at most once."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "handle_supplier_question",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-si-b",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "Supplier B provides the lowest-price feasible required PV scope; the optional BESS is not required for award.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-si-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A provides a feasible required PV scope at a higher price.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o3",
+        "awards": [
+          {
+            "scope": "lot-1",
+            "supplier_id": "syn-si-b",
+            "quote_event_id": "e4"
+          },
+          {
+            "scope": "lot-2",
+            "supplier_id": "syn-si-b",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "Supplier B can also provide the optional integrated BESS, but including the optional alternate raises total awarded price.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Treating the optional BESS as mandatory.",
+      "RFQ before buyer clarification.",
+      "Awarding Supplier C despite the 190-day schedule.",
+      "Failing to answer Supplier B's material scope question."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
