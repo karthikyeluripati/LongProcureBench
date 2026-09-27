@@ -38,7 +38,6 @@ class DevelopmentComparatorMatrixTests(unittest.TestCase):
             "runs_if_10_episodes": 30,
             "competitive": True,
         })
-        matrix["heldout_protocol"]["expected_model_backed_runs"] = 180
         with self.assertRaisesRegex(
             ValueError,
             "Held-out eligible row count changed",
