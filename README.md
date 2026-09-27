@@ -186,8 +186,19 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Every held-out episode has a deterministic Evaluator v0.2 config, observability row, and oracle-aware reference control.
 - CI requires all 10 reference controls to pass terminal feasibility, hard constraints, feasible-obligation success, strict v0.2, the economic objective, and **zero unresolved actionable obligations**.
 - The split remains contamination-safe: **no model/API held-out evaluation has run yet**.
-- Next after this package merges: execute only the already-frozen 150 model-backed held-out runs, plus 10 deterministic reference controls.
+- The package is merged; the next step is the manual frozen held-out execution protocol below.
 - See [`docs/heldout-episode-package-v0.1.md`](docs/heldout-episode-package-v0.1.md).
+
+### Held-out Paper Evaluation Protocol v0.1
+
+- Execution is frozen to **5 model-backed rows × 10 episodes × 3 repeats = 150 model runs**, plus **10 deterministic reference controls**.
+- Model identity, episodes, repeats, max actions, temperature omission, reasoning effort, context strategy, and ReAct pattern are loaded from committed freeze artifacts; the runner exposes no research-setting overrides.
+- All 10 reference controls and all provider credentials must pass preflight before any paid model job starts.
+- OpenAI raw → context → ReAct rows are serialized; Anthropic and Gemini can run in parallel after the reference gate.
+- Every row is independently checked for the exact episode/repeat grid, policy/settings identity, Evaluator v0.2 coverage, complete usage, known cost, and zero infrastructure/model-call failures.
+- A final aggregate artifact is produced only after all six rows validate to exactly **160 runs**.
+- The live workflow is **manual-only and not triggered by this PR**.
+- See [`docs/heldout-paper-evaluation-v0.1.md`](docs/heldout-paper-evaluation-v0.1.md).
 
 ### Checkpoint fairness audit v0.1
 
@@ -227,12 +238,12 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
-- `data/evaluation/electrical/` — hard-constraint rules for all 20 episodes.
+- `data/evaluation/electrical/` — hard-constraint rules for all 30 episodes.
 - `schema/initial-state.schema.json` — real procurement starting-state contract.
 - `schema/episode.schema.json` — semi-synthetic episode contract.
 - `schema/action.schema.json` — semantic agent action contract.
 - `data/initial_states/electrical/` — 30 real public starting states: 20 development/calibration + 10 frozen held-out-state reservations.
-- `data/episodes/electrical/` — 20 frozen development/calibration episodes in the current v0.2 suite.
+- `data/episodes/electrical/` — 30 frozen episodes: 20 development/calibration + 10 held-out.
 - `data/splits/electrical-v0.3-plan.json` — development/held-out collection plan.
 - `BENCHMARK_SPEC.md` — frozen benchmark grounding, visibility, leakage, and split contract.
 - `OBSERVABILITY_MATRIX.csv` — episode-level observability audit.
@@ -245,6 +256,10 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/test_runtime.py` — deterministic runtime regression/execution tests.
 - `scripts/run_reactive_pilot.py` — repeated reactive-model pilot orchestration and aggregation.
 - `scripts/run_context_compiled_pilot.py` — repeated context-compiled matched-policy experiment runner.
+- `scripts/run_heldout_paper_row.py` — immutable row runner for the frozen 021–030 paper evaluation.
+- `scripts/validate_heldout_row_results_v01.py` — exact per-row held-out evidence validator.
+- `scripts/aggregate_heldout_matrix_results_v01.py` — six-row/160-run held-out aggregation and revalidation.
+- `scripts/validate_heldout_execution_plan_v01.py` — pre-run provenance/settings/workflow freeze validator.
 - `scripts/run_operational_ledger_pilot.py` — repeated persistent-ledger matched-policy experiment runner.
 - `scripts/run_working_plan_pilot.py` — repeated maintained-working-plan matched-policy experiment runner.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
