@@ -1,0 +1,281 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-columbus-switchgear-021",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-columbus-rfq029445",
+    "path": "data/initial_states/electrical/us-columbus-rfq029445.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Switchgear sourcing with requirement clarification, qualification, and non-response recovery",
+    "summary": "The real Columbus switchgear starting state omits quantity, delivery, and budget. A controlled buyer clarification establishes commercial terms; one low bidder is unqualified and another supplier initially does not respond.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_non_response",
+      "quote_received",
+      "supplier_eligibility",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The switchgear requirement and bidder-experience constraints come from the frozen public starting state. Quantity, budget, delivery ceiling, supplier behavior, quote values, and supplier qualification states are synthetic controlled benchmark facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-columbus-a",
+      "display_name": "Synthetic Columbus Switchgear Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Meets the controlled experience profile and offers a complete approved-equal package."
+    },
+    {
+      "supplier_id": "syn-columbus-b",
+      "display_name": "Synthetic Columbus Switchgear Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Lower-price bidder that does not satisfy the controlled representation of the real experience requirement."
+    },
+    {
+      "supplier_id": "syn-columbus-c",
+      "display_name": "Synthetic Columbus Switchgear Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Qualified supplier that initially does not respond."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: procure 2 EA switchgear units; maximum total price is USD 420,000 and delivery must be within 180 days.",
+      "details": {
+        "quantity": 2,
+        "unit": "EA",
+        "max_total_price_usd": 420000,
+        "max_lead_time_days": 180
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-columbus-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-columbus-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 390,000 for 2 EA approved-equal switchgear with 150-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 390000,
+        "quantity": 2,
+        "unit": "EA",
+        "lead_time_days": 150,
+        "approved_equal": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-columbus-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-columbus-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 360,000 for 2 EA approved-equal switchgear with 120-day delivery, but the supplier is not qualified under the controlled experience profile.",
+      "details": {
+        "currency": "USD",
+        "total_price": 360000,
+        "quantity": 2,
+        "unit": "EA",
+        "lead_time_days": 120,
+        "approved_equal": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_non_response",
+      "synthetic": true,
+      "supplier_id": "syn-columbus-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-columbus-c",
+        "step": null
+      },
+      "observation": "Supplier C does not respond during the initial quotation window.",
+      "details": {
+        "status": "no_response"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-columbus-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_follow_up",
+        "supplier_id": "syn-columbus-c",
+        "step": null
+      },
+      "observation": "After follow-up, Supplier C quotes USD 375,000 for 2 EA approved-equal switchgear with 130-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 375000,
+        "quantity": 2,
+        "unit": "EA",
+        "lead_time_days": 130,
+        "approved_equal": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Missing commercial terms must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "Award quantity must be 2 EA."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Awarded total price must not exceed USD 420,000."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Delivery must be within 180 days."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the bidder-qualification requirement represented by the supplier eligibility state."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "real_initial_state",
+        "description": "Awarded switchgear must be an approved listed model or approved equal."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "The required switchgear item must be fully awarded exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "follow_up_nonresponse",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-columbus-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C is qualified, feasible, and cheaper than Supplier A.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-columbus-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A is qualified and feasible but more expensive than Supplier C.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Sending RFQs before buyer clarification.",
+      "Awarding the lower-price unqualified Supplier B.",
+      "Ignoring Supplier C's observed non-response.",
+      "Awarding a non-approved-equal switchgear offer."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
