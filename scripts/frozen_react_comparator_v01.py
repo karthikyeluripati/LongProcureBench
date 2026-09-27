@@ -17,6 +17,14 @@ EXPECTED_COMPACT_ROWS_BYTES = 90934
 EXPECTED_COMPACT_ROWS_SHA256 = (
     "b93c810ce585807a7a822953bb890ee1d6161291c523d0d2de4a96b60f0a1c1c"
 )
+EXPECTED_TRANSCRIPT_COMPRESSED_BYTES = 30180
+EXPECTED_TRANSCRIPT_COMPRESSED_SHA256 = (
+    "a7cbe4277c70abe62d157df683efa34a58bb29cc39eeb951e0d253353b7e7456"
+)
+EXPECTED_TRANSCRIPT_ROWS_BYTES = 262900
+EXPECTED_TRANSCRIPT_ROWS_SHA256 = (
+    "dc073660375b68febef010da284cc867b24f11beb2e52c846957bf726c3a5ba8"
+)
 EXPECTED_RUNS = 60
 EXPECTED_EPISODES = 20
 EXPECTED_REPEATS = 3
@@ -99,6 +107,173 @@ def _compact_row_from_record(record: dict[str, Any]) -> list[Any]:
         decisions,
         compact_metrics,
     ]
+
+
+def load_frozen_react_transcripts(
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    path = evidence_dir(repo_root) / "transcript-source.b64"
+    if not path.is_file():
+        raise ValueError(
+            f"Missing frozen ReAct transcript source: {path}"
+        )
+
+    try:
+        compressed = base64.b64decode(
+            path.read_text(encoding="utf-8").strip(),
+            validate=True,
+        )
+    except Exception as exc:
+        raise ValueError(
+            "Frozen ReAct transcript base64 is invalid"
+        ) from exc
+
+    if len(compressed) != EXPECTED_TRANSCRIPT_COMPRESSED_BYTES:
+        raise ValueError("Frozen ReAct transcript size mismatch")
+    if (
+        sha256(compressed).hexdigest()
+        != EXPECTED_TRANSCRIPT_COMPRESSED_SHA256
+    ):
+        raise ValueError("Frozen ReAct transcript digest mismatch")
+
+    try:
+        payload_bytes = gzip.decompress(compressed)
+        payload = payload_bytes.decode("utf-8")
+    except Exception as exc:
+        raise ValueError(
+            "Frozen ReAct transcript gzip is invalid"
+        ) from exc
+
+    if len(payload_bytes) != EXPECTED_TRANSCRIPT_ROWS_BYTES:
+        raise ValueError(
+            "Frozen ReAct transcript row byte count mismatch"
+        )
+    if (
+        sha256(payload_bytes).hexdigest()
+        != EXPECTED_TRANSCRIPT_ROWS_SHA256
+    ):
+        raise ValueError(
+            "Frozen ReAct transcript row digest mismatch"
+        )
+
+    rows = [
+        json.loads(line)
+        for line in payload.splitlines()
+        if line.strip()
+    ]
+    if len(rows) != EXPECTED_RUNS:
+        raise ValueError(
+            f"Expected {EXPECTED_RUNS} transcript runs; found {len(rows)}"
+        )
+
+    records = []
+    keys = set()
+    for row in rows:
+        if not isinstance(row, list) or len(row) != 3:
+            raise ValueError(
+                "Compact ReAct transcript record must have three fields"
+            )
+        episode_index, repeat, transcript = row
+        if (
+            not isinstance(episode_index, int)
+            or not 1 <= episode_index <= len(EPISODES)
+        ):
+            raise ValueError("Invalid ReAct transcript episode index")
+        if (
+            not isinstance(repeat, int)
+            or not 1 <= repeat <= EXPECTED_REPEATS
+        ):
+            raise ValueError("Invalid ReAct transcript repeat")
+        if not isinstance(transcript, list):
+            raise ValueError("ReAct transcript must be a list")
+
+        decoded_steps = []
+        for expected_step, step in enumerate(transcript, start=1):
+            if not isinstance(step, list) or len(step) != 4:
+                raise ValueError(
+                    "Compact ReAct transcript step must have four fields"
+                )
+            step_number, thought, action, observation = step
+            if step_number != expected_step:
+                raise ValueError(
+                    "ReAct transcript steps must be sequential"
+                )
+            if not isinstance(thought, str) or not thought.strip():
+                raise ValueError(
+                    "ReAct transcript thought must be non-empty"
+                )
+            if not isinstance(action, list) or len(action) != 3:
+                raise ValueError(
+                    "ReAct transcript action must have three fields"
+                )
+            action_type, supplier_id, arguments = action
+            if not isinstance(action_type, str) or not action_type:
+                raise ValueError(
+                    "Invalid ReAct transcript action type"
+                )
+            if supplier_id is not None and not isinstance(
+                supplier_id, str
+            ):
+                raise ValueError(
+                    "ReAct transcript supplier_id must be string/null"
+                )
+            if not isinstance(arguments, dict):
+                raise ValueError(
+                    "ReAct transcript arguments must be object"
+                )
+            if not isinstance(observation, list):
+                raise ValueError(
+                    "ReAct transcript observation must be a list"
+                )
+            for event in observation:
+                if not isinstance(event, dict):
+                    raise ValueError(
+                        "ReAct transcript observation event must be object"
+                    )
+                for forbidden in (
+                    "trigger",
+                    "synthetic",
+                    "emission_policy",
+                ):
+                    if forbidden in event:
+                        raise ValueError(
+                            "Durable transcript contains runtime "
+                            f"bookkeeping field: {forbidden}"
+                        )
+            decoded_steps.append({
+                "step": step_number,
+                "thought_summary": thought,
+                "action": {
+                    "type": action_type,
+                    "supplier_id": supplier_id,
+                    "arguments": arguments,
+                },
+                "observation": observation,
+            })
+
+        episode_id = EPISODES[episode_index - 1]
+        key = (episode_id, repeat)
+        if key in keys:
+            raise ValueError(
+                f"Duplicate frozen ReAct transcript key: {key}"
+            )
+        keys.add(key)
+        records.append({
+            "episode_id": episode_id,
+            "repeat": repeat,
+            "react_transcript": decoded_steps,
+        })
+
+    expected = {
+        (episode_id, repeat)
+        for episode_id in EPISODES
+        for repeat in range(1, EXPECTED_REPEATS + 1)
+    }
+    if keys != expected:
+        raise ValueError(
+            "Frozen ReAct transcript source grid mismatch"
+        )
+    return records
 
 
 def load_frozen_react_source(
