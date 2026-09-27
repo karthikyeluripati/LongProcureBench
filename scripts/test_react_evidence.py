@@ -7,6 +7,7 @@ from audit_react_comparator_v01 import (
     build_comparison,
     check_provenance_entries,
 )
+from materialize_react_comparator_evidence_v01 import _validate_raw_run
 from frozen_react_comparator_v01 import (
     EXPECTED_EPISODES,
     EXPECTED_REPEATS,
@@ -18,10 +19,101 @@ from frozen_react_comparator_v01 import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def minimal_raw_run():
+    episode_id = "electrical-bongabon-generator-001"
+    action = {
+        "action_id": "a1",
+        "episode_id": episode_id,
+        "type": "identify_suppliers",
+        "supplier_id": None,
+        "arguments": {},
+    }
+    observation = [{
+        "event_id": "e1",
+        "type": "quote_received",
+        "supplier_id": "syn-gen-a",
+        "details": {"price": 10},
+        "trigger": {
+            "kind": "after_action",
+            "action_type": "identify_suppliers",
+            "supplier_id": None,
+        },
+        "synthetic": True,
+        "emission_policy": "once",
+    }]
+    thought = "Reveal the supplier directory before requesting quotes."
+    return {
+        "episode_id": episode_id,
+        "status": "completed",
+        "error": None,
+        "evaluation_error": None,
+        "evaluation": {
+            "evaluation_version": "0.2.0",
+            "episode_id": episode_id,
+        },
+        "trajectory": [{
+            "step": 1,
+            "action": action,
+            "observations": observation,
+        }],
+        "policy_metrics": {
+            "model": "openai/gpt-5.6-sol",
+            "usage_incomplete": False,
+            "cost_usd": 0.01,
+            "model_calls_failed": 0,
+            "context_strategy": "factual_compiled_v0.1",
+            "agent_pattern": "react_v0.1",
+            "temperature": None,
+            "reasoning_effort": "medium",
+            "model_calls_attempted": 1,
+            "react_steps_proposed": 1,
+            "react_steps_accepted": 1,
+            "react_thought_chars_total": len(thought),
+            "react_thought_chars_mean": float(len(thought)),
+            "react_thought_chars_max": len(thought),
+            "react_transcript": [{
+                "step": 1,
+                "thought_summary": thought,
+                "action": {
+                    "type": action["type"],
+                    "supplier_id": action["supplier_id"],
+                    "arguments": {},
+                },
+                "observation": [{
+                    "event_id": "e1",
+                    "type": "quote_received",
+                    "supplier_id": "syn-gen-a",
+                    "details": {"price": 10},
+                }],
+            }],
+        },
+    }
+
+
 class FrozenReActEvidenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.comparison = build_comparison()
+
+    def test_materializer_rejects_transcript_observation_drift(self):
+        run = minimal_raw_run()
+        run["policy_metrics"]["react_transcript"][0]["observation"][0][
+            "details"
+        ]["price"] = 999
+        with self.assertRaisesRegex(
+            ValueError,
+            "observation does not match",
+        ):
+            _validate_raw_run(run, run["episode_id"])
+
+    def test_materializer_rejects_thought_character_metric_drift(self):
+        run = minimal_raw_run()
+        run["policy_metrics"]["react_thought_chars_total"] += 1
+        with self.assertRaisesRegex(
+            ValueError,
+            "thought-character total mismatch",
+        ):
+            _validate_raw_run(run, run["episode_id"])
 
     def test_frozen_grid_and_react_contract(self):
         records = load_frozen_react_source(ROOT)
