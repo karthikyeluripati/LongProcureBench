@@ -1,0 +1,176 @@
+{
+  "cluster_bootstrap": {
+    "95pct_ci": {
+      "accepted_actions_pct": [
+        -10.516503975042765,
+        4.761904761904767
+      ],
+      "cost_pct": [
+        -23.645354526052827,
+        -0.7679192147993184
+      ],
+      "episode_success_v02_pp": [
+        -6.666666666666665,
+        11.666666666666664
+      ],
+      "feasible_obligation_success_pp": [
+        -31.708333333333304,
+        -1.6666666666666607
+      ],
+      "latency_pct": [
+        -16.665984895827073,
+        2.7084935200649953
+      ],
+      "model_calls_pct": [
+        -10.516503975042765,
+        4.761904761904767
+      ],
+      "obligation_resolution_pp": [
+        -18.534518359625608,
+        -2.396626013875654
+      ],
+      "terminal_feasible_pp": [
+        -4.999999999999993,
+        9.999999999999998
+      ],
+      "total_tokens_pct": [
+        -2.9546553118563508,
+        18.663508542774103
+      ]
+    },
+    "cluster": "episode_id",
+    "resamples": 20000,
+    "sampler": "sha256-index-v1",
+    "seed": 20260926
+  },
+  "context_compiled": {
+    "accepted_actions": 464,
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "actionable_obligations": 86,
+    "completion_tokens": 42223,
+    "cost_usd": 4.6086564,
+    "episode_success_v02": 14,
+    "feasible_obligation_success": 40,
+    "latency_ms": 869561.292690998,
+    "model_calls": 464,
+    "prompt_tokens": 931985,
+    "resolved_obligations": 72,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 46,
+    "total_tokens": 974208,
+    "unresolved_obligations": 14
+  },
+  "delta": {
+    "accepted_actions_pct": -3.2327586206896575,
+    "completion_tokens_pct": -14.624730597067948,
+    "cost_pct": -12.466028059718237,
+    "episode_success_v02_pp": 1.6666666666666663,
+    "feasible_obligation_success_pp": -16.666666666666664,
+    "latency_pct": -7.633660061796976,
+    "model_calls_pct": -3.2327586206896575,
+    "obligation_resolution_pp": -9.98355649518441,
+    "prompt_tokens_pct": 7.919548061395831,
+    "terminal_feasible_pp": 1.6666666666666607,
+    "total_tokens_pct": 6.942459926422284
+  },
+  "episodes": 20,
+  "experiment": "progress-aware-reactive-v0.1",
+  "mechanism_diagnostic": {
+    "action_type_counts_context": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "action_type_counts_progress_aware": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 59,
+      "identify_suppliers": 60,
+      "issue_amendment": 16,
+      "no_award": 2,
+      "request_buyer_clarification": 20,
+      "request_quote_revision": 48,
+      "send_follow_up": 1,
+      "send_rfq": 178
+    },
+    "episode_obligation_success_effect_counts": {
+      "improved": 1,
+      "tied": 12,
+      "worsened": 7
+    },
+    "guard_interventions": 0,
+    "guard_retry_calls": 0,
+    "guard_retry_noncompliance": 0,
+    "max_evidence_epoch": 7,
+    "no_progress_marks": 15,
+    "progress_events": 315,
+    "runs_with_no_progress_marks": 13
+  },
+  "model": "openai/gpt-5.6-sol",
+  "predeclared_gate": {
+    "branch1": {
+      "passed": false,
+      "rule": "feasible-obligation success improves by >=5 pp, terminal feasibility falls by <=5 pp, and total tokens increase by <=15%"
+    },
+    "branch2": {
+      "passed": false,
+      "rule": "strict v0.2 success improves by >=5 pp, feasible-obligation success falls by <=2 pp, terminal feasibility falls by <=5 pp, and total tokens increase by <=15%"
+    },
+    "matched_condition": null,
+    "passed": false
+  },
+  "progress_aware": {
+    "accepted_actions": 449,
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 59,
+      "identify_suppliers": 60,
+      "issue_amendment": 16,
+      "no_award": 2,
+      "request_buyer_clarification": 20,
+      "request_quote_revision": 48,
+      "send_follow_up": 1,
+      "send_rfq": 178
+    },
+    "actionable_obligations": 99,
+    "completion_tokens": 36048,
+    "cost_usd": 4.03414,
+    "episode_success_v02": 15,
+    "feasible_obligation_success": 30,
+    "latency_ms": 803181.9395779998,
+    "model_calls": 449,
+    "prompt_tokens": 1005794,
+    "resolved_obligations": 73,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 47,
+    "total_tokens": 1041842,
+    "unresolved_obligations": 26
+  },
+  "repeats": 3,
+  "runs_per_condition": 60,
+  "schema_version": "0.1.0",
+  "source_workflow_run_id": 36312020696
+}

@@ -101,17 +101,24 @@ Because the quality-heavy parent mechanism failed its frozen gate, the
 previously conditional **selective event-triggered replanning + verifier**
 efficiency experiment is not run.
 
-The next causal question is therefore different:
+The subsequent **progress-aware reactive v0.1** experiment is now complete.
+It added a visible-evidence epoch and a deterministic no-progress guard over the
+factual compiled context. Relative to context compilation:
 
-> Can the agent distinguish uncertainty that has a currently available
-> evidence-gathering action from uncertainty that is irreducible or missing at
-> source, and avoid repeating information-seeking actions when visible state
-> has not changed?
+- feasible-obligation success fell **16.7 pp**;
+- terminal feasibility rose **1.7 pp**;
+- strict v0.2 success rose **1.7 pp**;
+- total tokens rose **6.9%** while known API cost fell **12.5%**.
 
-The next mechanism should target **actionability and progress**, using only
-agent-visible state. It should prevent repeated no-progress information seeking
-without injecting evaluator obligation labels, oracle answers, or episode-
-specific rules.
+The intended guard recorded **15 no-progress marks across 13/60 runs but fired
+0 interventions and 0 retry calls**. The model never repeated the exact blocked
+`(action_type, supplier_id)` signature within the same evidence epoch. Thus the
+blocking mechanism itself did not establish a causal reliability benefit, while
+the visible progress framing changed behavior and the predeclared gate failed.
+
+Per the protocol frozen before the run, this closes the current bespoke
+architecture-search loop. The next phase is **external comparator and benchmark
+characterization**, not another custom mechanism.
 
 ## Ideas that are intentionally deferred
 
@@ -215,50 +222,38 @@ that specific mechanism rather than adopt the name as an architectural goal.
 
 ## Proposed next experiment order
 
-The evidence-driven order is now:
+The controlled architecture-search sequence is now complete:
 
-1. **Context-compiled reactive** — **tested; retain only as an efficiency/context
-   layer**. It substantially reduced tokens/cost but did not improve end-to-end
-   reliability.
-2. **Structured obligation/state ledger** — **tested and dropped** after failing
-   the frozen reliability gate and producing clarification-loop fixation.
-3. **Maintained working plan** — **tested and dropped** after feasible-obligation
-   success fell 21.7 pp and terminal feasibility fell 8.3 pp despite active
-   plan use.
-4. **Always-replan + pre-terminal verifier** — **tested and dropped** after
-   feasible-obligation success fell 46.7 pp and terminal feasibility fell
-   53.3 pp while inference cost increased dramatically.
-5. **Selective event-triggered replanning + verifier** — **not run** because its
-   parent quality-heavy mechanism failed; there is no demonstrated quality gain
-   to preserve efficiently.
-6. **Actionability / no-progress control** — **next mechanism to specify and
-   test**. Distinguish actionable uncertainty from missing-at-source uncertainty
-   and suppress repeated information seeking when visible state has not changed.
-7. **True ReAct** — retain as a recognizable external agent baseline/comparator,
-   not as the assumed ProcureHarness mechanism.
-8. Add **operational state graph**, **dynamic routing**, or **experience-based
-   self-improvement** only when subsequent evidence identifies a concrete need.
+1. **Context-compiled reactive** — tested; retain only as an efficiency/context
+   layer.
+2. **Structured obligation/state ledger** — tested and dropped.
+3. **Maintained working plan** — tested and dropped.
+4. **Always-replan + pre-terminal verifier** — tested and dropped.
+5. **Selective event-triggered replanning + verifier** — not run because its
+   parent mechanism failed.
+6. **Actionability / no-progress control** — tested and dropped after failing
+   the frozen gate; the deterministic guard fired 0 times.
+7. **True ReAct** — **next**, solely as a recognizable external
+   baseline/comparator.
+8. Freeze the final development-time comparator set, then move to held-out
+   evaluation under the existing split contract.
 
-Components remain conditional on evidence; this is not a commitment to carry
-the entire stack into the final method.
+Do not add operational state graphs, dynamic routing, memory systems,
+multi-agent orchestration, or self-improvement merely to continue architecture
+search. Reopen a mechanism only if an external comparator or held-out result
+reveals a specific new causal gap.
 
-## Candidate ProcureHarness contribution, if supported
+## ProcureHarness status
 
-The surviving method hypothesis is now deliberately narrower and remains
-unproven:
+The current development evidence does **not** support claiming a new reliability
+architecture called ProcureHarness. Factual context compilation remains a useful
+efficiency layer, but every bespoke reliability mechanism tested so far failed
+its predeclared gate.
 
-> Compile a compact factual view of the evolving procurement environment,
-> distinguish actionable state changes from no-progress uncertainty, and spend
-> additional computation only when there is a visible path by which that
-> computation can change the decision.
-
-The development evidence does **not** currently support persistent commitment
-memory, a maintained prospective plan, or generic always-on
-planning/verification as required components. If a visible-state
-actionability/progress mechanism survives controlled testing, ProcureHarness can
-become a **progress-aware long-horizon control harness** rather than a
-collection of named agent patterns. That contribution should not be claimed
-until the next mechanism earns it empirically.
+The paper should therefore proceed as **LongProcureBench + controlled empirical
+failure analysis + external agent baselines** unless later comparator evidence
+supports a specific method contribution. This is an evidence-driven narrowing,
+not a reason to invent another mechanism.
 
 ## References
 
