@@ -196,6 +196,62 @@ class CoverageRepairPolicyTests(unittest.TestCase):
         metrics = policy.get_run_metadata()
         self.assertEqual(metrics["coverage_repair_interventions"], 0)
 
+    def test_earlier_amendment_does_not_satisfy_later_change(self):
+        policy = CoverageRepairContextPolicy(
+            "fake/test-model",
+            client=SequenceActionClient([]),
+        )
+        policy.reset({
+            "episode_id": "synthetic-test",
+            "step": 0,
+            "terminated": False,
+            "terminal": None,
+            "initial_state": {},
+            "visible_suppliers": [],
+            "observations": [],
+            "revealed_events": [],
+            "action_history": [],
+        })
+
+        compiled = {
+            "visible_suppliers": [{"supplier_id": "syn-c"}],
+            "action_history": [
+                {
+                    "sequence": 1,
+                    "type": "issue_amendment",
+                    "supplier_id": None,
+                    "arguments": {},
+                },
+                {
+                    "sequence": 2,
+                    "type": "send_rfq",
+                    "supplier_id": "syn-c",
+                    "arguments": {},
+                },
+            ],
+            "event_history": [
+                {
+                    "event_id": "e-change",
+                    "type": "requirement_change",
+                    "supplier_id": None,
+                    "observation": "A later buyer requirement change.",
+                    "details": {},
+                },
+            ],
+        }
+
+        # The amendment already in history predates first visibility of the
+        # change and therefore must not satisfy it.
+        self.assertTrue(policy._has_unamended_requirement_change(compiled))
+
+        compiled["action_history"].append({
+            "sequence": 3,
+            "type": "issue_amendment",
+            "supplier_id": None,
+            "arguments": {},
+        })
+        self.assertFalse(policy._has_unamended_requirement_change(compiled))
+
     def test_requirement_change_yields_to_model_before_forced_followup(self):
         env = LongProcureBenchEnv()
         state = env.reset("electrical-dla-power-supply-016")
