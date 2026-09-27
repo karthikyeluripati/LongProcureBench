@@ -80,6 +80,17 @@ SOURCE_FAMILY_BY_HOST = {
     "www.highpointnc.gov": "High Point municipal PDF",
     "www.painesville.com": "Painesville municipal portal",
     "www.vre.org": "VRE procurement portal",
+    "www.columbus.gov": "Columbus municipal bulletin",
+    "oregonbuys.gov": "OregonBuys",
+    "www.cityoflompoc.com": "Lompoc municipal portal",
+    "www.cityofpa.us": "Port Angeles municipal portal",
+    "villageofgreenport.org": "Greenport municipal PDF",
+    "www.sanbruno.ca.gov": "San Bruno municipal portal",
+    "www.shelterislandtown.gov": "Shelter Island municipal portal",
+    "www.phlcontracts.phila.gov": "Philadelphia PHLContracts",
+}
+ARCHIVAL_ONLY_HOSTS = {
+    "govtribe.com",
 }
 
 
@@ -137,6 +148,8 @@ def _expected_source_family(episode: dict) -> str:
                 f"Supporting document lacks URL: {episode['episode_id']}"
             )
         host = (urlparse(url).hostname or "").lower()
+        if host in ARCHIVAL_ONLY_HOSTS:
+            continue
         family = SOURCE_FAMILY_BY_HOST.get(host)
         if family is None:
             raise ValueError(
@@ -249,6 +262,38 @@ def validate_contract(
             raise ValueError(
                 "Held-out episodes must remain empty while only the source-state "
                 "pool is frozen"
+            )
+    if status == "holdout_episodes_frozen":
+        if len(initial_state_package_ids) != target_count:
+            raise ValueError(
+                "Frozen held-out episode package must retain target_count "
+                "initial states"
+            )
+        if len(held_out) != target_count:
+            raise ValueError(
+                "Frozen held-out episode package must contain exactly "
+                "target_count episodes"
+            )
+        suffixes = sorted(
+            int(episode_id.rsplit("-", 1)[1])
+            for episode_id in held_out
+        )
+        if suffixes != list(range(21, 31)):
+            raise ValueError(
+                "Frozen held-out episodes must occupy suffixes 021-030"
+            )
+        heldout_packages = {
+            episodes[episode_id]["initial_state_ref"]["package_id"]
+            for episode_id in held_out
+        }
+        if heldout_packages != reserved_package_ids:
+            raise ValueError(
+                "Frozen held-out episodes must map one-to-one to the "
+                "reserved initial states"
+            )
+        if held_out_config.get("model_evaluations_run") is not False:
+            raise ValueError(
+                "Model evaluations must remain false at episode-package freeze"
             )
 
     if held_out_config.get("target_count") != 10:
