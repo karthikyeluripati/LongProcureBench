@@ -62,10 +62,15 @@ def _validate_raw_run(run: dict, episode_id: str) -> None:
         raise ValueError(
             f"Raw run has unexpected status: {run.get('status')!r}"
         )
-    if run.get("error") is not None:
-        raise ValueError("Raw run contains an execution error")
-    if run.get("evaluation_error") is not None:
-        raise ValueError("Raw run contains an evaluation error")
+    if "error" not in run or run["error"] is not None:
+        raise ValueError("Raw run contains or omits execution error state")
+    if (
+        "evaluation_error" not in run
+        or run["evaluation_error"] is not None
+    ):
+        raise ValueError(
+            "Raw run contains or omits evaluation error state"
+        )
     evaluation = run.get("evaluation")
     if not isinstance(evaluation, dict):
         raise ValueError("Raw run is missing evaluation output")
