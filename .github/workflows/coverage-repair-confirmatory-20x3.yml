@@ -1,9 +1,7 @@
 name: Coverage-Repair Confirmatory 20x3
 
 on:
-  push:
-    branches:
-      - codex/coverage-repair-20x3-confirmatory
+  workflow_dispatch:
 
 permissions:
   contents: read
