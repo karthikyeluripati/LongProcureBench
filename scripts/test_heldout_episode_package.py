@@ -22,6 +22,18 @@ class HeldoutEpisodePackageTests(unittest.TestCase):
                 for row in summary["reference_controls"].values()
             )
         )
+        self.assertEqual(
+            set(summary["event_types"]),
+            {
+                "buyer_clarification",
+                "quote_received",
+                "quote_revision",
+                "supplier_non_response",
+                "supplier_question",
+                "supplier_withdrawal",
+                "requirement_change",
+            },
+        )
 
     def test_split_is_exact_021_to_030_mapping(self):
         split = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
