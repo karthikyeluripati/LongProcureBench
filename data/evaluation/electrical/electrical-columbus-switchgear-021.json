@@ -1,0 +1,104 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-columbus-switchgear-021",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "event_before_action",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": "e1",
+          "action_type": "send_rfq",
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "quantity",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "total_price",
+          "value": 420000,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 180,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c5",
+      "checks": [
+        {
+          "kind": "award_supplier_equals",
+          "scope": null,
+          "path": null,
+          "value": "eligible",
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": "eligibility_state"
+        }
+      ]
+    },
+    {
+      "constraint_id": "c6",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "approved_equal",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c7",
+      "checks": [
+        {
+          "kind": "award_scope_complete",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}
