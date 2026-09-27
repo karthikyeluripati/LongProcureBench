@@ -16,11 +16,13 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 
 from aggregate_heldout_matrix_results_v01 import aggregate_matrix
+from longprocurebench.context_compiled_reactive import compact_visible_event
 from run_heldout_paper_row import (
     EXPECTED_HELDOUT_EPISODES,
     EXPECTED_ROW_IDS,
     load_execution_plan,
 )
+from run_reactive_pilot import model_slug
 from validate_heldout_row_results_v01 import validate_row_results
 
 EVIDENCE_DIR = (
@@ -164,6 +166,203 @@ def _safe_extract(archive: Path, destination: Path) -> None:
                     f"Held-out artifact member escapes root: {name!r}"
                 )
         handle.extractall(destination)
+
+
+def _expected_row_archive_members(
+    row_id: str,
+    spec: dict[str, Any],
+) -> set[str]:
+    root = (
+        "reference-control"
+        if row_id == "reference-control"
+        else model_slug(spec["model"])
+    )
+    members = {
+        (
+            f"{root}/{episode_id}/"
+            f"run-{repeat:03d}.json"
+        )
+        for episode_id in EXPECTED_HELDOUT_EPISODES
+        for repeat in range(1, spec["repeats"] + 1)
+    }
+    members.update({
+        "runs.csv",
+        "summary.json",
+        "validated-row.json",
+    })
+    return members
+
+
+def _validate_archive_members(
+    archive: Path,
+    key: str,
+    plan: dict[str, dict[str, Any]],
+) -> None:
+    with zipfile.ZipFile(archive) as handle:
+        names = [
+            info.filename
+            for info in handle.infolist()
+            if not info.is_dir()
+        ]
+
+    if len(names) != len(set(names)):
+        duplicates = sorted(
+            name
+            for name, count in Counter(names).items()
+            if count > 1
+        )
+        raise ValueError(
+            f"Duplicate members in held-out source artifact {key}: "
+            f"{duplicates}"
+        )
+
+    expected = (
+        {
+            "heldout-runs.csv",
+            "heldout-matrix-manifest.json",
+        }
+        if key == "aggregate"
+        else _expected_row_archive_members(key, plan[key])
+    )
+    actual = set(names)
+    if actual != expected:
+        raise ValueError(
+            f"Held-out source artifact member drift for {key}: "
+            f"missing={sorted(expected - actual)}, "
+            f"extra={sorted(actual - expected)}"
+        )
+
+
+def _validate_react_transcripts(
+    row_dir: Path,
+    spec: dict[str, Any],
+) -> None:
+    root = row_dir / model_slug(spec["model"])
+    checked = 0
+
+    for episode_id in EXPECTED_HELDOUT_EPISODES:
+        for repeat in range(1, spec["repeats"] + 1):
+            path = (
+                root
+                / episode_id
+                / f"run-{repeat:03d}.json"
+            )
+            result = json.loads(path.read_text(encoding="utf-8"))
+            metrics = result.get("policy_metrics") or {}
+            transcript = metrics.get("react_transcript")
+            trajectory = result.get("trajectory") or []
+
+            if not isinstance(transcript, list):
+                raise ValueError(
+                    f"Missing ReAct transcript: "
+                    f"{episode_id} r{repeat}"
+                )
+            if len(transcript) != len(trajectory):
+                raise ValueError(
+                    f"ReAct transcript/trajectory length drift: "
+                    f"{episode_id} r{repeat} "
+                    f"transcript={len(transcript)} "
+                    f"trajectory={len(trajectory)}"
+                )
+            if metrics.get("react_steps_accepted") != len(trajectory):
+                raise ValueError(
+                    f"ReAct accepted-step count drift: "
+                    f"{episode_id} r{repeat}"
+                )
+
+            thought_lengths = []
+            for index, (entry, step) in enumerate(
+                zip(transcript, trajectory),
+                start=1,
+            ):
+                if not isinstance(entry, dict):
+                    raise ValueError(
+                        f"Malformed ReAct transcript entry: "
+                        f"{episode_id} r{repeat} step {index}"
+                    )
+                if entry.get("step") != step.get("step"):
+                    raise ValueError(
+                        f"ReAct transcript step drift: "
+                        f"{episode_id} r{repeat} step {index}"
+                    )
+
+                thought = entry.get("thought_summary")
+                if not isinstance(thought, str) or not thought.strip():
+                    raise ValueError(
+                        f"Missing ReAct thought summary: "
+                        f"{episode_id} r{repeat} step {index}"
+                    )
+                thought_lengths.append(len(thought))
+
+                semantic_action = {
+                    key: value
+                    for key, value in (step.get("action") or {}).items()
+                    if key not in {"action_id", "episode_id"}
+                }
+                if entry.get("action") != semantic_action:
+                    raise ValueError(
+                        f"ReAct transcript action drift: "
+                        f"{episode_id} r{repeat} step {index}"
+                    )
+
+                compact_observations = [
+                    compact
+                    for compact in (
+                        compact_visible_event(observation)
+                        for observation in (
+                            step.get("observations") or []
+                        )
+                    )
+                    if compact is not None
+                ]
+                if entry.get("observation") != compact_observations:
+                    raise ValueError(
+                        f"ReAct transcript observation drift: "
+                        f"{episode_id} r{repeat} step {index}"
+                    )
+
+            total_chars = sum(thought_lengths)
+            max_chars = max(thought_lengths, default=0)
+            mean_chars = (
+                total_chars / len(thought_lengths)
+                if thought_lengths
+                else None
+            )
+            if metrics.get("react_thought_chars_total") != total_chars:
+                raise ValueError(
+                    f"ReAct thought total drift: "
+                    f"{episode_id} r{repeat}"
+                )
+            if metrics.get("react_thought_chars_max") != max_chars:
+                raise ValueError(
+                    f"ReAct thought max drift: "
+                    f"{episode_id} r{repeat}"
+                )
+            actual_mean = metrics.get("react_thought_chars_mean")
+            if mean_chars is None:
+                if actual_mean is not None:
+                    raise ValueError(
+                        f"ReAct thought mean drift: "
+                        f"{episode_id} r{repeat}"
+                    )
+            elif not isinstance(actual_mean, (int, float)) or not math.isclose(
+                float(actual_mean),
+                mean_chars,
+                rel_tol=1e-12,
+                abs_tol=1e-9,
+            ):
+                raise ValueError(
+                    f"ReAct thought mean drift: "
+                    f"{episode_id} r{repeat}"
+                )
+
+            checked += 1
+
+    if checked != spec["expected_runs"]:
+        raise ValueError(
+            f"ReAct transcript coverage drift: "
+            f"expected={spec['expected_runs']}, actual={checked}"
+        )
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -872,7 +1071,8 @@ def compute_from_sources(
         raise ValueError("Frozen held-out execution-plan row set drift")
 
     for key in SOURCE_ARTIFACTS:
-        _verify_source_artifact(source_dir, key)
+        archive = _verify_source_artifact(source_dir, key)
+        _validate_archive_members(archive, key, plan)
 
     with tempfile.TemporaryDirectory() as tmp:
         temp = Path(tmp)
@@ -889,6 +1089,11 @@ def compute_from_sources(
                 row_dir,
                 write_manifest=False,
             )
+            if row_id == "react-openai":
+                _validate_react_transcripts(
+                    row_dir,
+                    plan[row_id],
+                )
             row_dirs[row_id] = row_dir
 
         source_aggregate = temp / "source-aggregate"
