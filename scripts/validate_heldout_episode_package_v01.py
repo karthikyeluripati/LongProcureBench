@@ -55,6 +55,26 @@ EXPECTED = {
 }
 DEVELOPMENT_FREEZE_SHA = "0a9378f005d9c66a5d991b1af77d865a4fe2f75b"
 
+EXPECTED_FROZEN_BLOB_PATHS = (
+    {
+        f"data/initial_states/electrical/{package_id}.json"
+        for package_id in EXPECTED.values()
+    }
+    | {
+        f"data/episodes/electrical/{episode_id}.json"
+        for episode_id in EXPECTED
+    }
+    | {
+        f"data/evaluation/electrical/{episode_id}.json"
+        for episode_id in EXPECTED
+    }
+    | {
+        "longprocurebench/reference.py",
+        "data/splits/electrical-v0.3-plan.json",
+        "OBSERVABILITY_MATRIX.csv",
+    }
+)
+
 
 def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -64,6 +84,31 @@ def _git_blob_sha(path: Path) -> str:
     payload = path.read_bytes()
     header = f"blob {len(payload)}\0".encode("ascii")
     return sha1(header + payload).hexdigest()
+
+
+def validate_frozen_blob_map(frozen_blobs: object) -> None:
+    if not isinstance(frozen_blobs, dict):
+        raise ValueError("Held-out frozen file-blob map must be an object")
+    actual_paths = set(frozen_blobs)
+    if actual_paths != EXPECTED_FROZEN_BLOB_PATHS:
+        missing = sorted(EXPECTED_FROZEN_BLOB_PATHS - actual_paths)
+        extra = sorted(actual_paths - EXPECTED_FROZEN_BLOB_PATHS)
+        raise ValueError(
+            "Held-out frozen file path set changed: "
+            f"missing={missing}, extra={extra}"
+        )
+    if len(frozen_blobs) != 33:
+        raise ValueError("Held-out frozen file-blob map must contain 33 files")
+    for relative, expected_blob in sorted(frozen_blobs.items()):
+        path = ROOT / relative
+        if not path.is_file():
+            raise ValueError(f"Frozen held-out file is missing: {relative}")
+        actual_blob = _git_blob_sha(path)
+        if actual_blob != expected_blob:
+            raise ValueError(
+                f"Frozen held-out file drift: {relative} "
+                f"expected={expected_blob}, actual={actual_blob}"
+            )
 
 
 def validate_heldout_package() -> dict:
@@ -101,18 +146,7 @@ def validate_heldout_package() -> dict:
     ):
         raise ValueError("Held-out manifest development-freeze provenance drift")
     frozen_blobs = manifest.get("frozen_git_blobs")
-    if not isinstance(frozen_blobs, dict) or len(frozen_blobs) != 33:
-        raise ValueError("Held-out frozen file-blob map must contain 33 files")
-    for relative, expected_blob in sorted(frozen_blobs.items()):
-        path = ROOT / relative
-        if not path.is_file():
-            raise ValueError(f"Frozen held-out file is missing: {relative}")
-        actual_blob = _git_blob_sha(path)
-        if actual_blob != expected_blob:
-            raise ValueError(
-                f"Frozen held-out file drift: {relative} "
-                f"expected={expected_blob}, actual={actual_blob}"
-            )
+    validate_frozen_blob_map(frozen_blobs)
 
     manifest_rows = manifest.get("episodes") or []
     expected_manifest = [
