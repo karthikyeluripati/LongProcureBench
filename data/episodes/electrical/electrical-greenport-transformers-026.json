@@ -1,0 +1,278 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-greenport-transformers-026",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-greenport-transformers-2025",
+    "path": "data/initial_states/electrical/us-greenport-transformers-2025.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Reconditioned transformer buy with qualification, test compliance, and delivery revision",
+    "summary": "The real Greenport requirement covers ten reconditioned transformers, a four-month completion requirement, qualification history, and specified transformer tests. One attractive offer is unqualified and another needs a delivery revision.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "supplier_eligibility",
+      "compliance_conflict",
+      "lead_time_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Transformer quantities/capacities, four-month completion requirement, qualification requirement, and testing requirements are frozen public facts. Supplier profiles, prices, and interaction timing are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-greenport-a",
+      "display_name": "Synthetic Greenport Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-greenport-b",
+      "display_name": "Synthetic Greenport Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Lower-price supplier that does not meet the controlled similar-project qualification profile."
+    },
+    {
+      "supplier_id": "syn-greenport-c",
+      "display_name": "Synthetic Greenport Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially exceeds the four-month completion requirement."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-greenport-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-greenport-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 390,000 for all ten transformers, 3.5-month completion, required tests included.",
+      "details": {
+        "currency": "USD",
+        "total_price": 390000,
+        "total_quantity": 10,
+        "lead_time_months": 3.5,
+        "required_tests": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-greenport-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-greenport-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 350,000 with 3-month completion and required tests, but is not qualified under the controlled similar-project profile.",
+      "details": {
+        "currency": "USD",
+        "total_price": 350000,
+        "total_quantity": 10,
+        "lead_time_months": 3,
+        "required_tests": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-greenport-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-greenport-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 370,000 with 5-month completion and required tests.",
+      "details": {
+        "currency": "USD",
+        "total_price": 370000,
+        "total_quantity": 10,
+        "lead_time_months": 5,
+        "required_tests": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-greenport-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-greenport-c",
+        "step": null
+      },
+      "observation": "Supplier C asks whether the four-month completion requirement is firm.",
+      "details": {
+        "question": "Is four-month completion mandatory?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-greenport-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-greenport-c",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier C revises to USD 385,000 with exactly four-month completion and all required tests.",
+      "details": {
+        "currency": "USD",
+        "total_price": 385000,
+        "total_quantity": 10,
+        "lead_time_months": 4,
+        "required_tests": true,
+        "revision": 1
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Award must cover all ten publicly specified transformers."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Completion must be within four months."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the real qualification requirement represented by eligibility state."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Awarded offer must include the specified transformer test program."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed revision may support award."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "real_initial_state",
+        "description": "All four required line-item groups must be covered exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-greenport-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C's revision is the lowest-price qualified offer meeting the four-month requirement.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-greenport-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A is qualified and feasible but slightly more expensive.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding the lower-price unqualified Supplier B.",
+      "Awarding Supplier C's stale five-month quote.",
+      "Skipping the supplier question/revision needed to satisfy the completion requirement."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

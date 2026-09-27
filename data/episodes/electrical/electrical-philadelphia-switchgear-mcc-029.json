@@ -1,0 +1,323 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-philadelphia-switchgear-mcc-029",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-philadelphia-b2627071",
+    "path": "data/initial_states/electrical/us-philadelphia-b2627071.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Prequalified switchgear/MCC procurement with mid-cycle scope amendment",
+    "summary": "The frozen Philadelphia starting state is invitation-only after prequalification. Controlled commercial clarification precedes RFQ; then a synthetic buyer requirement change adds a temporary bypass-plan requirement, making all pre-change quotes stale.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "requirement_change",
+      "quote_received",
+      "quote_revision",
+      "supplier_eligibility",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The switchgear/MCC scope and invitation-only prequalification requirement are frozen public facts. The exact budget ceiling, schedule, bypass-plan amendment, supplier behavior, and quote values are synthetic controlled benchmark facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-phl-a",
+      "display_name": "Synthetic Philadelphia Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Prequalified synthetic bidder."
+    },
+    {
+      "supplier_id": "syn-phl-b",
+      "display_name": "Synthetic Philadelphia Supplier B",
+      "synthetic": true,
+      "eligibility_state": "ineligible",
+      "compliance_state": "compliant",
+      "notes": "Lower-price supplier not eligible under the controlled prequalification state."
+    },
+    {
+      "supplier_id": "syn-phl-c",
+      "display_name": "Synthetic Philadelphia Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Prequalified synthetic bidder."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: maximum evaluated total price USD 3,800,000 and completion within 365 days.",
+      "details": {
+        "max_total_price_usd": 3800000,
+        "max_lead_time_days": 365
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-phl-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-phl-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 3,600,000 with 340-day completion under the original scope.",
+      "details": {
+        "currency": "USD",
+        "total_price": 3600000,
+        "lead_time_days": 340,
+        "temporary_bypass_plan": false,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-phl-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-phl-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 3,400,000 with 300-day completion but is not prequalified.",
+      "details": {
+        "currency": "USD",
+        "total_price": 3400000,
+        "lead_time_days": 300,
+        "temporary_bypass_plan": false,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-phl-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-phl-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 3,700,000 with 330-day completion under the original scope.",
+      "details": {
+        "currency": "USD",
+        "total_price": 3700000,
+        "lead_time_days": 330,
+        "temporary_bypass_plan": false,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "requirement_change",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 5
+      },
+      "observation": "Controlled buyer change: the final scope must include a temporary electrical bypass plan during switchgear/MCC replacement.",
+      "details": {
+        "temporary_bypass_plan_required": true
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-phl-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-phl-a",
+        "step": null
+      },
+      "observation": "Supplier A revises after amendment to USD 3,720,000 with 350-day completion and includes the temporary bypass plan.",
+      "details": {
+        "currency": "USD",
+        "total_price": 3720000,
+        "lead_time_days": 350,
+        "temporary_bypass_plan": true,
+        "revision": 1
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e7",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-phl-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-phl-c",
+        "step": null
+      },
+      "observation": "Supplier C revises after amendment to USD 3,650,000 with 340-day completion and includes the temporary bypass plan.",
+      "details": {
+        "currency": "USD",
+        "total_price": 3650000,
+        "lead_time_days": 340,
+        "temporary_bypass_plan": true,
+        "revision": 1
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Missing commercial terms must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the invitation/prequalification requirement represented by eligibility state."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest post-amendment quote may support award."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Awarded price must not exceed USD 3,800,000."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Completion must be within 365 days."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "Awarded revised scope must include the temporary bypass plan."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "The required switchgear/MCC package must be fully awarded."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "handle_amendment",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-phl-c",
+            "quote_event_id": "e7"
+          }
+        ],
+        "rationale": "Supplier C is prequalified and provides the lower-price feasible post-amendment offer.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-phl-a",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier A is prequalified and feasible but more expensive.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding a non-prequalified supplier.",
+      "Awarding a stale pre-amendment quote.",
+      "Failing to issue an amendment after the controlled requirement change.",
+      "Awarding scope without the temporary bypass plan."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}

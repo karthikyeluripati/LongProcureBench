@@ -16,14 +16,14 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 ### Initial-state dataset
 
 - 20 real public electrical procurement starting states back development/calibration episodes 001–020.
-- 10 additional real public starting states are now frozen for the future held-out slice; no held-out synthetic episodes have been authored yet.
+- 10 additional real public starting states now back the frozen held-out episodes 021–030; no model-backed held-out evaluation has run yet.
 - Multiple source families and electrical subtypes.
 - Strict provenance, missingness, and no-outcome-leakage checks.
 - See [`docs/initial-state-v0.1-report.md`](docs/initial-state-v0.1-report.md), [`docs/heldout-initial-state-batch-1.md`](docs/heldout-initial-state-batch-1.md), and [`docs/heldout-initial-state-batch-2.md`](docs/heldout-initial-state-batch-2.md).
 
 ### Episode Model v0.1
 
-- 20 semi-synthetic long-horizon procurement episodes grounded in 20 distinct real initial states.
+- 30 semi-synthetic long-horizon procurement episodes grounded in 30 distinct real initial states: 20 development/calibration + 10 frozen held-out.
 - Shared action contract and event ontology.
 - Coverage includes non-response, clarification, quote revision, substitutions,
   requirement/quantity changes, lead-time conflicts, supplier eligibility,
@@ -72,7 +72,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Minimal policy interface shared by future agent baselines.
 - Runner-owned action IDs and deterministic environment execution.
 - Standard result JSON with attempts, accepted trajectory, observations, and evaluator report.
-- Oracle-aware scripted reference control for all 5 episodes.
+- Oracle-aware scripted reference control for all committed episodes.
 - The reference control is a sanity check, not a competitive baseline.
 - See [`docs/runner.md`](docs/runner.md).
 
@@ -179,6 +179,16 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Next: author and deterministically validate/freeze the 10 held-out episodes; only after that package is frozen do model evaluations begin.
 - See [`docs/development-comparator-matrix-v0.1.md`](docs/development-comparator-matrix-v0.1.md).
 
+### Held-out Episode Package v0.1
+
+- Final-test episodes **021–030** are now authored from the 10 pre-reserved real public starting states, one state per episode.
+- The package was authored only after the development comparator/reporting freeze merged.
+- Every held-out episode has a deterministic Evaluator v0.2 config, observability row, and oracle-aware reference control.
+- CI requires all 10 reference controls to pass terminal feasibility, hard constraints, feasible-obligation success, strict v0.2, the economic objective, and **zero unresolved actionable obligations**.
+- The split remains contamination-safe: **no model/API held-out evaluation has run yet**.
+- Next after this package merges: execute only the already-frozen 150 model-backed held-out runs, plus 10 deterministic reference controls.
+- See [`docs/heldout-episode-package-v0.1.md`](docs/heldout-episode-package-v0.1.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -258,6 +268,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/materialize_react_comparator_evidence_v01.py` — source-artifact to compact ReAct replay materializer.
 - `scripts/verify_react_source_artifact_v01.py` — independent ReAct source-artifact provenance verifier.
 - `scripts/validate_development_comparator_matrix_v01.py` — machine-checks the frozen paper metrics, held-out-eligible method set, exact models, and planned run counts.
+- `scripts/validate_heldout_episode_package_v01.py` — validates held-out 021–030 mappings and executes all deterministic held-out reference controls before any model run.
 - `docs/development-comparator-matrix-v0.1.md` — final development method/reporting freeze before held-out episode authoring.
 - `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.

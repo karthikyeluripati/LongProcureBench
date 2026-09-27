@@ -1,0 +1,144 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-port-angeles-transformers-025",
+  "constraint_rules": [
+    {
+      "constraint_id": "c1",
+      "checks": [
+        {
+          "kind": "event_before_action",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": "e1",
+          "action_type": "send_rfq",
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c2",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "total_price",
+          "value": 790000,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c3",
+      "checks": [
+        {
+          "kind": "award_quote_max",
+          "scope": null,
+          "path": "lead_time_days",
+          "value": 180,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c4",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "buy_american",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c5",
+      "checks": [
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "ieee_ansi_compliant",
+          "value": true,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.1",
+          "value": 1,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.2",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.3",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.4",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.5",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        },
+        {
+          "kind": "award_quote_equals",
+          "scope": null,
+          "path": "line_quantities.6",
+          "value": 2,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    },
+    {
+      "constraint_id": "c6",
+      "checks": [
+        {
+          "kind": "award_scope_complete",
+          "scope": null,
+          "path": null,
+          "value": null,
+          "event_id": null,
+          "action_type": null,
+          "supplier_field": null
+        }
+      ]
+    }
+  ]
+}

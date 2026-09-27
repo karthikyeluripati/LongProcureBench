@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "suite": "electrical",
-  "status": "holdout_states_frozen",
+  "status": "holdout_episodes_frozen",
   "development_calibration_episodes": [
     "electrical-bongabon-generator-001",
     "electrical-national-museum-lighting-002",
@@ -27,7 +27,18 @@
   "development_rationale": "Episodes 001-020 were used while building the runtime, auditing checkpoint fairness, designing Evaluator v0.2, and inspecting model trajectories. They are therefore development/calibration data rather than an untouched final test set.",
   "held_out_test": {
     "target_count": 10,
-    "episode_ids": [],
+    "episode_ids": [
+      "electrical-columbus-switchgear-021",
+      "electrical-eweb-transformer-022",
+      "electrical-lompoc-transformer-023",
+      "electrical-njang-generator-024",
+      "electrical-port-angeles-transformers-025",
+      "electrical-greenport-transformers-026",
+      "electrical-san-bruno-ev-chargers-027",
+      "electrical-shelter-island-solar-bess-028",
+      "electrical-philadelphia-switchgear-mcc-029",
+      "electrical-detroit-generator-ats-030"
+    ],
     "reserved_numeric_suffixes": [
       21,
       22,
@@ -52,7 +63,10 @@
       "us-shelter-island-solar-bess-2026",
       "us-philadelphia-b2627071",
       "us-detroit-or-s-q10041-00016402"
-    ]
+    ],
+    "authored_after_development_freeze_sha": "0a9378f005d9c66a5d991b1af77d865a4fe2f75b",
+    "model_evaluations_run": false,
+    "execution_gate": "No model/API evaluation may run until all 10 held-out episodes, evaluation configs, observability rows, and deterministic reference controls pass CI and this held-out episode package is merged."
   },
   "collection_gate": {
     "distinct_real_public_initial_state_per_episode": true,

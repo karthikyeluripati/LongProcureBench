@@ -1,0 +1,264 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-port-angeles-transformers-025",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-port-angeles-mec-2025-18",
+    "path": "data/initial_states/electrical/us-port-angeles-mec-2025-18.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Six-item transformer inventory buy with Buy American and schedule screening",
+    "summary": "The real Port Angeles package contains six transformer bid items, a public USD 800,000 government estimate, Buy American certification, and IEEE/ANSI requirements. The estimate is not treated as a binding cap; controlled buyer clarification adds a separate synthetic USD 790,000 award ceiling and a 180-day delivery requirement.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "quote_received",
+      "compliance_conflict",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The six transformer quantities, public USD 800,000 government estimate, Buy American requirement, and standards references are frozen public facts. The public estimate is descriptive and nonbinding in the benchmark. A separate synthetic USD 790,000 award ceiling, the 180-day delivery ceiling, supplier behavior, and quote values are controlled scenario facts.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-pa-a",
+      "display_name": "Synthetic Port Angeles Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-pa-b",
+      "display_name": "Synthetic Port Angeles Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-pa-c",
+      "display_name": "Synthetic Port Angeles Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "noncompliant",
+      "notes": "Lower-price offer that does not satisfy Buy American."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: all six bid items are required; for this benchmark scenario the maximum award price is USD 790,000 and delivery must be within 180 days. The separate public USD 800,000 government estimate is not treated as a binding ceiling.",
+      "details": {
+        "max_lead_time_days": 180,
+        "max_total_price_usd": 790000
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pa-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pa-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 760,000 for all six transformer items, certified Buy American and standards-compliant, but requires 220 days.",
+      "details": {
+        "currency": "USD",
+        "total_price": 760000,
+        "lead_time_days": 220,
+        "buy_american": true,
+        "ieee_ansi_compliant": true,
+        "line_quantities": {
+          "1": 1,
+          "2": 2,
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pa-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pa-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 780,000 for all six items, Buy American certified and standards-compliant, with 170-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 780000,
+        "lead_time_days": 170,
+        "buy_american": true,
+        "ieee_ansi_compliant": true,
+        "line_quantities": {
+          "1": 1,
+          "2": 2,
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-pa-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-pa-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 700,000 with 160-day delivery but cannot provide the required Buy American certification.",
+      "details": {
+        "currency": "USD",
+        "total_price": 700000,
+        "lead_time_days": 160,
+        "buy_american": false,
+        "ieee_ansi_compliant": true,
+        "line_quantities": {
+          "1": 1,
+          "2": 2,
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "The missing delivery ceiling must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "For this controlled benchmark scenario, total awarded price must not exceed the synthetic USD 790,000 buyer ceiling; the public USD 800,000 government estimate is not a hard cap."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Delivery must be within 180 days."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "real_initial_state",
+        "description": "Awarded offer must satisfy Buy American certification."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "Awarded offer must satisfy referenced IEEE/ANSI transformer requirements and exact public quantities."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "real_initial_state",
+        "description": "All six required transformer items must be covered exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "normalize_quotes",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-pa-b",
+            "quote_event_id": "e3"
+          }
+        ],
+        "rationale": "Supplier B is the only offer satisfying the synthetic USD 790,000 ceiling, 180-day schedule, Buy American, standards, and all six public quantities.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "RFQ before schedule clarification.",
+      "Awarding Supplier A despite the late delivery.",
+      "Awarding Supplier C without Buy American certification.",
+      "Ignoring any required transformer item or quantity."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
