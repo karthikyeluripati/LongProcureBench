@@ -150,6 +150,14 @@ def flatten_audited_result(
             "plan_rejections": metrics.get("plan_rejections"),
             "mean_plan_steps": metrics.get("mean_plan_steps"),
             "max_plan_steps": metrics.get("max_plan_steps"),
+            "evidence_epoch": metrics.get("evidence_epoch"),
+            "no_progress_marks": metrics.get("no_progress_marks"),
+            "progress_events": metrics.get("progress_events"),
+            "guard_interventions": metrics.get("guard_interventions"),
+            "guard_retry_calls": metrics.get("guard_retry_calls"),
+            "guard_retry_noncompliance": metrics.get(
+                "guard_retry_noncompliance"
+            ),
             "error_type": (result.get("error") or {}).get("type"),
             "evaluation_error_type": (
                 result.get("evaluation_error") or {}
