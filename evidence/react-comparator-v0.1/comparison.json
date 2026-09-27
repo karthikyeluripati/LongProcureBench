@@ -1,0 +1,200 @@
+{
+  "cluster_bootstrap": {
+    "95pct_ci": {
+      "accepted_actions_pct": [
+        -2.2589695019466376,
+        13.457076566125291
+      ],
+      "cost_pct": [
+        52.23499968642512,
+        100.11156726304804
+      ],
+      "episode_success_v02_pp": [
+        9.999999999999998,
+        35.0
+      ],
+      "feasible_obligation_success_pp": [
+        -16.666666666666664,
+        18.333333333333346
+      ],
+      "latency_pct": [
+        33.630236975805346,
+        61.796986104414884
+      ],
+      "model_calls_pct": [
+        -2.2589695019466376,
+        13.457076566125291
+      ],
+      "obligation_resolution_pp": [
+        -7.68122188905548,
+        10.15598656424934
+      ],
+      "terminal_feasible_pp": [
+        0.0,
+        21.66666666666668
+      ],
+      "total_tokens_pct": [
+        35.909390983845185,
+        64.67160228296845
+      ]
+    },
+    "cluster": "episode_id",
+    "resamples": 20000,
+    "sampler": "sha256-index-v1",
+    "seed": 20260926
+  },
+  "context_compiled": {
+    "accepted_actions": 464,
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "actionable_obligations": 86,
+    "completion_tokens": 42223,
+    "cost_usd": 4.6086564,
+    "economic_objective_satisfied": 14,
+    "episode_success": 10,
+    "episode_success_v02": 14,
+    "feasible_obligation_success": 40,
+    "feasible_process_success": 11,
+    "latency_ms": 869561.292690998,
+    "model_calls": 464,
+    "prompt_tokens": 931985,
+    "resolved_obligations": 72,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 46,
+    "total_tokens": 974208,
+    "unresolved_obligation_counts": {
+      "follow_up_nonresponse": 4,
+      "handle_amendment": 3,
+      "recover_from_withdrawal": 3,
+      "request_quote_revision": 3,
+      "resolve_requirement_gap": 1
+    },
+    "unresolved_obligations": 14
+  },
+  "decision": {
+    "inclusion_gate": null,
+    "interpretation": "Report as an external comparator; do not promote into ProcureHarness solely from development performance.",
+    "next_step": "Freeze the development comparator set before any held-out evaluation."
+  },
+  "delta": {
+    "accepted_actions_pct": 5.1724137931034475,
+    "completion_tokens_pct": 58.217085474741246,
+    "cost_pct": 73.24362041830675,
+    "episode_success_v02_pp": 21.666666666666668,
+    "feasible_obligation_success_pp": 1.6666666666666718,
+    "latency_pct": 46.64950958979166,
+    "model_calls_pct": 5.1724137931034475,
+    "obligation_resolution_pp": 1.100498338870426,
+    "prompt_tokens_pct": 48.863769266672755,
+    "terminal_feasible_pp": 9.999999999999998,
+    "total_tokens_pct": 49.2691499145973
+  },
+  "episodes": 20,
+  "experiment": "react-comparator-v0.1",
+  "model": "openai/gpt-5.6-sol",
+  "react": {
+    "accepted_actions": 488,
+    "action_type_counts": {
+      "answer_supplier_question": 10,
+      "award_supplier": 59,
+      "evaluate_quotes": 64,
+      "identify_suppliers": 59,
+      "issue_amendment": 13,
+      "no_award": 1,
+      "request_buyer_clarification": 43,
+      "request_quote_revision": 51,
+      "send_follow_up": 10,
+      "send_rfq": 178
+    },
+    "actionable_obligations": 112,
+    "completion_tokens": 66804,
+    "cost_usd": 7.9842032000000005,
+    "economic_objective_satisfied": 28,
+    "episode_success": 22,
+    "episode_success_v02": 27,
+    "feasible_obligation_success": 41,
+    "feasible_process_success": 22,
+    "latency_ms": 1275207.3713140013,
+    "model_calls": 488,
+    "prompt_tokens": 1387388,
+    "resolved_obligations": 95,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 52,
+    "total_tokens": 1454192,
+    "unresolved_obligation_counts": {
+      "follow_up_nonresponse": 10,
+      "recover_from_withdrawal": 3,
+      "request_quote_revision": 3,
+      "resolve_requirement_gap": 1
+    },
+    "unresolved_obligations": 17
+  },
+  "react_diagnostic": {
+    "action_type_counts_context": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "action_type_counts_react": {
+      "answer_supplier_question": 10,
+      "award_supplier": 59,
+      "evaluate_quotes": 64,
+      "identify_suppliers": 59,
+      "issue_amendment": 13,
+      "no_award": 1,
+      "request_buyer_clarification": 43,
+      "request_quote_revision": 51,
+      "send_follow_up": 10,
+      "send_rfq": 178
+    },
+    "episode_effect_counts": {
+      "episode_success_v02": {
+        "improved": 8,
+        "tied": 12,
+        "worsened": 0
+      },
+      "feasible_obligation_success": {
+        "improved": 5,
+        "tied": 11,
+        "worsened": 4
+      },
+      "terminal_feasible": {
+        "improved": 4,
+        "tied": 15,
+        "worsened": 1
+      }
+    },
+    "react_steps_accepted": 488,
+    "react_steps_proposed": 488,
+    "runs_with_complete_react_steps": 60,
+    "thought_chars_max": 252,
+    "thought_chars_mean": 166.99795081967213,
+    "thought_chars_total": 81495
+  },
+  "repeats": 3,
+  "role": "external_comparator",
+  "runs_per_condition": 60,
+  "schema_version": "0.1.0",
+  "source_workflow_run_id": 36316652236
+}
