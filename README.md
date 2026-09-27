@@ -133,6 +133,18 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Durable replay evidence is committed under `evidence/working-plan-reactive-v0.1/`.
 - See [`docs/working-plan-reactive-v0.1.md`](docs/working-plan-reactive-v0.1.md) and [`docs/working-plan-reactive-v0.1-results.md`](docs/working-plan-reactive-v0.1-results.md).
 
+### Always-Replan + Pre-Terminal Verifier v0.1
+
+- Quality-heavy controlled test over factual compiled context: a fresh planner before every action, a separate verifier for proposed terminal decisions, and one repair call after verifier rejection.
+- Frozen development grid: **20 episodes × 3 repeats = 60 runs**.
+- Compared with context compilation, terminal feasibility fell **53.3 pp**, feasible-obligation success fell **46.7 pp**, and strict v0.2 success fell **15.0 pp**.
+- Resource use increased **+1,945.1% total tokens**, **+934.9% model calls**, and **+2,418.8% known API cost**; **32/60** runs hit the 50-action cap.
+- The verifier rejected **557/585 (95.2%)** proposed terminal decisions; **545/557** rejections recommended buyer clarification, and accepted clarifications rose from 47 to **1,329**.
+- The predeclared gate **failed**. This formulation is dropped, and the conditional selective-replanning efficiency experiment is not run.
+- The next causal axis is **actionability/progress**: distinguish actionable uncertainty from missing-at-source uncertainty and prevent repeated no-progress information seeking.
+- Durable replay evidence is committed under `evidence/always-replan-verifier-v0.1/`.
+- See [`docs/always-replan-verifier-v0.1.md`](docs/always-replan-verifier-v0.1.md) and [`docs/always-replan-verifier-v0.1-results.md`](docs/always-replan-verifier-v0.1-results.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -165,6 +177,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `longprocurebench/context_compiled_reactive.py` — deterministic factual context compiler and matched reactive policy.
 - `longprocurebench/operational_ledger_reactive.py` — model-maintained persistent commitment ledger over compiled context.
 - `longprocurebench/working_plan_reactive.py` — bounded replaceable prospective working-plan policy over compiled context.
+- `longprocurebench/always_replan_verifier.py` — quality-heavy fresh-planning and pre-terminal-verification policy over compiled context.
 - `longprocurebench/litellm_client.py` — thin LiteLLM model adapter.
 - `schema/evaluation.schema.json` — machine evaluation-rule contract.
 - `schema/result.schema.json` — standardized run-result contract.
@@ -197,10 +210,14 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/audit_operational_ledger_v01.py` — deterministic matched replay/audit of the operational-ledger experiment.
 - `scripts/frozen_working_plan_v01.py` — checksum-verified loader for the frozen 60-run working-plan evidence.
 - `scripts/audit_working_plan_v01.py` — deterministic matched replay/audit of the working-plan experiment.
+- `scripts/frozen_always_replan_verifier_v01.py` — checksum-verified loader for the frozen 60-run always-replan/verifier evidence.
+- `scripts/audit_always_replan_verifier_v01.py` — deterministic matched replay/audit of the always-replan/verifier experiment.
+- `scripts/materialize_always_replan_verifier_evidence_v01.py` — artifact-to-replay evidence materializer with exact provenance checks.
 - `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
 - `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.
 - `docs/working-plan-reactive-v0.1-results.md` — frozen working-plan matched result, plan diagnostics, and negative decision.
+- `docs/always-replan-verifier-v0.1-results.md` — frozen always-replan/verifier matched result, failure mechanism, and negative decision.
 - `docs/agent-design-hypotheses-v0.1.md` — evidence-to-architecture experiment matrix and inclusion gates.
 
 ## Validate
