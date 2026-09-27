@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 from frozen_react_comparator_v01 import (
     EPISODES,
     EXPECTED_COMPACT_ROWS_SHA256,
+    EXPECTED_TRANSCRIPT_ROWS_SHA256,
 )
 from materialize_react_comparator_evidence_v01 import (
     _canonical_line,
@@ -62,6 +63,7 @@ def verify_artifact(path: Path) -> dict[str, str]:
             raise ValueError("ReAct artifact grid mismatch")
 
         compact_rows = []
+        transcript_rows = []
         provenance_lines = []
         raw_lines = []
         with tempfile.TemporaryDirectory() as tmp:
@@ -80,11 +82,19 @@ def verify_artifact(path: Path) -> dict[str, str]:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(raw_bytes)
 
-                row, provenance = _compact_record(target, artifact_root)
+                row, provenance, transcript_row = _compact_record(
+                    target, artifact_root
+                )
                 if row[0] != episode_index or row[1] != repeat:
                     raise ValueError("Artifact compact key mismatch")
+                if (
+                    transcript_row[0] != episode_index
+                    or transcript_row[1] != repeat
+                ):
+                    raise ValueError("Artifact transcript key mismatch")
 
                 compact_rows.append(row)
+                transcript_rows.append(transcript_row)
                 provenance_lines.append(provenance.rstrip("\n"))
                 raw_lines.append(
                     f"{episode_index}|{repeat}|{name}|"
@@ -97,6 +107,22 @@ def verify_artifact(path: Path) -> dict[str, str]:
     compact_root = sha256(compact_payload).hexdigest()
     if compact_root != EXPECTED_COMPACT_ROWS_SHA256:
         raise ValueError("Artifact-derived compact replay root mismatch")
+
+    transcript_payload = b"".join(
+        _canonical_line(row) for row in transcript_rows
+    )
+    transcript_root = sha256(transcript_payload).hexdigest()
+    if transcript_root != EXPECTED_TRANSCRIPT_ROWS_SHA256:
+        raise ValueError("Artifact-derived ReAct transcript root mismatch")
+
+    committed_transcript = (
+        ROOT
+        / "evidence"
+        / "react-comparator-v0.1"
+        / "transcript-source.b64"
+    )
+    if not committed_transcript.is_file():
+        raise ValueError("Committed durable ReAct transcript is missing")
 
     committed = (
         ROOT
@@ -111,6 +137,7 @@ def verify_artifact(path: Path) -> dict[str, str]:
 
     return {
         "compact_rows_sha256": compact_root,
+        "transcript_rows_sha256": transcript_root,
         "raw_provenance_sha256": _root(raw_lines),
         "record_provenance_sha256": _root(provenance_lines),
     }
