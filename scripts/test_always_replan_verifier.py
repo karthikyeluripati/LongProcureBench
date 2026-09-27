@@ -180,6 +180,62 @@ class AlwaysReplanVerifierTests(unittest.TestCase):
         self.assertNotIn('"oracle"', prompt)
         self.assertNotIn('"evaluation"', prompt)
 
+    def test_overlong_plan_fields_are_bounded_without_failing_action(self):
+        oversized = plan("identify_suppliers")
+        oversized["objective"] = "o" * 300
+        oversized["key_facts"] = [f"fact-{index}" for index in range(7)]
+        oversized["risks"] = [f"risk-{index}" for index in range(5)]
+        client = FakeClient([
+            oversized,
+            action("identify_suppliers"),
+        ])
+        policy = AlwaysReplanVerifierLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        state = self.state()
+        policy.reset(state)
+
+        decision = policy.act(state)
+
+        self.assertEqual(decision["type"], "identify_suppliers")
+        stored = policy.get_run_metadata()["deliberation_trace"][0]["plan"]
+        self.assertEqual(len(stored["objective"]), 240)
+        self.assertEqual(len(stored["key_facts"]), 6)
+        self.assertEqual(len(stored["risks"]), 4)
+
+    def test_overlong_verifier_issues_are_bounded_and_repair_continues(self):
+        client = FakeClient([
+            plan("no_award"),
+            action("no_award", reason="Stop."),
+            verdict(
+                False,
+                recommended="identify_suppliers",
+                issues=[f"issue-{index}" for index in range(5)],
+            ),
+            action("identify_suppliers"),
+        ])
+        policy = AlwaysReplanVerifierLLMPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        state = self.state()
+        policy.reset(state)
+
+        decision = policy.act(state)
+
+        self.assertEqual(decision["type"], "identify_suppliers")
+        stored = policy.get_run_metadata()["verification_trace"][0]["verdict"]
+        self.assertEqual(len(stored["issues"]), 4)
+        self.assertEqual(policy.get_run_metadata()["repair_calls"], 1)
+
+    def test_action_prompt_requires_null_top_level_supplier_for_multi_award(self):
+        self.assertIn(
+            "For one award, top-level supplier_id may name that supplier; "
+            "for multiple\n  awards, top-level supplier_id must be null.",
+            AlwaysReplanVerifierLLMPolicy.ACTION_PROMPT,
+        )
+
     def test_plan_rejects_hidden_supplier_reference(self):
         client = FakeClient([
             plan("send_rfq", supplier_id="hidden-supplier"),
