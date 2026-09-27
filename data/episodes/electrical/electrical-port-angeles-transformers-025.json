@@ -9,7 +9,7 @@
   },
   "scenario": {
     "title": "Six-item transformer inventory buy with Buy American and schedule screening",
-    "summary": "The real Port Angeles package contains six transformer bid items, an USD 800,000 estimate, Buy American certification, and IEEE/ANSI requirements, but no public delivery ceiling. Controlled clarification supplies that missing schedule.",
+    "summary": "The real Port Angeles package contains six transformer bid items, a public USD 800,000 government estimate, Buy American certification, and IEEE/ANSI requirements. The estimate is not treated as a binding cap; controlled buyer clarification adds a separate synthetic USD 790,000 award ceiling and a 180-day delivery requirement.",
     "difficulty": "hard",
     "tags": [
       "requirement_gap",
@@ -24,7 +24,7 @@
     "supplier_profiles": "synthetic",
     "quotes_and_messages": "synthetic",
     "event_timeline": "synthetic",
-    "notes": "The six transformer quantities, USD 800,000 estimate, Buy American requirement, and standards references are frozen public facts. The delivery ceiling, supplier behavior, and quote values are synthetic.",
+    "notes": "The six transformer quantities, public USD 800,000 government estimate, Buy American requirement, and standards references are frozen public facts. The public estimate is descriptive and nonbinding in the benchmark. A separate synthetic USD 790,000 award ceiling, the 180-day delivery ceiling, supplier behavior, and quote values are controlled scenario facts.",
     "calibration_sources": [
       {
         "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
@@ -85,9 +85,10 @@
         "supplier_id": null,
         "step": null
       },
-      "observation": "Synthetic buyer clarification: all six bid items are required and delivery must be within 180 days.",
+      "observation": "Synthetic buyer clarification: all six bid items are required; for this benchmark scenario the maximum award price is USD 790,000 and delivery must be within 180 days. The separate public USD 800,000 government estimate is not treated as a binding ceiling.",
       "details": {
-        "max_lead_time_days": 180
+        "max_lead_time_days": 180,
+        "max_total_price_usd": 790000
       },
       "emission_policy": "once"
     },
@@ -200,8 +201,8 @@
       },
       {
         "constraint_id": "c2",
-        "basis": "real_initial_state",
-        "description": "Total awarded price must not exceed the real USD 800,000 government estimate."
+        "basis": "synthetic_scenario",
+        "description": "For this controlled benchmark scenario, total awarded price must not exceed the synthetic USD 790,000 buyer ceiling; the public USD 800,000 government estimate is not a hard cap."
       },
       {
         "constraint_id": "c3",
@@ -242,7 +243,7 @@
             "quote_event_id": "e3"
           }
         ],
-        "rationale": "Supplier B is the only offer satisfying budget, schedule, Buy American, standards, and all six quantities.",
+        "rationale": "Supplier B is the only offer satisfying the synthetic USD 790,000 ceiling, 180-day schedule, Buy American, standards, and all six public quantities.",
         "decision": "award"
       }
     ],
