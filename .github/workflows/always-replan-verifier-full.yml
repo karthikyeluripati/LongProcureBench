@@ -2,6 +2,9 @@ name: Always Replan Verifier Full Run
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-always-replan-verifier-full-20260926
 
 permissions:
   contents: read
