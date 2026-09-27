@@ -19,6 +19,10 @@ REPAIR_EVENT_ACTIONS: dict[str, str] = {
     "supplier_non_response": "send_follow_up",
     "supplier_question": "answer_supplier_question",
 }
+REQUIREMENT_CHANGE_EVENT_TYPES = {
+    "requirement_change",
+    "quantity_change",
+}
 
 
 class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
@@ -80,6 +84,38 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
             action.get("type") == "send_rfq"
             for action in cls._history(compiled)
         )
+
+    @classmethod
+    def _has_unamended_requirement_change(
+        cls,
+        compiled: dict[str, Any],
+    ) -> bool:
+        """Return whether visible requirement changes still need model action.
+
+        The factual compiler strips event trigger metadata, so this gate uses
+        only the same compact event/action history visible to the model. Each
+        revealed requirement/quantity change requires a later model-selected
+        amendment before deterministic supplier coverage/repair may resume.
+        """
+        events = compiled.get("event_history")
+        if not isinstance(events, list):
+            return False
+
+        visible_changes = sum(
+            1
+            for event in events
+            if isinstance(event, dict)
+            and event.get("type") in REQUIREMENT_CHANGE_EVENT_TYPES
+        )
+        if visible_changes == 0:
+            return False
+
+        amendments = sum(
+            1
+            for action in cls._history(compiled)
+            if action.get("type") == "issue_amendment"
+        )
+        return amendments < visible_changes
 
     def _unresolved_visible_repair(
         self,
@@ -163,6 +199,13 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
         # Use exactly the same factual view sent to the matched context baseline.
         compiled = compile_visible_state(state)
+
+        # A newly visible requirement/quantity change must be handled by the
+        # model before deterministic supplier repair/coverage resumes. This
+        # prevents a forced follow-up from materializing a one-shot quote under
+        # stale pre-amendment requirements (notably episode 016).
+        if self._has_unamended_requirement_change(compiled):
+            return super().act(state)
 
         repair = self._unresolved_visible_repair(compiled)
         if repair is not None:
