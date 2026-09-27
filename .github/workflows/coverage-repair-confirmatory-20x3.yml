@@ -51,17 +51,64 @@ jobs:
           python - <<'PY'
           import csv
           import os
-          from collections import Counter
           from pathlib import Path
+
+          expected_episodes = [
+              "electrical-bongabon-generator-001",
+              "electrical-national-museum-lighting-002",
+              "electrical-neust-cable-003",
+              "electrical-dla-breaker-004",
+              "electrical-barrie-transformer-005",
+              "electrical-bfar-generator-006",
+              "electrical-negros-wire-007",
+              "electrical-burauen-generator-008",
+              "electrical-highpoint-transformer-009",
+              "electrical-painesville-switchgear-010",
+              "electrical-sagada-generator-011",
+              "electrical-dla-relay-012",
+              "electrical-dla-transformer-013",
+              "electrical-dla-battery-supply-014",
+              "electrical-dla-battery-charger-015",
+              "electrical-dla-power-supply-016",
+              "electrical-dla-qpl-breaker-017",
+              "electrical-highpoint-cable-018",
+              "electrical-usaf-ups-019",
+              "electrical-vre-generator-020",
+          ]
+          expected_pairs = {
+              (episode_id, repeat)
+              for episode_id in expected_episodes
+              for repeat in (1, 2, 3)
+          }
 
           path = Path(os.environ["OUTPUT_DIR"]) / "runs.csv"
           rows = list(csv.DictReader(path.open(newline="", encoding="utf-8")))
           if len(rows) != 60:
               raise SystemExit(f"expected exactly 60 runs, got {len(rows)}")
-          counts = Counter(row["episode_id"] for row in rows)
-          if len(counts) != 20 or set(counts.values()) != {3}:
-              raise SystemExit(f"expected 20 episodes x 3 repeats, got {dict(counts)}")
-          print("validated exact 20 x 3 development grid")
+
+          actual_pairs = []
+          for row in rows:
+              if row.get("model") != "openai/gpt-5.6-sol":
+                  raise SystemExit(
+                      f"unexpected model in confirmatory grid: {row.get('model')!r}"
+                  )
+              try:
+                  repeat = int(row["repeat"])
+              except (KeyError, TypeError, ValueError) as exc:
+                  raise SystemExit(
+                      f"invalid repeat label in confirmatory grid: {row.get('repeat')!r}"
+                  ) from exc
+              actual_pairs.append((row["episode_id"], repeat))
+
+          if set(actual_pairs) != expected_pairs or len(set(actual_pairs)) != 60:
+              missing = sorted(expected_pairs - set(actual_pairs))
+              extra = sorted(set(actual_pairs) - expected_pairs)
+              raise SystemExit(
+                  "confirmatory grid does not match frozen episode/repeat pairs; "
+                  f"missing={missing}, extra={extra}"
+              )
+
+          print("validated exact frozen episodes 001-020 x repeats 1,2,3")
           PY
 
       - name: Print confirmatory summary
