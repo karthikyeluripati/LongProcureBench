@@ -64,22 +64,28 @@ def verify_artifact(path: Path) -> dict[str, str]:
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             artifact_root = Path(tmp)
-            for episode_index, episode_id in enumerate(EPISODES, start=1):
-                for repeat in (1, 2, 3):
-                    name = members[(episode_id, repeat)]
-                    raw_bytes = archive.read(name)
-                    target = artifact_root / name
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_bytes(raw_bytes)
-                    row, provenance = _compact_record(target, artifact_root)
-                    if row[0] != episode_index or row[1] != repeat:
-                        raise ValueError("Artifact compact key mismatch")
-                    compact_rows.append(row)
-                    provenance_lines.append(provenance.rstrip("\n"))
-                    raw_lines.append(
-                        f"{episode_index}|{repeat}|{name}|"
-                        f"{sha256(raw_bytes).hexdigest()}"
-                    )
+            # The materializer freezes rows in sorted artifact-member-path
+            # order, so reproduce that exact order for checksum comparison.
+            for name in sorted(members.values()):
+                match = RUN_PATH_RE.search("/" + name.lstrip("/"))
+                if match is None:
+                    raise ValueError("Unexpected artifact run member path")
+                episode_id = match.group("episode")
+                repeat = int(match.group("repeat"))
+                episode_index = EPISODES.index(episode_id) + 1
+                raw_bytes = archive.read(name)
+                target = artifact_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw_bytes)
+                row, provenance = _compact_record(target, artifact_root)
+                if row[0] != episode_index or row[1] != repeat:
+                    raise ValueError("Artifact compact key mismatch")
+                compact_rows.append(row)
+                provenance_lines.append(provenance.rstrip("\n"))
+                raw_lines.append(
+                    f"{episode_index}|{repeat}|{name}|"
+                    f"{sha256(raw_bytes).hexdigest()}"
+                )
 
     compact_payload = b"".join(_canonical_line(row) for row in compact_rows)
     compact_root = sha256(compact_payload).hexdigest()
