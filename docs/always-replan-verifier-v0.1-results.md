@@ -22,6 +22,9 @@ selective-replanning efficiency experiment is **not justified** by this result.
 - Grid: GPT-5.6 Sol × 20 development episodes × 3 repeats = **60 runs**
 - Live execution/evaluator validation passed for all 60 runs; usage and API cost
   are complete. **32/60 runs reached the 50-action cap.**
+- After downloading the source artifact ZIP, independently verify every raw-run
+  hash and compact-record provenance entry with:
+  `python scripts/verify_always_replan_verifier_source_artifact_v01.py --artifact-zip <artifact.zip>`
 
 The earlier one-episode smoke was only a provider/protocol check and is not used
 as paper evidence.
