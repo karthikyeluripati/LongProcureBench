@@ -44,7 +44,8 @@ Visible supplier-interaction repair takes priority over opening another supplier
 branch. If a visible `requirement_change` or `quantity_change` has not yet
 been matched by a model-selected `issue_amendment`, the deterministic
 controller pauses and yields the next decision back to the model. Coverage and
-supplier repair resume only after the amendment is visible in action history.
+supplier repair resume only after a **later** amendment is visible in action history;
+an amendment that predates the newly revealed change does not satisfy this gate.
 
 The controller does **not** deterministically:
 
