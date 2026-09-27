@@ -68,7 +68,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-reference-control-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-reference-control-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: error
           retention-days: 30
@@ -105,7 +106,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-raw-reactive-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-openai-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: warn
           retention-days: 30
@@ -142,7 +144,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-raw-reactive-anthropic-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-anthropic-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: warn
           retention-days: 30
@@ -179,7 +182,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-raw-reactive-gemini-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-gemini-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: warn
           retention-days: 30
@@ -218,7 +222,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-context-compiled-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-context-compiled-openai-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: warn
           retention-days: 30
@@ -257,7 +262,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-react-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-react-openai-${{ github.run_id }}
+          overwrite: true
           path: ${{ env.OUTPUT_DIR }}
           if-no-files-found: warn
           retention-days: 30
@@ -285,32 +291,32 @@ jobs:
       - name: Download reference row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-reference-control-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-reference-control-${{ github.run_id }}
           path: collected/reference-control
       - name: Download raw OpenAI row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-raw-reactive-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-openai-${{ github.run_id }}
           path: collected/raw-reactive-openai
       - name: Download raw Anthropic row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-raw-reactive-anthropic-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-anthropic-${{ github.run_id }}
           path: collected/raw-reactive-anthropic
       - name: Download raw Gemini row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-raw-reactive-gemini-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-raw-reactive-gemini-${{ github.run_id }}
           path: collected/raw-reactive-gemini
       - name: Download context OpenAI row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-context-compiled-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-context-compiled-openai-${{ github.run_id }}
           path: collected/context-compiled-openai
       - name: Download ReAct OpenAI row
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: heldout-react-openai-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-react-openai-${{ github.run_id }}
           path: collected/react-openai
 
       - name: Revalidate and aggregate complete frozen matrix
@@ -322,7 +328,8 @@ jobs:
       - name: Upload aggregate held-out evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: heldout-paper-matrix-${{ github.run_id }}-${{ github.run_attempt }}
+          name: heldout-paper-matrix-${{ github.run_id }}
+          overwrite: true
           path: aggregate
           if-no-files-found: error
           retention-days: 30
