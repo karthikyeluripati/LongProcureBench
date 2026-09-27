@@ -1,0 +1,309 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-detroit-generator-ats-030",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-detroit-or-s-q10041-00016402",
+    "path": "data/initial_states/electrical/us-detroit-or-s-q10041-00016402.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Generator/ATS design-build buy with partial scope, withdrawal, and recovery",
+    "summary": "The real Detroit, Oregon package includes site work plus generator/ATS equipment and requires a licensed qualified electrical contractor/site visit. Controlled clarification supplies commercial limits; the lowest full-package bidder withdraws and a partial supplier must revise to full scope.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_withdrawal",
+      "quote_received",
+      "quote_revision",
+      "supplier_eligibility",
+      "multi_lot"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Site work, generator/ATS equipment, and contractor qualification/site-visit requirements are frozen public facts. Budget, delivery, supplier behavior, and quote values are synthetic.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-detroit-a",
+      "display_name": "Synthetic Detroit Generator Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Qualified contractor offering complete scope."
+    },
+    {
+      "supplier_id": "syn-detroit-b",
+      "display_name": "Synthetic Detroit Generator Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Qualified lower-price bidder that later withdraws."
+    },
+    {
+      "supplier_id": "syn-detroit-c",
+      "display_name": "Synthetic Detroit Generator Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially quotes only equipment, then revises to full site-work plus equipment scope."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: maximum total price USD 600,000 and completion within 240 days.",
+      "details": {
+        "max_total_price_usd": 600000,
+        "max_lead_time_days": 240
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-detroit-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-detroit-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 550,000 with 210-day completion for site work plus generator and ATS.",
+      "details": {
+        "currency": "USD",
+        "total_price": 550000,
+        "lead_time_days": 210,
+        "site_work_included": true,
+        "generator_ats_included": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-detroit-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-detroit-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 500,000 with 220-day completion for the complete package.",
+      "details": {
+        "currency": "USD",
+        "total_price": 500000,
+        "lead_time_days": 220,
+        "site_work_included": true,
+        "generator_ats_included": true,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-detroit-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-detroit-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes only generator/ATS equipment for USD 300,000 and omits site work.",
+      "details": {
+        "currency": "USD",
+        "lots": {
+          "2": {
+            "price": 300000,
+            "lead_time_days": 190,
+            "generator_ats_included": true
+          }
+        },
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "items",
+        "item_ids": [
+          "2"
+        ]
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-detroit-b",
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 6
+      },
+      "observation": "Supplier B withdraws its complete-package quote after initial evaluation.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-detroit-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-detroit-c",
+        "step": null
+      },
+      "observation": "Supplier C revises to a complete USD 530,000 package with 200-day completion, including site work and generator/ATS equipment.",
+      "details": {
+        "currency": "USD",
+        "total_price": 530000,
+        "lead_time_days": 200,
+        "site_work_included": true,
+        "generator_ats_included": true,
+        "revision": 1
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Missing commercial terms must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "real_initial_state",
+        "description": "Awarded supplier must satisfy the licensed/qualified contractor requirement represented by eligibility state."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier may not receive award."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Awarded total price must not exceed USD 600,000 and completion must be within 240 days."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "Awarded scope must include both site work and generator/ATS equipment."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed quote may support award."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "Both required initial-state line items must be fully covered exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "recover_from_withdrawal",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-detroit-c",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier C's post-withdrawal full-scope revision is feasible and lower priced than Supplier A.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-detroit-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A remains a feasible complete package but costs more.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding before commercial clarification.",
+      "Awarding withdrawn Supplier B.",
+      "Treating Supplier C's equipment-only quote as full-package coverage.",
+      "Failing to re-evaluate after withdrawal and revised scope."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
