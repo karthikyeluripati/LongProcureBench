@@ -2,7 +2,7 @@
 from copy import deepcopy
 import unittest
 
-from longprocurebench import LongProcureBenchEnv
+from longprocurebench import BenchmarkRunner, LongProcureBenchEnv
 from longprocurebench.react_comparator import (
     MAX_THOUGHT_CHARS,
     REACT_STEP_SCHEMA,
@@ -221,6 +221,52 @@ class ReActComparatorTests(unittest.TestCase):
             policy.get_run_metadata()["react_transcript"],
             [],
         )
+
+    def test_runner_executes_full_react_thought_action_observation_loop(self):
+        client = FakeReActClient([
+            step("Reveal suppliers.", "identify_suppliers"),
+            step("Request quote A.", "send_rfq", "syn-gen-a"),
+            step("Request quote B.", "send_rfq", "syn-gen-b"),
+            step("Request quote C.", "send_rfq", "syn-gen-c"),
+            step("Follow up with C.", "send_follow_up", "syn-gen-c"),
+            step(
+                "Request a revised quote from C.",
+                "request_quote_revision",
+                "syn-gen-c",
+            ),
+            step("Compare the visible quotes.", "evaluate_quotes"),
+            step(
+                "Award the feasible preferred quote.",
+                "award_supplier",
+                "syn-gen-c",
+                {
+                    "awards": [{
+                        "scope": "package",
+                        "supplier_id": "syn-gen-c",
+                        "quote_event_id": "e5",
+                    }],
+                    "reason": None,
+                },
+            ),
+        ])
+        policy = ReActLLMPolicy("fake/test-model", client=client)
+
+        result = BenchmarkRunner().run(
+            policy,
+            "electrical-bongabon-generator-001",
+        )
+
+        self.assertEqual(result["status"], "completed")
+        self.assertTrue(result["evaluation"]["episode_success"])
+        self.assertEqual(
+            result["policy"]["policy_kind"],
+            "llm_react_comparator",
+        )
+        metrics = result["policy_metrics"]
+        self.assertEqual(metrics["react_steps_proposed"], 8)
+        self.assertEqual(metrics["react_steps_accepted"], 8)
+        self.assertEqual(len(metrics["react_transcript"]), 8)
+        self.assertEqual(metrics["model_calls"], 8)
 
     def test_metadata_records_external_comparator_contract(self):
         client = FakeReActClient([
