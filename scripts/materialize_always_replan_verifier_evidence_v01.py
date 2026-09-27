@@ -55,10 +55,33 @@ def _canonical_line(row):
     )
 
 
+def _validate_raw_run(run: dict, episode_id: str) -> None:
+    if run.get("episode_id") != episode_id:
+        raise ValueError("Raw run episode identity mismatch")
+    if run.get("status") not in {"completed", "max_actions"}:
+        raise ValueError(
+            f"Raw run has unexpected status: {run.get('status')!r}"
+        )
+    if run.get("error") is not None:
+        raise ValueError("Raw run contains an execution error")
+    if run.get("evaluation_error") is not None:
+        raise ValueError("Raw run contains an evaluation error")
+    evaluation = run.get("evaluation")
+    if not isinstance(evaluation, dict):
+        raise ValueError("Raw run is missing evaluation output")
+    if evaluation.get("evaluation_version") != "0.2.0":
+        raise ValueError("Raw run does not contain Evaluator v0.2 output")
+    if evaluation.get("episode_id") != episode_id:
+        raise ValueError("Raw run evaluation episode identity mismatch")
+
+
 def _compact_record(path: Path, artifact_root: Path):
     raw = path.read_bytes()
     run = json.loads(raw)
-    episode_id = run["episode_id"]
+    episode_id = run.get("episode_id")
+    if episode_id not in EPISODE_INDEX:
+        raise ValueError(f"Unexpected raw run episode_id: {episode_id!r}")
+    _validate_raw_run(run, episode_id)
     repeat = int(path.stem.rsplit("-", 1)[1])
 
     decisions = []
