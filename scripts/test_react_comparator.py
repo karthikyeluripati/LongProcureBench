@@ -1,5 +1,6 @@
 """Tests for the external ReAct comparator."""
 from copy import deepcopy
+import json
 import unittest
 
 from longprocurebench import BenchmarkRunner, LongProcureBenchEnv
@@ -64,6 +65,10 @@ class ReActComparatorTests(unittest.TestCase):
         self.assertEqual(
             set(REACT_STEP_SCHEMA["required"]),
             {"thought_summary", "action"},
+        )
+        self.assertEqual(
+            REACT_STEP_SCHEMA["properties"]["thought_summary"]["minLength"],
+            1,
         )
         action = REACT_STEP_SCHEMA["properties"]["action"]
         self.assertFalse(action["additionalProperties"])
@@ -147,8 +152,17 @@ class ReActComparatorTests(unittest.TestCase):
 
         policy.act(state)
         prompt = client.calls[2]["messages"][1]["content"]
-        self.assertIn('"event_id": "e1"', prompt)
-        self.assertIn('"type": "quote_received"', prompt)
+        payload = json.loads(
+            prompt.split("Current ReAct context:\\n", 1)[1]
+        )
+        observation = payload["react_transcript"][1]["observation"]
+        self.assertEqual(len(observation), 1)
+        event = observation[0]
+        self.assertEqual(event["event_id"], "e1")
+        self.assertEqual(event["type"], "quote_received")
+        self.assertNotIn("trigger", event)
+        self.assertNotIn("synthetic", event)
+        self.assertNotIn("emission_policy", event)
 
     def test_one_model_call_per_semantic_action(self):
         client = FakeReActClient([
@@ -196,6 +210,14 @@ class ReActComparatorTests(unittest.TestCase):
         policy.reset(state)
         with self.assertRaises(ReActProtocolError):
             policy.act(state)
+        metrics = policy.get_run_metadata()
+        self.assertEqual(metrics["model_calls_attempted"], 1)
+        self.assertEqual(metrics["model_calls_succeeded"], 0)
+        self.assertEqual(metrics["model_calls_failed"], 1)
+        self.assertEqual(
+            metrics["calls"][0]["error"]["type"],
+            "ReActProtocolError",
+        )
 
     def test_reset_clears_explicit_react_transcript(self):
         client = FakeReActClient([
