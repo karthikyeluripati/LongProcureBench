@@ -45,5 +45,7 @@ jobs:
         run: python scripts/audit_operational_ledger_v01.py
       - name: Audit frozen working-plan evidence
         run: python scripts/audit_working_plan_v01.py
+      - name: Audit frozen always-replan verifier evidence
+        run: python scripts/audit_always_replan_verifier_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference

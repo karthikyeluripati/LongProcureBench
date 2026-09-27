@@ -1,0 +1,78 @@
+{
+  "benchmark_code_sha": "6fa855bf33698aa0380c794dcba4a3ab15b07e89",
+  "comparison": {
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_resamples": 20000,
+    "bootstrap_sampler": "sha256-index-v1",
+    "bootstrap_seed": 20260926,
+    "bytes": 5212,
+    "path": "comparison.json",
+    "sha256": "2b3d144af31d05b2d6326c3ba3d23c53a50fb09cd03413975fe5667249756945"
+  },
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "episodes": 20,
+  "execution_head_delta": "workflow trigger only",
+  "execution_head_sha": "2c66dd7f79a04a99d0d29afee46dd14095b7a7a6",
+  "experiment": "always-replan-verifier-v0.1",
+  "known_cost_runs": 60,
+  "model": "openai/gpt-5.6-sol",
+  "purpose": "Durable replay source and matched analysis for the 60-run GPT-5.6 Sol always-replan + pre-terminal-verifier development experiment on frozen episodes 001-020.",
+  "records": 60,
+  "repeats_per_episode": 3,
+  "schema_version": "0.1.0",
+  "source_artifact_bytes": 771853,
+  "source_artifact_digest": "sha256:8e08847b3fb9725703adb7d0d4046e88a92fdc6ead9f0f7226fe8ccdabf7f7df",
+  "source_artifact_id": 10924959171,
+  "source_artifact_name": "always-replan-verifier-36286064411-1",
+  "source_verification": {
+    "provenance_line_format": "episode_index|repeat|artifact_member_path|sha256(exact raw run JSON bytes)|sha256(canonical compact record line)",
+    "record_provenance_bytes": 12606,
+    "record_provenance_path": "source-provenance.txt",
+    "record_provenance_sha256": "0888f100312820eb5fc287012cf734301f1b9bbbf86e4088592db1e21e624d3c",
+    "verifier_script": "scripts/verify_always_replan_verifier_source_artifact_v01.py"
+  },
+  "source_workflow_run_attempt": 1,
+  "source_workflow_run_id": 36286064411,
+  "status_counts": {
+    "completed": 28,
+    "max_actions": 32
+  },
+  "storage": {
+    "compact_rows_sha256": "e8e854bf0ba45176641a1d888fc8a4733f3b122c1fb031eb135d29f09054d380",
+    "compressed_bytes": 51107,
+    "compressed_sha256": "494a9cf48d868589b39e75a034f3e314c0c1f52be3636959a81981cd6085a4ab",
+    "format": "gzip(JSONL compact replay records) encoded as base64 text",
+    "parts": [
+      "replay-source.part-01.b64",
+      "replay-source.part-02.b64",
+      "replay-source.part-03.b64",
+      "replay-source.part-04.b64",
+      "replay-source.part-05.b64",
+      "replay-source.part-06.b64",
+      "replay-source.part-07.b64",
+      "replay-source.part-08.b64"
+    ]
+  },
+  "usage_complete_runs": 60
+}

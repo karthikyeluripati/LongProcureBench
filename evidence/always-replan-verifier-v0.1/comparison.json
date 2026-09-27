@@ -1,0 +1,185 @@
+{
+  "always_replan_verifier": {
+    "accepted_actions": 1830,
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 15,
+      "evaluate_quotes": 150,
+      "identify_suppliers": 51,
+      "issue_amendment": 9,
+      "no_award": 13,
+      "request_buyer_clarification": 1329,
+      "request_quote_revision": 50,
+      "send_follow_up": 86,
+      "send_rfq": 120
+    },
+    "actionable_obligations": 67,
+    "completion_tokens": 1117303,
+    "cost_usd": 116.08096480000003,
+    "episode_success_v02": 5,
+    "feasible_obligation_success": 12,
+    "latency_ms": 16977794.076524947,
+    "model_calls": 4802,
+    "prompt_tokens": 18806593,
+    "resolved_obligations": 49,
+    "status_counts": {
+      "completed": 28,
+      "max_actions": 32
+    },
+    "terminal_feasible": 14,
+    "total_tokens": 19923896,
+    "unresolved_obligations": 18
+  },
+  "cluster_bootstrap": {
+    "95pct_ci": {
+      "accepted_actions_pct": [
+        204.3380039947599,
+        395.5958869772055
+      ],
+      "cost_pct": [
+        1733.985803180602,
+        3301.1054241288543
+      ],
+      "episode_success_v02_pp": [
+        -31.66666666666667,
+        0.0
+      ],
+      "feasible_obligation_success_pp": [
+        -68.33333333333333,
+        -24.999999999999996
+      ],
+      "latency_pct": [
+        1372.9427797769797,
+        2386.797018207134
+      ],
+      "model_calls_pct": [
+        689.8450810630428,
+        1216.2354442473045
+      ],
+      "obligation_resolution_pp": [
+        -26.413870487711215,
+        6.132994130389586
+      ],
+      "terminal_feasible_pp": [
+        -71.66666666666666,
+        -35.0
+      ],
+      "total_tokens_pct": [
+        1412.9755737834175,
+        2558.199027371593
+      ]
+    },
+    "cluster": "episode_id",
+    "resamples": 20000,
+    "sampler": "sha256-index-v1",
+    "seed": 20260926
+  },
+  "context_compiled": {
+    "accepted_actions": 464,
+    "action_type_counts": {
+      "answer_supplier_question": 7,
+      "award_supplier": 58,
+      "evaluate_quotes": 74,
+      "identify_suppliers": 60,
+      "issue_amendment": 14,
+      "no_award": 2,
+      "request_buyer_clarification": 47,
+      "request_quote_revision": 41,
+      "send_follow_up": 12,
+      "send_rfq": 149
+    },
+    "actionable_obligations": 86,
+    "completion_tokens": 42223,
+    "cost_usd": 4.608656400000002,
+    "episode_success_v02": 14,
+    "feasible_obligation_success": 40,
+    "latency_ms": 869561.2926909977,
+    "model_calls": 464,
+    "prompt_tokens": 931985,
+    "resolved_obligations": 72,
+    "status_counts": {
+      "completed": 60
+    },
+    "terminal_feasible": 46,
+    "total_tokens": 974208,
+    "unresolved_obligations": 14
+  },
+  "delta": {
+    "accepted_actions_pct": 294.39655172413796,
+    "completion_tokens_pct": 2546.1952016673376,
+    "cost_pct": 2418.7593676977085,
+    "episode_success_v02_pp": -15.000000000000002,
+    "feasible_obligation_success_pp": -46.666666666666664,
+    "latency_pct": 1852.455131021808,
+    "model_calls_pct": 934.9137931034483,
+    "obligation_resolution_pp": -10.586601874349189,
+    "prompt_tokens_pct": 1917.9072624559406,
+    "terminal_feasible_pp": -53.33333333333334,
+    "total_tokens_pct": 1945.1377939823938
+  },
+  "episodes": 20,
+  "experiment": "always-replan-verifier-v0.1",
+  "mechanism_diagnostic": {
+    "approved_verifier_recommendation_counts": {
+      "award_supplier": 15,
+      "no_award": 13
+    },
+    "call_role_counts": {
+      "action": 1830,
+      "planner": 1830,
+      "repair_action": 557,
+      "verifier": 585
+    },
+    "episode_obligation_success_effect_counts": {
+      "improved": 3,
+      "tied": 3,
+      "worsened": 14
+    },
+    "rejected_verifier_recommendation_counts": {
+      "identify_suppliers": 2,
+      "issue_amendment": 1,
+      "request_buyer_clarification": 545,
+      "request_quote_revision": 2,
+      "send_follow_up": 7
+    },
+    "terminal_proposal_type_counts": {
+      "award_supplier": 203,
+      "no_award": 382
+    },
+    "unresolved_obligation_counts_context": {
+      "follow_up_nonresponse": 4,
+      "handle_amendment": 3,
+      "recover_from_withdrawal": 3,
+      "request_quote_revision": 3,
+      "resolve_requirement_gap": 1
+    },
+    "unresolved_obligation_counts_treatment": {
+      "follow_up_nonresponse": 5,
+      "handle_amendment": 3,
+      "recover_from_withdrawal": 9,
+      "request_quote_revision": 1
+    },
+    "verification_traces_with_bounded_issues": 4,
+    "verifier_approvals": 28,
+    "verifier_rejection_rate": 0.9521367521367521,
+    "verifier_rejections": 557,
+    "verifier_terminal_proposals": 585
+  },
+  "model": "openai/gpt-5.6-sol",
+  "predeclared_gate": {
+    "branch1": {
+      "passed": false,
+      "rule": "feasible-obligation success improves by >=5 pp while terminal feasibility does not fall by more than 5 pp"
+    },
+    "branch2": {
+      "passed": false,
+      "rule": "strict v0.2 success improves by >=5 pp while feasible-obligation success does not fall by more than 2 pp and terminal feasibility does not fall by more than 5 pp"
+    },
+    "matched_condition": null,
+    "passed": false
+  },
+  "repeats": 3,
+  "runs_per_condition": 60,
+  "schema_version": "0.1.0",
+  "source_workflow_run_id": 36286064411
+}

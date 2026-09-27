@@ -78,19 +78,40 @@ form. The result argues against spending another development cycle on a new
 persistent representation while keeping the same single-pass action-selection
 budget.
 
-The next causal question is now narrower:
+The subsequent **always-replan + pre-terminal-verifier v0.1**
+quality-heavy experiment is now also complete. It added a fresh planner before
+every action, a separate verifier for proposed terminal decisions, and one
+repair call after verifier rejection. Relative to factual context compilation:
 
-> Does **additional deliberation and verification**, rather than another state
-> representation, recover long-horizon obligations and prevent premature or
-> locally plausible terminal decisions?
+- feasible-obligation success fell **46.7 pp**;
+- terminal feasibility fell **53.3 pp**;
+- strict v0.2 success fell **15.0 pp**;
+- total tokens rose **1,945.1%**, model calls rose **934.9%**, and known API
+  cost rose **2,418.8%**;
+- **32/60** runs reached the 50-action cap.
 
-The next quality-heavy comparator should therefore add explicit extra
-computation: **always replan from current visible state and run a separate
-pre-terminal verifier** over generic visible procurement invariants. This is not
-yet the efficient ProcureHarness method; it is an upper-cost test of whether
-more deliberate computation can improve reliability at all. Only if that works
-should selective event-triggered replanning be tested as the efficiency
-mechanism.
+The verifier rejected **557/585 (95.2%)** proposed terminal decisions, and
+**545/557 (97.8%)** of those rejections recommended
+`request_buyer_clarification`. Accepted buyer clarifications increased from
+47 under context compilation to **1,329**. This is evidence against this
+generic replanning/verifier formulation, not evidence that all verification is
+harmful.
+
+Because the quality-heavy parent mechanism failed its frozen gate, the
+previously conditional **selective event-triggered replanning + verifier**
+efficiency experiment is not run.
+
+The next causal question is therefore different:
+
+> Can the agent distinguish uncertainty that has a currently available
+> evidence-gathering action from uncertainty that is irreducible or missing at
+> source, and avoid repeating information-seeking actions when visible state
+> has not changed?
+
+The next mechanism should target **actionability and progress**, using only
+agent-visible state. It should prevent repeated no-progress information seeking
+without injecting evaluator obligation labels, oracle answers, or episode-
+specific rules.
 
 ## Ideas that are intentionally deferred
 
@@ -204,33 +225,40 @@ The evidence-driven order is now:
 3. **Maintained working plan** — **tested and dropped** after feasible-obligation
    success fell 21.7 pp and terminal feasibility fell 8.3 pp despite active
    plan use.
-4. **Always-replan + pre-terminal verifier** — **next experiment**. Add explicit
-   additional computation and ask whether a quality-heavy deliberation/checking
-   treatment can recover reliability.
-5. **Selective event-triggered replanning + verifier** — test only if the
-   quality-heavy comparator works; this becomes the candidate efficient
-   ProcureHarness mechanism.
-6. Add **operational state graph**, **dynamic routing**, or **experience-based
-   self-improvement** only when the preceding experiments identify a concrete
-   need.
+4. **Always-replan + pre-terminal verifier** — **tested and dropped** after
+   feasible-obligation success fell 46.7 pp and terminal feasibility fell
+   53.3 pp while inference cost increased dramatically.
+5. **Selective event-triggered replanning + verifier** — **not run** because its
+   parent quality-heavy mechanism failed; there is no demonstrated quality gain
+   to preserve efficiently.
+6. **Actionability / no-progress control** — **next mechanism to specify and
+   test**. Distinguish actionable uncertainty from missing-at-source uncertainty
+   and suppress repeated information seeking when visible state has not changed.
+7. **True ReAct** — retain as a recognizable external agent baseline/comparator,
+   not as the assumed ProcureHarness mechanism.
+8. Add **operational state graph**, **dynamic routing**, or **experience-based
+   self-improvement** only when subsequent evidence identifies a concrete need.
 
 Components remain conditional on evidence; this is not a commitment to carry
 the entire stack into the final method.
 
 ## Candidate ProcureHarness contribution, if supported
 
-The surviving method hypothesis is now deliberately narrower:
+The surviving method hypothesis is now deliberately narrower and remains
+unproven:
 
-> Compile a compact factual view of the evolving procurement environment, use
-> additional deliberation and verification when decisions are consequential,
-> and—if the quality-heavy version works—trigger that extra computation only
-> when visible state changes justify it.
+> Compile a compact factual view of the evolving procurement environment,
+> distinguish actionable state changes from no-progress uncertainty, and spend
+> additional computation only when there is a visible path by which that
+> computation can change the decision.
 
 The development evidence does **not** currently support persistent commitment
-memory or a maintained prospective plan as required components. If the next
-experiments support the hypothesis above, ProcureHarness becomes a
-**selective-deliberation and verification harness**, not a collection of named
-agent patterns.
+memory, a maintained prospective plan, or generic always-on
+planning/verification as required components. If a visible-state
+actionability/progress mechanism survives controlled testing, ProcureHarness can
+become a **progress-aware long-horizon control harness** rather than a
+collection of named agent patterns. That contribution should not be claimed
+until the next mechanism earns it empirically.
 
 ## References
 
