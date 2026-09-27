@@ -283,32 +283,32 @@ jobs:
         run: python -m pip install -r requirements.txt
 
       - name: Download reference row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-reference-control-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/reference-control
       - name: Download raw OpenAI row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-raw-reactive-openai-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/raw-reactive-openai
       - name: Download raw Anthropic row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-raw-reactive-anthropic-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/raw-reactive-anthropic
       - name: Download raw Gemini row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-raw-reactive-gemini-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/raw-reactive-gemini
       - name: Download context OpenAI row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-context-compiled-openai-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/context-compiled-openai
       - name: Download ReAct OpenAI row
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: heldout-react-openai-${{ github.run_id }}-${{ github.run_attempt }}
           path: collected/react-openai
