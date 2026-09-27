@@ -37,16 +37,19 @@ actions without an additional model call:
 
 1. `supplier_non_response` -> one `send_follow_up` for that supplier;
 2. `supplier_question` -> one `answer_supplier_question` for that supplier;
-3. `requirement_change` or `quantity_change` -> one `issue_amendment`
-   after that visible event;
-4. send one RFQ to each currently visible supplier that has not yet received an
+3. send one RFQ to each currently visible supplier that has not yet received an
    RFQ.
 
-Visible event repair takes priority over opening another supplier branch.
+Visible supplier-interaction repair takes priority over opening another supplier
+branch. If a visible `requirement_change` or `quantity_change` has not yet
+been matched by a model-selected `issue_amendment`, the deterministic
+controller pauses and yields the next decision back to the model. Coverage and
+supplier repair resume only after the amendment is visible in action history.
 
 The controller does **not** deterministically:
 
 - request the initial buyer clarification;
+- issue requirement/quantity amendments;
 - request quote revisions;
 - judge feasibility/compliance/eligibility;
 - evaluate quotes;
