@@ -184,7 +184,7 @@ def validate_row_results(
                     f"{row_id} model metadata drift: "
                     f"{metrics.get('model')!r}"
                 )
-            if metrics.get("temperature") is not spec["temperature"]:
+            if metrics.get("temperature") != spec["temperature"]:
                 raise ValueError(
                     f"{row_id} temperature drift: "
                     f"{metrics.get('temperature')!r}"
