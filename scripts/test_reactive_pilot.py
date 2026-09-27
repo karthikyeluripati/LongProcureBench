@@ -407,6 +407,114 @@ class PilotTests(unittest.TestCase):
         self.assertEqual(summary["mean_plan_steps"], 2.0)
         self.assertEqual(summary["max_plan_steps"], 4)
 
+    def test_flatten_result_preserves_optional_progress_metrics(self):
+        result = {
+            "run_id": "r1",
+            "episode_id": "episode-one",
+            "status": "completed",
+            "trajectory": [],
+            "evaluation": {
+                "episode_success": False,
+                "episode_success_v02": False,
+                "feasible_process_success": False,
+                "feasible_obligation_success": False,
+                "terminal_outcome": {"correct": True},
+                "economic_objective": {"satisfied": False},
+                "hard_constraints": {"passed": 1, "total": 1},
+                "required_checkpoints": {
+                    "completed": 0,
+                    "total": 0,
+                    "results": [],
+                },
+                "obligations": {
+                    "actionable": 0,
+                    "resolved": 0,
+                    "unresolved": 0,
+                    "no_opportunity": 0,
+                    "not_applicable": 0,
+                    "resolution_rate": None,
+                    "results": [],
+                },
+                "constraint_violations": [],
+                "efficiency": {"accepted_actions": 0},
+            },
+            "policy_metrics": {
+                "model_calls_attempted": 4,
+                "total_tokens": 400,
+                "latency_ms": 50.0,
+                "cost_usd": 0.04,
+                "usage_incomplete": False,
+                "state_strategy": "progress_aware_no_progress_guard_v0.1",
+                "evidence_epoch": 3,
+                "no_progress_marks": 5,
+                "progress_events": 3,
+                "guard_interventions": 2,
+                "guard_retry_calls": 2,
+                "guard_retry_noncompliance": 1,
+            },
+            "error": None,
+            "evaluation_error": None,
+        }
+        row = flatten_result(result, "m", 1)
+        self.assertEqual(row["evidence_epoch"], 3)
+        self.assertEqual(row["no_progress_marks"], 5)
+        self.assertEqual(row["progress_events"], 3)
+        self.assertEqual(row["guard_interventions"], 2)
+        self.assertEqual(row["guard_retry_calls"], 2)
+        self.assertEqual(row["guard_retry_noncompliance"], 1)
+
+    def test_summary_aggregates_optional_progress_metrics(self):
+        base = {
+            "model": "m",
+            "episode_success": False,
+            "episode_success_v02": False,
+            "feasible_process_success": False,
+            "feasible_obligation_success": False,
+            "terminal_feasible": True,
+            "economic_objective_satisfied": False,
+            "status": "completed",
+            "constraint_violations": [],
+            "incomplete_checkpoints": [],
+            "obligations_actionable": 0,
+            "obligations_resolved": 0,
+            "obligations_unresolved": 0,
+            "unresolved_obligations": [],
+            "accepted_actions": 2,
+            "total_tokens": 20,
+            "latency_ms": 2.0,
+            "cost_usd": 0.002,
+            "usage_incomplete": False,
+        }
+        rows = [
+            {
+                **base,
+                "evidence_epoch": 2,
+                "no_progress_marks": 3,
+                "progress_events": 2,
+                "guard_interventions": 1,
+                "guard_retry_calls": 1,
+                "guard_retry_noncompliance": 0,
+            },
+            {
+                **base,
+                "evidence_epoch": 4,
+                "no_progress_marks": 0,
+                "progress_events": 4,
+                "guard_interventions": 2,
+                "guard_retry_calls": 2,
+                "guard_retry_noncompliance": 1,
+            },
+        ]
+        summary = summarize(rows)["by_model"]["m"]
+        self.assertEqual(summary["total_no_progress_marks"], 3)
+        self.assertEqual(summary["runs_with_no_progress_marks"], 1)
+        self.assertEqual(summary["total_progress_events"], 6)
+        self.assertEqual(summary["total_guard_interventions"], 3)
+        self.assertEqual(summary["runs_with_guard_interventions"], 2)
+        self.assertEqual(summary["total_guard_retry_calls"], 3)
+        self.assertEqual(summary["total_guard_retry_noncompliance"], 1)
+        self.assertEqual(summary["max_evidence_epoch"], 4)
+
     def test_summary_excludes_zero_update_runs_from_plan_step_mean(self):
         base = {
             "model": "m",
