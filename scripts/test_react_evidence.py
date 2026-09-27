@@ -13,6 +13,7 @@ from frozen_react_comparator_v01 import (
     EXPECTED_REPEATS,
     EXPECTED_RUNS,
     load_frozen_react_source,
+    load_frozen_react_transcripts,
 )
 
 
@@ -142,6 +143,42 @@ class FrozenReActEvidenceTests(unittest.TestCase):
             )
             self.assertEqual(metrics["model_calls_failed"], 0)
             self.assertFalse(metrics["usage_incomplete"])
+
+    def test_durable_transcript_matches_replay_and_thought_metrics(self):
+        replay = load_frozen_react_source(ROOT)
+        transcripts = load_frozen_react_transcripts(ROOT)
+        transcript_by_key = {
+            (record["episode_id"], record["repeat"]): record
+            for record in transcripts
+        }
+        self.assertEqual(len(transcript_by_key), EXPECTED_RUNS)
+
+        total_thought_chars = 0
+        total_steps = 0
+        for record in replay:
+            key = (record["episode_id"], record["repeat"])
+            transcript = transcript_by_key[key]["react_transcript"]
+            self.assertEqual(len(transcript), len(record["decisions"]))
+            self.assertEqual(
+                [step["action"] for step in transcript],
+                record["decisions"],
+            )
+            thought_lengths = [
+                len(step["thought_summary"]) for step in transcript
+            ]
+            self.assertEqual(
+                sum(thought_lengths),
+                record["policy_metrics"]["react_thought_chars_total"],
+            )
+            self.assertEqual(
+                max(thought_lengths, default=0),
+                record["policy_metrics"]["react_thought_chars_max"],
+            )
+            total_thought_chars += sum(thought_lengths)
+            total_steps += len(transcript)
+
+        self.assertEqual(total_steps, 488)
+        self.assertEqual(total_thought_chars, 81495)
 
     def test_matched_result_is_frozen(self):
         comparison = self.comparison
