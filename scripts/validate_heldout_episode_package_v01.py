@@ -1,6 +1,7 @@
 """Validate the frozen held-out episode package before any model run."""
 from __future__ import annotations
 
+from hashlib import sha1
 import json
 from pathlib import Path
 import sys
@@ -59,6 +60,12 @@ def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _git_blob_sha(path: Path) -> str:
+    payload = path.read_bytes()
+    header = f"blob {len(payload)}\0".encode("ascii")
+    return sha1(header + payload).hexdigest()
+
+
 def validate_heldout_package() -> dict:
     split = _load(SPLIT_PATH)
     if split.get("status") != "holdout_episodes_frozen":
@@ -93,6 +100,20 @@ def validate_heldout_package() -> dict:
         DEVELOPMENT_FREEZE_SHA
     ):
         raise ValueError("Held-out manifest development-freeze provenance drift")
+    frozen_blobs = manifest.get("frozen_git_blobs")
+    if not isinstance(frozen_blobs, dict) or len(frozen_blobs) != 23:
+        raise ValueError("Held-out frozen file-blob map must contain 23 files")
+    for relative, expected_blob in sorted(frozen_blobs.items()):
+        path = ROOT / relative
+        if not path.is_file():
+            raise ValueError(f"Frozen held-out file is missing: {relative}")
+        actual_blob = _git_blob_sha(path)
+        if actual_blob != expected_blob:
+            raise ValueError(
+                f"Frozen held-out file drift: {relative} "
+                f"expected={expected_blob}, actual={actual_blob}"
+            )
+
     manifest_rows = manifest.get("episodes") or []
     expected_manifest = [
         {
