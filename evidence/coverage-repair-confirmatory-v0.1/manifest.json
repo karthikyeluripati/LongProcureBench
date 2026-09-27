@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1.0",
+  "experiment": "coverage-repair-confirmatory-v0.1",
+  "status": "development_diagnostic_frozen",
+  "source_workflow_run_id": 36345529581,
+  "source_artifact_id": 10941001111,
+  "source_artifact_name": "coverage-repair-20x3-36345529581-1",
+  "source_artifact_digest": "sha256:c8a0c85e6ec00af8199d0085a9bcbc64ea46826d92d0a20a0df00aad485474a5",
+  "source_artifact_expires_at": "2026-10-27T19:57:25Z",
+  "protocol_commit": "005c526416eb18789a2431d347c1cc3f635f035d",
+  "execution_commit": "e2bdf265bd284cfbebab5eddf16629acd1a0a885",
+  "note": "The Actions artifact is temporary development evidence. Materialize a compact replay source before expiry if this diagnostic is promoted into final paper evidence."
+}
