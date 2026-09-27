@@ -2,6 +2,11 @@ name: Progress-Aware Reactive Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - run-progress-aware-smoke-20260927
+    paths:
+      - ".github/workflows/progress-aware-reactive-smoke.yml"
 
 permissions:
   contents: read
