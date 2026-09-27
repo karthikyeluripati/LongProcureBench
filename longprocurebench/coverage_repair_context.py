@@ -9,27 +9,29 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from .context_compiled_reactive import ContextCompiledReactiveLLMPolicy
+from .context_compiled_reactive import (
+    ContextCompiledReactiveLLMPolicy,
+    compile_visible_state,
+)
 
 
-REPAIR_EVENT_ACTIONS: dict[str, tuple[str, bool]] = {
-    "supplier_non_response": ("send_follow_up", True),
-    "supplier_question": ("answer_supplier_question", True),
-    "requirement_change": ("issue_amendment", False),
-    "quantity_change": ("issue_amendment", False),
+REPAIR_EVENT_ACTIONS: dict[str, str] = {
+    "supplier_non_response": "send_follow_up",
+    "supplier_question": "answer_supplier_question",
 }
 
 
 class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
     """Context-reactive policy with deterministic coverage/repair actions.
 
-    The controller uses only agent-visible state. Once the model has started
-    sourcing by sending the first RFQ, the controller:
-    - discharges a small set of obvious event-triggered repairs;
-    - completes RFQ coverage across currently visible suppliers.
+    The controller uses only the same facts exposed by factual_compiled_v0.1.
+    The model decides when sourcing begins by sending the first RFQ. After that,
+    the controller can:
+    - respond once to a newly visible supplier non-response or question;
+    - complete RFQ coverage across currently visible suppliers.
 
-    Deterministic interventions do not call the model. Final evaluation,
-    revisions, awards, and no-award decisions remain model decisions.
+    Deterministic interventions do not call the model. Requirement amendments,
+    quote revisions, evaluation, awards, and no-award remain model decisions.
     """
 
     policy_kind = "llm_coverage_repair_diagnostic"
@@ -45,22 +47,22 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
         self._forced_rfqs = 0
         self._forced_followups = 0
         self._forced_answers = 0
-        self._forced_amendments = 0
+        self._handled_repair_event_ids: set[str] = set()
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
         self._reset_diagnostics()
 
     @staticmethod
-    def _history(state: dict[str, Any]) -> list[dict[str, Any]]:
-        history = state.get("action_history")
+    def _history(compiled: dict[str, Any]) -> list[dict[str, Any]]:
+        history = compiled.get("action_history")
         if not isinstance(history, list):
             return []
         return [row for row in history if isinstance(row, dict)]
 
     @staticmethod
-    def _visible_supplier_ids(state: dict[str, Any]) -> list[str]:
-        suppliers = state.get("visible_suppliers")
+    def _visible_supplier_ids(compiled: dict[str, Any]) -> list[str]:
+        suppliers = compiled.get("visible_suppliers")
         if not isinstance(suppliers, list):
             return []
         ids = {
@@ -73,91 +75,55 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
         return sorted(ids)
 
     @classmethod
-    def _event_trigger_step(
-        cls,
-        event: dict[str, Any],
-        history: list[dict[str, Any]],
-    ) -> int | None:
-        trigger = event.get("trigger")
-        if not isinstance(trigger, dict):
-            return None
+    def _sourcing_started(cls, compiled: dict[str, Any]) -> bool:
+        return any(
+            action.get("type") == "send_rfq"
+            for action in cls._history(compiled)
+        )
 
-        kind = trigger.get("kind")
-        if kind == "at_step":
-            step = trigger.get("step")
-            if isinstance(step, int) and not isinstance(step, bool) and step >= 0:
-                return step
-            return None
-
-        if kind != "after_action":
-            return None
-
-        action_type = trigger.get("action_type")
-        supplier_id = trigger.get("supplier_id")
-        for sequence, action in enumerate(history, start=1):
-            if action.get("type") != action_type:
-                continue
-            if supplier_id is not None and action.get("supplier_id") != supplier_id:
-                continue
-            return sequence
-        return None
-
-    @classmethod
     def _unresolved_visible_repair(
-        cls,
-        state: dict[str, Any],
-    ) -> dict[str, Any] | None:
-        history = cls._history(state)
-        events = state.get("revealed_events")
+        self,
+        compiled: dict[str, Any],
+    ) -> tuple[str, dict[str, Any]] | None:
+        if not self._sourcing_started(compiled):
+            return None
+
+        events = compiled.get("event_history")
         if not isinstance(events, list):
             return None
-
-        visible_suppliers = set(cls._visible_supplier_ids(state))
+        visible_suppliers = set(self._visible_supplier_ids(compiled))
 
         for event in events:
             if not isinstance(event, dict):
                 continue
+            event_id = event.get("event_id")
             event_type = event.get("type")
-            mapping = REPAIR_EVENT_ACTIONS.get(event_type)
-            if mapping is None:
+            action_type = REPAIR_EVENT_ACTIONS.get(event_type)
+            supplier_id = event.get("supplier_id")
+            if (
+                not isinstance(event_id, str)
+                or not event_id
+                or event_id in self._handled_repair_event_ids
+                or action_type is None
+                or not isinstance(supplier_id, str)
+                or supplier_id not in visible_suppliers
+            ):
                 continue
 
-            action_type, supplier_scoped = mapping
-            trigger_step = cls._event_trigger_step(event, history)
-            if trigger_step is None:
-                continue
-
-            supplier_id = event.get("supplier_id") if supplier_scoped else None
-            if supplier_scoped:
-                if not isinstance(supplier_id, str) or not supplier_id:
-                    continue
-                if supplier_id not in visible_suppliers:
-                    continue
-
-            already_repaired = False
-            for action in history[trigger_step:]:
-                if action.get("type") != action_type:
-                    continue
-                if supplier_scoped and action.get("supplier_id") != supplier_id:
-                    continue
-                already_repaired = True
-                break
-
-            if not already_repaired:
-                return {
-                    "type": action_type,
-                    "supplier_id": supplier_id,
-                    "arguments": {},
-                }
+            return event_id, {
+                "type": action_type,
+                "supplier_id": supplier_id,
+                "arguments": {},
+            }
 
         return None
 
     @classmethod
     def _uncovered_supplier_action(
         cls,
-        state: dict[str, Any],
+        compiled: dict[str, Any],
     ) -> dict[str, Any] | None:
-        history = cls._history(state)
+        history = cls._history(compiled)
         rfq_suppliers = {
             action.get("supplier_id")
             for action in history
@@ -165,14 +131,14 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
             and isinstance(action.get("supplier_id"), str)
         }
 
-        # Do not decide when sourcing should begin. The model must send the
-        # first RFQ itself; only then does deterministic coverage take over.
+        # The model decides when sourcing begins. Deterministic coverage starts
+        # only after the first accepted RFQ is already visible in history.
         if not rfq_suppliers:
             return None
 
         uncovered = [
             supplier_id
-            for supplier_id in cls._visible_supplier_ids(state)
+            for supplier_id in cls._visible_supplier_ids(compiled)
             if supplier_id not in rfq_suppliers
         ]
         if not uncovered:
@@ -184,12 +150,6 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
             "arguments": {},
         }
 
-    def _forced_action(self, state: dict[str, Any]) -> dict[str, Any] | None:
-        repair = self._unresolved_visible_repair(state)
-        if repair is not None:
-            return repair
-        return self._uncovered_supplier_action(state)
-
     def _record_intervention(self, action: dict[str, Any]) -> None:
         self._interventions += 1
         action_type = action.get("type")
@@ -199,14 +159,23 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
             self._forced_followups += 1
         elif action_type == "answer_supplier_question":
             self._forced_answers += 1
-        elif action_type == "issue_amendment":
-            self._forced_amendments += 1
 
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
-        forced = self._forced_action(state)
-        if forced is not None:
-            self._record_intervention(forced)
-            return deepcopy(forced)
+        # Use exactly the same factual view sent to the matched context baseline.
+        compiled = compile_visible_state(state)
+
+        repair = self._unresolved_visible_repair(compiled)
+        if repair is not None:
+            event_id, action = repair
+            self._handled_repair_event_ids.add(event_id)
+            self._record_intervention(action)
+            return deepcopy(action)
+
+        coverage = self._uncovered_supplier_action(compiled)
+        if coverage is not None:
+            self._record_intervention(coverage)
+            return deepcopy(coverage)
+
         return super().act(state)
 
     def get_run_metadata(self) -> dict[str, Any]:
@@ -217,6 +186,5 @@ class CoverageRepairContextPolicy(ContextCompiledReactiveLLMPolicy):
             "coverage_forced_rfqs": self._forced_rfqs,
             "coverage_forced_followups": self._forced_followups,
             "coverage_forced_answers": self._forced_answers,
-            "coverage_forced_amendments": self._forced_amendments,
         })
         return metadata
