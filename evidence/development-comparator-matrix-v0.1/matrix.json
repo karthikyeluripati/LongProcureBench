@@ -233,7 +233,7 @@
           "temperature": null,
           "reasoning_effort": null,
           "max_actions": 50,
-          "policy_kind": "scripted_reference_control",
+          "policy_kind": "reference_control",
           "context_strategy": null,
           "agent_pattern": null
         }
