@@ -1,6 +1,7 @@
 """Regression tests for the frozen held-out paper execution contract."""
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 import tempfile
@@ -199,6 +200,47 @@ class HeldoutExecutionTests(unittest.TestCase):
         self.assertEqual(summary["runs"], 10)
         self.assertEqual(validation["validated_runs"], 10)
         self.assertEqual(validation["infrastructure_failures"], 0)
+
+        runs_path = output_dir / "runs.csv"
+        original_runs = runs_path.read_text(encoding="utf-8")
+        with runs_path.open(newline="", encoding="utf-8") as handle:
+            csv_rows = list(csv.DictReader(handle))
+            fieldnames = list(csv_rows[0])
+        csv_rows[0]["terminal_feasible"] = "False"
+        with runs_path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(csv_rows)
+        with self.assertRaisesRegex(
+            ValueError,
+            "runs.csv disagrees with raw result",
+        ):
+            validate_row_results(
+                "reference-control",
+                output_dir,
+            )
+        runs_path.write_text(original_runs, encoding="utf-8")
+
+        summary_path = output_dir / "summary.json"
+        original_summary = summary_path.read_text(encoding="utf-8")
+        summary = json.loads(original_summary)
+        summary["by_model"]["reference-control"][
+            "episode_successes_v02"
+        ] -= 1
+        summary_path.write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(
+            ValueError,
+            "summary.json disagrees with raw result evidence",
+        ):
+            validate_row_results(
+                "reference-control",
+                output_dir,
+            )
+        summary_path.write_text(original_summary, encoding="utf-8")
+
         self.assertEqual(
             tuple(call[0] for call in runner.calls),
             EXPECTED_HELDOUT_EPISODES,
