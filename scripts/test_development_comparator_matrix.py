@@ -126,6 +126,21 @@ class DevelopmentComparatorMatrixTests(unittest.TestCase):
         ):
             validate_matrix(matrix)
 
+    def test_temperature_override_is_rejected(self):
+        matrix = deepcopy(self.matrix)
+        rows = {
+            row["id"]: row
+            for row in matrix["heldout_protocol"]["eligible_rows"]
+        }
+        settings = rows["raw-reactive-gemini"]["execution_settings"]
+        settings["temperature"] = 0.0
+        settings["temperature_mode"] = "explicit"
+        with self.assertRaisesRegex(
+            ValueError,
+            "Held-out row contract changed for raw-reactive-gemini",
+        ):
+            validate_matrix(matrix)
+
     def test_table_rows_are_frozen(self):
         matrix = deepcopy(self.matrix)
         table = next(
