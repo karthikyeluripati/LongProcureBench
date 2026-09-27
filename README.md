@@ -16,7 +16,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 ### Initial-state dataset
 
 - 20 real public electrical procurement starting states back development/calibration episodes 001–020.
-- 10 additional real public starting states now back the frozen held-out episodes 021–030; no model-backed held-out evaluation has run yet.
+- 10 additional real public starting states back frozen held-out episodes 021–030; the preregistered 160-run held-out paper evaluation is complete and durably frozen.
 - Multiple source families and electrical subtypes.
 - Strict provenance, missingness, and no-outcome-leakage checks.
 - See [`docs/initial-state-v0.1-report.md`](docs/initial-state-v0.1-report.md), [`docs/heldout-initial-state-batch-1.md`](docs/heldout-initial-state-batch-1.md), and [`docs/heldout-initial-state-batch-2.md`](docs/heldout-initial-state-batch-2.md).
@@ -185,8 +185,8 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - The package was authored only after the development comparator/reporting freeze merged.
 - Every held-out episode has a deterministic Evaluator v0.2 config, observability row, and oracle-aware reference control.
 - CI requires all 10 reference controls to pass terminal feasibility, hard constraints, feasible-obligation success, strict v0.2, the economic objective, and **zero unresolved actionable obligations**.
-- The split remains contamination-safe: **no model/API held-out evaluation has run yet**.
-- The package is merged; the next step is the manual frozen held-out execution protocol below.
+- The package was frozen before any model/API held-out evaluation and remained unchanged through the completed final test.
+- The package is merged and the frozen held-out execution below is now complete.
 - See [`docs/heldout-episode-package-v0.1.md`](docs/heldout-episode-package-v0.1.md).
 
 ### Held-out Paper Evaluation Protocol v0.1
@@ -197,8 +197,18 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - OpenAI raw → context → ReAct rows are serialized; Anthropic and Gemini can run in parallel after the reference gate.
 - Every row is independently checked for the exact episode/repeat grid, policy/settings identity, Evaluator v0.2 coverage, complete usage, known cost, and zero infrastructure/model-call failures.
 - A final aggregate artifact is produced only after all six rows validate to exactly **160 runs**.
-- The live workflow is **manual-only and not triggered by this PR**.
+- The live workflow remained manual-only; workflow run `36329287113` completed successfully with the exact frozen matrix.
 - See [`docs/heldout-paper-evaluation-v0.1.md`](docs/heldout-paper-evaluation-v0.1.md).
+
+### Held-out Paper Evaluation Results v0.1
+
+- Final held-out evidence: **150 model-backed + 10 reference = 160/160 validated runs**.
+- Raw reactive terminal feasibility remains much higher than feasible-obligation success across all three model families, reproducing the long-horizon reliability gap on untouched held-out tasks.
+- Matched GPT-5.6 Sol feasible-obligation success: raw **12/30 (40.0%)**, factual context **20/30 (66.7%)**, ReAct **20/30 (66.7%)**.
+- ReAct does **not** improve the preregistered primary metric over factual context, but strict v0.2 rises from **6/30 (20.0%)** to **15/30 (50.0%)** while using **+73.9% tokens** and **+98.3% known API cost**.
+- Exact source artifact ZIPs, all raw results, full ReAct transcripts, aggregate evidence, deterministic bootstrap outputs, and failure taxonomy are committed under `evidence/heldout-paper-evaluation-v0.1/` and audited in CI.
+- Research execution for the frozen plan is complete. Next: manuscript claims, figures/tables, limitations, and final paper assembly—**no new architecture search**.
+- See [`docs/heldout-paper-evaluation-v0.1-results.md`](docs/heldout-paper-evaluation-v0.1-results.md).
 
 ### Checkpoint fairness audit v0.1
 
@@ -260,6 +270,7 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/validate_heldout_row_results_v01.py` — exact per-row held-out evidence validator.
 - `scripts/aggregate_heldout_matrix_results_v01.py` — six-row/160-run held-out aggregation and revalidation.
 - `scripts/validate_heldout_execution_plan_v01.py` — pre-run provenance/settings/workflow freeze validator.
+- `scripts/audit_heldout_paper_v01.py` — deterministic 160-run source-artifact, aggregate, bootstrap, taxonomy, and result audit.
 - `scripts/run_operational_ledger_pilot.py` — repeated persistent-ledger matched-policy experiment runner.
 - `scripts/run_working_plan_pilot.py` — repeated maintained-working-plan matched-policy experiment runner.
 - `scripts/rescore_pilot.py` — non-destructive re-evaluation of saved pilot trajectories.
