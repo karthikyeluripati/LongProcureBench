@@ -14,6 +14,13 @@ if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
 from audit_cross_family_reactive_v01 import load_frozen_summary
+from frozen_cross_family_reactive_v01 import (
+    load_frozen_cross_family_source,
+)
+from frozen_context_compiled_v01 import (
+    load_frozen_context_compiled_source,
+)
+from frozen_react_comparator_v01 import load_frozen_react_source
 
 
 MATRIX_PATH = (
@@ -28,19 +35,198 @@ EXPECTED_MODELS = {
     "anthropic/claude-opus-5-5",
     "gemini/gemini-3.8-flash",
 }
-EXPECTED_HELDOUT_IDS = {
-    "reference-control",
-    "raw-reactive-openai",
-    "raw-reactive-anthropic",
-    "raw-reactive-gemini",
-    "context-compiled-openai",
-    "react-openai",
+EXPECTED_DEVELOPMENT_METHOD_IDS = {
+    "raw-reactive-cross-family-v0.1",
+    "context-compiled-reactive-v0.1",
+    "react-comparator-v0.1",
+    "operational-ledger-reactive-v0.1",
+    "working-plan-reactive-v0.1",
+    "always-replan-verifier-v0.1",
+    "progress-aware-reactive-v0.1",
 }
 EXPECTED_DROPPED = {
     "operational-ledger-reactive-v0.1",
     "working-plan-reactive-v0.1",
     "always-replan-verifier-v0.1",
     "progress-aware-reactive-v0.1",
+}
+EXPECTED_HELDOUT_ROWS = {
+    "reference-control": {
+        "id": "reference-control",
+        "model": None,
+        "runs_if_10_episodes": 10,
+        "competitive": False,
+        "execution_settings": {
+            "provider": None,
+            "model": None,
+            "temperature": None,
+            "reasoning_effort": None,
+            "max_actions": 50,
+            "policy_kind": "scripted_reference_control",
+            "context_strategy": None,
+            "agent_pattern": None,
+        },
+    },
+    "raw-reactive-openai": {
+        "id": "raw-reactive-openai",
+        "model": "openai/gpt-5.6-sol",
+        "runs_if_10_episodes": 30,
+        "competitive": True,
+        "execution_settings": {
+            "provider": "openai",
+            "model": "openai/gpt-5.6-sol",
+            "temperature": None,
+            "reasoning_effort": "medium",
+            "max_actions": 50,
+            "policy_kind": "llm_reactive_baseline",
+            "context_strategy": None,
+            "agent_pattern": None,
+        },
+    },
+    "raw-reactive-anthropic": {
+        "id": "raw-reactive-anthropic",
+        "model": "anthropic/claude-opus-5-5",
+        "runs_if_10_episodes": 30,
+        "competitive": True,
+        "execution_settings": {
+            "provider": "anthropic",
+            "model": "anthropic/claude-opus-5-5",
+            "temperature": None,
+            "reasoning_effort": None,
+            "max_actions": 50,
+            "policy_kind": "llm_reactive_baseline",
+            "context_strategy": None,
+            "agent_pattern": None,
+        },
+    },
+    "raw-reactive-gemini": {
+        "id": "raw-reactive-gemini",
+        "model": "gemini/gemini-3.8-flash",
+        "runs_if_10_episodes": 30,
+        "competitive": True,
+        "execution_settings": {
+            "provider": "gemini",
+            "model": "gemini/gemini-3.8-flash",
+            "temperature": None,
+            "reasoning_effort": None,
+            "max_actions": 50,
+            "policy_kind": "llm_reactive_baseline",
+            "context_strategy": None,
+            "agent_pattern": None,
+        },
+    },
+    "context-compiled-openai": {
+        "id": "context-compiled-openai",
+        "model": "openai/gpt-5.6-sol",
+        "runs_if_10_episodes": 30,
+        "competitive": True,
+        "execution_settings": {
+            "provider": "openai",
+            "model": "openai/gpt-5.6-sol",
+            "temperature": None,
+            "reasoning_effort": "medium",
+            "max_actions": 50,
+            "policy_kind": "llm_context_compiled_reactive",
+            "context_strategy": "factual_compiled_v0.1",
+            "agent_pattern": None,
+        },
+    },
+    "react-openai": {
+        "id": "react-openai",
+        "model": "openai/gpt-5.6-sol",
+        "runs_if_10_episodes": 30,
+        "competitive": True,
+        "execution_settings": {
+            "provider": "openai",
+            "model": "openai/gpt-5.6-sol",
+            "temperature": None,
+            "reasoning_effort": "medium",
+            "max_actions": 50,
+            "policy_kind": "llm_react_comparator",
+            "context_strategy": "factual_compiled_v0.1",
+            "agent_pattern": "react_v0.1",
+        },
+    },
+}
+EXPECTED_TABLES = {
+    "table-provider-diverse-raw-reactive": {
+        "id": "table-provider-diverse-raw-reactive",
+        "scope": "heldout_main",
+        "rows": [
+            "raw-reactive-openai",
+            "raw-reactive-anthropic",
+            "raw-reactive-gemini",
+        ],
+        "columns": [
+            "runs",
+            "terminal_feasible",
+            "feasible_obligation_success",
+            "episode_success_v02",
+            "obligation_resolution_rate",
+            "economic_objective_satisfied",
+            "mean_accepted_actions",
+            "total_tokens",
+            "known_cost_usd",
+        ],
+    },
+    "table-openai-matched-methods": {
+        "id": "table-openai-matched-methods",
+        "scope": "heldout_main",
+        "rows": [
+            "raw-reactive-openai",
+            "context-compiled-openai",
+            "react-openai",
+        ],
+        "columns": [
+            "runs",
+            "terminal_feasible",
+            "feasible_obligation_success",
+            "episode_success_v02",
+            "obligation_resolution_rate",
+            "economic_objective_satisfied",
+            "mean_accepted_actions",
+            "model_calls",
+            "total_tokens",
+            "latency_ms",
+            "known_cost_usd",
+        ],
+        "paired_bootstrap_against": "context-compiled-openai",
+    },
+    "table-development-mechanism-analysis": {
+        "id": "table-development-mechanism-analysis",
+        "scope": "development_only",
+        "rows": [
+            "context-compiled-reactive-v0.1",
+            "operational-ledger-reactive-v0.1",
+            "working-plan-reactive-v0.1",
+            "always-replan-verifier-v0.1",
+            "progress-aware-reactive-v0.1",
+            "react-comparator-v0.1",
+        ],
+        "baseline": "context-compiled-reactive-v0.1",
+        "columns": [
+            "terminal_feasible_delta_pp",
+            "feasible_obligation_success_delta_pp",
+            "episode_success_v02_delta_pp",
+            "obligation_resolution_delta_pp",
+            "model_calls_delta_pct",
+            "total_tokens_delta_pct",
+            "latency_delta_pct",
+            "cost_delta_pct",
+            "development_decision",
+        ],
+    },
+    "table-heldout-failure-taxonomy": {
+        "id": "table-heldout-failure-taxonomy",
+        "scope": "heldout_main_or_appendix",
+        "rows": "unresolved_obligation_class",
+        "columns": [
+            "method",
+            "unresolved_count",
+            "actionable_count",
+            "resolution_rate",
+        ],
+    },
 }
 
 
@@ -131,6 +317,13 @@ def validate_matrix(matrix: dict[str, Any] | None = None) -> None:
         raise ValueError("Frozen efficiency metric set changed")
 
     methods = _method_map(matrix)
+    if set(methods) != EXPECTED_DEVELOPMENT_METHOD_IDS:
+        raise ValueError(
+            "Frozen development method set changed: "
+            f"expected={sorted(EXPECTED_DEVELOPMENT_METHOD_IDS)}, "
+            f"actual={sorted(methods)}"
+        )
+
     cross = methods.get("raw-reactive-cross-family-v0.1") or {}
     if not cross.get("heldout_eligible"):
         raise ValueError("Cross-family raw baseline must remain held-out eligible")
@@ -167,30 +360,156 @@ def validate_matrix(matrix: dict[str, Any] | None = None) -> None:
         raise ValueError("Expected held-out reference-control count changed")
 
     rows = protocol.get("eligible_rows") or []
-    row_ids = {row.get("id") for row in rows}
-    if row_ids != EXPECTED_HELDOUT_IDS:
-        raise ValueError("Held-out eligible row set changed")
-    if sum(int(row["runs_if_10_episodes"]) for row in rows if row["model"]) != 150:
-        raise ValueError("Held-out model-backed row counts do not sum to 150")
+    if len(rows) != len(EXPECTED_HELDOUT_ROWS):
+        raise ValueError("Held-out eligible row count changed")
+
+    rows_by_id = {}
     for row in rows:
+        row_id = row.get("id")
+        if not isinstance(row_id, str) or not row_id:
+            raise ValueError("Every held-out row requires an id")
+        if row_id in rows_by_id:
+            raise ValueError(f"Duplicate held-out row id: {row_id}")
+        rows_by_id[row_id] = row
+
+    if set(rows_by_id) != set(EXPECTED_HELDOUT_ROWS):
+        raise ValueError("Held-out eligible row set changed")
+
+    for row_id, expected in EXPECTED_HELDOUT_ROWS.items():
+        actual = rows_by_id[row_id]
+        if actual != expected:
+            raise ValueError(
+                f"Held-out row contract changed for {row_id}: "
+                f"expected={expected!r}, actual={actual!r}"
+            )
+
+    model_rows = [row for row in rows if row["model"] is not None]
+    if sum(int(row["runs_if_10_episodes"]) for row in model_rows) != 150:
+        raise ValueError("Held-out model-backed row counts do not sum to 150")
+    if rows_by_id["reference-control"]["runs_if_10_episodes"] != 10:
+        raise ValueError("Reference-control run count changed")
+
+    for row_id, row in rows_by_id.items():
+        settings = row["execution_settings"]
+        if settings["model"] != row["model"]:
+            raise ValueError(
+                f"Held-out row model/settings mismatch for {row_id}"
+            )
         model = row.get("model")
-        if model is not None and model not in EXPECTED_MODELS:
-            raise ValueError(f"Unexpected held-out model: {model}")
+        provider = settings.get("provider")
+        if model is None:
+            if provider is not None:
+                raise ValueError(
+                    "Reference control must not declare a provider"
+                )
+        else:
+            if provider != model.split("/", 1)[0]:
+                raise ValueError(
+                    f"Provider/model mismatch for {row_id}"
+                )
 
-    tables = {table["id"]: table for table in matrix.get("paper_tables") or []}
-    expected_tables = {
-        "table-provider-diverse-raw-reactive",
-        "table-openai-matched-methods",
-        "table-development-mechanism-analysis",
-        "table-heldout-failure-taxonomy",
+    # Bind sampling/context settings to the frozen development evidence.
+    cross_records = load_frozen_cross_family_source(ROOT)
+    frozen_cross_settings = {}
+    for model in EXPECTED_MODELS:
+        settings = {
+            (
+                record["policy_metrics"]["temperature"],
+                record["policy_metrics"]["reasoning_effort"],
+            )
+            for record in cross_records
+            if record["model"] == model
+        }
+        if len(settings) != 1:
+            raise ValueError(
+                f"Frozen development sampling is inconsistent for {model}"
+            )
+        frozen_cross_settings[model] = next(iter(settings))
+
+    for row_id in (
+        "raw-reactive-openai",
+        "raw-reactive-anthropic",
+        "raw-reactive-gemini",
+    ):
+        row = rows_by_id[row_id]
+        expected_sampling = frozen_cross_settings[row["model"]]
+        actual_sampling = (
+            row["execution_settings"]["temperature"],
+            row["execution_settings"]["reasoning_effort"],
+        )
+        if actual_sampling != expected_sampling:
+            raise ValueError(
+                f"Held-out sampling settings drifted from development "
+                f"for {row_id}"
+            )
+
+    context_records = load_frozen_context_compiled_source(ROOT)
+    context_settings = {
+        (
+            record["policy_metrics"]["temperature"],
+            record["policy_metrics"]["reasoning_effort"],
+            record["policy_metrics"]["context_strategy"],
+        )
+        for record in context_records
     }
-    if set(tables) != expected_tables:
-        raise ValueError("Frozen paper table set changed")
+    if context_settings != {
+        (None, "medium", "factual_compiled_v0.1")
+    }:
+        raise ValueError(
+            "Frozen context-compiled development settings are inconsistent"
+        )
+    context_row = rows_by_id["context-compiled-openai"][
+        "execution_settings"
+    ]
+    if (
+        context_row["temperature"],
+        context_row["reasoning_effort"],
+        context_row["context_strategy"],
+    ) != next(iter(context_settings)):
+        raise ValueError(
+            "Context-compiled held-out settings drifted from development"
+        )
 
-    if tables["table-openai-matched-methods"].get(
-        "paired_bootstrap_against"
-    ) != "context-compiled-openai":
-        raise ValueError("Matched held-out bootstrap baseline changed")
+    react_records = load_frozen_react_source(ROOT)
+    react_settings = {
+        (
+            record["policy_metrics"]["temperature"],
+            record["policy_metrics"]["reasoning_effort"],
+            record["policy_metrics"]["context_strategy"],
+            record["policy_metrics"]["agent_pattern"],
+        )
+        for record in react_records
+    }
+    if react_settings != {
+        (None, "medium", "factual_compiled_v0.1", "react_v0.1")
+    }:
+        raise ValueError(
+            "Frozen ReAct development settings are inconsistent"
+        )
+    react_row = rows_by_id["react-openai"]["execution_settings"]
+    if (
+        react_row["temperature"],
+        react_row["reasoning_effort"],
+        react_row["context_strategy"],
+        react_row["agent_pattern"],
+    ) != next(iter(react_settings)):
+        raise ValueError(
+            "ReAct held-out settings drifted from development"
+        )
+
+    tables = {
+        table["id"]: table
+        for table in matrix.get("paper_tables") or []
+    }
+    if set(tables) != set(EXPECTED_TABLES):
+        raise ValueError("Frozen paper table set changed")
+    for table_id, expected in EXPECTED_TABLES.items():
+        actual = tables[table_id]
+        if actual != expected:
+            raise ValueError(
+                f"Frozen paper table changed for {table_id}: "
+                f"expected={expected!r}, actual={actual!r}"
+            )
 
     # Cross-family anchor is reconstructed from the checksum-locked summary.
     cross_summary = load_frozen_summary()
