@@ -28,6 +28,14 @@ EXPECTED_PROVENANCE_BYTES = 12606
 EXPECTED_PROVENANCE_SHA256 = (
     "b161fccfb83b1db3b739b1a0af74bb1ef157562c7c4201efed4fddf68bb924ee"
 )
+EXPECTED_TRANSCRIPT_ROWS_BYTES = 262900
+EXPECTED_TRANSCRIPT_ROWS_SHA256 = (
+    "dc073660375b68febef010da284cc867b24f11beb2e52c846957bf726c3a5ba8"
+)
+EXPECTED_TRANSCRIPT_COMPRESSED_BYTES = 30180
+EXPECTED_TRANSCRIPT_COMPRESSED_SHA256 = (
+    "a7cbe4277c70abe62d157df683efa34a58bb29cc39eeb951e0d253353b7e7456"
+)
 
 EPISODES = [
     "electrical-bongabon-generator-001",
@@ -337,6 +345,25 @@ def materialize(artifact_root: Path) -> None:
     transcript_compressed = bytes(transcript_compressed)
     transcript_digest = sha256(transcript_compressed).hexdigest()
     transcript_rows_digest = sha256(transcript_payload).hexdigest()
+    if (
+        len(transcript_payload) != EXPECTED_TRANSCRIPT_ROWS_BYTES
+        or transcript_rows_digest != EXPECTED_TRANSCRIPT_ROWS_SHA256
+    ):
+        raise ValueError(
+            "Durable transcript row mismatch: "
+            f"bytes={len(transcript_payload)} "
+            f"sha256={transcript_rows_digest}"
+        )
+    if (
+        len(transcript_compressed)
+        != EXPECTED_TRANSCRIPT_COMPRESSED_BYTES
+        or transcript_digest != EXPECTED_TRANSCRIPT_COMPRESSED_SHA256
+    ):
+        raise ValueError(
+            "Durable transcript compressed mismatch: "
+            f"bytes={len(transcript_compressed)} "
+            f"sha256={transcript_digest}"
+        )
 
     EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
     (EVIDENCE_DIR / "replay-source.b64").write_text(
