@@ -1,12 +1,24 @@
 """Regression checks for frozen held-out paper evidence."""
+import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
+import zipfile
 
 from audit_heldout_paper_v01 import (
     EVIDENCE_DIR,
     SOURCE_ARTIFACTS,
+    _safe_extract,
+    _validate_archive_members,
+    _validate_react_transcripts,
     audit_committed_outputs,
 )
+from run_heldout_paper_row import (
+    EXPECTED_HELDOUT_EPISODES,
+    load_execution_plan,
+)
+from run_reactive_pilot import model_slug
 
 
 class HeldoutPaperEvidenceTests(unittest.TestCase):
@@ -144,6 +156,66 @@ class HeldoutPaperEvidenceTests(unittest.TestCase):
         self.assertEqual(gaps["raw-reactive-openai"], 14)
         self.assertEqual(gaps["context-compiled-openai"], 6)
         self.assertEqual(gaps["react-openai"], 6)
+
+    def test_extra_archive_run_member_is_rejected(self):
+        plan = load_execution_plan()
+        source = (
+            EVIDENCE_DIR
+            / SOURCE_ARTIFACTS["raw-reactive-openai"]["path"]
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            mutated = Path(tmp) / "mutated.zip"
+            shutil.copy2(source, mutated)
+            with zipfile.ZipFile(mutated, "a") as handle:
+                handle.writestr(
+                    "unexpected/episode/run-999.json",
+                    "{}",
+                )
+            with self.assertRaisesRegex(
+                ValueError,
+                "source artifact member drift",
+            ):
+                _validate_archive_members(
+                    mutated,
+                    "raw-reactive-openai",
+                    plan,
+                )
+
+    def test_missing_react_transcript_is_rejected(self):
+        plan = load_execution_plan()
+        source = (
+            EVIDENCE_DIR
+            / SOURCE_ARTIFACTS["react-openai"]["path"]
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            extracted = Path(tmp) / "react"
+            _safe_extract(source, extracted)
+
+            spec = plan["react-openai"]
+            episode_id = EXPECTED_HELDOUT_EPISODES[0]
+            run_path = (
+                extracted
+                / model_slug(spec["model"])
+                / episode_id
+                / "run-001.json"
+            )
+            result = json.loads(
+                run_path.read_text(encoding="utf-8")
+            )
+            result["policy_metrics"].pop("react_transcript")
+            run_path.write_text(
+                json.dumps(result),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "Missing ReAct transcript",
+            ):
+                _validate_react_transcripts(
+                    extracted,
+                    spec,
+                )
 
     def test_exact_source_artifacts_are_committed(self):
         self.assertEqual(len(SOURCE_ARTIFACTS), 7)
