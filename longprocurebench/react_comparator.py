@@ -8,6 +8,7 @@ from typing import Any
 
 from .context_compiled_reactive import (
     ContextCompiledReactiveLLMPolicy,
+    compact_visible_event,
     compile_visible_state,
 )
 from .litellm_client import ModelCallError
@@ -19,7 +20,7 @@ MAX_THOUGHT_CHARS = 400
 REACT_STEP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "thought_summary": {"type": "string"},
+        "thought_summary": {"type": "string", "minLength": 1},
         "action": deepcopy(SEMANTIC_ACTION_SCHEMA),
     },
     "required": ["thought_summary", "action"],
@@ -161,15 +162,28 @@ Return only the structured ReAct step."""
         normalized_metrics.setdefault("success", True)
         normalized_metrics.setdefault("usage_available", True)
         normalized_metrics.setdefault("error", None)
+
+        try:
+            if not isinstance(response, dict):
+                raise ReActProtocolError("ReAct response must be an object")
+            thought = self._normalize_thought(
+                response.get("thought_summary")
+            )
+            action = response.get("action")
+            if not isinstance(action, dict):
+                raise ReActProtocolError(
+                    "ReAct response requires action object"
+                )
+        except ReActProtocolError as exc:
+            normalized_metrics["success"] = False
+            normalized_metrics["error"] = {
+                "type": type(exc).__name__,
+                "message": str(exc),
+            }
+            self._calls.append(normalized_metrics)
+            raise
+
         self._calls.append(normalized_metrics)
-
-        if not isinstance(response, dict):
-            raise ReActProtocolError("ReAct response must be an object")
-        thought = self._normalize_thought(response.get("thought_summary"))
-        action = response.get("action")
-        if not isinstance(action, dict):
-            raise ReActProtocolError("ReAct response requires action object")
-
         runtime_action = self._runtime_decision(action)
         self._pending_thought = thought
         self._pending_action = deepcopy(runtime_action)
@@ -192,11 +206,19 @@ Return only the structured ReAct step."""
                 "Accepted action does not match pending ReAct action"
             )
 
+        compact_observations = [
+            compact
+            for compact in (
+                compact_visible_event(event)
+                for event in (state.get("observations") or [])
+            )
+            if compact is not None
+        ]
         self._react_transcript.append({
             "step": state.get("step"),
             "thought_summary": self._pending_thought,
             "action": deepcopy(accepted),
-            "observation": deepcopy(state.get("observations") or []),
+            "observation": compact_observations,
         })
         self._pending_thought = None
         self._pending_action = None
