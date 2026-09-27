@@ -321,6 +321,12 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "plan_rejections",
         "mean_plan_steps",
         "max_plan_steps",
+        "evidence_epoch",
+        "no_progress_marks",
+        "progress_events",
+        "guard_interventions",
+        "guard_retry_calls",
+        "guard_retry_noncompliance",
         "error_type",
         "evaluation_error_type",
     ]
