@@ -15,6 +15,7 @@ from frozen_react_comparator_v01 import (
     EPISODES,
     EXPECTED_COMPACT_ROWS_SHA256,
     EXPECTED_TRANSCRIPT_ROWS_SHA256,
+    load_frozen_react_transcripts,
 )
 from materialize_react_comparator_evidence_v01 import (
     _canonical_line,
@@ -123,6 +124,9 @@ def verify_artifact(path: Path) -> dict[str, str]:
     )
     if not committed_transcript.is_file():
         raise ValueError("Committed durable ReAct transcript is missing")
+    durable_transcripts = load_frozen_react_transcripts(ROOT)
+    if len(durable_transcripts) != 60:
+        raise ValueError("Durable ReAct transcript grid mismatch")
 
     committed = (
         ROOT
