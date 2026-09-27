@@ -104,7 +104,17 @@
     "data/evaluation/electrical/electrical-detroit-generator-ats-030.json": "8a7bc4147aaf681fd021e58356141bb0e6099064",
     "longprocurebench/reference.py": "607b8983bcff5a699cb04b5f70da75d3ee5e0a84",
     "data/splits/electrical-v0.3-plan.json": "d4cf2a334269346114325ba86e502f03643905ca",
-    "OBSERVABILITY_MATRIX.csv": "d490169a165dde82e23e8aa180097b6538edb95c"
+    "OBSERVABILITY_MATRIX.csv": "d490169a165dde82e23e8aa180097b6538edb95c",
+    "data/initial_states/electrical/us-columbus-rfq029445.json": "e129e2a010ee7270479b6e30a533b5c4cacfbcdb",
+    "data/initial_states/electrical/us-eweb-rfp-25-030-g.json": "e299a4bda40aaf4d9065c8f06649931b1ff217ed",
+    "data/initial_states/electrical/us-lompoc-rfq-3099.json": "da1c6a824b5f79674960c0c0b785dc7dabc2437a",
+    "data/initial_states/electrical/us-njang-w50s8f26qa022.json": "25938bf1faf01d74bee21d28d1798da980056c31",
+    "data/initial_states/electrical/us-port-angeles-mec-2025-18.json": "d8b7ab8d2c7c67d2992c6afd53bafc5dae2c4f58",
+    "data/initial_states/electrical/us-greenport-transformers-2025.json": "b4a2778124aa8be8e2b02578044baaa5f8d77093",
+    "data/initial_states/electrical/us-san-bruno-ev-chargers-51035.json": "b35726688caa874414091999357bdc8104f4444e",
+    "data/initial_states/electrical/us-shelter-island-solar-bess-2026.json": "d397be8db27b88d67b9a0c3ffbcef9b878cd0934",
+    "data/initial_states/electrical/us-philadelphia-b2627071.json": "4be3f80a75e9865a73fe103513dceb83d4167e38",
+    "data/initial_states/electrical/us-detroit-or-s-q10041-00016402.json": "8b874cce0a3fa40f32e7ad12a1a1c2480fef9028"
   },
-  "blob_freeze_note": "Git blob IDs pin the exact held-out episodes, evaluator configs, reference controls, split metadata, and observability matrix present at package freeze. CI recomputes them from working-tree bytes."
+  "blob_freeze_note": "Git blob IDs pin the exact 10 reserved real starting states, 10 held-out episodes, 10 evaluator configs, reference controls, split metadata, and observability matrix present at package freeze. CI recomputes them from working-tree bytes."
 }
