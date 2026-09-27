@@ -66,9 +66,9 @@ class ReActComparatorTests(unittest.TestCase):
             set(REACT_STEP_SCHEMA["required"]),
             {"thought_summary", "action"},
         )
-        self.assertEqual(
-            REACT_STEP_SCHEMA["properties"]["thought_summary"]["minLength"],
-            1,
+        self.assertNotIn(
+            "minLength",
+            REACT_STEP_SCHEMA["properties"]["thought_summary"],
         )
         action = REACT_STEP_SCHEMA["properties"]["action"]
         self.assertFalse(action["additionalProperties"])
@@ -153,7 +153,7 @@ class ReActComparatorTests(unittest.TestCase):
         policy.act(state)
         prompt = client.calls[2]["messages"][1]["content"]
         payload = json.loads(
-            prompt.split("Current ReAct context:\\n", 1)[1]
+            prompt.split("Current ReAct context:\n", 1)[1]
         )
         observation = payload["react_transcript"][1]["observation"]
         self.assertEqual(len(observation), 1)
