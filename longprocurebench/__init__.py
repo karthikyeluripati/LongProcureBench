@@ -1,6 +1,7 @@
 """LongProcureBench benchmark package."""
 
 from .context_compiled_reactive import ContextCompiledReactiveLLMPolicy
+from .coverage_repair_context import CoverageRepairContextPolicy
 from .evaluator import EvaluationError, LongProcureBenchEvaluator
 from .operational_ledger_reactive import (
     OperationalLedgerError,
@@ -24,6 +25,7 @@ __all__ = [
     "AgentPolicy",
     "BenchmarkRunner",
     "ContextCompiledReactiveLLMPolicy",
+    "CoverageRepairContextPolicy",
     "EnvironmentError",
     "EvaluationError",
     "LongProcureBenchEnv",
