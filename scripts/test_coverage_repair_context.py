@@ -54,22 +54,17 @@ def _env_action(episode_id, number, decision):
 class CoverageRepairPolicyTests(unittest.TestCase):
     def test_finishes_supplier_coverage_and_nonresponse_without_extra_model_calls(self):
         env = LongProcureBenchEnv()
-        state = env.reset("electrical-columbus-switchgear-021")
+        state = env.reset("electrical-bongabon-generator-001")
         episode_id = state["episode_id"]
 
         state = env.step(_env_action(
             episode_id,
             1,
-            _model_action("request_buyer_clarification"),
-        ))
-        state = env.step(_env_action(
-            episode_id,
-            2,
             _model_action("identify_suppliers"),
         ))
 
         client = SequenceActionClient([
-            _model_action("send_rfq", "syn-columbus-a"),
+            _model_action("send_rfq", "syn-gen-a"),
             _model_action("evaluate_quotes"),
         ])
         policy = CoverageRepairContextPolicy(
@@ -80,36 +75,36 @@ class CoverageRepairPolicyTests(unittest.TestCase):
 
         first = policy.act(state)
         self.assertEqual(first["type"], "send_rfq")
-        self.assertEqual(first["supplier_id"], "syn-columbus-a")
+        self.assertEqual(first["supplier_id"], "syn-gen-a")
         self.assertEqual(len(client.calls), 1)
-        state = env.step(_env_action(episode_id, 3, first))
+        state = env.step(_env_action(episode_id, 2, first))
 
         second = policy.act(state)
         self.assertEqual(second, {
             "type": "send_rfq",
-            "supplier_id": "syn-columbus-b",
+            "supplier_id": "syn-gen-b",
             "arguments": {},
         })
         self.assertEqual(len(client.calls), 1)
-        state = env.step(_env_action(episode_id, 4, second))
+        state = env.step(_env_action(episode_id, 3, second))
 
         third = policy.act(state)
         self.assertEqual(third, {
             "type": "send_rfq",
-            "supplier_id": "syn-columbus-c",
+            "supplier_id": "syn-gen-c",
             "arguments": {},
         })
         self.assertEqual(len(client.calls), 1)
-        state = env.step(_env_action(episode_id, 5, third))
+        state = env.step(_env_action(episode_id, 4, third))
 
         fourth = policy.act(state)
         self.assertEqual(fourth, {
             "type": "send_follow_up",
-            "supplier_id": "syn-columbus-c",
+            "supplier_id": "syn-gen-c",
             "arguments": {},
         })
         self.assertEqual(len(client.calls), 1)
-        state = env.step(_env_action(episode_id, 6, fourth))
+        state = env.step(_env_action(episode_id, 5, fourth))
 
         fifth = policy.act(state)
         self.assertEqual(fifth["type"], "evaluate_quotes")
@@ -178,16 +173,11 @@ class CoverageRepairPolicyTests(unittest.TestCase):
 
     def test_controller_does_not_start_sourcing_on_its_own(self):
         env = LongProcureBenchEnv()
-        state = env.reset("electrical-columbus-switchgear-021")
+        state = env.reset("electrical-bongabon-generator-001")
         episode_id = state["episode_id"]
         state = env.step(_env_action(
             episode_id,
             1,
-            _model_action("request_buyer_clarification"),
-        ))
-        state = env.step(_env_action(
-            episode_id,
-            2,
             _model_action("identify_suppliers"),
         ))
 
@@ -208,22 +198,17 @@ class CoverageRepairPolicyTests(unittest.TestCase):
 
     def test_controller_receives_only_compiled_event_fields(self):
         env = LongProcureBenchEnv()
-        state = env.reset("electrical-columbus-switchgear-021")
+        state = env.reset("electrical-bongabon-generator-001")
         episode_id = state["episode_id"]
         state = env.step(_env_action(
             episode_id,
             1,
-            _model_action("request_buyer_clarification"),
-        ))
-        state = env.step(_env_action(
-            episode_id,
-            2,
             _model_action("identify_suppliers"),
         ))
         state = env.step(_env_action(
             episode_id,
-            3,
-            _model_action("send_rfq", "syn-columbus-c"),
+            2,
+            _model_action("send_rfq", "syn-gen-c"),
         ))
 
         client = SequenceActionClient([])
@@ -238,11 +223,11 @@ class CoverageRepairPolicyTests(unittest.TestCase):
         compiled = policy._prompt_state(state)
         event = next(
             row for row in compiled["event_history"]
-            if row["event_id"] == "e4"
+            if row["event_id"] == "e3"
         )
         self.assertNotIn("trigger", event)
         repair = policy._unresolved_visible_repair(compiled)
-        self.assertEqual(repair[0], "e4")
+        self.assertEqual(repair[0], "e3")
         self.assertEqual(repair[1]["type"], "send_follow_up")
 
 
