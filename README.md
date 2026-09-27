@@ -168,6 +168,17 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - Next: freeze the final development comparator/reporting matrix before any held-out episode authoring or evaluation.
 - See [`docs/react-comparator-v0.1.md`](docs/react-comparator-v0.1.md) and [`docs/react-comparator-v0.1-results.md`](docs/react-comparator-v0.1-results.md).
 
+### Development Comparator / Reporting Freeze v0.1
+
+- Development-time method selection is now **closed** before held-out episode authoring/evaluation.
+- Held-out-eligible model-backed rows are frozen to: the three raw-reactive model families, GPT-5.6 Sol factual-context compilation, and GPT-5.6 Sol ReAct.
+- Failed bespoke mechanisms (operational ledger, working plan, always-replan/verifier, progress-aware) remain development-only failure analysis and are **not** eligible for held-out runs.
+- The primary paper quality metric is frozen as **feasible-obligation success**, reported with terminal feasibility, strict v0.2 success, obligation resolution, economic objective, and mandatory efficiency metrics.
+- The held-out plan is **10 episodes × 3 repeats** for five model-backed rows = **150 model runs**, plus 10 deterministic reference controls.
+- No new method may be added, and no model/prompt/evaluator/agent tuning may use held-out outcomes.
+- Next: author and deterministically validate/freeze the 10 held-out episodes; only after that package is frozen do model evaluations begin.
+- See [`docs/development-comparator-matrix-v0.1.md`](docs/development-comparator-matrix-v0.1.md).
+
 ### Checkpoint fairness audit v0.1
 
 - Audits whether required-checkpoint failures were actually agent-visible and actionable.
@@ -246,6 +257,8 @@ The repository now includes a deterministic evaluator and a first non-oracle rea
 - `scripts/audit_react_comparator_v01.py` — deterministic matched replay/bootstrap audit for the ReAct comparator.
 - `scripts/materialize_react_comparator_evidence_v01.py` — source-artifact to compact ReAct replay materializer.
 - `scripts/verify_react_source_artifact_v01.py` — independent ReAct source-artifact provenance verifier.
+- `scripts/validate_development_comparator_matrix_v01.py` — machine-checks the frozen paper metrics, held-out-eligible method set, exact models, and planned run counts.
+- `docs/development-comparator-matrix-v0.1.md` — final development method/reporting freeze before held-out episode authoring.
 - `scripts/verify_working_plan_source_artifact_v01.py` — independent artifact-to-replay provenance verifier.
 - `docs/cross-family-reactive-v0.1-results.md` — frozen cross-family baseline results and interpretation.
 - `docs/operational-ledger-reactive-v0.1-results.md` — frozen operational-ledger matched result and failure analysis.

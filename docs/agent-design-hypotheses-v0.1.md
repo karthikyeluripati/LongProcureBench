@@ -257,8 +257,14 @@ The controlled architecture-search sequence is now complete:
    v0.2 success improved 21.7 pp versus factual context compilation, with
    +49.3% tokens and +73.2% known API cost.
 8. **Freeze the final development-time comparator set and reporting matrix** —
-   next. Only after that freeze may the project move to held-out episode
-   authoring/evaluation under the existing split contract.
+   complete. Held-out eligibility, paper metrics/tables, exact model identities,
+   repeat counts, and anti-tuning rules are now fixed.
+9. **Author + deterministically validate the 10 held-out episodes** — next.
+   Freeze that episode/evaluator package before making any model/API calls on it.
+10. **Run the frozen held-out matrix** only after the held-out package freeze:
+    three raw-reactive model families + GPT-5.6 Sol context compilation + GPT-5.6
+    Sol ReAct, with three repeats per model-backed row and one reference control
+    per episode.
 
 Do not add operational state graphs, dynamic routing, memory systems,
 multi-agent orchestration, or self-improvement merely to continue architecture
@@ -269,13 +275,15 @@ reveals a specific new causal gap.
 
 The current development evidence does **not** support claiming a new reliability
 architecture called ProcureHarness. Factual context compilation remains a useful
-efficiency layer, but every bespoke reliability mechanism tested so far failed
-its predeclared gate.
+efficiency layer, every bespoke reliability mechanism tested failed its
+predeclared gate, and ReAct is retained only as an external quality/cost
+comparator.
 
-The paper should therefore proceed as **LongProcureBench + controlled empirical
-failure analysis + external agent baselines** unless later comparator evidence
-supports a specific method contribution. This is an evidence-driven narrowing,
-not a reason to invent another mechanism.
+Development-time selection is now frozen. The paper proceeds as
+**LongProcureBench + controlled empirical failure analysis + external agent
+baselines**. No new bespoke mechanism may be introduced before or during
+held-out evaluation. The next research artifact is the held-out episode package,
+not another architecture.
 
 ## References
 

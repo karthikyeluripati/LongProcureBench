@@ -51,5 +51,7 @@ jobs:
         run: python scripts/audit_progress_aware_v01.py
       - name: Audit frozen ReAct comparator evidence
         run: python scripts/audit_react_comparator_v01.py
+      - name: Validate frozen development comparator matrix
+        run: python scripts/validate_development_comparator_matrix_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference
