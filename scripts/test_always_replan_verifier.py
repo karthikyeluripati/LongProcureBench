@@ -227,6 +227,12 @@ class AlwaysReplanVerifierTests(unittest.TestCase):
         self.assertEqual(decision["type"], "identify_suppliers")
         stored = policy.get_run_metadata()["verification_trace"][0]["verdict"]
         self.assertEqual(len(stored["issues"]), 4)
+        self.assertEqual(len(stored["raw_issues"]), 5)
+        self.assertTrue(stored["issues_were_bounded"])
+        self.assertIn("issue-4", stored["raw_issues"])
+        repair_prompt = client.calls[3]["messages"][1]["content"]
+        self.assertIn('"raw_issues"', repair_prompt)
+        self.assertIn("issue-4", repair_prompt)
         self.assertEqual(policy.get_run_metadata()["repair_calls"], 1)
 
     def test_action_prompt_requires_null_top_level_supplier_for_multi_award(self):
