@@ -87,7 +87,7 @@ def check_manifest() -> None:
 
     storage = manifest.get("storage") or {}
     expected_storage = {
-        "path": "replay-source.b64",
+        "path": "replay-source.b64.part*",
         "compressed_bytes": EXPECTED_COMPRESSED_BYTES,
         "compressed_sha256": EXPECTED_COMPRESSED_SHA256,
         "compact_rows_bytes": EXPECTED_COMPACT_ROWS_BYTES,
@@ -97,6 +97,8 @@ def check_manifest() -> None:
             raise ValueError(
                 f"Coverage+Repair replay storage mismatch for {key}"
             )
+    if storage.get("parts") != 7:
+        raise ValueError("Coverage+Repair replay chunk count mismatch")
 
     provenance = PROVENANCE_PATH.read_bytes()
     if len(provenance) != EXPECTED_PROVENANCE_BYTES:
