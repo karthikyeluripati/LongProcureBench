@@ -231,8 +231,11 @@ class AlwaysReplanVerifierTests(unittest.TestCase):
         self.assertTrue(stored["issues_were_bounded"])
         self.assertIn("issue-4", stored["raw_issues"])
         repair_prompt = client.calls[3]["messages"][1]["content"]
-        self.assertIn('"raw_issues"', repair_prompt)
-        self.assertIn("issue-4", repair_prompt)
+        self.assertNotIn('"raw_issues"', repair_prompt)
+        self.assertNotIn('"issues_were_bounded"', repair_prompt)
+        self.assertNotIn("issue-4", repair_prompt)
+        self.assertIn("issue-0", repair_prompt)
+        self.assertIn("issue-3", repair_prompt)
         self.assertEqual(policy.get_run_metadata()["repair_calls"], 1)
 
     def test_action_prompt_requires_null_top_level_supplier_for_multi_award(self):
