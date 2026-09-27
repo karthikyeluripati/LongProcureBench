@@ -34,6 +34,136 @@ BOOTSTRAP_RESAMPLES = 20000
 BOOTSTRAP_SAMPLER = "sha256-index-v1"
 
 
+def _canonical_compact_line(row: Any) -> bytes:
+    return (
+        json.dumps(
+            row,
+            separators=(",", ":"),
+            sort_keys=True,
+            ensure_ascii=False,
+        ).encode("utf-8")
+        + b"\n"
+    )
+
+
+def _compact_row_from_record(record: dict[str, Any]) -> list[Any]:
+    episode_index = EPISODES.index(record["episode_id"]) + 1
+    decisions = [
+        [
+            decision["type"],
+            decision.get("supplier_id"),
+            decision.get("arguments") or {},
+        ]
+        for decision in record["decisions"]
+    ]
+    metrics = record["policy_metrics"]
+    compact_metrics = [
+        metrics.get("model_calls_attempted"),
+        metrics.get("prompt_tokens"),
+        metrics.get("completion_tokens"),
+        metrics.get("total_tokens"),
+        metrics.get("latency_ms"),
+        metrics.get("cost_usd"),
+        metrics.get("usage_incomplete"),
+        metrics.get("temperature"),
+        metrics.get("reasoning_effort"),
+        metrics.get("context_strategy"),
+        metrics.get("state_strategy"),
+        metrics.get("planner_calls"),
+        metrics.get("action_calls"),
+        metrics.get("verifier_calls"),
+        metrics.get("verifier_rejections"),
+        metrics.get("repair_calls"),
+        metrics.get("model_calls_failed"),
+    ]
+    diagnostics = record["diagnostics"]
+    compact_diagnostics = [
+        diagnostics["terminal_proposal_type_counts"],
+        diagnostics["rejected_verifier_recommendation_counts"],
+        diagnostics["approved_verifier_recommendation_counts"],
+        diagnostics["verification_traces_with_bounded_issues"],
+    ]
+    return [
+        episode_index,
+        record["repeat"],
+        record["status"],
+        decisions,
+        compact_metrics,
+        compact_diagnostics,
+    ]
+
+
+def check_provenance_entries(
+    records: list[dict[str, Any]],
+    provenance_path: Path = PROVENANCE_PATH,
+) -> None:
+    entries: dict[tuple[int, int], tuple[str, str, str]] = {}
+    for line_number, line in enumerate(
+        provenance_path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
+        fields = line.split("|")
+        if len(fields) != 5:
+            raise ValueError(
+                f"Malformed provenance entry on line {line_number}"
+            )
+        episode_text, repeat_text, member_path, raw_sha, compact_sha = fields
+        try:
+            episode_index = int(episode_text)
+            repeat = int(repeat_text)
+        except ValueError as exc:
+            raise ValueError(
+                f"Invalid provenance key on line {line_number}"
+            ) from exc
+        if not 1 <= episode_index <= len(EPISODES) or not 1 <= repeat <= 3:
+            raise ValueError(
+                f"Out-of-range provenance key on line {line_number}"
+            )
+        expected_suffix = (
+            f"/{EPISODES[episode_index - 1]}/run-{repeat:03d}.json"
+        )
+        if not ("/" + member_path.lstrip("/")).endswith(expected_suffix):
+            raise ValueError(
+                f"Provenance member path does not match key on line {line_number}"
+            )
+        for label, digest in (("raw", raw_sha), ("compact", compact_sha)):
+            if len(digest) != 64:
+                raise ValueError(
+                    f"Invalid {label} provenance digest on line {line_number}"
+                )
+            try:
+                int(digest, 16)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Invalid {label} provenance digest on line {line_number}"
+                ) from exc
+        key = (episode_index, repeat)
+        if key in entries:
+            raise ValueError(f"Duplicate provenance entry for {key}")
+        entries[key] = (member_path, raw_sha, compact_sha)
+
+    expected_keys = {
+        (episode_index, repeat)
+        for episode_index in range(1, len(EPISODES) + 1)
+        for repeat in (1, 2, 3)
+    }
+    if set(entries) != expected_keys:
+        raise ValueError("Provenance grid does not match frozen 20x3 replay")
+
+    for record in records:
+        row = _compact_row_from_record(record)
+        key = (row[0], row[1])
+        actual_compact_sha = sha256(
+            _canonical_compact_line(row)
+        ).hexdigest()
+        recorded_compact_sha = entries[key][2]
+        if actual_compact_sha != recorded_compact_sha:
+            raise ValueError(
+                "Provenance compact digest does not match frozen replay "
+                f"for {key}"
+            )
+
+
 def _evaluate(records, reconstruct: Callable, evaluator):
     out = []
     for record in records:
@@ -263,6 +393,10 @@ def check_manifest():
     source = manifest["source_verification"]
     if len(provenance) != source["record_provenance_bytes"] or sha256(provenance).hexdigest() != source["record_provenance_sha256"]:
         raise ValueError("Source provenance mismatch")
+    if source.get("verifier_script") != "scripts/verify_always_replan_verifier_source_artifact_v01.py":
+        raise ValueError("Source artifact verifier is not declared")
+    records = load_frozen_always_replan_verifier_source(ROOT)
+    check_provenance_entries(records)
     payload = COMPARISON_PATH.read_bytes(); comp = manifest["comparison"]
     if len(payload) != comp["bytes"] or sha256(payload).hexdigest() != comp["sha256"]:
         raise ValueError("Comparison manifest mismatch")
