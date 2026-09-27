@@ -1,0 +1,314 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-lompoc-transformer-023",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-lompoc-rfq-3099",
+    "path": "data/initial_states/electrical/us-lompoc-rfq-3099.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Transformer RFQ with severe starting-state gaps and withdrawal recovery",
+    "summary": "The public Lompoc listing exposes only a generic transformer RFQ. Controlled buyer clarification establishes quantity/specification, and a previously attractive supplier withdraws after evaluation, requiring a post-withdrawal replacement quote and re-evaluation.",
+    "difficulty": "hard",
+    "tags": [
+      "requirement_gap",
+      "supplier_withdrawal",
+      "quote_received",
+      "quote_revision",
+      "lead_time_conflict",
+      "budget_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "Only the generic transformer procurement and solicitation identity come from the frozen public starting state. Detailed electrical specification, quantity, budget, schedule, supplier behavior, and quote values are synthetic because those fields were unavailable in the reviewed public source.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirements or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-lompoc-a",
+      "display_name": "Synthetic Lompoc Transformer Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    },
+    {
+      "supplier_id": "syn-lompoc-b",
+      "display_name": "Synthetic Lompoc Transformer Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially quotes the wrong secondary voltage, then revises."
+    },
+    {
+      "supplier_id": "syn-lompoc-c",
+      "display_name": "Synthetic Lompoc Transformer Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Synthetic supplier used only inside this episode."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "buyer_clarification",
+      "synthetic": true,
+      "supplier_id": null,
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_buyer_clarification",
+        "supplier_id": null,
+        "step": null
+      },
+      "observation": "Synthetic buyer clarification: quantity 4 EA, 500 kVA, 12.47 kV primary to 480/277 V secondary; maximum total price USD 400,000; delivery within 180 days.",
+      "details": {
+        "quantity": 4,
+        "unit": "EA",
+        "kva": 500,
+        "primary_kv": 12.47,
+        "secondary_voltage": "480/277",
+        "max_total_price_usd": 400000,
+        "max_lead_time_days": 180
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-lompoc-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-lompoc-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 350,000 with 160-day delivery for four compliant transformers.",
+      "details": {
+        "currency": "USD",
+        "total_price": 350000,
+        "quantity": 4,
+        "kva": 500,
+        "primary_kv": 12.47,
+        "secondary_voltage": "480/277",
+        "lead_time_days": 160,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e3",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-lompoc-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-lompoc-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 330,000 with 150-day delivery but specifies 208/120 V secondary.",
+      "details": {
+        "currency": "USD",
+        "total_price": 330000,
+        "quantity": 4,
+        "kva": 500,
+        "primary_kv": 12.47,
+        "secondary_voltage": "208/120",
+        "lead_time_days": 150,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-lompoc-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-lompoc-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 340,000 with 140-day delivery for the clarified specification.",
+      "details": {
+        "currency": "USD",
+        "total_price": 340000,
+        "quantity": 4,
+        "kva": 500,
+        "primary_kv": 12.47,
+        "secondary_voltage": "480/277",
+        "lead_time_days": 140,
+        "revision": 0
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    },
+    {
+      "event_id": "e5",
+      "type": "supplier_withdrawal",
+      "synthetic": true,
+      "supplier_id": "syn-lompoc-c",
+      "trigger": {
+        "kind": "at_step",
+        "action_type": null,
+        "supplier_id": null,
+        "step": 6
+      },
+      "observation": "Supplier C withdraws its quotation after the initial evaluation.",
+      "details": {
+        "status": "withdrawn"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e6",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-lompoc-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-lompoc-b",
+        "step": null
+      },
+      "observation": "Supplier B corrects the secondary voltage and revises to USD 345,000 with 155-day delivery.",
+      "details": {
+        "currency": "USD",
+        "total_price": 345000,
+        "quantity": 4,
+        "kva": 500,
+        "primary_kv": 12.47,
+        "secondary_voltage": "480/277",
+        "lead_time_days": 155,
+        "revision": 1
+      },
+      "emission_policy": "once",
+      "offer_scope": {
+        "kind": "package"
+      }
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "synthetic_scenario",
+        "description": "Detailed requirements must be clarified before RFQ."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "Award must match quantity 4, 500 kVA, 12.47 kV primary, and 480/277 V secondary."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Total awarded price must not exceed USD 400,000."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Delivery must be within 180 days."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed quote revision may support award."
+      },
+      {
+        "constraint_id": "c6",
+        "basis": "synthetic_scenario",
+        "description": "A withdrawn supplier may not receive award."
+      },
+      {
+        "constraint_id": "c7",
+        "basis": "real_initial_state",
+        "description": "The required transformer package must be fully awarded."
+      }
+    ],
+    "required_checkpoints": [
+      "resolve_requirement_gap",
+      "solicit_competition",
+      "recover_from_withdrawal",
+      "request_quote_revision",
+      "normalize_quotes",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-lompoc-b",
+            "quote_event_id": "e6"
+          }
+        ],
+        "rationale": "Supplier B's corrected post-withdrawal revision is feasible and lowest priced.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-lompoc-a",
+            "quote_event_id": "e2"
+          }
+        ],
+        "rationale": "Supplier A remains feasible but is more expensive than Supplier B's corrected revision.",
+        "decision": "award"
+      }
+    ],
+    "failure_conditions": [
+      "Awarding before resolving the severe starting-state gap.",
+      "Awarding Supplier C after withdrawal.",
+      "Awarding Supplier B's wrong-voltage original quote.",
+      "Failing to re-evaluate after a post-withdrawal replacement revision."
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    }
+  }
+}
