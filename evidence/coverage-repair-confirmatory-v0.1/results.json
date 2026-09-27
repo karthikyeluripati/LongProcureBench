@@ -8,7 +8,24 @@
     "artifact_expires_at": "2026-10-27T19:57:25Z",
     "protocol_commit": "005c526416eb18789a2431d347c1cc3f635f035d",
     "execution_commit": "e2bdf265bd284cfbebab5eddf16629acd1a0a885",
-    "grid": "20 development episodes x 3 repeats"
+    "grid": "20 development episodes x 3 repeats",
+    "durable_replay": {
+      "format": "checksum-locked compact semantic-action replay",
+      "replay_chunks": [
+        "replay-source.b64.part00",
+        "replay-source.b64.part01",
+        "replay-source.b64.part02"
+      ],
+      "provenance_chunks": [
+        "source-provenance.txt.part00",
+        "source-provenance.txt.part01",
+        "source-provenance.txt.part02",
+        "source-provenance.txt.part03"
+      ],
+      "compact_rows_sha256": "ab5054761af6af31f91fa88526d2a393e278b657c5f7a2618552241cd1477607",
+      "compressed_sha256": "6b0cbb6602b3654e7c3301831b841b219b16846da767e209733ad0cf7868b9c8",
+      "provenance_sha256": "016fd2f237854356d34f85fae65096b28273c27301c52909f51d8470abd7d122"
+    }
   },
   "rows": {
     "factual_context": {
