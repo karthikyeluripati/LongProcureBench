@@ -251,10 +251,22 @@ def validate_heldout_package() -> dict:
 
     if package_ids != set(EXPECTED.values()):
         raise ValueError("Held-out package mapping does not cover reserved pool")
-    if len(all_event_types) < 8:
+    required_event_types = {
+        "buyer_clarification",
+        "quote_received",
+        "quote_revision",
+        "supplier_non_response",
+        "supplier_question",
+        "supplier_withdrawal",
+        "requirement_change",
+    }
+    missing_event_types = required_event_types - all_event_types
+    if missing_event_types:
         raise ValueError(
-            "Held-out package does not preserve event-type diversity"
+            "Held-out package missing frozen event-type coverage: "
+            f"{sorted(missing_event_types)}"
         )
+
     required_tags = {
         "requirement_gap",
         "supplier_non_response",
