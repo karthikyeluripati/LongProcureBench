@@ -113,6 +113,20 @@ result or temporary provider behavior.
 The operational ledger, working plan, always-replan/verifier, and progress-aware
 mechanisms are **not held-out eligible**.
 
+### Exact held-out execution settings
+
+| Row | Provider / model | Temperature | Reasoning effort | Max actions | Policy/context |
+| --- | --- | --- | --- | ---: | --- |
+| Reference control | deterministic / no model | N/A | N/A | 50 | `reference_control` |
+| Raw reactive — OpenAI | `openai/gpt-5.6-sol` | **omitted** | `medium` | 50 | `llm_reactive_baseline` |
+| Raw reactive — Anthropic | `anthropic/claude-opus-5-5` | **omitted** | none | 50 | `llm_reactive_baseline` |
+| Raw reactive — Gemini | `gemini/gemini-3.8-flash` | **omitted** | none | 50 | `llm_reactive_baseline` |
+| Context compiled — OpenAI | `openai/gpt-5.6-sol` | **omitted** | `medium` | 50 | `llm_context_compiled_reactive`, `factual_compiled_v0.1` |
+| ReAct — OpenAI | `openai/gpt-5.6-sol` | **omitted** | `medium` | 50 | `llm_react_comparator`, `factual_compiled_v0.1`, `react_v0.1` |
+
+These are part of the freeze, not suggestions. A held-out runner must consume
+these exact values; CLI sampling overrides that change them are prohibited.
+
 ## Frozen paper tables
 
 ### Main table A — provider-diverse raw reactive
