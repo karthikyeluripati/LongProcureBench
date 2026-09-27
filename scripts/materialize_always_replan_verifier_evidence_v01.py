@@ -160,7 +160,12 @@ def materialize(artifact_root: Path) -> None:
             f"Compact-row digest mismatch: expected={EXPECTED_COMPACT_ROWS_SHA256}, actual={rows_digest}"
         )
 
-    compressed = gzip.compress(payload, compresslevel=9, mtime=0)
+    compressed = bytearray(gzip.compress(payload, compresslevel=9, mtime=0))
+    # Python 3.11/3.12 may inherit zlib's platform OS byte when mtime=0,
+    # while newer Python versions guarantee 255. Normalize it so the durable
+    # replay bytes are version- and runner-independent.
+    compressed[9] = 255
+    compressed = bytes(compressed)
     compressed_digest = sha256(compressed).hexdigest()
     if len(compressed) != EXPECTED_COMPRESSED_BYTES or compressed_digest != EXPECTED_COMPRESSED_SHA256:
         raise ValueError(
