@@ -120,6 +120,26 @@ Per the protocol frozen before the run, this closes the current bespoke
 architecture-search loop. The next phase is **external comparator and benchmark
 characterization**, not another custom mechanism.
 
+The preregistered **true ReAct external comparator** is now also complete. It
+uses the same factual compiled information boundary and one model call per
+semantic action, but carries an explicit bounded Thought -> Action ->
+Observation transcript. Relative to factual context compilation:
+
+- terminal feasibility rose **10.0 pp**;
+- feasible-obligation success rose **1.7 pp**;
+- strict v0.2 success rose **21.7 pp**;
+- total tokens rose **49.3%**, known API cost rose **73.2%**, and aggregate
+  model latency rose **46.6%**.
+
+The paired episode-cluster bootstrap keeps the strict-success gain above zero
+(**+10.0 to +35.0 pp**) while the feasible-obligation interval crosses zero.
+The resource increases are consistently positive. ReAct is therefore retained
+as an **external quality/cost comparator**, not promoted into ProcureHarness and
+not used to reopen architecture search.
+
+The next step is to freeze the final **development comparator set and reporting
+matrix** before any held-out episode is authored or evaluated.
+
 ## Ideas that are intentionally deferred
 
 ### Knowledge graph / GraphRAG
@@ -233,10 +253,12 @@ The controlled architecture-search sequence is now complete:
    parent mechanism failed.
 6. **Actionability / no-progress control** — tested and dropped after failing
    the frozen gate; the deterministic guard fired 0 times.
-7. **True ReAct** — **next**, solely as a recognizable external
-   baseline/comparator.
-8. Freeze the final development-time comparator set, then move to held-out
-   evaluation under the existing split contract.
+7. **True ReAct** — **tested and frozen as an external comparator**. Strict
+   v0.2 success improved 21.7 pp versus factual context compilation, with
+   +49.3% tokens and +73.2% known API cost.
+8. **Freeze the final development-time comparator set and reporting matrix** —
+   next. Only after that freeze may the project move to held-out episode
+   authoring/evaluation under the existing split contract.
 
 Do not add operational state graphs, dynamic routing, memory systems,
 multi-agent orchestration, or self-improvement merely to continue architecture

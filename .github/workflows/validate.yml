@@ -49,5 +49,7 @@ jobs:
         run: python scripts/audit_always_replan_verifier_v01.py
       - name: Audit frozen progress-aware evidence
         run: python scripts/audit_progress_aware_v01.py
+      - name: Audit frozen ReAct comparator evidence
+        run: python scripts/audit_react_comparator_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference

@@ -1,0 +1,133 @@
+{
+  "benchmark_code_sha": "9e0da4df909f271ac797898ea6daa9b6f9781a57",
+  "compact_record_schema": [
+    "episode_index",
+    "repeat",
+    "status",
+    "semantic_decisions",
+    "policy_metrics"
+  ],
+  "compaction_note": "The durable replay retains accepted semantic actions and aggregate usage for deterministic evaluator replay. Full ReAct Thought/Action/Observation transcripts are separately committed in transcript-source.b64, including bounded thought summaries and factual-visible observations, so mechanism diagnostics remain inspectable after the temporary Actions artifact expires.",
+  "comparison": {
+    "baseline_evidence_path": "evidence/context-compiled-reactive-v0.1/",
+    "baseline_source_artifact_id": 10901395062,
+    "baseline_source_workflow_run_id": 36226304814,
+    "bootstrap_cluster": "episode_id",
+    "bootstrap_resamples": 20000,
+    "bootstrap_sampler": "sha256-index-v1",
+    "bootstrap_seed": 20260926,
+    "bytes": 5563,
+    "path": "comparison.json",
+    "sha256": "60fb0f786e3623cfb969fe4e3b064bacb3d0ef9fe17c34e8ba2c635cf9591a11"
+  },
+  "decision": {
+    "inclusion_gate": null,
+    "next_step": "Freeze the development comparator set before any held-out evaluation.",
+    "role": "external_comparator"
+  },
+  "episode_index": {
+    "1": "electrical-bongabon-generator-001",
+    "2": "electrical-national-museum-lighting-002",
+    "3": "electrical-neust-cable-003",
+    "4": "electrical-dla-breaker-004",
+    "5": "electrical-barrie-transformer-005",
+    "6": "electrical-bfar-generator-006",
+    "7": "electrical-negros-wire-007",
+    "8": "electrical-burauen-generator-008",
+    "9": "electrical-highpoint-transformer-009",
+    "10": "electrical-painesville-switchgear-010",
+    "11": "electrical-sagada-generator-011",
+    "12": "electrical-dla-relay-012",
+    "13": "electrical-dla-transformer-013",
+    "14": "electrical-dla-battery-supply-014",
+    "15": "electrical-dla-battery-charger-015",
+    "16": "electrical-dla-power-supply-016",
+    "17": "electrical-dla-qpl-breaker-017",
+    "18": "electrical-highpoint-cable-018",
+    "19": "electrical-usaf-ups-019",
+    "20": "electrical-vre-generator-020"
+  },
+  "episodes": 20,
+  "evaluation_version": "0.2.0",
+  "execution_head_delta": "Workflow trigger only; the ReAct comparator implementation is the merged benchmark_code_sha.",
+  "execution_head_sha": "8e3721d6f067613b9750f1b6aa7f954fd947a7db",
+  "known_cost_runs": 60,
+  "model": "openai/gpt-5.6-sol",
+  "policy_metrics_schema": [
+    "model_calls_attempted",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "latency_ms",
+    "cost_usd",
+    "usage_incomplete",
+    "temperature",
+    "reasoning_effort",
+    "context_strategy",
+    "agent_pattern",
+    "react_steps_proposed",
+    "react_steps_accepted",
+    "react_thought_chars_total",
+    "react_thought_chars_mean",
+    "react_thought_chars_max",
+    "model_calls_failed"
+  ],
+  "purpose": "Durable replay source and matched analysis for the 60-run GPT-5.6 Sol ReAct external comparator on frozen development episodes 001-020.",
+  "react_step_schema": [
+    "step",
+    "thought_summary",
+    [
+      "type",
+      "supplier_id",
+      "arguments"
+    ],
+    "observation"
+  ],
+  "records": 60,
+  "repeats_per_episode": 3,
+  "schema_version": "0.1.0",
+  "source_artifact_bytes": 274100,
+  "source_artifact_digest": "sha256:d767d296d077a5e693bfc18e7429b35627bf5f5939283f98208372cc5f63e373",
+  "source_artifact_id": 10931387170,
+  "source_artifact_name": "react-comparator-36316652236-1",
+  "source_verification": {
+    "provenance_line_format": "episode_index|repeat|artifact_member_path|sha256(exact raw run JSON bytes)|sha256(canonical compact record line)",
+    "record_provenance_bytes": 12606,
+    "record_provenance_path": "source-provenance.txt",
+    "record_provenance_sha256": "b161fccfb83b1db3b739b1a0af74bb1ef157562c7c4201efed4fddf68bb924ee",
+    "verifier_script": "scripts/verify_react_source_artifact_v01.py"
+  },
+  "source_workflow_run_attempt": 1,
+  "source_workflow_run_id": 36316652236,
+  "status_counts": {
+    "completed": 60
+  },
+  "storage": {
+    "compact_rows_bytes": 90934,
+    "compact_rows_sha256": "b93c810ce585807a7a822953bb890ee1d6161291c523d0d2de4a96b60f0a1c1c",
+    "compressed_bytes": 12554,
+    "compressed_sha256": "8f725cbc46b933d466dab481dde03ce2313acac7fce14193481a6af9e58c19e2",
+    "format": "gzip(JSONL compact replay records) encoded as base64 text",
+    "path": "replay-source.b64"
+  },
+  "usage_complete_runs": 60,
+  "transcript_storage": {
+    "format": "gzip(JSONL compact Thought/Action/Observation transcript records) encoded as base64 text",
+    "path": "transcript-source.b64",
+    "records": 60,
+    "transcript_rows_bytes": 262900,
+    "transcript_rows_sha256": "dc073660375b68febef010da284cc867b24f11beb2e52c846957bf726c3a5ba8",
+    "compressed_bytes": 30180,
+    "compressed_sha256": "a7cbe4277c70abe62d157df683efa34a58bb29cc39eeb951e0d253353b7e7456",
+    "retained_fields": [
+      "episode identity",
+      "repeat",
+      "step",
+      "thought_summary",
+      "semantic action",
+      "factual-visible observation"
+    ],
+    "durability": "Committed repository evidence; independent of GitHub Actions artifact retention."
+  },
+  "source_artifact_retention_note": "The original GitHub Actions artifact is temporary (30-day retention). Durable replay, provenance, and the full compact ReAct Thought/Action/Observation transcript are committed in this repository. The source-artifact verifier can be run while the original artifact is still retained; the committed transcript remains inspectable afterwards."
+}
