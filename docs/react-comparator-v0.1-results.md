@@ -29,6 +29,15 @@ replay and per-record provenance using:
 
 `python scripts/verify_react_source_artifact_v01.py --artifact-zip <artifact.zip>`
 
+The Actions artifact has temporary retention, so the complete compact
+**Thought/Action/Observation transcript** is also committed durably at
+`evidence/react-comparator-v0.1/transcript-source.b64`. It contains all 60
+episode/repeat transcripts with bounded thought summaries, semantic actions, and
+the same factual-visible observation fields shown to ReAct. The frozen
+transcript is checksum-verified in CI and linked back to the accepted-action
+replay. Therefore the mechanism diagnostics remain inspectable after the
+temporary source artifact expires.
+
 ## Matched comparison
 
 | Metric | Context compiled | ReAct | Delta |
