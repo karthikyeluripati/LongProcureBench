@@ -65,6 +65,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "reference_control",
             "context_strategy": None,
             "agent_pattern": None,
+            "temperature_mode": "not_applicable",
         },
     },
     "raw-reactive-openai": {
@@ -81,6 +82,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "llm_reactive_baseline",
             "context_strategy": None,
             "agent_pattern": None,
+            "temperature_mode": "omitted",
         },
     },
     "raw-reactive-anthropic": {
@@ -97,6 +99,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "llm_reactive_baseline",
             "context_strategy": None,
             "agent_pattern": None,
+            "temperature_mode": "omitted",
         },
     },
     "raw-reactive-gemini": {
@@ -113,6 +116,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "llm_reactive_baseline",
             "context_strategy": None,
             "agent_pattern": None,
+            "temperature_mode": "omitted",
         },
     },
     "context-compiled-openai": {
@@ -129,6 +133,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "llm_context_compiled_reactive",
             "context_strategy": "factual_compiled_v0.1",
             "agent_pattern": None,
+            "temperature_mode": "omitted",
         },
     },
     "react-openai": {
@@ -145,6 +150,7 @@ EXPECTED_HELDOUT_ROWS = {
             "policy_kind": "llm_react_comparator",
             "context_strategy": "factual_compiled_v0.1",
             "agent_pattern": "react_v0.1",
+            "temperature_mode": "omitted",
         },
     },
 }
