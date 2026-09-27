@@ -24,6 +24,7 @@ from frozen_react_comparator_v01 import (
     _compact_row_from_record,
     _canonical_line,
     load_frozen_react_source,
+    load_frozen_react_transcripts,
     reconstruct_actions as reconstruct_react_actions,
 )
 
@@ -378,6 +379,39 @@ def build_comparison() -> dict[str, Any]:
         reconstruct_react_actions,
         evaluator,
     )
+    transcript_records = load_frozen_react_transcripts(ROOT)
+    transcript_by_key = {
+        (record["episode_id"], record["repeat"]): record
+        for record in transcript_records
+    }
+    for record in treatment:
+        key = (record["episode_id"], record["repeat"])
+        transcript_record = transcript_by_key.get(key)
+        if transcript_record is None:
+            raise ValueError(f"Missing durable ReAct transcript for {key}")
+        transcript = transcript_record["react_transcript"]
+        decisions = record["decisions"]
+        if len(transcript) != len(decisions):
+            raise ValueError(
+                f"Durable ReAct transcript length mismatch for {key}"
+            )
+        for step, decision in zip(transcript, decisions):
+            if step["action"] != decision:
+                raise ValueError(
+                    f"Durable ReAct transcript action mismatch for {key}"
+                )
+        thought_lengths = [
+            len(step["thought_summary"]) for step in transcript
+        ]
+        metrics = record["policy_metrics"]
+        if sum(thought_lengths) != metrics["react_thought_chars_total"]:
+            raise ValueError(
+                f"Durable ReAct thought total mismatch for {key}"
+            )
+        if max(thought_lengths, default=0) != metrics["react_thought_chars_max"]:
+            raise ValueError(
+                f"Durable ReAct thought max mismatch for {key}"
+            )
 
     base_summary = _summary(base)
     treatment_summary = _summary(treatment)
@@ -452,13 +486,14 @@ def build_comparison() -> dict[str, Any]:
     }
 
     react_metrics = [record["policy_metrics"] for record in treatment]
-    react_steps = sum(
-        int(metrics["react_steps_accepted"])
-        for metrics in react_metrics
-    )
+    durable_steps = [
+        step
+        for record in transcript_records
+        for step in record["react_transcript"]
+    ]
+    react_steps = len(durable_steps)
     thought_chars = sum(
-        int(metrics["react_thought_chars_total"])
-        for metrics in react_metrics
+        len(step["thought_summary"]) for step in durable_steps
     )
 
     return {
@@ -515,8 +550,8 @@ def build_comparison() -> dict[str, Any]:
                 for metrics in react_metrics
             ),
             "thought_chars_max": max(
-                int(metrics["react_thought_chars_max"])
-                for metrics in react_metrics
+                (len(step["thought_summary"]) for step in durable_steps),
+                default=0,
             ),
             "thought_chars_mean": thought_chars / react_steps,
             "thought_chars_total": thought_chars,
@@ -606,6 +641,19 @@ def check_manifest() -> None:
 
     records = load_frozen_react_source(ROOT)
     check_provenance_entries(records)
+    transcripts = load_frozen_react_transcripts(ROOT)
+    if len(transcripts) != 60:
+        raise ValueError("Durable ReAct transcript count mismatch")
+
+    transcript_storage = manifest.get("transcript_storage") or {}
+    if transcript_storage.get("path") != "transcript-source.b64":
+        raise ValueError("Durable ReAct transcript path mismatch")
+    if transcript_storage.get("compressed_bytes") != 30180:
+        raise ValueError("Durable ReAct transcript byte count mismatch")
+    if transcript_storage.get("compressed_sha256") != (
+        "a7cbe4277c70abe62d157df683efa34a58bb29cc39eeb951e0d253353b7e7456"
+    ):
+        raise ValueError("Durable ReAct transcript digest mismatch")
 
     comparison = manifest["comparison"]
     payload = COMPARISON_PATH.read_bytes()
