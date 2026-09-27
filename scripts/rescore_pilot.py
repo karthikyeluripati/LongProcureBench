@@ -158,6 +158,18 @@ def flatten_audited_result(
             "guard_retry_noncompliance": metrics.get(
                 "guard_retry_noncompliance"
             ),
+            "agent_pattern": metrics.get("agent_pattern"),
+            "react_steps_proposed": metrics.get("react_steps_proposed"),
+            "react_steps_accepted": metrics.get("react_steps_accepted"),
+            "react_thought_chars_total": metrics.get(
+                "react_thought_chars_total"
+            ),
+            "react_thought_chars_mean": metrics.get(
+                "react_thought_chars_mean"
+            ),
+            "react_thought_chars_max": metrics.get(
+                "react_thought_chars_max"
+            ),
             "error_type": (result.get("error") or {}).get("type"),
             "evaluation_error_type": (
                 result.get("evaluation_error") or {}
@@ -256,6 +268,47 @@ def summarize_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 ),
                 default=None,
             ),
+            "total_react_steps_proposed": sum(
+                int(row.get("react_steps_proposed") or 0)
+                for row in subset
+            ),
+            "total_react_steps_accepted": sum(
+                int(row.get("react_steps_accepted") or 0)
+                for row in subset
+            ),
+            "runs_with_react_steps": sum(
+                int(row.get("react_steps_proposed") or 0) > 0
+                for row in subset
+            ),
+            "total_react_thought_chars": sum(
+                int(row.get("react_thought_chars_total") or 0)
+                for row in subset
+            ),
+            "mean_react_thought_chars": (
+                (
+                    sum(
+                        int(row.get("react_thought_chars_total") or 0)
+                        for row in subset
+                    )
+                    / sum(
+                        int(row.get("react_steps_accepted") or 0)
+                        for row in subset
+                    )
+                )
+                if sum(
+                    int(row.get("react_steps_accepted") or 0)
+                    for row in subset
+                ) > 0
+                else None
+            ),
+            "max_react_thought_chars": max(
+                (
+                    int(row["react_thought_chars_max"])
+                    for row in subset
+                    if row.get("react_thought_chars_max") is not None
+                ),
+                default=None,
+            ),
             "total_known_cost_usd": sum(
                 float(row["cost_usd"])
                 for row in subset
@@ -335,6 +388,12 @@ def write_audit_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "guard_interventions",
         "guard_retry_calls",
         "guard_retry_noncompliance",
+        "agent_pattern",
+        "react_steps_proposed",
+        "react_steps_accepted",
+        "react_thought_chars_total",
+        "react_thought_chars_mean",
+        "react_thought_chars_max",
         "error_type",
         "evaluation_error_type",
     ]

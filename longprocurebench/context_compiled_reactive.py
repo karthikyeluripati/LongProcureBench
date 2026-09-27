@@ -144,7 +144,8 @@ def _compact_initial_state(initial: Any) -> dict[str, Any]:
     }
 
 
-def _compact_event(event: Any) -> dict[str, Any] | None:
+def compact_visible_event(event: Any) -> dict[str, Any] | None:
+    """Keep only event fields exposed by factual_compiled_v0.1."""
     if not isinstance(event, dict):
         return None
     fields = (
@@ -230,7 +231,7 @@ def compile_visible_state(state: dict[str, Any]) -> dict[str, Any]:
         compact_events = [
             compact
             for compact in (
-                _compact_event(event)
+                compact_visible_event(event)
                 for event in revealed
             )
             if compact is not None
