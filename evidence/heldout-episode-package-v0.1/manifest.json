@@ -1,0 +1,84 @@
+{
+  "schema_version": "0.1.0",
+  "purpose": "Freeze the 10-episode LongProcureBench held-out paper slice after development method/reporting selection and before any model/API evaluation.",
+  "development_comparator_freeze_merge_sha": "0a9378f005d9c66a5d991b1af77d865a4fe2f75b",
+  "development_comparator_matrix": "evidence/development-comparator-matrix-v0.1/matrix.json",
+  "split_plan": "data/splits/electrical-v0.3-plan.json",
+  "status": "heldout_episode_package_frozen",
+  "model_evaluations_run": false,
+  "evaluation_version": "0.2.0",
+  "target_count": 10,
+  "episode_numeric_suffixes": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "episodes": [
+    {
+      "episode_id": "electrical-columbus-switchgear-021",
+      "initial_state_package_id": "us-columbus-rfq029445",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-eweb-transformer-022",
+      "initial_state_package_id": "us-eweb-rfp-25-030-g",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-lompoc-transformer-023",
+      "initial_state_package_id": "us-lompoc-rfq-3099",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-njang-generator-024",
+      "initial_state_package_id": "us-njang-w50s8f26qa022",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-port-angeles-transformers-025",
+      "initial_state_package_id": "us-port-angeles-mec-2025-18",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-greenport-transformers-026",
+      "initial_state_package_id": "us-greenport-transformers-2025",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-san-bruno-ev-chargers-027",
+      "initial_state_package_id": "us-san-bruno-ev-chargers-51035",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-shelter-island-solar-bess-028",
+      "initial_state_package_id": "us-shelter-island-solar-bess-2026",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-philadelphia-switchgear-mcc-029",
+      "initial_state_package_id": "us-philadelphia-b2627071",
+      "expected_reference_outcome": "o1"
+    },
+    {
+      "episode_id": "electrical-detroit-generator-ats-030",
+      "initial_state_package_id": "us-detroit-or-s-q10041-00016402",
+      "expected_reference_outcome": "o1"
+    }
+  ],
+  "freeze_checks": [
+    "Each episode uses exactly one of the 10 pre-reserved real public starting states and no development package.",
+    "All supplier profiles, quotes/messages, and event timing are synthetic and one-shot.",
+    "Every episode has a one-to-one deterministic evaluation config under Evaluator v0.2.",
+    "Every held-out episode has a deterministic reference-control path that must pass terminal feasibility, all hard constraints, feasible-obligation success, strict v0.2 success, economic objective, and zero unresolved obligations.",
+    "The observability matrix marks all 10 episodes held_out_test and preserves the same policy information boundary as development.",
+    "No model/API result is used to author, repair, or select these episodes."
+  ],
+  "execution_gate": "Do not launch the frozen 150 model-backed held-out runs until this package is merged with all offline CI/reference-control checks passing."
+}
