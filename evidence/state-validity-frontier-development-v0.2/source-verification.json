@@ -1,0 +1,17 @@
+{
+  "committed_compact_rows_sha256": "18426844fd7886da35a770b1a4000f243db197c76b48a3dcf1d84329d312e806",
+  "experiment": "state-validity-frontier-development-v0.2",
+  "provenance_sha256": "02f2b27dbec2fa5c1918ec0b21e02590f43191f24d9996b9046b82f7fe018d87",
+  "result": "verified",
+  "schema_version": "0.2.0",
+  "source_artifact_bytes": 279764,
+  "source_artifact_expires_at": "2026-10-28T12:01:19Z",
+  "source_artifact_id": 10968521526,
+  "source_artifact_name": "state-validity-frontier-development-v0.2-36418270289-1",
+  "source_artifact_sha256": "29e8ae46319336c5d508c116784523ddaca191352b369a100e4d663b91817a4c",
+  "source_members_count": 62,
+  "source_members_sha256": "b1735f643a20c57d4651b7539f29ac0a682dba0b66aec7f61a692256128854b5",
+  "source_workflow_run_id": 36418270289,
+  "verification_kind": "source_artifact_to_committed_replay",
+  "verifier": "scripts/verify_state_validity_frontier_development_source_artifact_v02.py"
+}
