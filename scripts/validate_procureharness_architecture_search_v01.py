@@ -66,6 +66,270 @@ EXPECTED_PHASE2 = [
 ]
 
 
+EXPECTED_BASELINE_POLICY = {
+    "reuse_frozen_evidence": True,
+    "rerun_allowed": False,
+    "comparators": ["coverage_repair", "react", "factual_context"],
+}
+EXPECTED_VALIDATION_ENTRY = {
+    "requires_execution_clean": True,
+    "requires_development_confirmation_floor": True,
+    "requires_development_promotion_branch": True,
+    "max_candidates_per_round": 2,
+    "oversubscription_selection": {
+        "method": "lexicographic",
+        "priority": [
+            {"metric": "feasible_obligation_success", "direction": "desc"},
+            {"metric": "strict_v02", "direction": "desc"},
+            {"metric": "economic_objective", "direction": "desc"},
+            {"metric": "obligation_resolution_rate", "direction": "desc"},
+            {"metric": "known_cost_usd", "direction": "asc"},
+            {"metric": "total_tokens", "direction": "asc"},
+            {"metric": "candidate_id", "direction": "asc"},
+        ],
+    },
+}
+EXPECTED_FRONTIER_ADMISSION = {
+    "requires_execution_clean": True,
+    "quality_floor_reference": (
+        "per_metric_max_of_matched_coverage_repair_and_react"
+    ),
+    "max_deficit_runs": {
+        "feasible_obligation_success": 2,
+        "strict_v02": 2,
+        "economic_objective": 2,
+    },
+    "requires_full_regret_reference_cohort_comparability": True,
+}
+EXPECTED_PARETO_FRONTIER = {
+    "comparison_pool": (
+        "all validation-admitted ProcureHarness candidates from completed "
+        "rounds plus matched Coverage+Repair and ReAct baseline rows"
+    ),
+    "dominance_rule": (
+        "A dominates B iff A is no worse than B on every frozen frontier "
+        "dimension and strictly better on at least one dimension"
+    ),
+    "candidate_frontier_rule": (
+        "a ProcureHarness candidate is on the admissible validation frontier "
+        "iff it passes frontier_admission and is not dominated by any row in "
+        "the comparison_pool"
+    ),
+    "round_update_rule": (
+        "after each completed round, recompute the cumulative frontier; the "
+        "round adds a frontier point only if at least one candidate first "
+        "validated in that round is on the recomputed candidate frontier"
+    ),
+}
+EXPECTED_CEILING_RULE = {
+    "plateau_rounds": 2,
+    "definition": (
+        "Stop agent-design-pattern search after two consecutive completed "
+        "search rounds add no new ProcureHarness candidate under "
+        "search_validation.pareto_frontier.round_update_rule, or when "
+        "max_rounds/max_unique_candidates is reached, whichever comes first."
+    ),
+    "not_a_global_optimum_claim": True,
+}
+EXPECTED_REGRET_CONTRACT = {
+    "implementation_status": "required_before_paid_architecture_search",
+    "eligible_when": (
+        "terminal award matches an acceptable feasible outcome, all hard "
+        "constraints pass, economic objective kind is minimize_total_price, "
+        "and all awards in the compared outcome resolve to numeric prices in "
+        "one native currency"
+    ),
+    "award_cost_contract": {
+        "package": {
+            "award_scope": "package",
+            "price_source": "quote_event.details.total_price",
+        },
+        "lot": {
+            "award_scope_prefix": "lot-",
+            "item_id_rule": "item_id = award.scope[len('lot-'):]",
+            "price_source": "quote_event.details.lots[item_id].price",
+        },
+        "outcome_cost": (
+            "sum exactly one scope-resolved price per award in the terminal "
+            "outcome; the referenced quote event must cover the award scope"
+        ),
+        "validator_alignment": (
+            "same package/lot price semantics as "
+            "scripts/validate_episodes.py::_award_price"
+        ),
+    },
+    "oracle_cost": (
+        "minimum scope-resolved summed award cost across oracle "
+        "preferred_outcome_ids"
+    ),
+    "feasible_price_regret_native": (
+        "max(0, selected_cost - oracle_cost)"
+    ),
+    "feasible_price_regret_pct": (
+        "100 * feasible_price_regret_native / oracle_cost"
+    ),
+    "infeasible_or_no_award_policy": (
+        "report regret as not_eligible rather than assigning an arbitrary "
+        "monetary penalty; reliability metrics carry the failure"
+    ),
+    "eligibility_aware_comparison": {
+        "run_key": ["episode_id", "repeat"],
+        "reference_cohort": (
+            "for each matched comparison package, freeze the intersection "
+            "of run keys where both Coverage+Repair and ReAct are "
+            "regret-eligible"
+        ),
+        "required_reports": [
+            "reference_cohort_count",
+            "candidate_regret_eligible_count_on_reference_cohort",
+            "candidate_regret_eligibility_rate_on_reference_cohort",
+            "mean_feasible_price_regret_pct_on_reference_cohort",
+        ],
+        "candidate_comparability_requirement": (
+            "candidate must be regret-eligible on every run key in the frozen "
+            "reference cohort before regret may be used for Pareto dominance, "
+            "promotion, winner selection, or a final method claim"
+        ),
+        "paired_baseline_rule": (
+            "compute candidate-minus-baseline regret and "
+            "baseline-minus-candidate savings only on identical run keys from "
+            "the frozen reference cohort; never rank candidates by an "
+            "aggregate formed from each candidate's own eligible subset"
+        ),
+        "failure_handling": (
+            "candidate ineligibility on any reference-cohort key fails regret "
+            "comparability and remains visible through reliability metrics; "
+            "it is not silently dropped from the denominator"
+        ),
+    },
+    "aggregation": (
+        "report native regret separately by currency; aggregate normalized "
+        "regret percentage only on the frozen reference cohort after full "
+        "candidate comparability; never sum different native currencies"
+    ),
+    "savings_contract": (
+        "paired savings is baseline scope-resolved selected_cost minus "
+        "candidate scope-resolved selected_cost on the same reference-cohort "
+        "run key; report native currency and percent"
+    ),
+}
+EXPECTED_DEVELOPMENT_PROMOTION = {
+    "quality": {
+        "comparison": "coverage_repair",
+        "improve_any_metric_by_runs": 3,
+        "improve_any_metric": [
+            "feasible_obligation_success",
+            "strict_v02",
+            "economic_objective",
+        ],
+        "max_deficit_runs_on_other_mandatory_success_metrics": 3,
+        "max_known_cost_usd": 7.9842032,
+        "cost_reference": "react",
+    },
+    "efficiency": {
+        "comparison": "coverage_repair",
+        "max_deficit_runs": {
+            "feasible_obligation_success": 3,
+            "strict_v02": 3,
+            "economic_objective": 3,
+        },
+        "regret_requirement": "no_worse_on_full_frozen_reference_cohort",
+        "min_known_cost_reduction_fraction": 0.20,
+    },
+}
+EXPECTED_WINNER_SELECTION = {
+    "eligible_set": (
+        "ProcureHarness candidates on the cumulative admissible validation "
+        "frontier when the search stop rule fires"
+    ),
+    "no_winner_rule": (
+        "if eligible_set is empty, freeze a no_winner negative result and do "
+        "not execute a ProcureHarness model-backed row on 041-050"
+    ),
+    "requires_full_regret_reference_cohort_comparability": True,
+    "method": "lexicographic",
+    "priority": [
+        {"metric": "feasible_obligation_success", "direction": "desc"},
+        {"metric": "strict_v02", "direction": "desc"},
+        {"metric": "economic_objective", "direction": "desc"},
+        {"metric": "obligation_resolution_rate", "direction": "desc"},
+        {
+            "metric": "mean_feasible_price_regret_pct_on_reference_cohort",
+            "direction": "asc",
+        },
+        {"metric": "known_cost_usd", "direction": "asc"},
+        {"metric": "total_tokens", "direction": "asc"},
+        {"metric": "latency_ms", "direction": "asc"},
+        {"metric": "model_calls", "direction": "asc"},
+        {"metric": "candidate_id", "direction": "asc"},
+    ],
+    "freeze_rule": (
+        "select exactly once from frozen 031-040 validation evidence, then "
+        "freeze winner code/config/prompts/settings before any 041-050 "
+        "model-backed call"
+    ),
+}
+EXPECTED_FINAL_TEST = {
+    "episodes": "041-050",
+    "repeats_per_episode": 3,
+    "rows_if_winner_exists": [
+        "procureharness_winner",
+        "coverage_repair",
+        "react",
+        "reference_control",
+    ],
+    "rows_if_no_winner": ["reference_control"],
+    "no_tuning_after_first_model_call": True,
+}
+EXPECTED_METHOD_CLAIM_GATES = {
+    "quality": {
+        "primary_metric": "feasible_obligation_success",
+        "primary_reference": (
+            "per_metric_max_of_coverage_repair_and_react"
+        ),
+        "min_primary_gain_runs": 3,
+        "max_deficit_runs": {
+            "strict_v02": 1,
+            "economic_objective": 1,
+        },
+        "deficit_reference": (
+            "per_metric_max_of_coverage_repair_and_react"
+        ),
+        "regret_requirement": (
+            "no_worse_than_minimum_baseline_regret_on_full_frozen_"
+            "reference_cohort"
+        ),
+        "max_known_cost_reference": "react",
+    },
+    "efficiency": {
+        "max_deficit_runs": {
+            "feasible_obligation_success": 1,
+            "strict_v02": 1,
+            "economic_objective": 1,
+        },
+        "deficit_reference": (
+            "per_metric_max_of_coverage_repair_and_react"
+        ),
+        "regret_requirement": (
+            "no_worse_than_minimum_baseline_regret_on_full_frozen_"
+            "reference_cohort"
+        ),
+        "cost_reference": (
+            "min_known_cost_of_coverage_repair_and_react"
+        ),
+        "min_known_cost_reduction_fraction": 0.30,
+    },
+}
+EXPECTED_PHASE2_ENTRY = (
+    "Only after a ProcureHarness design-pattern winner is frozen from the "
+    "architecture-search phase."
+)
+EXPECTED_PHASE2_RULE = (
+    "Each harness axis requires a matched ablation on the frozen skeleton "
+    "before it enters the final amalgamation."
+)
+
+
 def _load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -294,24 +558,36 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
         confirm.get("runs_per_candidate"),
     ) != ("001-020", 3, 2, 60):
         raise ValueError("Development confirmation contract changed")
-    if "do not rerun" not in confirm.get("baseline_policy", ""):
-        raise ValueError("Frozen development baselines may not be rerun")
+    if confirm.get("baseline_policy") != EXPECTED_BASELINE_POLICY:
+        raise ValueError("Frozen development baseline policy changed")
+
+    if search.get("validation_entry") != EXPECTED_VALIDATION_ENTRY:
+        raise ValueError("Validation-entry selection contract changed")
 
     validation_cfg = search.get("search_validation") or {}
     if (
         validation_cfg.get("episodes"),
         validation_cfg.get("repeats_per_episode"),
         validation_cfg.get("matched_baselines"),
-    ) != ("031-040", 3, ["coverage_repair", "react"]):
+        validation_cfg.get("baseline_runs_once_per_frozen_package"),
+        validation_cfg.get("may_guide_subsequent_search_rounds"),
+    ) != (
+        "031-040",
+        3,
+        ["coverage_repair", "react"],
+        True,
+        True,
+    ):
         raise ValueError("Search-validation execution contract changed")
     if validation_cfg.get("requires_package_freeze_before_calls") is not True:
         raise ValueError("031-040 package must freeze before model calls")
+    if validation_cfg.get("frontier_admission") != EXPECTED_FRONTIER_ADMISSION:
+        raise ValueError("Validation-frontier admission contract changed")
+    if validation_cfg.get("pareto_frontier") != EXPECTED_PARETO_FRONTIER:
+        raise ValueError("Validation Pareto-frontier contract changed")
 
-    ceiling = search.get("ceiling_stop_rule") or {}
-    if ceiling.get("plateau_rounds") != 2:
+    if search.get("ceiling_stop_rule") != EXPECTED_CEILING_RULE:
         raise ValueError("Architecture plateau rule changed")
-    if ceiling.get("not_a_global_optimum_claim") is not True:
-        raise ValueError("Search plateau cannot become a global-optimum claim")
 
     reporting = protocol.get("reporting_contract") or {}
     if reporting.get("no_weighted_composite_score") is not True:
@@ -334,7 +610,7 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
 
     required_economic = {
         "feasible_price_regret_native",
-        "feasible_price_regret_pct",
+        "mean_feasible_price_regret_pct_on_reference_cohort",
         "paired_savings_vs_baseline_native",
         "paired_savings_vs_baseline_pct",
     }
@@ -354,23 +630,8 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
     if set(reporting.get("efficiency_metrics") or []) != required_efficiency:
         raise ValueError("Efficiency metric set changed")
 
-    regret = reporting.get("economic_regret_v01") or {}
-    if regret.get("implementation_status") != (
-        "required_before_paid_architecture_search"
-    ):
-        raise ValueError("Economic regret must precede paid architecture search")
-    if regret.get("feasible_price_regret_native") != (
-        "max(0, selected_cost - oracle_cost)"
-    ):
-        raise ValueError("Native regret definition changed")
-    if "not_eligible" not in regret.get(
-        "infeasible_or_no_award_policy", ""
-    ):
-        raise ValueError("Infeasible trajectories must not get arbitrary regret")
-    if "never sum different native currencies" not in regret.get(
-        "aggregation", ""
-    ):
-        raise ValueError("Cross-currency regret aggregation is prohibited")
+    if reporting.get("economic_regret_v01") != EXPECTED_REGRET_CONTRACT:
+        raise ValueError("Economic regret contract changed")
 
     frontier = protocol.get("admissibility_and_frontier") or {}
     floor = frontier.get("development_confirmation_floor") or {}
@@ -398,52 +659,25 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
     }:
         raise ValueError("Pareto minimize dimensions changed")
 
-    promotion = frontier.get("development_promotion_branch") or []
-    if len(promotion) != 2:
-        raise ValueError("Exactly two development promotion branches required")
-    if "3/60" not in promotion[0] or "Coverage+Repair" not in promotion[0]:
-        raise ValueError("Quality promotion threshold changed")
-    if "20%" not in promotion[1] or "Coverage+Repair" not in promotion[1]:
-        raise ValueError("Efficiency promotion threshold changed")
+    if frontier.get("development_promotion_branches") != (
+        EXPECTED_DEVELOPMENT_PROMOTION
+    ):
+        raise ValueError("Development promotion contract changed")
 
     freeze = protocol.get("final_method_freeze") or {}
-    final_test = freeze.get("final_test") or {}
-    if final_test != {
-        "episodes": "041-050",
-        "repeats_per_episode": 3,
-        "rows": [
-            "procureharness_winner",
-            "coverage_repair",
-            "react",
-            "reference_control",
-        ],
-        "no_tuning_after_first_model_call": True,
-    }:
+    if freeze.get("winner_selection") != EXPECTED_WINNER_SELECTION:
+        raise ValueError("Final winner-selection contract changed")
+    if freeze.get("final_test") != EXPECTED_FINAL_TEST:
         raise ValueError("Final method-test matrix changed")
-    gates = freeze.get("method_claim_gate") or []
-    if len(gates) != 2:
-        raise ValueError("Exactly two final method-claim branches required")
-    if (
-        "3/30" not in gates[0]
-        or "1/30" not in gates[0]
-        or "max(Coverage+Repair, ReAct)" not in gates[0]
-        or "minimum regret" not in gates[0]
-    ):
-        raise ValueError("Final quality-branch threshold changed")
-    if (
-        "30%" not in gates[1]
-        or "1/30" not in gates[1]
-        or "max(Coverage+Repair, ReAct)" not in gates[1]
-        or "cheaper of Coverage+Repair and ReAct" not in gates[1]
-    ):
-        raise ValueError("Final efficiency-branch threshold changed")
+    if freeze.get("method_claim_gates") != EXPECTED_METHOD_CLAIM_GATES:
+        raise ValueError("Final method-claim gate changed")
 
     phase2 = protocol.get("phase2_after_pattern_freeze") or {}
     if phase2.get("axes_to_test_one_at_a_time") != EXPECTED_PHASE2:
         raise ValueError("Phase-2 harness sequence changed")
-    if "Only after" not in phase2.get("entry_condition", ""):
+    if phase2.get("entry_condition") != EXPECTED_PHASE2_ENTRY:
         raise ValueError("Harness phase may not precede design-pattern freeze")
-    if "matched ablation" not in phase2.get("rule", ""):
+    if phase2.get("rule") != EXPECTED_PHASE2_RULE:
         raise ValueError("Every phase-2 harness axis requires ablation")
 
 
