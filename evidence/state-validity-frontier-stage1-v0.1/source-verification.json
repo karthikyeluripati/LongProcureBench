@@ -1,0 +1,69 @@
+{
+  "archive_members": [
+    {
+      "bytes": 34496,
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-burauen-generator-008/run-001.json",
+      "sha256": "a510d71482046b0595bdc13875fd678eb3c47c71e0e47e45ce07d3d0bcee680b"
+    },
+    {
+      "bytes": 34519,
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-dla-power-supply-016/run-001.json",
+      "sha256": "1f50400047aab9e0a4339a1511686628aaf75efb0419b30005b0d44289e4982f"
+    },
+    {
+      "bytes": 37230,
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-dla-transformer-013/run-001.json",
+      "sha256": "8489701816b304acec9002cc35b4505283c66ce1ba7c13dbf6e1e5f466111d7c"
+    },
+    {
+      "bytes": 2097,
+      "path": "runs.csv",
+      "sha256": "06572881cf4270060f91a476582518ca96fbd3c634d5eca7a4255a3cf942b5a2"
+    },
+    {
+      "bytes": 36493,
+      "path": "state-validity-frontier-diagnostics.json",
+      "sha256": "2c45106bba53324db1eabd412284bd1c027195bc782260f68251ba57786a1319"
+    },
+    {
+      "bytes": 1852,
+      "path": "summary.json",
+      "sha256": "276ca0af1ad086ef194f9d2616779ced83f936b9167672b68d3de76a59086273"
+    }
+  ],
+  "committed_compact_rows_sha256": "5601b4ca76630815fcae97d48e21a50603920185c6f9e9c9a69e08238f07bf48",
+  "experiment": "state-validity-frontier-stage1-v0.1",
+  "result": "verified",
+  "schema_version": "0.1.0",
+  "source_artifact_bytes": 18602,
+  "source_artifact_expires_at": "2026-10-28T10:37:23Z",
+  "source_artifact_id": 10964162663,
+  "source_artifact_name": "state-validity-frontier-stage1-36410695850-1",
+  "source_artifact_sha256": "92c3c7fe4cd7550a2c91141ff9fde3c98c143d6d632bfa767c4fd860800fdf96",
+  "source_workflow_run_id": 36410695850,
+  "verification_kind": "source_artifact_to_committed_replay",
+  "verified_run_members": [
+    {
+      "artifact_member": "openai-gpt-5.6-sol--0510680735/electrical-burauen-generator-008/run-001.json",
+      "compact_record_sha256": "dbb21f192eff44adff71e121d9f1d6c73622d4faa6b149ad8279d48d175daf36",
+      "episode_id": "electrical-burauen-generator-008",
+      "raw_bytes": 34496,
+      "raw_sha256": "a510d71482046b0595bdc13875fd678eb3c47c71e0e47e45ce07d3d0bcee680b"
+    },
+    {
+      "artifact_member": "openai-gpt-5.6-sol--0510680735/electrical-dla-power-supply-016/run-001.json",
+      "compact_record_sha256": "9e7457f2d0855ece422b2a4d98635908fb5abd47f98cd03800f0d4f8ce237607",
+      "episode_id": "electrical-dla-power-supply-016",
+      "raw_bytes": 34519,
+      "raw_sha256": "1f50400047aab9e0a4339a1511686628aaf75efb0419b30005b0d44289e4982f"
+    },
+    {
+      "artifact_member": "openai-gpt-5.6-sol--0510680735/electrical-dla-transformer-013/run-001.json",
+      "compact_record_sha256": "61beb77b702d5cb11fed2e7c974c62039d4ea440893627c7e00accc81a63c1eb",
+      "episode_id": "electrical-dla-transformer-013",
+      "raw_bytes": 37230,
+      "raw_sha256": "8489701816b304acec9002cc35b4505283c66ce1ba7c13dbf6e1e5f466111d7c"
+    }
+  ],
+  "verifier": "scripts/verify_state_validity_frontier_stage1_source_artifact_v01.py"
+}
