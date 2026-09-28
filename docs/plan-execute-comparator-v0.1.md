@@ -32,8 +32,12 @@ The comparator adapts the Plan-and-Solve / Plan-and-Execute separation:
    - `plan_step_index = 0` is valid when the chosen operation is absent from
      the fixed plan;
    - if the operation is already represented in the plan, index 0 is valid
-     only when a relevant post-plan visible event motivates the departure;
-   - the controller records the motivating event IDs for audit;
+     only when a relevant event newly revealed since the previous executor
+     decision motivates the departure;
+   - cross-supplier disruptions such as a supplier withdrawal may motivate
+     recovery work on a different remaining supplier;
+   - the controller records only those newly revealed motivating event IDs for
+     audit, avoiding attribution to older evidence;
    - the plan is still not rewritten.
 
 The comparator performs **no replanning**. That is intentional: the experiment
