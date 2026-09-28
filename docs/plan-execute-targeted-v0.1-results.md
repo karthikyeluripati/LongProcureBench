@@ -97,7 +97,31 @@ Therefore do **not** run a Reflexion baseline until a matched retry/feedback
 contract is specified for every comparator, or a strictly visible-feedback
 variant is explicitly labeled as a different method.
 
-## Provenance
+## Durable replay and provenance
+
+The original GitHub Actions artifact is temporary, but the scientific evidence
+no longer depends on it. This repository commits a checksum-locked replay that
+retains every accepted action and revealed observation for all three runs,
+together with each fixed plan, execution trace, model configuration, and usage
+metrics.
+
+The deterministic audit reconstructs the accepted action sequence, re-runs
+Evaluator v0.2 from the repository episode/evaluation contracts, and checks the
+per-run and aggregate outcomes, trajectory summaries, obligations, tokens,
+latency, cost, and exception counts against `results.json`.
+
+- durable manifest:
+  `evidence/plan-execute-targeted-v0.1/manifest.json`
+- replay:
+  `evidence/plan-execute-targeted-v0.1/replay-source.b64.part00..02`
+- per-run provenance:
+  `evidence/plan-execute-targeted-v0.1/source-provenance.txt`
+- deterministic audit:
+  `scripts/audit_plan_execute_targeted_v01.py`
+- source-artifact verifier:
+  `scripts/verify_plan_execute_targeted_source_artifact_v01.py`
+
+Original source provenance:
 
 - workflow run: 36396684099
 - artifact: 10957769763
@@ -106,4 +130,7 @@ variant is explicitly labeled as a different method.
 - benchmark code: `5257769482b79ff3c8c717715b96d2e116552ac1`
 - execution workflow commit:
   `135ff49e61c557da6efc7dc5b36e57fbbc8e64a6`
-- artifact expiry: 2026-10-28
+- temporary artifact expiry: 2026-10-28
+
+The expiry only affects access to the original hosted ZIP. It does **not**
+affect the committed replay or the ability to reproduce the evaluation.
