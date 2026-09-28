@@ -1,0 +1,248 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "state-validity-frontier-v0.1",
+  "status": "preregistered_no_results",
+  "role": "proposed_method_candidate",
+  "base_commit": "ffa112308a5a37598e6ea43f38bae5726f42086f",
+  "research_question": "Can a recomputed versioned workflow-validity graph with dependency-scoped invalidation and a minimal valid-action frontier recover from changing procurement state while using LLM deliberation only where multiple valid choices remain?",
+  "central_hypothesis": "Long-horizon failures are caused less by missing history than by failure to distinguish still-valid decisions from decisions invalidated by new evidence. Recomputing validity from visible facts and exposing only the current repair/decision frontier should prevent stale actions and clarification loops while preserving flexible LLM choice at genuine decision points.",
+  "inherited_baseline": {
+    "name": "coverage_repair_v0.1",
+    "reason": "Coverage+Repair already earned the strongest development quality/cost region. The proposed controller must isolate incremental value from validity/invalidation rather than rediscover supplier coverage."
+  },
+  "information_boundary": {
+    "context_view": "factual_compiled_v0.1",
+    "allowed": [
+      "visible initial-state facts",
+      "visible suppliers",
+      "accepted action history",
+      "revealed event history",
+      "latest visible quote/revision facts",
+      "deterministic ordering/version bookkeeping derived from those visible facts"
+    ],
+    "forbidden": [
+      "episode oracle",
+      "Evaluator v0.2 outputs",
+      "evaluation checkpoint labels",
+      "preferred outcome IDs",
+      "hidden event triggers or future events",
+      "held-out episode IDs as controller conditions",
+      "supplier-specific or episode-specific hard-coded recovery rules"
+    ]
+  },
+  "controller": {
+    "name": "State Validity Frontier",
+    "implementation_requirement": "Recompute the structured validity graph from current visible factual state/action history each step. Do not maintain a free-text plan or free-text persistent ledger.",
+    "artifacts": [
+      "requirements",
+      "supplier_set",
+      "solicitation[supplier]",
+      "offer[supplier]",
+      "supplier_active[supplier]",
+      "evaluation",
+      "terminal_decision"
+    ],
+    "dependency_edges": [
+      [
+        "requirements",
+        "solicitation[supplier]"
+      ],
+      [
+        "requirements",
+        "offer[supplier]"
+      ],
+      [
+        "supplier_active[supplier]",
+        "evaluation"
+      ],
+      [
+        "offer[supplier]",
+        "evaluation"
+      ],
+      [
+        "evaluation",
+        "terminal_decision"
+      ]
+    ],
+    "requirement_epoch": {
+      "initial": 0,
+      "increment_events": [
+        "requirement_change",
+        "quantity_change"
+      ],
+      "purpose": "Version solicitation/offer/evaluation validity after externally visible requirement changes."
+    },
+    "clarification_lease": {
+      "max_requests_per_requirement_epoch": 1,
+      "reset_events": [
+        "requirement_change",
+        "quantity_change"
+      ],
+      "rule": "After one accepted request_buyer_clarification in an epoch, clarification is removed from the frontier until a new requirement epoch. A buyer_clarification observation resolves the current clarification opportunity; absence of a response does not permit immediate repeated clarification."
+    },
+    "invalidation_rules": [
+      {
+        "event": "requirement_change",
+        "effect": [
+          "increment requirement_epoch",
+          "invalidate evaluation",
+          "invalidate terminal_decision",
+          "mark existing solicited offers stale",
+          "require post-change amendment if sourcing already started"
+        ]
+      },
+      {
+        "event": "quantity_change",
+        "effect": [
+          "increment requirement_epoch",
+          "invalidate evaluation",
+          "invalidate terminal_decision",
+          "mark existing solicited offers stale",
+          "require post-change amendment if sourcing already started"
+        ]
+      },
+      {
+        "event": "supplier_withdrawal",
+        "effect": [
+          "mark supplier inactive",
+          "invalidate evaluation",
+          "invalidate terminal_decision",
+          "block future award to withdrawn supplier"
+        ]
+      },
+      {
+        "event": "quote_received",
+        "effect": [
+          "set supplier offer current for visible requirement epoch",
+          "invalidate evaluation",
+          "invalidate terminal_decision"
+        ]
+      },
+      {
+        "event": "quote_revision",
+        "effect": [
+          "replace prior supplier offer with latest visible revision",
+          "invalidate evaluation",
+          "invalidate terminal_decision"
+        ]
+      },
+      {
+        "event": "supplier_non_response",
+        "effect": [
+          "open bounded supplier repair obligation"
+        ]
+      },
+      {
+        "event": "supplier_question",
+        "effect": [
+          "open bounded supplier repair obligation"
+        ]
+      }
+    ],
+    "frontier_priority": [
+      "post-change amendment when requirements changed after sourcing",
+      "visible supplier question/non-response repair inherited from Coverage+Repair",
+      "complete RFQ coverage after sourcing begins",
+      "refresh offers proven stale by a requirement epoch change",
+      "recover after supplier/evaluation invalidation using only active visible suppliers",
+      "evaluate current visible offers",
+      "make terminal decision only from a currently valid evaluation"
+    ],
+    "action_selection": {
+      "singleton_frontier": "execute deterministically without a model call",
+      "multiple_valid_actions": "one LLM call chooses only among frontier actions using factual_compiled_v0.1",
+      "terminal_actions": "allowed only when evaluation validity is current",
+      "optional_recovery_evidence": "After supplier withdrawal or other evaluation invalidation, request_quote_revision on an active supplier may coexist with evaluate_quotes in the frontier; the LLM decides whether additional evidence acquisition is worth taking."
+    },
+    "safety_invariants": [
+      "withdrawn supplier can never be awarded",
+      "terminal decision cannot depend on an invalid evaluation",
+      "evaluation cannot be treated as current after a visible quote/revision/withdrawal/requirement-version change",
+      "an offer from an earlier requirement epoch is stale until refreshed",
+      "request_buyer_clarification cannot repeat within one requirement epoch",
+      "controller never creates facts that were not visible"
+    ]
+  },
+  "targeted_pilot": {
+    "episodes": [
+      {
+        "episode_id": "electrical-burauen-generator-008",
+        "mechanism": "supplier withdrawal invalidates evaluation and reopens recovery frontier",
+        "assertions": [
+          "supplier A is marked inactive after visible withdrawal",
+          "pre-withdrawal evaluation becomes invalid",
+          "withdrawn supplier is excluded from later terminal actions",
+          "at least one post-withdrawal recovery/evaluation action occurs before terminal",
+          "request_buyer_clarification is not used after withdrawal unless a new requirement epoch exists"
+        ]
+      },
+      {
+        "episode_id": "electrical-dla-transformer-013",
+        "mechanism": "clarification lease closes the prerequisite loop and allows sourcing to advance",
+        "assertions": [
+          "at most one request_buyer_clarification occurs in requirement epoch 0",
+          "after buyer clarification, clarification is absent from the frontier",
+          "supplier discovery/RFQ begins after the clarification response",
+          "terminal action is not allowed before a current evaluation exists"
+        ]
+      },
+      {
+        "episode_id": "electrical-dla-power-supply-016",
+        "mechanism": "requirement change invalidates only dependent procurement state and creates a bounded repair frontier",
+        "assertions": [
+          "requirement_change increments requirement_epoch",
+          "issue_amendment becomes required after the visible change because sourcing already started",
+          "pre-change offers are marked stale",
+          "post-amendment frontier repairs stale offers/non-response before terminal decision",
+          "no clarification loop occurs in the unchanged requirement epoch"
+        ]
+      }
+    ],
+    "repeats": 1,
+    "model": "openai/gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "temperature": null,
+    "max_actions": 50,
+    "heldout_access": false,
+    "paid_runs_total": 3
+  },
+  "go_gate": {
+    "mechanism_requirements": [
+      "all three runs execute without policy/protocol errors",
+      "all episode-specific mechanism assertions pass",
+      "zero runs hit max_actions",
+      "controller diagnostics show at least one validity/frontier intervention in each episode"
+    ],
+    "quality_requirements": [
+      "terminal_feasible >= 2/3",
+      "feasible_obligation_success >= 2/3"
+    ],
+    "decision": "Do not run a broad development grid unless both mechanism and quality requirements pass. If they pass, freeze a separate repeated-development protocol before any additional paid run."
+  },
+  "planned_later_comparators": [
+    "factual_compiled_v0.1",
+    "react_comparator_v0.1",
+    "coverage_repair_v0.1",
+    "static Plan-and-Execute v0.1 as negative external comparator"
+  ],
+  "planned_later_ablations": [
+    "remove dependency invalidation while retaining frontier gating",
+    "remove frontier gating while retaining visible validity annotations",
+    "replace deterministic singleton execution with LLM calls at every frontier step"
+  ],
+  "heldout_policy": {
+    "prior_heldout_021_030": "diagnostic_only_for_new_method; already inspected and cannot be used as untouched test evidence",
+    "future_test_set": "After the method and development protocol are frozen, author and validate a new untouched 031+ held-out set before any model-backed call.",
+    "contamination_rule": "No result from 021-030 or the future held-out set may update method rules or prompts."
+  },
+  "related_work_boundary": {
+    "stateflow": "Generic state-machine orchestration is not a novelty claim.",
+    "planfence": "Dependency-scoped validity checking/replanning is not a novelty claim.",
+    "contribution_condition": "Any eventual method claim must be narrower and empirically isolated: recomputed versioned procurement-workflow validity + minimal repair frontier + selective model allocation, with ablations showing which component produces quality/cost gains."
+  },
+  "claim_policy": {
+    "before_results": "Do not call this a successful ProcureHarness architecture or claim superiority/novelty.",
+    "after_targeted_pass": "Only claim that the mechanism activated and passed the frozen targeted gate.",
+    "paper_level": "Requires repeated development comparison, ablations, and a new untouched held-out set."
+  }
+}
