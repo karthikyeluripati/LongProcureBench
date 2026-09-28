@@ -222,7 +222,7 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
                 requirement = schedule.get("delivery_requirement")
                 if isinstance(requirement, str):
                     match = re.search(
-                        r"(?P<days>[0-9]+(?:[.][0-9]+)?)\\s*days?",
+                        r"(?P<days>[0-9]+(?:[.][0-9]+)?)\s*days?",
                         requirement,
                         flags=re.IGNORECASE,
                     )
