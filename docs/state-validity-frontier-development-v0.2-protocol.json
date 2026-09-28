@@ -1,0 +1,277 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "state-validity-frontier-development-v0.2",
+  "status": "preregistered_no_results",
+  "role": "proposed_method_development_comparison",
+  "freeze_base_sha": "5701b086471015f51cef4869af04f9e21f26b5c0",
+  "implementation": {
+    "controller_path": "longprocurebench/state_validity_frontier.py",
+    "controller_blob_sha": "24dd50e28864fe450039e098e4d28e4518097956",
+    "runner_path": "scripts/run_state_validity_frontier_development_v02.py",
+    "runner_blob_sha": "c1c3009cbf3e0d6f34bc7afa7f9ede531d50cfbc",
+    "change_policy": "No controller, prompt, action-contract, evaluator, or context-view changes are permitted between this protocol freeze and the 60-run development execution.",
+    "execution_procedure": "Execute `python scripts/run_state_validity_frontier_development_v02.py --output-dir <fresh-dir>`. Before any model call, the runner computes Git blob SHA-1 values over the actual controller and runner bytes and requires them to match this frozen protocol; it also verifies all frozen model/grid settings. The runner then fixes episodes 001-020, 3 repeats, GPT-5.6 Sol, medium reasoning, omitted temperature, and max_actions=50; validates the exact 60-run grid; rejects RunnerError, infrastructure/protocol failures, and any non-null evaluation_error_type; and enforces the frozen prerequisite action sequence before reporting completion.",
+    "hash_algorithm": "git_blob_sha1"
+  },
+  "stage1_reference": {
+    "evidence": "evidence/state-validity-frontier-stage1-v0.1/",
+    "runs": 3,
+    "terminal_feasible": [
+      3,
+      3
+    ],
+    "feasible_obligation_success": [
+      3,
+      3
+    ],
+    "strict_v02": [
+      3,
+      3
+    ],
+    "economic_objective": [
+      3,
+      3
+    ],
+    "actionable_obligations": 7,
+    "resolved_obligations": 7,
+    "unresolved_obligations": 0,
+    "accepted_actions": 30,
+    "model_calls": 14,
+    "total_tokens": 33661,
+    "known_cost_usd": 0.18555800000000003,
+    "deterministic_frontier_actions": 16,
+    "strict_v01_gate_pass": false,
+    "reason": "The v0.1 mechanism gate literally required supplier discovery/RFQ to begin after buyer clarification in episode 013. Supplier identification occurred first, while the first RFQ occurred after clarification. The v0.1 verdict remains frozen as a strict gate failure."
+  },
+  "semantic_clarification": {
+    "status": "prospective_v0.2_definition_not_retroactive_rewrite",
+    "supplier_identification": "identify_suppliers is non-committing information discovery and is not itself procurement solicitation or economic commitment.",
+    "sourcing_boundary": "send_rfq is the first commercial solicitation boundary for the prerequisite-ordering check.",
+    "episode_013_rule": "For the starting-prerequisite mechanism, the first send_rfq must occur after the visible buyer_clarification response. identify_suppliers may occur before that response.",
+    "retained_rules": [
+      "at most one request_buyer_clarification per unchanged requirement epoch",
+      "clarification is absent from the frontier after a visible buyer clarification response",
+      "terminal action requires a current evaluation",
+      "withdrawal recovery requires new active-supplier quote evidence followed by reevaluation",
+      "requirement changes invalidate dependent offers/evaluation and require affected repair"
+    ],
+    "anti_retcon": "The Stage-1 v0.1 results and strict-gate failure remain unchanged in their frozen evidence. v0.2 only defines the prospective development comparison."
+  },
+  "development_grid": {
+    "episodes": [
+      "electrical-bongabon-generator-001",
+      "electrical-national-museum-lighting-002",
+      "electrical-neust-cable-003",
+      "electrical-dla-breaker-004",
+      "electrical-barrie-transformer-005",
+      "electrical-bfar-generator-006",
+      "electrical-negros-wire-007",
+      "electrical-burauen-generator-008",
+      "electrical-highpoint-transformer-009",
+      "electrical-painesville-switchgear-010",
+      "electrical-sagada-generator-011",
+      "electrical-dla-relay-012",
+      "electrical-dla-transformer-013",
+      "electrical-dla-battery-supply-014",
+      "electrical-dla-battery-charger-015",
+      "electrical-dla-power-supply-016",
+      "electrical-dla-qpl-breaker-017",
+      "electrical-highpoint-cable-018",
+      "electrical-usaf-ups-019",
+      "electrical-vre-generator-020"
+    ],
+    "repeats_per_episode": 3,
+    "total_runs": 60,
+    "model": "openai/gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "temperature": null,
+    "max_actions": 50,
+    "context_view": "factual_compiled_v0.1",
+    "policy_kind": "llm_state_validity_frontier",
+    "agent_pattern": "state_validity_frontier_v0.1",
+    "heldout_access": false,
+    "sequence_requirements": [
+      {
+        "episode_id": "electrical-dla-transformer-013",
+        "repeats": [
+          1,
+          2,
+          3
+        ],
+        "response_event_type": "buyer_clarification",
+        "blocked_action_type": "send_rfq",
+        "requirement": "For every repeat, the first accepted send_rfq must occur strictly after the first visible buyer_clarification response."
+      }
+    ]
+  },
+  "frozen_comparators": [
+    {
+      "id": "factual_context",
+      "evidence": "evidence/coverage-repair-confirmatory-v0.1/results.json",
+      "runs": 60,
+      "terminal_feasible": [
+        46,
+        60
+      ],
+      "feasible_obligation_success": [
+        40,
+        60
+      ],
+      "strict_v02": [
+        14,
+        60
+      ],
+      "economic_objective": [
+        14,
+        60
+      ],
+      "model_calls": 464,
+      "total_tokens": 974208,
+      "latency_ms": 869561.2926909978,
+      "known_cost_usd": 4.6086564
+    },
+    {
+      "id": "react",
+      "evidence": "evidence/coverage-repair-confirmatory-v0.1/results.json",
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        41,
+        60
+      ],
+      "strict_v02": [
+        27,
+        60
+      ],
+      "economic_objective": [
+        28,
+        60
+      ],
+      "model_calls": 488,
+      "total_tokens": 1454192,
+      "latency_ms": 1275207.3713140013,
+      "known_cost_usd": 7.9842032
+    },
+    {
+      "id": "coverage_repair",
+      "evidence": "evidence/coverage-repair-confirmatory-v0.1/results.json",
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        50,
+        60
+      ],
+      "strict_v02": [
+        30,
+        60
+      ],
+      "economic_objective": [
+        30,
+        60
+      ],
+      "model_calls": 324,
+      "total_tokens": 687462,
+      "latency_ms": 667333.2807259995,
+      "known_cost_usd": 2.9776718
+    }
+  ],
+  "reporting_contract": {
+    "primary_quality_metric": "feasible_obligation_success",
+    "quality_metrics": [
+      "terminal_feasible",
+      "feasible_obligation_success",
+      "strict_v02",
+      "obligation_resolution_rate",
+      "economic_objective_satisfied"
+    ],
+    "efficiency_metrics": [
+      "accepted_actions",
+      "model_calls",
+      "prompt_tokens",
+      "completion_tokens",
+      "total_tokens",
+      "latency_ms",
+      "cost_usd",
+      "deterministic_frontier_actions",
+      "llm_frontier_calls"
+    ],
+    "diagnostics": [
+      "status_counts",
+      "unresolved_obligation_counts",
+      "action_type_counts",
+      "validity_invalidations",
+      "requirement_invalidations",
+      "quote_invalidations",
+      "withdrawal_invalidations",
+      "frontier_size_distribution"
+    ],
+    "economics": {
+      "frozen_metric": "economic_objective_satisfied",
+      "definition": "Whether the terminal outcome matches an oracle-designated preferred feasible outcome under the episode economic objective.",
+      "numeric_regret_status": "not_frozen_in_evaluator_v0.2",
+      "rule": "Do not introduce a new continuous dollar-regret metric only for State Validity Frontier. Any future numeric regret analysis must be specified separately and recomputed uniformly for all compared methods from durable trajectories."
+    },
+    "paired_bootstrap": {
+      "resamples": 20000,
+      "seed": 20260926,
+      "sampler": "sha256-index-v1",
+      "cluster": "episode",
+      "comparisons": [
+        "state_validity_frontier_vs_coverage_repair",
+        "state_validity_frontier_vs_react",
+        "state_validity_frontier_vs_factual_context"
+      ]
+    },
+    "no_composite_score": true
+  },
+  "development_gate": {
+    "execution_requirements": [
+      "exactly 60 completed or measured-policy-result runs are present for episodes 001-020 x repeats 1-3",
+      "no setup_error, environment_error, evaluation_error, metadata_error, RunnerError, StateValidityFrontierError, or non-null evaluation_error_type",
+      "all three electrical-dla-transformer-013 repeats pass the frozen prerequisite sequence gate: first accepted send_rfq occurs strictly after the visible buyer_clarification response",
+      "no run uses held-out episodes 021-030",
+      "actual controller and development-runner Git blob SHA-1 values match the frozen hashes before any model call, and model/settings match this freeze"
+    ],
+    "quality_requirements": [
+      "feasible_obligation_success >= 47/60 (78.3%), i.e. no more than 5 percentage points below frozen Coverage+Repair",
+      "strict_v02 >= 30/60 (50.0%)",
+      "economic_objective >= 30/60 (50.0%)"
+    ],
+    "contribution_branch": [
+      "At least one of strict_v02 or economic_objective improves by >= 3/60 (5.0 percentage points) over Coverage+Repair, with known API cost <= frozen ReAct cost ($7.9842032).",
+      "OR State Validity Frontier stays within 3/60 (5.0 percentage points) of Coverage+Repair on feasible_obligation, strict_v02, and economic_objective while reducing known API cost by >= 20% versus Coverage+Repair."
+    ],
+    "decision": "Proceed to component ablations only if execution requirements, all quality requirements, and at least one contribution branch pass. Otherwise freeze the development result and do not tune on episodes 001-020."
+  },
+  "planned_ablations_if_gate_passes": [
+    {
+      "id": "no_dependency_invalidation",
+      "description": "Retain frontier gating but remove dependency-scoped invalidation."
+    },
+    {
+      "id": "no_frontier_gating",
+      "description": "Retain visible validity annotations but allow unconstrained action selection."
+    },
+    {
+      "id": "llm_every_frontier_step",
+      "description": "Retain validity/frontier semantics but replace deterministic singleton execution with an LLM call."
+    }
+  ],
+  "heldout_policy": {
+    "old_021_030": "diagnostic_only_for_new_method; not untouched",
+    "future_set": "031+",
+    "rule": "Do not author or evaluate the new untouched held-out set until the development method and any retained ablations are frozen.",
+    "contamination": "No 021-030 or future held-out result may change the controller, prompt, action contract, metric definition, or development gate."
+  },
+  "claim_policy": {
+    "stage1": "Stage-1 supports mechanism plausibility and quality/economic promise only; it is not a generalization claim.",
+    "development": "A development gate pass supports controlled development evidence, not held-out generalization.",
+    "paper": "Method-level paper claims require the frozen development comparison, component ablations, and a new untouched 031+ held-out evaluation."
+  }
+}
