@@ -177,7 +177,9 @@ Return only the structured executor response."""
         self._pending_execution: dict[str, Any] | None = None
         self._initial_event_ids: set[str] = set()
         self._event_first_seen: dict[str, int] = {}
-        self._exception_event_uses: set[tuple[str, str]] = set()
+        self._exception_event_uses: set[
+            tuple[str, str, str | None]
+        ] = set()
         self._executor_decision_index = 0
 
     def reset(self, state: dict[str, Any]) -> None:
@@ -338,8 +340,9 @@ Return only the structured executor response."""
         """Validate that plan_step_index=0 denotes a real plan departure.
 
         Post-plan events may legitimately drive multiple downstream recovery
-        operations. Therefore an event is consumed per operation, not globally.
-        For a given operation, prefer the most recently revealed relevant event
+        operations and multiple supplier-scoped repairs. Therefore an event is
+        consumed per operation and target supplier, not globally. For a given
+        operation/target, prefer the most recently revealed relevant event
         batch so older evidence cannot mask a later disruption.
         """
         if self._fixed_plan is None:
@@ -365,7 +368,11 @@ Return only the structured executor response."""
                 not isinstance(event_id, str)
                 or event_id in self._initial_event_ids
                 or event_type not in relevant_types
-                or (event_id, action_type) in self._exception_event_uses
+                or (
+                    event_id,
+                    action_type,
+                    supplier_id,
+                ) in self._exception_event_uses
             ):
                 continue
 
@@ -538,7 +545,11 @@ Return only the structured executor response."""
                 "exception_event_ids"
             ]:
                 self._exception_event_uses.add(
-                    (event_id, action_type)
+                    (
+                        event_id,
+                        action_type,
+                        accepted.get("supplier_id"),
+                    )
                 )
         self._pending_execution = None
 
