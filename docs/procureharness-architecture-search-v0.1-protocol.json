@@ -233,7 +233,15 @@
       "repeats_per_episode": 3,
       "max_candidates_per_round": 2,
       "runs_per_candidate": 60,
-      "baseline_policy": "reuse frozen comparator evidence; do not rerun Coverage+Repair, ReAct, or factual context"
+      "baseline_policy": {
+        "reuse_frozen_evidence": true,
+        "rerun_allowed": false,
+        "comparators": [
+          "coverage_repair",
+          "react",
+          "factual_context"
+        ]
+      }
     },
     "search_validation": {
       "episodes": "031-040",
@@ -244,12 +252,67 @@
         "react"
       ],
       "baseline_runs_once_per_frozen_package": true,
-      "may_guide_subsequent_search_rounds": true
+      "may_guide_subsequent_search_rounds": true,
+      "frontier_admission": {
+        "requires_execution_clean": true,
+        "quality_floor_reference": "per_metric_max_of_matched_coverage_repair_and_react",
+        "max_deficit_runs": {
+          "feasible_obligation_success": 2,
+          "strict_v02": 2,
+          "economic_objective": 2
+        },
+        "requires_full_regret_reference_cohort_comparability": true
+      },
+      "pareto_frontier": {
+        "comparison_pool": "all validation-admitted ProcureHarness candidates from completed rounds plus matched Coverage+Repair and ReAct baseline rows",
+        "dominance_rule": "A dominates B iff A is no worse than B on every frozen frontier dimension and strictly better on at least one dimension",
+        "candidate_frontier_rule": "a ProcureHarness candidate is on the admissible validation frontier iff it passes frontier_admission and is not dominated by any row in the comparison_pool",
+        "round_update_rule": "after each completed round, recompute the cumulative frontier; the round adds a frontier point only if at least one candidate first validated in that round is on the recomputed candidate frontier"
+      }
     },
     "ceiling_stop_rule": {
       "plateau_rounds": 2,
-      "definition": "Stop agent-design-pattern search after two consecutive completed search rounds add no candidate to the admissible validation Pareto frontier, or when max_rounds/max_unique_candidates is reached, whichever comes first.",
+      "definition": "Stop agent-design-pattern search after two consecutive completed search rounds add no new ProcureHarness candidate under search_validation.pareto_frontier.round_update_rule, or when max_rounds/max_unique_candidates is reached, whichever comes first.",
       "not_a_global_optimum_claim": true
+    },
+    "validation_entry": {
+      "requires_execution_clean": true,
+      "requires_development_confirmation_floor": true,
+      "requires_development_promotion_branch": true,
+      "max_candidates_per_round": 2,
+      "oversubscription_selection": {
+        "method": "lexicographic",
+        "priority": [
+          {
+            "metric": "feasible_obligation_success",
+            "direction": "desc"
+          },
+          {
+            "metric": "strict_v02",
+            "direction": "desc"
+          },
+          {
+            "metric": "economic_objective",
+            "direction": "desc"
+          },
+          {
+            "metric": "obligation_resolution_rate",
+            "direction": "desc"
+          },
+          {
+            "metric": "known_cost_usd",
+            "direction": "asc"
+          },
+          {
+            "metric": "total_tokens",
+            "direction": "asc"
+          },
+          {
+            "metric": "candidate_id",
+            "direction": "asc"
+          }
+        ]
+      }
     }
   },
   "reporting_contract": {
@@ -279,14 +342,42 @@
     ],
     "economic_regret_v01": {
       "implementation_status": "required_before_paid_architecture_search",
-      "eligible_when": "terminal award matches an acceptable feasible outcome, all hard constraints pass, economic objective kind is minimize_total_price, and all compared outcome prices use one native currency",
-      "selected_cost": "sum total_price for the quote_event_id referenced by each award in the matched acceptable outcome",
-      "oracle_cost": "minimum summed total_price across oracle preferred_outcome_ids",
+      "eligible_when": "terminal award matches an acceptable feasible outcome, all hard constraints pass, economic objective kind is minimize_total_price, and all awards in the compared outcome resolve to numeric prices in one native currency",
+      "award_cost_contract": {
+        "package": {
+          "award_scope": "package",
+          "price_source": "quote_event.details.total_price"
+        },
+        "lot": {
+          "award_scope_prefix": "lot-",
+          "item_id_rule": "item_id = award.scope[len('lot-'):]",
+          "price_source": "quote_event.details.lots[item_id].price"
+        },
+        "outcome_cost": "sum exactly one scope-resolved price per award in the terminal outcome; the referenced quote event must cover the award scope",
+        "validator_alignment": "same package/lot price semantics as scripts/validate_episodes.py::_award_price"
+      },
+      "oracle_cost": "minimum scope-resolved summed award cost across oracle preferred_outcome_ids",
       "feasible_price_regret_native": "max(0, selected_cost - oracle_cost)",
       "feasible_price_regret_pct": "100 * feasible_price_regret_native / oracle_cost",
       "infeasible_or_no_award_policy": "report regret as not_eligible rather than assigning an arbitrary monetary penalty; reliability metrics carry the failure",
-      "aggregation": "report per-currency native regret separately and aggregate normalized regret percent; never sum different native currencies",
-      "savings_contract": "paired savings is baseline selected_cost minus candidate selected_cost only when both matched runs are regret-eligible; report native currency and percent"
+      "eligibility_aware_comparison": {
+        "run_key": [
+          "episode_id",
+          "repeat"
+        ],
+        "reference_cohort": "for each matched comparison package, freeze the intersection of run keys where both Coverage+Repair and ReAct are regret-eligible",
+        "required_reports": [
+          "reference_cohort_count",
+          "candidate_regret_eligible_count_on_reference_cohort",
+          "candidate_regret_eligibility_rate_on_reference_cohort",
+          "mean_feasible_price_regret_pct_on_reference_cohort"
+        ],
+        "candidate_comparability_requirement": "candidate must be regret-eligible on every run key in the frozen reference cohort before regret may be used for Pareto dominance, promotion, winner selection, or a final method claim",
+        "paired_baseline_rule": "compute candidate-minus-baseline regret and baseline-minus-candidate savings only on identical run keys from the frozen reference cohort; never rank candidates by an aggregate formed from each candidate's own eligible subset",
+        "failure_handling": "candidate ineligibility on any reference-cohort key fails regret comparability and remains visible through reliability metrics; it is not silently dropped from the denominator"
+      },
+      "aggregation": "report native regret separately by currency; aggregate normalized regret percentage only on the frozen reference cohort after full candidate comparability; never sum different native currencies",
+      "savings_contract": "paired savings is baseline scope-resolved selected_cost minus candidate scope-resolved selected_cost on the same reference-cohort run key; report native currency and percent"
     }
   },
   "admissibility_and_frontier": {
@@ -317,17 +408,37 @@
         "economic_objective_satisfied"
       ],
       "minimize": [
-        "feasible_price_regret_pct",
+        "mean_feasible_price_regret_pct_on_reference_cohort",
         "known_cost_usd",
         "total_tokens",
         "latency_ms",
         "model_calls"
       ]
     },
-    "development_promotion_branch": [
-      "quality: improve feasible-obligation, strict, or economic success by at least 3/60 versus Coverage+Repair, with no other mandatory quality metric worse by more than 3/60 and cost no higher than frozen ReAct",
-      "efficiency: remain within 3/60 of Coverage+Repair on feasible-obligation, strict, and economic success, with regret no worse and at least 20% lower known API cost than Coverage+Repair"
-    ]
+    "development_promotion_branches": {
+      "quality": {
+        "comparison": "coverage_repair",
+        "improve_any_metric_by_runs": 3,
+        "improve_any_metric": [
+          "feasible_obligation_success",
+          "strict_v02",
+          "economic_objective"
+        ],
+        "max_deficit_runs_on_other_mandatory_success_metrics": 3,
+        "max_known_cost_usd": 7.9842032,
+        "cost_reference": "react"
+      },
+      "efficiency": {
+        "comparison": "coverage_repair",
+        "max_deficit_runs": {
+          "feasible_obligation_success": 3,
+          "strict_v02": 3,
+          "economic_objective": 3
+        },
+        "regret_requirement": "no_worse_on_full_frozen_reference_cohort",
+        "min_known_cost_reduction_fraction": 0.2
+      }
+    }
   },
   "final_method_freeze": {
     "freeze_before_final_test": [
@@ -341,18 +452,91 @@
     "final_test": {
       "episodes": "041-050",
       "repeats_per_episode": 3,
-      "rows": [
+      "rows_if_winner_exists": [
         "procureharness_winner",
         "coverage_repair",
         "react",
         "reference_control"
       ],
+      "rows_if_no_winner": [
+        "reference_control"
+      ],
       "no_tuning_after_first_model_call": true
     },
-    "method_claim_gate": [
-      "quality branch: ProcureHarness feasible-obligation success is at least max(Coverage+Repair, ReAct) + 3/30; strict and economic success are each no worse than their per-metric max(Coverage+Repair, ReAct) - 1/30; normalized feasible-price regret is no worse than the minimum regret among regret-eligible matched baselines; and known API cost is no higher than ReAct",
-      "efficiency branch: ProcureHarness feasible-obligation, strict, and economic success are each within 1/30 of their per-metric max(Coverage+Repair, ReAct); normalized feasible-price regret is no worse than the minimum regret among regret-eligible matched baselines; and known API cost is at least 30% lower than the cheaper of Coverage+Repair and ReAct"
-    ]
+    "winner_selection": {
+      "eligible_set": "ProcureHarness candidates on the cumulative admissible validation frontier when the search stop rule fires",
+      "no_winner_rule": "if eligible_set is empty, freeze a no_winner negative result and do not execute a ProcureHarness model-backed row on 041-050",
+      "requires_full_regret_reference_cohort_comparability": true,
+      "method": "lexicographic",
+      "priority": [
+        {
+          "metric": "feasible_obligation_success",
+          "direction": "desc"
+        },
+        {
+          "metric": "strict_v02",
+          "direction": "desc"
+        },
+        {
+          "metric": "economic_objective",
+          "direction": "desc"
+        },
+        {
+          "metric": "obligation_resolution_rate",
+          "direction": "desc"
+        },
+        {
+          "metric": "mean_feasible_price_regret_pct_on_reference_cohort",
+          "direction": "asc"
+        },
+        {
+          "metric": "known_cost_usd",
+          "direction": "asc"
+        },
+        {
+          "metric": "total_tokens",
+          "direction": "asc"
+        },
+        {
+          "metric": "latency_ms",
+          "direction": "asc"
+        },
+        {
+          "metric": "model_calls",
+          "direction": "asc"
+        },
+        {
+          "metric": "candidate_id",
+          "direction": "asc"
+        }
+      ],
+      "freeze_rule": "select exactly once from frozen 031-040 validation evidence, then freeze winner code/config/prompts/settings before any 041-050 model-backed call"
+    },
+    "method_claim_gates": {
+      "quality": {
+        "primary_metric": "feasible_obligation_success",
+        "primary_reference": "per_metric_max_of_coverage_repair_and_react",
+        "min_primary_gain_runs": 3,
+        "max_deficit_runs": {
+          "strict_v02": 1,
+          "economic_objective": 1
+        },
+        "deficit_reference": "per_metric_max_of_coverage_repair_and_react",
+        "regret_requirement": "no_worse_than_minimum_baseline_regret_on_full_frozen_reference_cohort",
+        "max_known_cost_reference": "react"
+      },
+      "efficiency": {
+        "max_deficit_runs": {
+          "feasible_obligation_success": 1,
+          "strict_v02": 1,
+          "economic_objective": 1
+        },
+        "deficit_reference": "per_metric_max_of_coverage_repair_and_react",
+        "regret_requirement": "no_worse_than_minimum_baseline_regret_on_full_frozen_reference_cohort",
+        "cost_reference": "min_known_cost_of_coverage_repair_and_react",
+        "min_known_cost_reduction_fraction": 0.3
+      }
+    }
   },
   "phase2_after_pattern_freeze": {
     "entry_condition": "Only after a ProcureHarness design-pattern winner is frozen from the architecture-search phase.",
