@@ -160,7 +160,6 @@ class StateValidityFrontierTests(unittest.TestCase):
             _model_action("identify_suppliers"),
             _model_action("send_rfq", "syn-ps-a"),
             _model_action("request_quote_revision", "syn-ps-a"),
-            _model_action("evaluate_quotes"),
         ])
         policy = StateValidityFrontierPolicy(
             "fake/test-model",
@@ -217,7 +216,9 @@ class StateValidityFrontierTests(unittest.TestCase):
 
         ninth = policy.act(state)
         self.assertEqual(ninth["type"], "evaluate_quotes")
-        self.assertEqual(len(client.calls), 4)
+        # After all required repairs, evaluation is the singleton frontier and
+        # must execute deterministically without an extra model call.
+        self.assertEqual(len(client.calls), 3)
 
         metrics = policy.get_run_metadata()
         self.assertEqual(metrics["requirement_epoch"], 1)
