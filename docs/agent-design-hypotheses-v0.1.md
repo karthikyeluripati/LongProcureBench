@@ -344,3 +344,48 @@ candidate must pass its own development gate, ablations, and a future untouched
   https://arxiv.org/abs/2310.08560
 - Wang et al., *Voyager: An Open-Ended Embodied Agent with Large Language Models*:
   https://arxiv.org/abs/2305.16291
+
+
+## Post-SVF decision — bounded ProcureHarness architecture search
+
+PR #49 closes State Validity Frontier v0.2 as a negative development result.
+That result does not establish an agent-design ceiling. It establishes only that
+the tested SVF formulation failed its preregistered generalization gate.
+
+The frozen LongProcureBench held-out paper evidence remains unchanged. A
+**separate post-held-out method track** is now authorized under
+[`procureharness-architecture-search-v0.1.md`](procureharness-architecture-search-v0.1.md).
+
+The method track changes the research procedure in two ways:
+
+1. stop selecting one bespoke pattern at a time;
+2. search a bounded, interpretable module grammar built around an
+   event-driven obligation router and hierarchical procurement skills.
+
+Phase 1 remains strictly **agentic design-pattern search**. Memory/AWM,
+knowledge graphs, forecasting, dynamic model routing, cross-episode
+self-improvement, multi-agent orchestration, and long-running checkpoint state
+remain deferred. They may be tested only after a controller skeleton is frozen.
+
+Data hygiene is also reset prospectively:
+
+- 001-020: exposed development/search;
+- 021-030: already held-out exposed, diagnostic-only for the new method;
+- 031-040: future architecture-search validation;
+- 041-050: future untouched final method test.
+
+The operational design ceiling is reached after two consecutive completed
+search rounds add no admissible point to the validation Pareto frontier, or the
+frozen search budget is exhausted. This is deliberately **not** described as a
+global optimum.
+
+Before any paid architecture-search call, the benchmark must add a uniform
+continuous procurement-economics layer: feasible price regret and paired
+savings, alongside feasible-obligation success, strict success, economic
+objective satisfaction, obligation resolution, calls, tokens, latency, and API
+cost.
+
+If a candidate survives the frozen search and final-test gates, it becomes the
+ProcureHarness skeleton. Only then does the project enter the harness-extension
+phase (memory/KG/forecasting/routing/self-improvement), with each addition
+requiring a matched ablation on the frozen skeleton.
