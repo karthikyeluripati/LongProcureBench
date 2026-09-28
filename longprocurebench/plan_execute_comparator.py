@@ -53,6 +53,29 @@ PLAN_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
 }
 
+EXCEPTION_EVENT_TYPES: dict[str, set[str]] = {
+    "send_follow_up": {"supplier_non_response"},
+    "answer_supplier_question": {"supplier_question"},
+    "issue_amendment": {"requirement_change", "quantity_change"},
+    "request_quote_revision": {
+        "quote_received",
+        "quote_revision",
+        "substitution_proposed",
+        "lead_time_change",
+        "requirement_change",
+        "quantity_change",
+    },
+    "evaluate_quotes": {
+        "quote_received",
+        "quote_revision",
+        "substitution_proposed",
+        "supplier_withdrawal",
+        "requirement_change",
+        "quantity_change",
+        "lead_time_change",
+    },
+}
+
 
 class PlanExecuteProtocolError(ValueError):
     """Raised when the Plan-and-Execute protocol is violated."""
@@ -111,7 +134,9 @@ Action contract:
   must contain exactly scope, supplier_id, and quote_event_id. scope must be
   exactly one of the allowed award-scope values supplied with the current
   state. quote_event_id must refer to a revealed quote/revision from that
-  supplier and cover the award scope.
+  supplier and cover the award scope. For one award, top-level supplier_id
+  may name that supplier; for multiple awards, top-level supplier_id must be
+  null.
 - For every non-award action, set arguments.awards = null.
 - When reason is irrelevant, set arguments.reason = null.
 
@@ -137,6 +162,7 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace: list[dict[str, Any]] = []
         self._pending_execution: dict[str, Any] | None = None
+        self._initial_event_ids: set[str] = set()
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
@@ -145,6 +171,7 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace = []
         self._pending_execution = None
+        self._initial_event_ids = set()
 
     @classmethod
     def _executor_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -235,6 +262,13 @@ Return only the structured executor response."""
             raise PlanExecuteProtocolError("Fixed plan already exists")
 
         compiled = compile_visible_state(state)
+        initial_events = compiled.get("event_history") or []
+        self._initial_event_ids = {
+            event.get("event_id")
+            for event in initial_events
+            if isinstance(event, dict)
+            and isinstance(event.get("event_id"), str)
+        }
         messages = [
             {"role": "system", "content": self.PLANNER_PROMPT},
             {
@@ -277,6 +311,58 @@ Return only the structured executor response."""
         self._planner_calls += 1
         self._fixed_plan = deepcopy(response)
 
+    def _validate_unplanned_exception(
+        self,
+        action: dict[str, Any],
+        compiled: dict[str, Any],
+    ) -> list[str]:
+        """Validate that plan_step_index=0 denotes a real plan departure.
+
+        An exception is valid when the action operation is absent from the
+        fixed plan, or when a post-plan visible event of a relevant type
+        motivates that action. This prevents ordinary planned actions from
+        being mislabeled as exceptions while still allowing later environment
+        changes to force departures from the static plan.
+        """
+        if self._fixed_plan is None:
+            raise PlanExecuteProtocolError("Fixed plan is unavailable")
+
+        action_type = action.get("type")
+        planned_operations = {
+            step["operation"] for step in self._fixed_plan["steps"]
+        }
+        if action_type not in planned_operations:
+            return []
+
+        relevant_types = EXCEPTION_EVENT_TYPES.get(action_type, set())
+        supplier_id = action.get("supplier_id")
+        matching_event_ids = []
+        for event in compiled.get("event_history") or []:
+            if not isinstance(event, dict):
+                continue
+            event_id = event.get("event_id")
+            if (
+                not isinstance(event_id, str)
+                or event_id in self._initial_event_ids
+                or event.get("type") not in relevant_types
+            ):
+                continue
+            event_supplier = event.get("supplier_id")
+            if (
+                supplier_id is not None
+                and event_supplier is not None
+                and event_supplier != supplier_id
+            ):
+                continue
+            matching_event_ids.append(event_id)
+
+        if not matching_event_ids:
+            raise PlanExecuteProtocolError(
+                "plan_step_index=0 requires an operation absent from the "
+                "fixed plan or a relevant post-plan visible event"
+            )
+        return sorted(matching_event_ids)
+
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
         if self._pending_execution is not None:
             raise PlanExecuteProtocolError(
@@ -286,9 +372,10 @@ Return only the structured executor response."""
             self._generate_plan(state)
 
         allowed_scopes = self._allowed_award_scopes(state)
+        compiled = compile_visible_state(state)
         payload = {
             "fixed_plan": deepcopy(self._fixed_plan),
-            "current_visible_state": compile_visible_state(state),
+            "current_visible_state": compiled,
         }
         schema = self._executor_schema(state)
         messages = [
@@ -327,6 +414,7 @@ Return only the structured executor response."""
                 raise PlanExecuteProtocolError(
                     "Executor referenced a nonexistent plan step"
                 )
+            exception_event_ids: list[str] = []
             if step_index > 0:
                 planned_operation = self._fixed_plan["steps"][
                     step_index - 1
@@ -336,6 +424,11 @@ Return only the structured executor response."""
                     raise PlanExecuteProtocolError(
                         "Executor action type does not match selected plan step"
                     )
+            else:
+                exception_event_ids = self._validate_unplanned_exception(
+                    response["action"],
+                    compiled,
+                )
             runtime_action = self._runtime_decision(response["action"])
         except Exception as exc:
             self._record_model_call(
@@ -351,6 +444,7 @@ Return only the structured executor response."""
             "plan_step_index": step_index,
             "action": deepcopy(runtime_action),
             "state_step": state.get("step"),
+            "exception_event_ids": exception_event_ids,
         }
         return runtime_action
 
@@ -381,6 +475,9 @@ Return only the structured executor response."""
                 "plan_step_index"
             ],
             "action": deepcopy(accepted),
+            "exception_event_ids": list(
+                self._pending_execution["exception_event_ids"]
+            ),
         })
         self._pending_execution = None
 
