@@ -293,6 +293,10 @@ class EconomicRegretEvaluator:
                 initial_item_ids,
             )
             total += price
+            if not math.isfinite(total):
+                raise EconomicsError(
+                    "Summed award cost is non-finite"
+                )
             currencies.add(currency)
 
         if len(currencies) != 1:
