@@ -7,9 +7,10 @@
   "implementation": {
     "controller_path": "longprocurebench/state_validity_frontier.py",
     "controller_blob_sha": "24dd50e28864fe450039e098e4d28e4518097956",
-    "runner_path": "scripts/run_state_validity_frontier.py",
-    "runner_blob_sha": "94c7f8bafbb24618b4211a35223a89bca56ea56a",
-    "change_policy": "No controller, prompt, action-contract, evaluator, or context-view changes are permitted between this protocol freeze and the 60-run development execution."
+    "runner_path": "scripts/run_state_validity_frontier_development_v02.py",
+    "runner_blob_sha": "691a8ff3b640e4d157fba1be3ce311e86c2ea554",
+    "change_policy": "No controller, prompt, action-contract, evaluator, or context-view changes are permitted between this protocol freeze and the 60-run development execution.",
+    "execution_procedure": "Execute `python scripts/run_state_validity_frontier_development_v02.py --output-dir <fresh-dir>`. The runner itself fixes episodes 001-020, 3 repeats, GPT-5.6 Sol, medium reasoning, omitted temperature, and max_actions=50; it validates the exact 60-run grid and the frozen prerequisite action sequence before reporting completion."
   },
   "stage1_reference": {
     "evidence": "evidence/state-validity-frontier-stage1-v0.1/",
@@ -87,7 +88,20 @@
     "context_view": "factual_compiled_v0.1",
     "policy_kind": "llm_state_validity_frontier",
     "agent_pattern": "state_validity_frontier_v0.1",
-    "heldout_access": false
+    "heldout_access": false,
+    "sequence_requirements": [
+      {
+        "episode_id": "electrical-dla-transformer-013",
+        "repeats": [
+          1,
+          2,
+          3
+        ],
+        "response_event_type": "buyer_clarification",
+        "blocked_action_type": "send_rfq",
+        "requirement": "For every repeat, the first accepted send_rfq must occur strictly after the first visible buyer_clarification response."
+      }
+    ]
   },
   "frozen_comparators": [
     {
@@ -219,8 +233,9 @@
     "execution_requirements": [
       "exactly 60 completed or measured-policy-result runs are present for episodes 001-020 x repeats 1-3",
       "no setup_error, environment_error, evaluation_error, metadata_error, or StateValidityFrontierError",
+      "all three electrical-dla-transformer-013 repeats pass the frozen prerequisite sequence gate: first accepted send_rfq occurs strictly after the visible buyer_clarification response",
       "no run uses held-out episodes 021-030",
-      "model/settings/code hashes match this freeze"
+      "model/settings/controller hash/development-runner hash match this freeze"
     ],
     "quality_requirements": [
       "feasible_obligation_success >= 47/60 (78.3%), i.e. no more than 5 percentage points below frozen Coverage+Repair",
