@@ -32,12 +32,13 @@ def resolve_pilot_sampling(
     Explicit sampling flags still override the default. With no sampling
     flags, use medium reasoning and omit temperature.
     """
-    if (
-        temperature is None
-        and not omit_temperature
-        and reasoning_effort is None
-    ):
+    if temperature is None and reasoning_effort is None:
+        # The frozen targeted pilot always defaults to medium reasoning.
+        # --omit-temperature only controls temperature transmission; it must
+        # not silently drop the default reasoning effort.
         reasoning_effort = "medium"
+
+    if temperature is None and reasoning_effort == "medium":
         omit_temperature = True
 
     resolved_temperature = resolve_sampling_options(
