@@ -1,0 +1,141 @@
+name: State Validity Frontier Stage-1
+
+on:
+  push:
+    branches:
+      - codex/state-validity-frontier-stage1-run
+    paths:
+      - '.github/workflows/state-validity-frontier-stage1-run.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  stage1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OUTPUT_DIR: results/state-validity-frontier-stage1-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run State Validity Frontier regressions
+        run: |
+          python -m unittest scripts.test_state_validity_frontier -v
+          python -m unittest scripts.test_state_validity_frontier_protocol -v
+
+      - name: Run exact frozen Stage-1 pilot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
+        run: |
+          test -n "$OPENAI_API_KEY" || (echo "OPENAI_API_KEY is missing" && exit 1)
+          python scripts/run_state_validity_frontier.py             --model openai/gpt-5.6-sol             --output-dir "$OUTPUT_DIR"
+
+      - name: Validate exact frozen three-run protocol
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import os
+          from pathlib import Path
+
+          expected = {
+              "electrical-burauen-generator-008",
+              "electrical-dla-transformer-013",
+              "electrical-dla-power-supply-016",
+          }
+          path = Path(os.environ["OUTPUT_DIR"]) / "runs.csv"
+          rows = list(csv.DictReader(path.open(newline="", encoding="utf-8")))
+          if len(rows) != 3:
+              raise SystemExit(f"expected exactly 3 runs, got {len(rows)}")
+          if {row["episode_id"] for row in rows} != expected:
+              raise SystemExit("Stage-1 episode set drift")
+          if any(row["model"] != "openai/gpt-5.6-sol" for row in rows):
+              raise SystemExit("Stage-1 model drift")
+          if any(int(row["repeat"]) != 1 for row in rows):
+              raise SystemExit("Stage-1 repeat drift")
+          print("validated exact frozen 008/013/016 x1 protocol")
+          PY
+
+      - name: Evaluate frozen go/no-go gate
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["OUTPUT_DIR"])
+          rows = list(csv.DictReader((root / "runs.csv").open(newline="", encoding="utf-8")))
+          diagnostics = json.loads(
+              (root / "state-validity-frontier-diagnostics.json").read_text(encoding="utf-8")
+          )
+          by_episode = {row["episode_id"]: row for row in rows}
+          diag_by_episode = {
+              row["episode_id"]: row
+              for row in diagnostics.get("per_run") or []
+          }
+
+          failures = []
+          for episode_id, row in by_episode.items():
+              if row["status"] != "completed":
+                  failures.append(f"{episode_id}: status={row['status']}")
+              diag = diag_by_episode.get(episode_id) or {}
+              if int(diag.get("validity_frontier_interventions") or 0) < 1:
+                  failures.append(f"{episode_id}: no validity/frontier intervention")
+
+          terminal = sum(row["terminal_feasible"].lower() == "true" for row in rows)
+          feasible = sum(
+              row["feasible_obligation_success"].lower() == "true"
+              for row in rows
+          )
+          if terminal < 2:
+              failures.append(f"terminal feasibility gate failed: {terminal}/3")
+          if feasible < 2:
+              failures.append(f"feasible-obligation gate failed: {feasible}/3")
+
+          print(json.dumps({
+              "terminal_feasible": [terminal, 3],
+              "feasible_obligation_success": [feasible, 3],
+              "status": {k: v["status"] for k, v in by_episode.items()},
+              "interventions": {
+                  k: int((diag_by_episode.get(k) or {}).get("validity_frontier_interventions") or 0)
+                  for k in sorted(by_episode)
+              },
+              "gate_failures": failures,
+          }, indent=2, sort_keys=True))
+
+          if failures:
+              raise SystemExit("Stage-1 frozen gate failed: " + "; ".join(failures))
+          PY
+
+      - name: Print Stage-1 summaries
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$OUTPUT_DIR/summary.json" ]; then
+            cat "$OUTPUT_DIR/summary.json"
+          fi
+          if [ -f "$OUTPUT_DIR/state-validity-frontier-diagnostics.json" ]; then
+            cat "$OUTPUT_DIR/state-validity-frontier-diagnostics.json"
+          fi
+
+      - name: Upload Stage-1 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: state-validity-frontier-stage1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.OUTPUT_DIR }}
+          if-no-files-found: warn
+          retention-days: 30
