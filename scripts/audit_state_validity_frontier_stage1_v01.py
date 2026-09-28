@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
 from longprocurebench import LongProcureBenchEnv, LongProcureBenchEvaluator
 from frozen_state_validity_frontier_stage1_v01 import (
     EPISODES,
+    EXPECTED_ROWS_SHA256,
     canonical_line,
     load_frozen_state_validity_frontier_stage1,
     reconstruct_actions,
@@ -26,6 +27,7 @@ EVIDENCE_DIR = ROOT / "evidence" / "state-validity-frontier-stage1-v0.1"
 MANIFEST_PATH = EVIDENCE_DIR / "manifest.json"
 RESULTS_PATH = EVIDENCE_DIR / "results.json"
 PROVENANCE_PATH = EVIDENCE_DIR / "source-provenance.txt"
+SOURCE_VERIFICATION_PATH = EVIDENCE_DIR / "source-verification.json"
 
 
 def _close(actual: Any, expected: Any, path: str) -> None:
@@ -279,11 +281,6 @@ def _assertions_016(record: dict[str, Any]) -> dict[str, Any]:
     change_step = _first_step(record, observation_id="e4")
     amendment_step = _first_step(record, action_type="issue_amendment")
     terminal_step = _terminal_step(record)
-    revision_steps = [
-        int(row["step"])
-        for row in trajectory
-        if row["action"]["type"] == "request_quote_revision"
-    ]
     repair_steps = [
         int(row["step"])
         for row in trajectory
@@ -293,6 +290,80 @@ def _assertions_016(record: dict[str, Any]) -> dict[str, Any]:
     clarification_count = sum(
         row["action"]["type"] == "request_buyer_clarification"
         for row in trajectory
+    )
+
+    # Derive the stale set from what the agent actually observed before the
+    # requirement change. This prevents two revisions of one supplier from
+    # masquerading as repair of two distinct stale offers.
+    pre_change_offers: dict[str, dict[str, Any]] = {}
+    if change_step is not None:
+        for row in trajectory:
+            if int(row["step"]) > change_step:
+                break
+            for obs in row.get("observations") or []:
+                supplier_id = obs.get("supplier_id")
+                if (
+                    obs.get("type") in {"quote_received", "quote_revision"}
+                    and isinstance(supplier_id, str)
+                    and supplier_id
+                ):
+                    pre_change_offers[supplier_id] = {
+                        "event_id": obs.get("event_id"),
+                        "observed_step": int(row["step"]),
+                    }
+
+    stale_offer_repairs: dict[str, dict[str, Any]] = {}
+    if amendment_step is not None:
+        for supplier_id in sorted(pre_change_offers):
+            request_row = next(
+                (
+                    row
+                    for row in trajectory
+                    if int(row["step"]) > amendment_step
+                    and row["action"]["type"] == "request_quote_revision"
+                    and row["action"].get("supplier_id") == supplier_id
+                ),
+                None,
+            )
+            replacement = None
+            if request_row is not None:
+                replacement = next(
+                    (
+                        obs
+                        for obs in request_row.get("observations") or []
+                        if obs.get("type")
+                        in {"quote_received", "quote_revision"}
+                        and obs.get("supplier_id") == supplier_id
+                    ),
+                    None,
+                )
+
+            stale_offer_repairs[supplier_id] = {
+                "pre_change_quote_event_id": (
+                    pre_change_offers[supplier_id]["event_id"]
+                ),
+                "revision_request_step": (
+                    int(request_row["step"])
+                    if request_row is not None
+                    else None
+                ),
+                "replacement_event_id": (
+                    replacement.get("event_id")
+                    if replacement is not None
+                    else None
+                ),
+                "replacement_step": (
+                    int(request_row["step"])
+                    if replacement is not None
+                    else None
+                ),
+            }
+
+    every_stale_offer_repaired = bool(pre_change_offers) and all(
+        row["revision_request_step"] is not None
+        and row["replacement_event_id"] is not None
+        and row["replacement_step"] is not None
+        for row in stale_offer_repairs.values()
     )
 
     return {
@@ -306,13 +377,9 @@ def _assertions_016(record: dict[str, Any]) -> dict[str, Any]:
             and 1 in (metrics.get("amendment_required_epochs") or [])
             and 1 in (metrics.get("amended_epochs") or [])
         ),
-        "pre_change_offers_repaired_as_stale": (
-            amendment_step is not None
-            and len([
-                step for step in revision_steps
-                if step > amendment_step
-            ]) >= 2
-        ),
+        "pre_change_offer_suppliers": sorted(pre_change_offers),
+        "stale_offer_repairs": stale_offer_repairs,
+        "pre_change_offers_repaired_as_stale": every_stale_offer_repaired,
         "post_amendment_repair_before_terminal": (
             amendment_step is not None
             and terminal_step is not None
@@ -368,11 +435,102 @@ def _check_provenance(
         )
 
 
+def _check_source_verification_receipt(
+    manifest: dict[str, Any],
+) -> None:
+    meta = manifest.get("source_verification") or {}
+    payload = SOURCE_VERIFICATION_PATH.read_bytes()
+    _close(
+        len(payload),
+        meta.get("bytes"),
+        "source_verification.bytes",
+    )
+    _close(
+        sha256(payload).hexdigest(),
+        meta.get("sha256"),
+        "source_verification.sha256",
+    )
+
+    receipt = json.loads(payload)
+    _close(receipt.get("result"), "verified", "source_verification.result")
+    _close(
+        receipt.get("source_workflow_run_id"),
+        manifest["source_workflow_run_id"],
+        "source_verification.source_workflow_run_id",
+    )
+    _close(
+        receipt.get("source_artifact_id"),
+        manifest["source_artifact_id"],
+        "source_verification.source_artifact_id",
+    )
+    _close(
+        receipt.get("source_artifact_name"),
+        manifest["source_artifact_name"],
+        "source_verification.source_artifact_name",
+    )
+    _close(
+        receipt.get("source_artifact_bytes"),
+        manifest["source_artifact_bytes"],
+        "source_verification.source_artifact_bytes",
+    )
+    _close(
+        receipt.get("source_artifact_sha256"),
+        manifest["source_artifact_digest"].removeprefix("sha256:"),
+        "source_verification.source_artifact_sha256",
+    )
+    _close(
+        receipt.get("source_artifact_expires_at"),
+        manifest["source_artifact_expires_at"],
+        "source_verification.source_artifact_expires_at",
+    )
+    _close(
+        receipt.get("archive_members"),
+        manifest.get("source_members"),
+        "source_verification.archive_members",
+    )
+    _close(
+        receipt.get("committed_compact_rows_sha256"),
+        EXPECTED_ROWS_SHA256,
+        "source_verification.committed_compact_rows_sha256",
+    )
+    _close(
+        receipt.get("verifier"),
+        manifest.get("source_verifier"),
+        "source_verification.verifier",
+    )
+
+    provenance_entries = {}
+    for line in PROVENANCE_PATH.read_text(encoding="utf-8").splitlines():
+        episode_id, member, raw_bytes, raw_sha, compact_sha = line.split("|")
+        provenance_entries[episode_id] = {
+            "artifact_member": member,
+            "raw_bytes": int(raw_bytes),
+            "raw_sha256": raw_sha,
+            "compact_record_sha256": compact_sha,
+        }
+
+    verified = {
+        row["episode_id"]: {
+            "artifact_member": row["artifact_member"],
+            "raw_bytes": int(row["raw_bytes"]),
+            "raw_sha256": row["raw_sha256"],
+            "compact_record_sha256": row["compact_record_sha256"],
+        }
+        for row in receipt.get("verified_run_members") or []
+    }
+    _close(
+        verified,
+        provenance_entries,
+        "source_verification.verified_run_members",
+    )
+
+
 def main() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     frozen = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
     records = load_frozen_state_validity_frontier_stage1(ROOT)
     _check_provenance(records, manifest)
+    _check_source_verification_receipt(manifest)
 
     evaluator = LongProcureBenchEvaluator(repo_root=ROOT)
     evaluations = {
@@ -502,7 +660,16 @@ def main() -> None:
         },
         "electrical-dla-power-supply-016": {
             **assertions_016,
-            "pass": all(assertions_016.values()),
+            "pass": all(
+                assertions_016[key]
+                for key in (
+                    "requirement_change_increments_epoch",
+                    "amendment_required_after_change",
+                    "pre_change_offers_repaired_as_stale",
+                    "post_amendment_repair_before_terminal",
+                    "no_clarification_loop",
+                )
+            ),
         },
     }
     _close(
