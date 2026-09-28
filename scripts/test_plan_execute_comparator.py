@@ -7,6 +7,10 @@ from longprocurebench.plan_execute_comparator import (
     PlanExecuteLLMPolicy,
     PlanExecuteProtocolError,
 )
+from run_plan_execute_comparator import (
+    TARGETED_PILOT_EPISODES,
+    resolve_pilot_sampling,
+)
 
 
 class SequenceClient:
@@ -172,11 +176,10 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         self.assertEqual(metrics["model_calls"], 2)
         self.assertEqual(metrics["model_calls_failed"], 1)
 
-    def test_plan_step_zero_allows_unplanned_visible_recovery(self):
-        env = LongProcureBenchEnv()
-        state = env.reset("electrical-dla-transformer-013")
-        episode_id = state["episode_id"]
-
+    def test_plan_step_zero_rejects_planned_initial_action(self):
+        state = LongProcureBenchEnv().reset(
+            "electrical-dla-transformer-013"
+        )
         client = SequenceClient([
             _plan(),
             _executor(0, "request_buyer_clarification"),
@@ -187,16 +190,88 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         policy.reset(state)
 
-        decision = policy.act(state)
-        state = env.step(_accepted(episode_id, 1, decision))
-        policy.on_action_accepted(
-            _accepted(episode_id, 1, decision),
-            state,
-        )
+        with self.assertRaises(PlanExecuteProtocolError):
+            policy.act(state)
 
         metrics = policy.get_run_metadata()
-        self.assertEqual(metrics["unplanned_exceptions"], 1)
-        self.assertEqual(metrics["plan_step_usage"], {"0": 1})
+        self.assertEqual(metrics["model_calls_failed"], 1)
+
+    def test_event_can_justify_exception_for_planned_operation(self):
+        plan = _plan()
+        plan["steps"].append({
+            "step_id": 6,
+            "operation": "send_follow_up",
+            "purpose": "Recover a supplier that newly stops responding.",
+            "condition": "Use after a visible supplier non-response.",
+        })
+        policy = PlanExecuteLLMPolicy(
+            "fake/test-model",
+            client=SequenceClient([]),
+        )
+        policy._fixed_plan = plan
+        policy._initial_event_ids = set()
+
+        event_ids = policy._validate_unplanned_exception(
+            {
+                "type": "send_follow_up",
+                "supplier_id": "syn-a",
+                "arguments": {"awards": None, "reason": None},
+            },
+            {
+                "event_history": [
+                    {
+                        "event_id": "e-new",
+                        "type": "supplier_non_response",
+                        "supplier_id": "syn-a",
+                    },
+                ],
+            },
+        )
+        self.assertEqual(event_ids, ["e-new"])
+
+    def test_operation_absent_from_plan_can_be_exception(self):
+        policy = PlanExecuteLLMPolicy(
+            "fake/test-model",
+            client=SequenceClient([]),
+        )
+        policy._fixed_plan = _plan()
+        policy._initial_event_ids = set()
+
+        event_ids = policy._validate_unplanned_exception(
+            {
+                "type": "issue_amendment",
+                "supplier_id": None,
+                "arguments": {"awards": None, "reason": None},
+            },
+            {"event_history": []},
+        )
+        self.assertEqual(event_ids, [])
+
+    def test_default_runner_matches_frozen_targeted_pilot(self):
+        self.assertEqual(
+            TARGETED_PILOT_EPISODES,
+            [
+                "electrical-burauen-generator-008",
+                "electrical-dla-transformer-013",
+                "electrical-dla-power-supply-016",
+            ],
+        )
+        temperature, reasoning_effort = resolve_pilot_sampling(
+            None,
+            False,
+            None,
+        )
+        self.assertIsNone(temperature)
+        self.assertEqual(reasoning_effort, "medium")
+
+    def test_explicit_temperature_still_overrides_default_sampling(self):
+        temperature, reasoning_effort = resolve_pilot_sampling(
+            0.2,
+            False,
+            None,
+        )
+        self.assertEqual(temperature, 0.2)
+        self.assertIsNone(reasoning_effort)
 
     def test_planner_receives_compiled_visible_state_without_oracle(self):
         state = LongProcureBenchEnv().reset(
