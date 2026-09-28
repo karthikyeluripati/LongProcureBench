@@ -610,6 +610,10 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
 
     required_economic = {
         "feasible_price_regret_native",
+        "feasible_price_regret_pct",
+        "reference_cohort_count",
+        "candidate_regret_eligible_count_on_reference_cohort",
+        "candidate_regret_eligibility_rate_on_reference_cohort",
         "mean_feasible_price_regret_pct_on_reference_cohort",
         "paired_savings_vs_baseline_native",
         "paired_savings_vs_baseline_pct",
@@ -651,7 +655,7 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
     }:
         raise ValueError("Pareto maximize dimensions changed")
     if set(dimensions.get("minimize") or []) != {
-        "feasible_price_regret_pct",
+        "mean_feasible_price_regret_pct_on_reference_cohort",
         "known_cost_usd",
         "total_tokens",
         "latency_ms",
