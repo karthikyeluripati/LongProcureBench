@@ -129,6 +129,24 @@
     "electrical-dla-power-supply-016": {
       "requirement_change_increments_epoch": true,
       "amendment_required_after_change": true,
+      "pre_change_offer_suppliers": [
+        "syn-ps-a",
+        "syn-ps-b"
+      ],
+      "stale_offer_repairs": {
+        "syn-ps-a": {
+          "pre_change_quote_event_id": "e1",
+          "revision_request_step": 7,
+          "replacement_event_id": "e5",
+          "replacement_step": 7
+        },
+        "syn-ps-b": {
+          "pre_change_quote_event_id": "e2",
+          "revision_request_step": 8,
+          "replacement_event_id": "e6",
+          "replacement_step": 8
+        }
+      },
       "pre_change_offers_repaired_as_stale": true,
       "post_amendment_repair_before_terminal": true,
       "no_clarification_loop": true,
