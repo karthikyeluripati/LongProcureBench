@@ -34,6 +34,7 @@ jobs:
           import base64
           import gzip
           import hashlib
+          import io
           import json
           from pathlib import Path
           import sys
@@ -70,7 +71,16 @@ jobs:
           if hashlib.sha256(rows).hexdigest() != manifest["storage"]["compact_rows_sha256"]:
               raise SystemExit("compact replay digest mismatch")
 
-          compressed = gzip.compress(rows, compresslevel=9, mtime=0)
+          buffer = io.BytesIO()
+          with gzip.GzipFile(
+              fileobj=buffer,
+              mode="wb",
+              filename="",
+              compresslevel=9,
+              mtime=0,
+          ) as handle:
+              handle.write(rows)
+          compressed = buffer.getvalue()
           if len(compressed) != manifest["storage"]["compressed_bytes"]:
               raise SystemExit("compressed replay byte-count mismatch")
           if hashlib.sha256(compressed).hexdigest() != manifest["storage"]["compressed_sha256"]:
