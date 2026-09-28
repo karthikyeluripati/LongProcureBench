@@ -195,7 +195,11 @@ Pareto dominance is exact: A dominates B only if A is no worse on every frozen
 frontier dimension and strictly better on at least one. After each round the
 cumulative frontier is recomputed over admitted candidates plus the two matched
 baseline rows. A round counts as improving the frontier only if a candidate
-first validated in that round remains on the recomputed candidate frontier.
+first validated in that round remains on the recomputed candidate frontier
+**and its metric vector is not equivalent to any pre-round frontier row**.
+Integer/count dimensions use exact equality; floating dimensions use
+`rel_tol=1e-12`, `abs_tol=1e-9`. Candidate ID is not part of the vector, so
+an exact/numerical tie does not reset the plateau counter.
 
 **Operational design-pattern ceiling:** stop after two consecutive completed
 rounds add no new candidate under that rule, or the 3-round / 18-candidate
@@ -252,17 +256,23 @@ Infeasible or unsupported no-award runs remain `not_eligible` for monetary
 regret instead of receiving an arbitrary dollar penalty. **They are not silently
 dropped when candidates are compared.**
 
-For each matched comparison package, the regret reference cohort is frozen as
-the intersection of run keys `(episode_id, repeat)` where **both
-Coverage+Repair and ReAct** are regret-eligible. A candidate may use regret for
-Pareto dominance, promotion, winner selection, or a final claim only if it is
-regret-eligible on **every run key in that same cohort**. Candidate-specific
-eligible subsets may be reported diagnostically but cannot be used to rank
-architectures.
+For each matched comparison package, the normalized-regret reference cohort is
+frozen as the intersection of run keys `(episode_id, repeat)` where **both
+Coverage+Repair and ReAct** are regret-eligible **and the episode oracle cost is
+strictly greater than zero**. The zero-cost exclusion is episode-defined, so it
+is identical for every method. A candidate may use regret for Pareto dominance,
+promotion, winner selection, or a final claim only if it is regret-eligible on
+**every run key in that same cohort**. Candidate-specific eligible subsets may
+be reported diagnostically but cannot be used to rank architectures.
+
+If `oracle_cost == 0`, native regret is still reported. Normalized regret is
+marked `not_normalizable_zero_oracle` rather than dividing by zero. Likewise,
+if a paired baseline selected cost is zero, paired native savings are reported
+but savings percentage is marked `not_normalizable_zero_baseline`.
 
 Do not sum dollars/pesos/etc. across currencies. Native regret is reported by
-currency; only normalized regret percentages on the frozen common cohort are
-aggregated.
+currency; only normalized regret percentages on the frozen positive-oracle-cost
+common cohort are aggregated.
 
 ### Agent efficiency
 
