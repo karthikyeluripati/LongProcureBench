@@ -274,7 +274,7 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         self.assertEqual(event_ids, ["e-a-withdrawal"])
 
-    def test_requirement_change_can_drive_amendment_then_revision(self):
+    def test_requirement_change_can_drive_amendment_then_supplier_revisions(self):
         plan = _plan()
         plan["steps"].extend([
             {
@@ -296,11 +296,19 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         policy._fixed_plan = plan
         policy._initial_event_ids = set()
-        policy._event_first_seen = {"e-change": 1}
-        policy._executor_decision_index = 2
+        policy._event_first_seen = {
+            "e-b-quote": 1,
+            "e-change": 2,
+        }
+        policy._executor_decision_index = 3
 
         compiled = {
             "event_history": [
+                {
+                    "event_id": "e-b-quote",
+                    "type": "quote_received",
+                    "supplier_id": "syn-ps-b",
+                },
                 {
                     "event_id": "e-change",
                     "type": "requirement_change",
@@ -319,10 +327,10 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         self.assertEqual(amendment_events, ["e-change"])
         policy._exception_event_uses.add(
-            ("e-change", "issue_amendment")
+            ("e-change", "issue_amendment", None)
         )
 
-        revision_events = policy._validate_unplanned_exception(
+        revision_a_events = policy._validate_unplanned_exception(
             {
                 "type": "request_quote_revision",
                 "supplier_id": "syn-ps-a",
@@ -330,16 +338,29 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             },
             compiled,
         )
-        self.assertEqual(revision_events, ["e-change"])
+        self.assertEqual(revision_a_events, ["e-change"])
         policy._exception_event_uses.add(
-            ("e-change", "request_quote_revision")
+            ("e-change", "request_quote_revision", "syn-ps-a")
+        )
+
+        revision_b_events = policy._validate_unplanned_exception(
+            {
+                "type": "request_quote_revision",
+                "supplier_id": "syn-ps-b",
+                "arguments": {"awards": None, "reason": None},
+            },
+            compiled,
+        )
+        self.assertEqual(revision_b_events, ["e-change"])
+        policy._exception_event_uses.add(
+            ("e-change", "request_quote_revision", "syn-ps-b")
         )
 
         with self.assertRaises(PlanExecuteProtocolError):
             policy._validate_unplanned_exception(
                 {
                     "type": "request_quote_revision",
-                    "supplier_id": "syn-ps-a",
+                    "supplier_id": "syn-ps-b",
                     "arguments": {"awards": None, "reason": None},
                 },
                 compiled,
