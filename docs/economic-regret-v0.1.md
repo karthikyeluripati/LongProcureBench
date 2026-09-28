@@ -47,7 +47,10 @@ regret_pct = 100 * native_regret / oracle_cost
 ```
 
 If `oracle_cost == 0`, native regret is retained but normalized regret is
-`not_normalizable_zero_oracle`; no percentage is fabricated.
+`not_normalizable_zero_oracle`; no percentage is fabricated. Percentage
+arithmetic divides before multiplying by 100 to avoid intermediate overflow
+when the mathematically correct percentage is still representable; any truly
+non-finite ratio/percentage is rejected before JSON serialization.
 
 ## Matched reference cohort
 
