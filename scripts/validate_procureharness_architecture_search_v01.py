@@ -423,9 +423,19 @@ def validate_protocol(protocol: dict[str, Any] | None = None) -> None:
     gates = freeze.get("method_claim_gate") or []
     if len(gates) != 2:
         raise ValueError("Exactly two final method-claim branches required")
-    if "3/30" not in gates[0] or "1/30" not in gates[0]:
+    if (
+        "3/30" not in gates[0]
+        or "1/30" not in gates[0]
+        or "max(Coverage+Repair, ReAct)" not in gates[0]
+        or "minimum regret" not in gates[0]
+    ):
         raise ValueError("Final quality-branch threshold changed")
-    if "30%" not in gates[1] or "1/30" not in gates[1]:
+    if (
+        "30%" not in gates[1]
+        or "1/30" not in gates[1]
+        or "max(Coverage+Repair, ReAct)" not in gates[1]
+        or "cheaper of Coverage+Repair and ReAct" not in gates[1]
+    ):
         raise ValueError("Final efficiency-branch threshold changed")
 
     phase2 = protocol.get("phase2_after_pattern_freeze") or {}
