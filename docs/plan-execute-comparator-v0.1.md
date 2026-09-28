@@ -29,8 +29,11 @@ The comparator adapts the Plan-and-Solve / Plan-and-Execute separation:
    - choose one semantic action and identify the plan step being executed;
    - may reuse a planned step when its condition remains applicable.
 3. **Unplanned exception**:
-   - if a newly visible fact requires an action absent from the fixed plan, the
-     executor may use `plan_step_index = 0`;
+   - `plan_step_index = 0` is valid when the chosen operation is absent from
+     the fixed plan;
+   - if the operation is already represented in the plan, index 0 is valid
+     only when a relevant post-plan visible event motivates the departure;
+   - the controller records the motivating event IDs for audit;
    - the plan is still not rewritten.
 
 The comparator performs **no replanning**. That is intentional: the experiment
@@ -59,7 +62,9 @@ Run exactly one repeat on three development episodes:
 - `electrical-dla-power-supply-016` — midstream requirement change /
   amendment.
 
-This is a mechanism pilot, not paper evidence.
+This is a mechanism pilot, not paper evidence. A default runner invocation with
+only `--model` selects exactly these three episodes, one repeat, medium
+reasoning, and omitted temperature.
 
 Continue only if:
 
