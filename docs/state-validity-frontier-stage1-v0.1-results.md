@@ -63,6 +63,10 @@ change, incremented the requirement epoch, issued the amendment, followed up the
 non-responder, refreshed both stale offers, reevaluated, and awarded the
 economically preferred Supplier C offer.
 
+The stale repairs are checked individually: Supplier A's pre-change quote
+`e1` was revised at step 7 to `e5`, and Supplier B's pre-change quote
+`e2` was revised at step 8 to `e6`.
+
 ## Frozen verdict
 
 - execution clean: **pass**
@@ -97,3 +101,12 @@ replay Evaluator v0.2 and audit this verdict.
   `evidence/state-validity-frontier-stage1-v0.1/manifest.json`
 - deterministic audit:
   `scripts/audit_state_validity_frontier_stage1_v01.py`
+- source-artifact verifier:
+  `scripts/verify_state_validity_frontier_stage1_source_artifact_v01.py`
+- committed source-verification receipt:
+  `evidence/state-validity-frontier-stage1-v0.1/source-verification.json`
+
+While artifact `10964162663` was still available, the verifier checked the
+artifact ZIP digest and complete member set, every raw run byte count/SHA-256,
+and re-derived each compact replay record byte-for-byte. The committed receipt
+preserves that raw-to-replay verification after the hosted artifact expires.
