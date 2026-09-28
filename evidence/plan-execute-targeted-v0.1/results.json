@@ -214,5 +214,22 @@
     "reason": "The targeted mechanism pilot fails all three quality objectives, activates zero unplanned exceptions, and exhibits clarification fixation including one max-action loop. A broader static Plan-and-Execute grid is not scientifically or economically justified.",
     "comparator_role": "negative_external_comparator",
     "next_research_target": "structured workflow-state validity with explicit event-driven invalidation and selective deliberation at the valid decision frontier"
+  },
+  "durable_evidence": {
+    "manifest": "evidence/plan-execute-targeted-v0.1/manifest.json",
+    "replay_format": "gzip(JSONL compact replay) encoded as checksum-locked base64 chunks",
+    "replay_records": 3,
+    "preserves": [
+      "accepted actions",
+      "revealed observations",
+      "fixed plan",
+      "execution trace",
+      "model configuration",
+      "usage and cost metrics"
+    ],
+    "provenance": "evidence/plan-execute-targeted-v0.1/source-provenance.txt",
+    "audit_script": "scripts/audit_plan_execute_targeted_v01.py",
+    "source_verifier": "scripts/verify_plan_execute_targeted_source_artifact_v01.py",
+    "durability": "Independent replay audit does not depend on the GitHub Actions artifact remaining available."
   }
 }
