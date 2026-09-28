@@ -35,7 +35,15 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
         )
         self.assertEqual(
             implementation["runner_blob_sha"],
-            "263e074e5f8aeac617338d3f1894b84c3e2acbc8",
+            "c1c3009cbf3e0d6f34bc7afa7f9ede531d50cfbc",
+        )
+        self.assertEqual(
+            implementation["hash_algorithm"],
+            "git_blob_sha1",
+        )
+        self.assertIn(
+            "Git blob SHA-1",
+            implementation["execution_procedure"],
         )
         self.assertIn(
             "001-020",
@@ -198,6 +206,22 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
                 "strict_v02 >= 30/60 (50.0%)",
                 "economic_objective >= 30/60 (50.0%)",
             ],
+        )
+        self.assertIn(
+            (
+                "no setup_error, environment_error, evaluation_error, "
+                "metadata_error, RunnerError, StateValidityFrontierError, "
+                "or non-null evaluation_error_type"
+            ),
+            gate["execution_requirements"],
+        )
+        self.assertIn(
+            (
+                "actual controller and development-runner Git blob SHA-1 "
+                "values match the frozen hashes before any model call, and "
+                "model/settings match this freeze"
+            ),
+            gate["execution_requirements"],
         )
         self.assertIn(
             (
