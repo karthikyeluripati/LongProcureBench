@@ -1,0 +1,151 @@
+{
+  "schema_version": "0.1.0",
+  "experiment": "state-validity-frontier-stage1-v0.1",
+  "status": "frozen_development_mechanism_diagnostic",
+  "source": {
+    "workflow_run_id": 36410695850,
+    "artifact_id": 10964162663,
+    "artifact_digest": "sha256:92c3c7fe4cd7550a2c91141ff9fde3c98c143d6d632bfa767c4fd860800fdf96",
+    "benchmark_code_sha": "fcffd9ccefdf07d7922d67d40ab1e67dc4781172",
+    "execution_commit": "2cf4aa43bf1986078926c513c148a2e3a46fb06d",
+    "model": "openai/gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "temperature": null,
+    "repeats": 1,
+    "max_actions": 50
+  },
+  "aggregate": {
+    "runs": 3,
+    "completed": 3,
+    "terminal_feasible": [
+      3,
+      3
+    ],
+    "feasible_obligation_success": [
+      3,
+      3
+    ],
+    "strict_v02": [
+      3,
+      3
+    ],
+    "economic_objective": [
+      3,
+      3
+    ],
+    "actionable_obligations": 7,
+    "resolved_obligations": 7,
+    "unresolved_obligations": 0,
+    "accepted_actions": 30,
+    "model_calls": 14,
+    "total_tokens": 33661,
+    "latency_ms": 30155.918273999992,
+    "known_cost_usd": 0.18555800000000003,
+    "deterministic_frontier_actions": 16,
+    "llm_frontier_calls": 14,
+    "validity_invalidations": 15,
+    "requirement_invalidations": 1,
+    "quote_invalidations": 13,
+    "withdrawal_invalidations": 1
+  },
+  "runs": {
+    "electrical-burauen-generator-008": {
+      "status": "completed",
+      "terminal_feasible": true,
+      "feasible_obligation_success": true,
+      "strict_v02": true,
+      "economic_objective": true,
+      "actionable_obligations": 2,
+      "resolved_obligations": 2,
+      "unresolved_obligations": 0,
+      "accepted_actions": 10,
+      "model_calls": 4,
+      "total_tokens": 9444,
+      "latency_ms": 10150.447640000002,
+      "cost_usd": 0.05202300000000001,
+      "deterministic_frontier_actions": 6,
+      "llm_frontier_calls": 4,
+      "validity_invalidations": 5
+    },
+    "electrical-dla-transformer-013": {
+      "status": "completed",
+      "terminal_feasible": true,
+      "feasible_obligation_success": true,
+      "strict_v02": true,
+      "economic_objective": true,
+      "actionable_obligations": 3,
+      "resolved_obligations": 3,
+      "unresolved_obligations": 0,
+      "accepted_actions": 10,
+      "model_calls": 6,
+      "total_tokens": 14848,
+      "latency_ms": 11346.570342999996,
+      "cost_usd": 0.08107700000000001,
+      "deterministic_frontier_actions": 4,
+      "llm_frontier_calls": 6,
+      "validity_invalidations": 4
+    },
+    "electrical-dla-power-supply-016": {
+      "status": "completed",
+      "terminal_feasible": true,
+      "feasible_obligation_success": true,
+      "strict_v02": true,
+      "economic_objective": true,
+      "actionable_obligations": 2,
+      "resolved_obligations": 2,
+      "unresolved_obligations": 0,
+      "accepted_actions": 10,
+      "model_calls": 4,
+      "total_tokens": 9369,
+      "latency_ms": 8658.900290999994,
+      "cost_usd": 0.052458000000000005,
+      "deterministic_frontier_actions": 6,
+      "llm_frontier_calls": 4,
+      "validity_invalidations": 6
+    }
+  },
+  "mechanism_assertions": {
+    "electrical-burauen-generator-008": {
+      "supplier_withdrawal_marks_supplier_inactive": true,
+      "pre_withdrawal_evaluation_becomes_invalid": true,
+      "withdrawn_supplier_excluded_from_later_terminal_actions": true,
+      "replacement_quote_then_reevaluation_before_terminal": true,
+      "no_post_withdrawal_clarification_without_new_requirement_epoch": true,
+      "pass": true
+    },
+    "electrical-dla-transformer-013": {
+      "at_most_one_clarification_in_requirement_epoch_0": true,
+      "clarification_absent_from_frontier_after_buyer_response": true,
+      "supplier_discovery_rfq_begins_after_clarification_response": false,
+      "first_rfq_occurs_after_clarification_response": true,
+      "terminal_action_only_after_current_evaluation": true,
+      "observed_order": {
+        "identify_suppliers_step": 1,
+        "buyer_clarification_step": 2,
+        "first_rfq_step": 3
+      },
+      "pass": false
+    },
+    "electrical-dla-power-supply-016": {
+      "requirement_change_increments_epoch": true,
+      "amendment_required_after_change": true,
+      "pre_change_offers_repaired_as_stale": true,
+      "post_amendment_repair_before_terminal": true,
+      "no_clarification_loop": true,
+      "pass": true
+    }
+  },
+  "gates": {
+    "execution_clean": true,
+    "no_max_actions": true,
+    "mechanism_activated_all_runs": true,
+    "quality_gate_pass": true,
+    "strict_mechanism_gate_pass": false,
+    "overall_preregistered_go_gate": false
+  },
+  "interpretation": {
+    "quality": "All three targeted runs are terminal-feasible, obligation-complete, strict-v0.2 successful, and economically optimal.",
+    "mechanism": "008 and 016 satisfy their frozen mechanism assertions. 013 violates the literal ordering assertion because supplier identification occurred before buyer clarification, although the first RFQ occurred after clarification and all downstream recovery/evaluation obligations completed.",
+    "decision": "Do not run a broad repeated development grid from this pilot. Freeze the result and inspect the 013 sequencing deviation without tuning or rerunning the three pilot cases."
+  }
+}
