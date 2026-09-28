@@ -163,7 +163,10 @@ The mechanism must:
 - mark the withdrawn supplier inactive;
 - invalidate the pre-withdrawal evaluation;
 - exclude that supplier from any later terminal action;
-- take at least one post-withdrawal recovery/evaluation action before terminal;
+- after withdrawal, obtain a **newly revealed quote or quote revision from an
+  active, non-withdrawn supplier through post-withdrawal recovery**;
+- accept `evaluate_quotes` only **after** that replacement quote/revision is
+  revealed, and only then permit a terminal action;
 - not reopen buyer clarification absent a new requirement epoch.
 
 ### 013 — starting prerequisite
