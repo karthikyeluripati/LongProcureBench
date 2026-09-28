@@ -34,8 +34,9 @@ The comparator adapts the Plan-and-Solve / Plan-and-Execute separation:
    - if the operation is already represented in the plan, index 0 is valid
      only when a relevant post-plan event motivates the departure;
    - one post-plan event may legitimately drive different downstream recovery
-     operations (for example, requirement change -> amendment -> quote
-     revision), but it may justify a given operation only once;
+     operations and separate supplier-scoped repairs (for example, requirement
+     change -> amendment -> revision A -> revision B); it may justify the same
+     operation once per target supplier;
    - when several unused relevant events could explain an exception, the
      controller attributes it to the most recently revealed event batch;
    - cross-supplier disruptions such as a supplier withdrawal may motivate
