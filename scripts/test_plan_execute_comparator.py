@@ -210,6 +210,8 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         policy._fixed_plan = plan
         policy._initial_event_ids = set()
+        policy._event_first_seen = {"e-new": 1}
+        policy._executor_decision_index = 1
 
         event_ids = policy._validate_unplanned_exception(
             {
@@ -242,7 +244,7 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             client=SequenceClient([]),
         )
         policy._fixed_plan = plan
-        policy._seen_event_ids = {"e-c-quote"}
+        policy._initial_event_ids = set()\n        policy._event_first_seen = {\n            "e-c-quote": 1,\n            "e-a-withdrawal": 2,\n        }\n        policy._executor_decision_index = 2
 
         event_ids = policy._validate_unplanned_exception(
             {
@@ -266,6 +268,77 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             },
         )
         self.assertEqual(event_ids, ["e-a-withdrawal"])
+
+    def test_requirement_change_can_drive_amendment_then_revision(self):
+        plan = _plan()
+        plan["steps"].extend([
+            {
+                "step_id": 6,
+                "operation": "issue_amendment",
+                "purpose": "Issue an amendment after a buyer change.",
+                "condition": "Use when a visible requirement changes.",
+            },
+            {
+                "step_id": 7,
+                "operation": "request_quote_revision",
+                "purpose": "Refresh supplier offers after an amendment.",
+                "condition": "Use when changed requirements make prior offers stale.",
+            },
+        ])
+        policy = PlanExecuteLLMPolicy(
+            "fake/test-model",
+            client=SequenceClient([]),
+        )
+        policy._fixed_plan = plan
+        policy._initial_event_ids = set()
+        policy._event_first_seen = {"e-change": 1}
+        policy._executor_decision_index = 2
+
+        compiled = {
+            "event_history": [
+                {
+                    "event_id": "e-change",
+                    "type": "requirement_change",
+                    "supplier_id": None,
+                },
+            ],
+        }
+
+        amendment_events = policy._validate_unplanned_exception(
+            {
+                "type": "issue_amendment",
+                "supplier_id": None,
+                "arguments": {"awards": None, "reason": None},
+            },
+            compiled,
+        )
+        self.assertEqual(amendment_events, ["e-change"])
+        policy._exception_event_uses.add(
+            ("e-change", "issue_amendment")
+        )
+
+        revision_events = policy._validate_unplanned_exception(
+            {
+                "type": "request_quote_revision",
+                "supplier_id": "syn-ps-a",
+                "arguments": {"awards": None, "reason": None},
+            },
+            compiled,
+        )
+        self.assertEqual(revision_events, ["e-change"])
+        policy._exception_event_uses.add(
+            ("e-change", "request_quote_revision")
+        )
+
+        with self.assertRaises(PlanExecuteProtocolError):
+            policy._validate_unplanned_exception(
+                {
+                    "type": "request_quote_revision",
+                    "supplier_id": "syn-ps-a",
+                    "arguments": {"awards": None, "reason": None},
+                },
+                compiled,
+            )
 
     def test_operation_absent_from_plan_can_be_exception(self):
         policy = PlanExecuteLLMPolicy(
