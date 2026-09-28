@@ -454,7 +454,18 @@ def freeze_reference_cohort(
     )
     react = _index_reports(react_reports, label="ReAct")
 
-    shared = sorted(set(coverage) & set(react))
+    coverage_keys = set(coverage)
+    react_keys = set(react)
+    if coverage_keys != react_keys:
+        missing_from_coverage = sorted(react_keys - coverage_keys)
+        missing_from_react = sorted(coverage_keys - react_keys)
+        raise EconomicsError(
+            "Matched baseline economics grids differ: "
+            f"missing_from_coverage={missing_from_coverage}, "
+            f"missing_from_react={missing_from_react}"
+        )
+
+    shared = sorted(coverage_keys)
     positive_keys: list[tuple[str, int]] = []
     joint_eligible = 0
     zero_oracle = 0
@@ -555,6 +566,18 @@ def compare_candidate_on_reference_cohort(
         raise EconomicsError("Reference cohort contains duplicate run keys")
 
     cohort_count = len(keys)
+    declared_count = cohort.get("reference_cohort_count")
+    if declared_count != cohort_count:
+        raise EconomicsError(
+            "Reference cohort count does not match run_keys"
+        )
+    cohort_status = cohort.get("status")
+    if cohort_count == 0 and cohort_status != (
+        "unavailable_empty_reference_cohort"
+    ):
+        raise EconomicsError("Empty reference cohort status mismatch")
+    if cohort_count > 0 and cohort_status != "available":
+        raise EconomicsError("Non-empty reference cohort status mismatch")
     if cohort_count == 0:
         return {
             "schema_version": "0.1.0",
