@@ -169,16 +169,38 @@ Maximum search:
 - at most 18 unique candidates total.
 
 Cheap screening uses 001-020 once per candidate. At most two candidates per
-round receive the full 20 x 3 development confirmation. Frozen comparator
-evidence is reused; do not pay to rerun it on 001-020.
+round receive the full 20 x 3 development confirmation. Frozen development
+comparator evidence is reused exactly; Coverage+Repair, ReAct, and factual
+context are **not rerun** on 001-020.
+
+A candidate may enter 031-040 validation only if it:
+
+1. executes cleanly;
+2. passes the frozen 20 x 3 development quality floor; and
+3. passes either the frozen development quality-promotion branch or the frozen
+   efficiency-promotion branch.
+
+If more than two candidates qualify in a round, the two validation slots are
+chosen by a frozen lexicographic order: feasible-obligation success, strict
+v0.2, economic objective, obligation resolution, API cost, total tokens, then
+candidate ID.
 
 Once 031-040 exists, matched Coverage+Repair and ReAct rows are executed once
-for that package. Candidate validation uses 3 repeats per episode.
+for that frozen package. A candidate is admitted to the **validation frontier**
+only if execution is clean, it is within 2/30 of the per-metric better matched
+baseline on feasible-obligation, strict, and economic success, and its regret
+comparison is fully comparable on the frozen reference cohort.
+
+Pareto dominance is exact: A dominates B only if A is no worse on every frozen
+frontier dimension and strictly better on at least one. After each round the
+cumulative frontier is recomputed over admitted candidates plus the two matched
+baseline rows. A round counts as improving the frontier only if a candidate
+first validated in that round remains on the recomputed candidate frontier.
 
 **Operational design-pattern ceiling:** stop after two consecutive completed
-rounds add no candidate to the admissible validation Pareto frontier, or the
-3-round / 18-candidate budget is exhausted. This is a search plateau, **not a
-claim of global optimality**.
+rounds add no new candidate under that rule, or the 3-round / 18-candidate
+budget is exhausted. This is a search plateau, **not a claim of global
+optimality**.
 
 ## Metrics
 
@@ -199,24 +221,48 @@ Mandatory:
 
 ### Procurement economics
 
-Before any paid architecture-search run, implement one deterministic metric for
-all methods:
+Before any paid architecture-search run, implement the same deterministic
+scope-aware price logic for every method.
 
-- feasible price regret in native currency;
-- feasible price regret percent;
-- paired savings versus a baseline in native currency;
-- paired savings percent.
+For each award:
+
+- `scope == "package"` → use the referenced quote event's
+  `details.total_price`;
+- `scope == "lot-<item_id>"` → use the referenced quote event's
+  `details.lots[item_id].price`.
+
+The outcome cost is the sum of one resolved price per award, matching
+`scripts/validate_episodes.py::_award_price`. The quote must cover the award
+scope.
 
 For an eligible feasible award:
 
-`regret = selected feasible award cost - oracle minimum feasible award cost`.
+`regret = selected feasible outcome cost - oracle minimum feasible outcome cost`.
 
-If the terminal decision is infeasible or a no-award case cannot support a
-meaningful price comparison, price regret is **not eligible** rather than being
-assigned an arbitrary penalty. Reliability metrics carry that failure.
+We report:
 
-Do not sum dollars/pesos/etc. across currencies. Report native regret by currency
-and aggregate normalized regret percentage.
+- feasible price regret in native currency;
+- per-run feasible price regret percent;
+- frozen reference-cohort size;
+- candidate regret-eligibility count/rate on that cohort;
+- mean regret percent on the reference cohort;
+- paired savings versus each baseline in native currency and percent.
+
+Infeasible or unsupported no-award runs remain `not_eligible` for monetary
+regret instead of receiving an arbitrary dollar penalty. **They are not silently
+dropped when candidates are compared.**
+
+For each matched comparison package, the regret reference cohort is frozen as
+the intersection of run keys `(episode_id, repeat)` where **both
+Coverage+Repair and ReAct** are regret-eligible. A candidate may use regret for
+Pareto dominance, promotion, winner selection, or a final claim only if it is
+regret-eligible on **every run key in that same cohort**. Candidate-specific
+eligible subsets may be reported diagnostically but cannot be used to rank
+architectures.
+
+Do not sum dollars/pesos/etc. across currencies. Native regret is reported by
+currency; only normalized regret percentages on the frozen common cohort are
+aggregated.
 
 ### Agent efficiency
 
@@ -231,47 +277,69 @@ Always report:
 
 ## Promotion logic
 
-A candidate first has to execute cleanly and pass a minimum development quality
-floor. Promotion then requires a new quality or efficiency frontier point.
+A candidate first has to execute cleanly and pass the minimum development
+quality floor: at least 47/60 feasible-obligation, 27/60 strict v0.2, and
+27/60 economic success.
 
-Development promotion can happen through either:
+Development promotion can happen through either frozen structured branch:
 
-- **quality branch:** at least +3/60 on feasible-obligation, strict, or economic
-  success versus Coverage+Repair, with no other mandatory quality metric worse
-  by more than 3/60 and cost no higher than ReAct; or
-- **efficiency branch:** within 3/60 of Coverage+Repair on feasible-obligation,
-  strict, and economic success, no worse price regret, and at least 20% lower
-  known API cost than Coverage+Repair.
+- **quality branch:** improve at least one of feasible-obligation, strict, or
+  economic success by **3/60** versus Coverage+Repair; no other mandatory
+  success metric may be more than **3/60 worse**; known API cost may not exceed
+  frozen ReAct cost (**$7.9842032**);
+- **efficiency branch:** remain within **3/60** of Coverage+Repair on
+  feasible-obligation, strict, and economic success; regret must be no worse on
+  the full frozen reference cohort; and known API cost must be at least
+  **20% lower** than Coverage+Repair.
 
-This prevents a cheap but unreliable controller, or an expensive controller that
-buys tiny quality gains, from being called progress.
+The machine-readable JSON stores these as numeric fields, and CI checks the
+exact values rather than matching phrases.
 
 ## Final method claim
 
-After search plateaus, freeze:
+When the stop rule fires, the winner is selected **once** from the cumulative
+ProcureHarness validation frontier. If the frontier contains no candidate, the
+result is frozen as **no winner** and no ProcureHarness model-backed row is run
+on 041-050.
 
-- winning architecture and module config;
-- code hashes;
-- prompts / skill definitions;
-- model settings;
-- regret evaluator;
-- 041-050 episode package;
-- matched rows and statistical procedure.
+If multiple candidates remain, selection is deterministic and lexicographic:
 
-Then execute exactly:
+1. feasible-obligation success (higher);
+2. strict v0.2 (higher);
+3. economic objective (higher);
+4. obligation resolution (higher);
+5. common-cohort regret percent (lower);
+6. API cost (lower);
+7. tokens (lower);
+8. latency (lower);
+9. model calls (lower);
+10. candidate ID (ascending).
+
+The chosen code/config/prompts/settings are then frozen before any 041-050
+model-backed call.
+
+If a winner exists, the final 041-050 comparison contains:
 
 - ProcureHarness winner;
 - Coverage+Repair;
 - ReAct;
 - deterministic reference control;
 
-on 041-050, with 3 repeats for each model-backed row. No tuning after the first
-model call.
+with 3 repeats for each model-backed row and no tuning after the first final-test
+model call. If there is no winner, only deterministic reference control is used
+to validate the 041-050 benchmark package; there is no new-method final test.
 
-A paper-level "better design pattern" claim requires one of the two frozen
-quality/efficiency branches in the protocol JSON. If neither passes, the honest
-result is that the architecture search plateaued without establishing a new
-ProcureHarness method.
+A paper-level "better design pattern" claim then requires one of the exact
+structured gates in the protocol JSON:
+
+- **quality:** +3/30 feasible-obligation versus the per-metric baseline envelope,
+  no more than 1/30 deficit on strict/economic, no worse regret on the full
+  reference cohort, and cost no higher than ReAct; or
+- **efficiency:** within 1/30 of the per-metric baseline envelope on
+  feasible-obligation/strict/economic, no worse common-cohort regret, and at
+  least 30% lower API cost than the cheaper matched baseline.
+
+If neither passes, the honest result is a negative architecture-search result.
 
 ## Immediate implementation order
 
