@@ -172,7 +172,7 @@
           "supplier A is marked inactive after visible withdrawal",
           "pre-withdrawal evaluation becomes invalid",
           "withdrawn supplier is excluded from later terminal actions",
-          "at least one post-withdrawal recovery/evaluation action occurs before terminal",
+          "after withdrawal, at least one active non-withdrawn supplier produces a newly revealed quote_received or quote_revision from a post-withdrawal recovery action, and evaluate_quotes is accepted after that new quote before any terminal action",
           "request_buyer_clarification is not used after withdrawal unless a new requirement epoch exists"
         ]
       },
