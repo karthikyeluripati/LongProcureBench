@@ -90,6 +90,46 @@ def validate_exact_grid(rows: list[dict[str, Any]]) -> None:
         raise ValueError("development v0.2 model drift")
 
 
+def validate_execution_statuses(rows: list[dict[str, Any]]) -> None:
+    """Reject infrastructure/protocol failures while retaining measured action rejections."""
+    infrastructure_statuses = {
+        "setup_error",
+        "environment_error",
+        "evaluation_error",
+        "metadata_error",
+    }
+    measured_policy_errors = {
+        "EnvironmentError",
+        "ValidationError",
+        "RunnerError",
+    }
+
+    failures = []
+    for row in rows:
+        status = row.get("status")
+        error_type = row.get("error_type")
+        if status in infrastructure_statuses:
+            failures.append(
+                f"{row.get('episode_id')} r{row.get('repeat')}: "
+                f"status={status} error={error_type}"
+            )
+        elif status == "policy_error":
+            if (
+                error_type == "StateValidityFrontierError"
+                or error_type not in measured_policy_errors
+            ):
+                failures.append(
+                    f"{row.get('episode_id')} r{row.get('repeat')}: "
+                    f"status=policy_error error={error_type}"
+                )
+
+    if failures:
+        raise ValueError(
+            "development v0.2 execution-status gate failed: "
+            + "; ".join(failures)
+        )
+
+
 def _first_observation_step(
     trajectory: list[dict[str, Any]],
     event_type: str,
@@ -216,6 +256,7 @@ def main() -> None:
         baseline_name="state-validity-frontier-development-v0.2",
     )
     validate_exact_grid(rows)
+    validate_execution_statuses(rows)
     sequence = validate_prerequisite_sequences(output_dir)
     print(json.dumps({
         "runs": len(rows),
