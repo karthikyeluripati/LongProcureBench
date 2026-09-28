@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Iterable, Mapping
+import hashlib
 import json
 import math
 
@@ -21,7 +22,40 @@ class EconomicsError(ValueError):
 
 
 def _is_number(value: Any) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
+    """Return True only for finite JSON-safe numeric values."""
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (OverflowError, ValueError):
+        return False
+
+
+def _canonical_json_bytes(value: Any) -> bytes:
+    """Canonical JSON bytes; reject NaN/Infinity instead of emitting them."""
+    try:
+        text = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise EconomicsError(
+            "Economics report contains non-JSON or non-finite data"
+        ) from exc
+    return text.encode("utf-8")
+
+
+def _reports_sha256(
+    reports: Mapping[tuple[str, int], Mapping[str, Any]],
+) -> str:
+    payload = [
+        reports[key]
+        for key in sorted(reports)
+    ]
+    return hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
 
 
 def normalize_regret(
@@ -207,8 +241,8 @@ class EconomicRegretEvaluator:
 
         if not _is_number(price):
             raise EconomicsError(
-                f"Missing numeric award price for {event.get('event_id')} "
-                f"scope {scope}"
+                f"Missing or non-finite numeric award price for "
+                f"{event.get('event_id')} scope {scope}"
             )
         if float(price) < 0:
             raise EconomicsError("Award price must be non-negative")
@@ -538,6 +572,14 @@ def freeze_reference_cohort(
             {"episode_id": episode_id, "repeat": repeat}
             for episode_id, repeat in positive_keys
         ],
+        "baseline_report_bindings": {
+            "hash_algorithm": "sha256",
+            "canonicalization": "json-sort-keys-compact-allow-nan-false-v1",
+            "coverage_repair_reports_sha256": _reports_sha256(coverage),
+            "react_reports_sha256": _reports_sha256(react),
+            "coverage_repair_report_count": len(coverage),
+            "react_report_count": len(react),
+        },
     }
 
 
