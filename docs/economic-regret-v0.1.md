@@ -29,7 +29,10 @@ Pricing matches the existing episode-validation semantics.
   `details.lots[item_id].price`.
 
 The referenced quote must match the awarded supplier and cover the award scope.
-A multi-lot outcome sums exactly one price for each award.
+A multi-lot outcome sums exactly one price for each award. All price/cost/regret
+inputs must be finite numeric values: `NaN`, `+Infinity`, and `-Infinity`
+are rejected before any calculation. Economics JSON is serialized with
+`allow_nan=False`, so non-standard JSON cannot be emitted.
 
 The oracle cost is the minimum summed award cost among the episode's frozen
 `preferred_outcome_ids`.
@@ -49,6 +52,11 @@ If `oracle_cost == 0`, native regret is retained but normalized regret is
 ## Matched reference cohort
 
 Coverage+Repair and ReAct economics reports must have the **same run-key grid**.
+The frozen cohort artifact also stores SHA-256 bindings over the exact canonical
+Coverage+Repair and ReAct economics-report sets used to derive it. Replacing
+baseline runs while keeping the same cohort keys therefore changes the binding
+and is rejected during candidate comparison.
+
 The normalized-regret reference cohort is frozen to run keys
 `(episode_id, repeat)` where:
 
