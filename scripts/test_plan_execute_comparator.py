@@ -424,6 +424,7 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             supplier_id="syn-b",
         )
         client = SequenceClient([
+            _executor(2, "identify_suppliers"),
             revision_response,
             revision_response,
             revision_response,
@@ -438,8 +439,8 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         policy.reset(base_state)
         policy._fixed_plan = plan
 
-        first_state = deepcopy(base_state)
-        first_state["revealed_events"] = [
+        old_quote_state = deepcopy(base_state)
+        old_quote_state["revealed_events"] = [
             {
                 "event_id": "e-old",
                 "type": "quote_received",
@@ -448,21 +449,37 @@ class PlanExecuteComparatorTests(unittest.TestCase):
                 "details": {},
                 "offer_scope": {"kind": "package"},
             },
-            {
-                "event_id": "e-change",
-                "type": "requirement_change",
-                "supplier_id": None,
-                "observation": "Buyer changed the requirement.",
-                "details": {},
-            },
         ]
 
-        first_action = policy.act(first_state)
+        planned_action = policy.act(old_quote_state)
+        self.assertEqual(
+            policy._event_first_seen,
+            {"e-old": 1},
+        )
+        policy.on_action_accepted(
+            {
+                "type": planned_action["type"],
+                "supplier_id": planned_action["supplier_id"],
+                "arguments": deepcopy(planned_action["arguments"]),
+            },
+            {"step": 1},
+        )
+
+        change_state = deepcopy(old_quote_state)
+        change_state["revealed_events"].append({
+            "event_id": "e-change",
+            "type": "requirement_change",
+            "supplier_id": None,
+            "observation": "Buyer changed the requirement.",
+            "details": {},
+        })
+
+        first_revision = policy.act(change_state)
         self.assertEqual(
             policy._event_first_seen,
             {
                 "e-old": 1,
-                "e-change": 1,
+                "e-change": 2,
             },
         )
         self.assertEqual(
@@ -471,25 +488,25 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         policy.on_action_accepted(
             {
-                "type": first_action["type"],
-                "supplier_id": first_action["supplier_id"],
-                "arguments": deepcopy(first_action["arguments"]),
+                "type": first_revision["type"],
+                "supplier_id": first_revision["supplier_id"],
+                "arguments": deepcopy(first_revision["arguments"]),
             },
-            {"step": 1},
+            {"step": 2},
         )
         self.assertEqual(
             policy._exception_causal_floor[
                 ("request_quote_revision", "syn-b")
             ],
-            1,
+            2,
         )
 
         with self.assertRaises(PlanExecuteProtocolError):
-            policy.act(first_state)
+            policy.act(change_state)
         self.assertNotIn("e-new", policy._event_first_seen)
 
-        second_state = deepcopy(first_state)
-        second_state["revealed_events"].append({
+        newer_state = deepcopy(change_state)
+        newer_state["revealed_events"].append({
             "event_id": "e-new",
             "type": "lead_time_change",
             "supplier_id": "syn-b",
@@ -497,10 +514,10 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             "details": {},
         })
 
-        reopened_action = policy.act(second_state)
+        reopened_action = policy.act(newer_state)
         self.assertEqual(
             policy._event_first_seen["e-new"],
-            3,
+            4,
         )
         self.assertEqual(
             policy._pending_execution["exception_event_ids"],
@@ -512,13 +529,13 @@ class PlanExecuteComparatorTests(unittest.TestCase):
                 "supplier_id": reopened_action["supplier_id"],
                 "arguments": deepcopy(reopened_action["arguments"]),
             },
-            {"step": 2},
+            {"step": 3},
         )
         self.assertEqual(
             policy._exception_causal_floor[
                 ("request_quote_revision", "syn-b")
             ],
-            3,
+            4,
         )
 
     def test_operation_absent_from_plan_can_be_exception(self):
