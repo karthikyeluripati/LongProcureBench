@@ -262,3 +262,11 @@ Before Stage 1 results:
 
 Paper-level method claims require the targeted mechanism gate, repeated
 development comparison, component ablations, and a new untouched held-out set.
+
+
+## References
+
+- Wu et al., *StateFlow: Enhancing LLM Task-Solving through State-Driven
+  Workflows*: https://arxiv.org/abs/2403.11322
+- Chen, Wang, and Brinton, *Fresh Memory, Stale Plans: Dependency-Scoped
+  Validation for Distributed LLM-Agent Memory*: https://arxiv.org/abs/2609.03340
