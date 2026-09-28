@@ -229,6 +229,44 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         )
         self.assertEqual(event_ids, ["e-new"])
 
+    def test_withdrawal_recovery_attributes_new_cross_supplier_event(self):
+        plan = _plan()
+        plan["steps"].append({
+            "step_id": 6,
+            "operation": "request_quote_revision",
+            "purpose": "Repair a remaining supplier offer after disruption.",
+            "condition": "Use when a newly visible disruption makes revision useful.",
+        })
+        policy = PlanExecuteLLMPolicy(
+            "fake/test-model",
+            client=SequenceClient([]),
+        )
+        policy._fixed_plan = plan
+        policy._seen_event_ids = {"e-c-quote"}
+
+        event_ids = policy._validate_unplanned_exception(
+            {
+                "type": "request_quote_revision",
+                "supplier_id": "syn-burauen-c",
+                "arguments": {"awards": None, "reason": None},
+            },
+            {
+                "event_history": [
+                    {
+                        "event_id": "e-c-quote",
+                        "type": "quote_received",
+                        "supplier_id": "syn-burauen-c",
+                    },
+                    {
+                        "event_id": "e-a-withdrawal",
+                        "type": "supplier_withdrawal",
+                        "supplier_id": "syn-burauen-a",
+                    },
+                ],
+            },
+        )
+        self.assertEqual(event_ids, ["e-a-withdrawal"])
+
     def test_operation_absent_from_plan_can_be_exception(self):
         policy = PlanExecuteLLMPolicy(
             "fake/test-model",
@@ -259,6 +297,15 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         temperature, reasoning_effort = resolve_pilot_sampling(
             None,
             False,
+            None,
+        )
+        self.assertIsNone(temperature)
+        self.assertEqual(reasoning_effort, "medium")
+
+    def test_omit_temperature_alone_keeps_medium_reasoning(self):
+        temperature, reasoning_effort = resolve_pilot_sampling(
+            None,
+            True,
             None,
         )
         self.assertIsNone(temperature)
