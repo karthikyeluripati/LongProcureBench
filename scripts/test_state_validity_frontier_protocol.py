@@ -86,19 +86,118 @@ class StateValidityFrontierProtocolTests(unittest.TestCase):
         ):
             self.assertNotIn(episode_id, rules)
 
+    def test_episode_mechanism_assertions_are_frozen(self):
+        episodes = {
+            row["episode_id"]: row
+            for row in self.protocol["targeted_pilot"]["episodes"]
+        }
+        expected = {
+            "electrical-burauen-generator-008": {
+                "mechanism": (
+                    "supplier withdrawal invalidates evaluation and "
+                    "reopens recovery frontier"
+                ),
+                "assertions": [
+                    "supplier A is marked inactive after visible withdrawal",
+                    "pre-withdrawal evaluation becomes invalid",
+                    "withdrawn supplier is excluded from later terminal actions",
+                    (
+                        "after withdrawal, at least one active non-withdrawn "
+                        "supplier produces a newly revealed quote_received or "
+                        "quote_revision from a post-withdrawal recovery action, "
+                        "and evaluate_quotes is accepted after that new quote "
+                        "before any terminal action"
+                    ),
+                    (
+                        "request_buyer_clarification is not used after "
+                        "withdrawal unless a new requirement epoch exists"
+                    ),
+                ],
+            },
+            "electrical-dla-transformer-013": {
+                "mechanism": (
+                    "clarification lease closes the prerequisite loop and "
+                    "allows sourcing to advance"
+                ),
+                "assertions": [
+                    (
+                        "at most one request_buyer_clarification occurs in "
+                        "requirement epoch 0"
+                    ),
+                    (
+                        "after buyer clarification, clarification is absent "
+                        "from the frontier"
+                    ),
+                    (
+                        "supplier discovery/RFQ begins after the "
+                        "clarification response"
+                    ),
+                    (
+                        "terminal action is not allowed before a current "
+                        "evaluation exists"
+                    ),
+                ],
+            },
+            "electrical-dla-power-supply-016": {
+                "mechanism": (
+                    "requirement change invalidates only dependent "
+                    "procurement state and creates a bounded repair frontier"
+                ),
+                "assertions": [
+                    "requirement_change increments requirement_epoch",
+                    (
+                        "issue_amendment becomes required after the visible "
+                        "change because sourcing already started"
+                    ),
+                    "pre-change offers are marked stale",
+                    (
+                        "post-amendment frontier repairs stale offers/"
+                        "non-response before terminal decision"
+                    ),
+                    (
+                        "no clarification loop occurs in the unchanged "
+                        "requirement epoch"
+                    ),
+                ],
+            },
+        }
+        self.assertEqual(set(episodes), set(expected))
+        for episode_id, frozen in expected.items():
+            self.assertEqual(
+                episodes[episode_id]["mechanism"],
+                frozen["mechanism"],
+            )
+            self.assertEqual(
+                episodes[episode_id]["assertions"],
+                frozen["assertions"],
+            )
+
+    def test_mechanism_go_gate_is_frozen(self):
+        self.assertEqual(
+            self.protocol["go_gate"]["mechanism_requirements"],
+            [
+                "all three runs execute without policy/protocol errors",
+                "all episode-specific mechanism assertions pass",
+                "zero runs hit max_actions",
+                (
+                    "controller diagnostics show at least one "
+                    "validity/frontier intervention in each episode"
+                ),
+            ],
+        )
+
     def test_go_gate_does_not_authorize_unfrozen_broad_run(self):
         gate = self.protocol["go_gate"]
         self.assertIn(
             "separate repeated-development protocol",
             gate["decision"],
         )
-        self.assertIn(
-            "terminal_feasible >= 2/3",
+        self.assertEqual(
             gate["quality_requirements"],
-        )
-        self.assertIn(
-            "feasible_obligation_success >= 2/3",
-            gate["quality_requirements"],
+            [
+                "terminal_feasible >= 2/3",
+                "feasible_obligation_success >= 2/3",
+            ],
         )
 
 
