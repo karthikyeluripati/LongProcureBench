@@ -180,6 +180,9 @@ Return only the structured executor response."""
         self._exception_event_uses: set[
             tuple[str, str, str | None]
         ] = set()
+        self._exception_causal_floor: dict[
+            tuple[str, str | None], int
+        ] = {}
         self._executor_decision_index = 0
 
     def reset(self, state: dict[str, Any]) -> None:
@@ -192,6 +195,7 @@ Return only the structured executor response."""
         self._initial_event_ids = set()
         self._event_first_seen = {}
         self._exception_event_uses = set()
+        self._exception_causal_floor = {}
         self._executor_decision_index = 0
 
     @classmethod
@@ -342,8 +346,9 @@ Return only the structured executor response."""
         Post-plan events may legitimately drive multiple downstream recovery
         operations and multiple supplier-scoped repairs. Therefore an event is
         consumed per operation and target supplier, not globally. For a given
-        operation/target, prefer the most recently revealed relevant event
-        batch so older evidence cannot mask a later disruption.
+        operation/target, once a newer causal event batch has justified an
+        exception, later exceptions must be justified by an even newer relevant
+        event; the validator never falls back to older evidence.
         """
         if self._fixed_plan is None:
             raise PlanExecuteProtocolError("Fixed plan is unavailable")
@@ -357,6 +362,8 @@ Return only the structured executor response."""
 
         relevant_types = EXCEPTION_EVENT_TYPES.get(action_type, set())
         supplier_id = action.get("supplier_id")
+        causal_key = (action_type, supplier_id)
+        causal_floor = self._exception_causal_floor.get(causal_key, -1)
         candidates: list[tuple[int, str]] = []
 
         for event in compiled.get("event_history") or []:
@@ -393,13 +400,15 @@ Return only the structured executor response."""
                 # The event became visible in the current executor decision.
                 first_seen = self._executor_decision_index
                 self._event_first_seen[event_id] = first_seen
+            if first_seen <= causal_floor:
+                continue
             candidates.append((first_seen, event_id))
 
         if not candidates:
             raise PlanExecuteProtocolError(
                 "plan_step_index=0 requires an operation absent from the "
-                "fixed plan or an unused relevant post-plan event for this "
-                "operation"
+                "fixed plan or a relevant post-plan event newer than the "
+                "last cause already used for this operation/target"
             )
 
         newest_index = max(index for index, _ in candidates)
@@ -541,15 +550,30 @@ Return only the structured executor response."""
         })
         if self._pending_execution["plan_step_index"] == 0:
             action_type = accepted["type"]
-            for event_id in self._pending_execution[
+            supplier_id = accepted.get("supplier_id")
+            selected_event_ids = self._pending_execution[
                 "exception_event_ids"
-            ]:
+            ]
+            for event_id in selected_event_ids:
                 self._exception_event_uses.add(
                     (
                         event_id,
                         action_type,
-                        accepted.get("supplier_id"),
+                        supplier_id,
                     )
+                )
+            if selected_event_ids:
+                causal_key = (action_type, supplier_id)
+                newest_used = max(
+                    self._event_first_seen[event_id]
+                    for event_id in selected_event_ids
+                )
+                self._exception_causal_floor[causal_key] = max(
+                    self._exception_causal_floor.get(
+                        causal_key,
+                        -1,
+                    ),
+                    newest_used,
                 )
         self._pending_execution = None
 
