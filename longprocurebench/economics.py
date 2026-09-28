@@ -58,6 +58,44 @@ def _reports_sha256(
     return hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
 
 
+def _safe_percent(
+    numerator: float,
+    denominator: float,
+    *,
+    label: str,
+) -> float:
+    """Compute 100 * numerator / denominator without intermediate overflow."""
+    if not _is_number(numerator) or not _is_number(denominator):
+        raise EconomicsError(f"{label} inputs must be finite numeric values")
+    denominator_f = float(denominator)
+    if denominator_f == 0:
+        raise EconomicsError(f"{label} denominator must be non-zero")
+
+    ratio = float(numerator) / denominator_f
+    if not math.isfinite(ratio):
+        raise EconomicsError(f"{label} ratio is non-finite")
+
+    percent = ratio * 100.0
+    if not math.isfinite(percent):
+        raise EconomicsError(f"{label} percent is non-finite")
+    return percent
+
+
+def _finite_mean(values: Iterable[float], *, label: str) -> float:
+    numeric = [float(value) for value in values]
+    if not numeric:
+        raise EconomicsError(f"{label} requires at least one value")
+    if not all(math.isfinite(value) for value in numeric):
+        raise EconomicsError(f"{label} contains non-finite values")
+    total = math.fsum(numeric)
+    if not math.isfinite(total):
+        raise EconomicsError(f"{label} accumulation is non-finite")
+    mean = total / len(numeric)
+    if not math.isfinite(mean):
+        raise EconomicsError(f"{label} mean is non-finite")
+    return mean
+
+
 def normalize_regret(
     selected_cost: float,
     oracle_cost: float,
@@ -72,7 +110,14 @@ def normalize_regret(
         return None, "not_normalizable_zero_oracle"
 
     regret = max(0.0, float(selected_cost) - float(oracle_cost))
-    return (100.0 * regret / float(oracle_cost)), "normalizable"
+    return (
+        _safe_percent(
+            regret,
+            float(oracle_cost),
+            label="feasible price regret",
+        ),
+        "normalizable",
+    )
 
 
 def _run_key(report: Mapping[str, Any]) -> tuple[str, int]:
@@ -694,10 +739,16 @@ def compare_candidate_on_reference_cohort(
             "paired_savings": None,
         }
 
-    mean_regret = sum(
+    regret_values = [
         float(row["feasible_price_regret_pct"])
         for row in comparable_rows
-    ) / cohort_count
+    ]
+    regret_sum = math.fsum(regret_values)
+    if not math.isfinite(regret_sum):
+        raise EconomicsError("Mean regret accumulation is non-finite")
+    mean_regret = regret_sum / cohort_count
+    if not math.isfinite(mean_regret):
+        raise EconomicsError("Mean regret is non-finite")
 
     def paired(
         baseline: Mapping[tuple[str, int], Mapping[str, Any]],
@@ -745,7 +796,11 @@ def compare_candidate_on_reference_cohort(
 
             savings = float(base_cost) - float(cand_cost)
             if float(base_cost) > 0:
-                savings_pct = 100.0 * savings / float(base_cost)
+                savings_pct = _safe_percent(
+                    savings,
+                    float(base_cost),
+                    label=f"{label} paired savings",
+                )
                 savings_pct_status = "normalizable"
                 pct_values.append(savings_pct)
             else:
@@ -762,6 +817,10 @@ def compare_candidate_on_reference_cohort(
             )
             bucket["pairs"] += 1
             bucket["sum_paired_savings_native"] += savings
+            if not math.isfinite(bucket["sum_paired_savings_native"]):
+                raise EconomicsError(
+                    f"{label} native savings accumulation is non-finite"
+                )
 
             pairs.append(
                 {
@@ -783,7 +842,10 @@ def compare_candidate_on_reference_cohort(
             "pairs": pairs,
             "native_savings_by_currency": by_currency,
             "mean_paired_savings_pct": (
-                sum(pct_values) / len(pct_values)
+                _finite_mean(
+                    pct_values,
+                    label=f"{label} paired savings percent",
+                )
                 if pct_values
                 else None
             ),
