@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import re
 from time import perf_counter
 from typing import Any
 
@@ -177,6 +178,138 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
         if not isinstance(rows, list):
             return []
         return [row for row in rows if isinstance(row, dict)]
+
+    @staticmethod
+    def _visible_requirement_limits(
+        compiled: dict[str, Any],
+    ) -> dict[str, float | int | None]:
+        """Derive simple package constraints only from visible factual fields.
+
+        These are deliberately narrow: one-item package quantity, numeric buyer
+        budget, and delivery-day limits explicitly visible in the initial state
+        or revealed requirement updates. They are used only to decide whether
+        an unrevised offer has a visible reason to request more evidence before
+        the first evaluation.
+        """
+        limits: dict[str, float | int | None] = {
+            "quantity": None,
+            "max_total_price": None,
+            "max_lead_time_days": None,
+        }
+
+        initial = compiled.get("initial_state")
+        if isinstance(initial, dict):
+            items = initial.get("line_items")
+            if isinstance(items, list) and len(items) == 1:
+                item = items[0]
+                if isinstance(item, dict):
+                    quantity = item.get("quantity")
+                    if isinstance(quantity, (int, float)) and not isinstance(
+                        quantity, bool
+                    ):
+                        limits["quantity"] = quantity
+
+            budget = initial.get("total_estimated_budget")
+            if isinstance(budget, dict):
+                amount = budget.get("amount")
+                if isinstance(amount, (int, float)) and not isinstance(
+                    amount, bool
+                ):
+                    limits["max_total_price"] = float(amount)
+
+            schedule = initial.get("schedule")
+            if isinstance(schedule, dict):
+                requirement = schedule.get("delivery_requirement")
+                if isinstance(requirement, str):
+                    match = re.search(
+                        r"(?P<days>[0-9]+(?:[.][0-9]+)?)\\s*days?",
+                        requirement,
+                        flags=re.IGNORECASE,
+                    )
+                    if match is not None:
+                        limits["max_lead_time_days"] = float(
+                            match.group("days")
+                        )
+
+        updates = compiled.get("requirement_updates")
+        if isinstance(updates, list):
+            for event in updates:
+                if not isinstance(event, dict):
+                    continue
+                details = event.get("details")
+                if not isinstance(details, dict):
+                    continue
+
+                for key in (
+                    "max_total_price",
+                    "max_total_price_usd",
+                    "max_total_price_php",
+                ):
+                    value = details.get(key)
+                    if isinstance(value, (int, float)) and not isinstance(
+                        value, bool
+                    ):
+                        limits["max_total_price"] = float(value)
+
+                for key in (
+                    "max_lead_time_days",
+                    "new_max_lead_time_days",
+                ):
+                    value = details.get(key)
+                    if isinstance(value, (int, float)) and not isinstance(
+                        value, bool
+                    ):
+                        limits["max_lead_time_days"] = float(value)
+
+                for key in ("quantity", "new_quantity"):
+                    value = details.get(key)
+                    if isinstance(value, (int, float)) and not isinstance(
+                        value, bool
+                    ):
+                        limits["quantity"] = value
+
+        return limits
+
+    @staticmethod
+    def _offer_has_visible_conflict(
+        offer: dict[str, Any],
+        limits: dict[str, float | int | None],
+    ) -> bool:
+        details = offer.get("details")
+        if not isinstance(details, dict):
+            return False
+
+        quantity = limits.get("quantity")
+        offered_quantity = details.get("quantity")
+        if (
+            quantity is not None
+            and isinstance(offered_quantity, (int, float))
+            and not isinstance(offered_quantity, bool)
+            and offered_quantity != quantity
+        ):
+            return True
+
+        max_price = limits.get("max_total_price")
+        total_price = details.get("total_price")
+        if (
+            max_price is not None
+            and isinstance(total_price, (int, float))
+            and not isinstance(total_price, bool)
+            and float(total_price) > float(max_price)
+        ):
+            return True
+
+        max_lead = limits.get("max_lead_time_days")
+        lead_time = details.get("lead_time_days")
+        if (
+            max_lead is not None
+            and isinstance(lead_time, (int, float))
+            and not isinstance(lead_time, bool)
+            and float(lead_time) > float(max_lead)
+        ):
+            return True
+
+        return False
 
     def _invalidate(self, kind: str) -> None:
         self._validity_generation += 1
@@ -342,6 +475,9 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             for row in latest_offers
             if row["current"]
         ]
+        visible_requirement_limits = self._visible_requirement_limits(
+            compiled
+        )
         stale_offers = [
             row
             for row in latest_offers
@@ -430,11 +566,18 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             "pending_stale_supplier_ids": pending_stale_suppliers,
             "exhausted_stale_supplier_ids": exhausted_stale_suppliers,
             "pending_stale_offers": deepcopy(pending_stale_offers),
+            "visible_requirement_limits": deepcopy(
+                visible_requirement_limits
+            ),
             "revision_opportunities": [
                 deepcopy(row)
                 for row in current_offers
                 if row["type"] == "quote_received"
                 and row["event_id"] not in self._revision_attempt_offer_ids
+                and self._offer_has_visible_conflict(
+                    row,
+                    visible_requirement_limits,
+                )
             ],
             "pending_repairs": pending_repairs,
             "last_withdrawal_generation": self._last_withdrawal_generation,
