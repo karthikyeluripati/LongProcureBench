@@ -3,6 +3,10 @@
 from .context_compiled_reactive import ContextCompiledReactiveLLMPolicy
 from .coverage_repair_context import CoverageRepairContextPolicy
 from .evaluator import EvaluationError, LongProcureBenchEvaluator
+from .plan_execute_comparator import (
+    PlanExecuteLLMPolicy,
+    PlanExecuteProtocolError,
+)
 from .operational_ledger_reactive import (
     OperationalLedgerError,
     OperationalLedgerReactiveLLMPolicy,
@@ -31,6 +35,8 @@ __all__ = [
     "LongProcureBenchEnv",
     "LongProcureBenchEvaluator",
     "OperationalLedgerError",
+    "PlanExecuteLLMPolicy",
+    "PlanExecuteProtocolError",
     "OperationalLedgerReactiveLLMPolicy",
     "ProgressAwareReactiveLLMPolicy",
     "ProgressControlError",
