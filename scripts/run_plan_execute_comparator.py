@@ -10,11 +10,42 @@ if str(ROOT) not in sys.path:
 
 from longprocurebench import PlanExecuteLLMPolicy
 from run_reactive_pilot import (
-    DEFAULT_EPISODES,
     DEVELOPMENT_EPISODES,
     resolve_sampling_options,
     run_pilot,
 )
+
+TARGETED_PILOT_EPISODES = [
+    "electrical-burauen-generator-008",
+    "electrical-dla-transformer-013",
+    "electrical-dla-power-supply-016",
+]
+
+
+def resolve_pilot_sampling(
+    temperature,
+    omit_temperature,
+    reasoning_effort,
+):
+    """Default to the frozen pilot sampling configuration.
+
+    Explicit sampling flags still override the default. With no sampling
+    flags, use medium reasoning and omit temperature.
+    """
+    if (
+        temperature is None
+        and not omit_temperature
+        and reasoning_effort is None
+    ):
+        reasoning_effort = "medium"
+        omit_temperature = True
+
+    resolved_temperature = resolve_sampling_options(
+        temperature,
+        omit_temperature,
+        reasoning_effort,
+    )
+    return resolved_temperature, reasoning_effort
 
 
 def write_diagnostics(output_dir: Path) -> dict:
@@ -89,7 +120,7 @@ def main():
         parser.error("--development-suite cannot be combined with --episode")
 
     try:
-        temperature = resolve_sampling_options(
+        temperature, reasoning_effort = resolve_pilot_sampling(
             args.temperature,
             args.omit_temperature,
             args.reasoning_effort,
@@ -100,7 +131,7 @@ def main():
     episodes = (
         DEVELOPMENT_EPISODES
         if args.development_suite
-        else (args.episodes or DEFAULT_EPISODES)
+        else (args.episodes or TARGETED_PILOT_EPISODES)
     )
     output_dir = Path(args.output_dir)
 
@@ -113,7 +144,7 @@ def main():
         policy_factory=PlanExecuteLLMPolicy,
         policy_kwargs={
             "temperature": temperature,
-            "reasoning_effort": args.reasoning_effort,
+            "reasoning_effort": reasoning_effort,
         },
         run_prefix="plan-execute-static-v0.1",
         baseline_name="plan-execute-static-v0.1",
