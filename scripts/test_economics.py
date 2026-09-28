@@ -254,6 +254,20 @@ class EconomicsTests(unittest.TestCase):
         with self.assertRaisesRegex(EconomicsError, "non-finite"):
             self.economics._outcome_cost(bad_episode, outcome)
 
+    def test_finite_prices_cannot_overflow_outcome_total(self):
+        episode = self.economics._load_episode(
+            "electrical-national-museum-lighting-002"
+        )
+        outcome = episode["oracle"]["acceptable_terminal_outcomes"][0]
+        bad_episode = json.loads(json.dumps(episode))
+        for award in outcome["awards"]:
+            item_id = award["scope"][len("lot-"):]
+            for event in bad_episode["events"]:
+                if event["event_id"] == award["quote_event_id"]:
+                    event["details"]["lots"][item_id]["price"] = 1e308
+        with self.assertRaisesRegex(EconomicsError, "Summed award cost"):
+            self.economics._outcome_cost(bad_episode, outcome)
+
     def test_reference_cohort_uses_joint_positive_oracle_runs(self):
         coverage = [
             self.economics_report("e1", 1, selected=100, oracle=90),
