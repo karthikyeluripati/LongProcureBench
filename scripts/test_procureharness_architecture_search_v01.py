@@ -104,6 +104,23 @@ class ProcureHarnessArchitectureSearchV01Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Economic regret contract"):
             validate_protocol(mutated)
 
+    def test_empty_regret_cohort_cannot_be_treated_as_zero(self):
+        mutated = deepcopy(self.protocol)
+        policy = mutated["reporting_contract"]["economic_regret_v01"][
+            "eligibility_aware_comparison"
+        ]["empty_reference_cohort_policy"]
+        policy["mean_regret_value"] = 0
+        with self.assertRaisesRegex(ValueError, "Economic regret contract"):
+            validate_protocol(mutated)
+
+    def test_empty_regret_cohort_must_block_final_claim(self):
+        mutated = deepcopy(self.protocol)
+        mutated["final_method_freeze"]["method_claim_gates"][
+            "empty_regret_cohort_rule"
+        ] = "ignore regret and continue"
+        with self.assertRaisesRegex(ValueError, "method-claim"):
+            validate_protocol(mutated)
+
     def test_baseline_reruns_cannot_be_enabled(self):
         mutated = deepcopy(self.protocol)
         mutated["search_procedure"]["development_confirmation"][
