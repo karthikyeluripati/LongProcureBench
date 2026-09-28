@@ -244,7 +244,12 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             client=SequenceClient([]),
         )
         policy._fixed_plan = plan
-        policy._initial_event_ids = set()\n        policy._event_first_seen = {\n            "e-c-quote": 1,\n            "e-a-withdrawal": 2,\n        }\n        policy._executor_decision_index = 2
+        policy._initial_event_ids = set()
+        policy._event_first_seen = {
+            "e-c-quote": 1,
+            "e-a-withdrawal": 2,
+        }
+        policy._executor_decision_index = 2
 
         event_ids = policy._validate_unplanned_exception(
             {
