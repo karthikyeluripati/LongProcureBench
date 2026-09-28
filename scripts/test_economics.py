@@ -1,7 +1,9 @@
 """Regression tests for deterministic procurement economics v0.1."""
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 import unittest
 
 from longprocurebench import (
@@ -107,6 +109,27 @@ class EconomicsTests(unittest.TestCase):
         self.assertEqual(report["selected_cost_native"], 4230000.0)
         self.assertEqual(report["oracle_cost_native"], 4230000.0)
         self.assertEqual(report["feasible_price_regret_native"], 0.0)
+
+    def test_all_current_award_outcomes_have_scope_aware_prices(self):
+        episode_dir = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "episodes"
+            / "electrical"
+        )
+        for path in sorted(episode_dir.glob("*.json")):
+            with self.subTest(episode=path.stem):
+                episode = json.loads(path.read_text(encoding="utf-8"))
+                outcomes = episode["oracle"]["acceptable_terminal_outcomes"]
+                for outcome in outcomes:
+                    if outcome["decision"] != "award":
+                        continue
+                    total, currency = self.economics._outcome_cost(
+                        episode,
+                        outcome,
+                    )
+                    self.assertGreaterEqual(total, 0.0)
+                    self.assertTrue(currency)
 
     def test_feasible_suboptimal_award_has_positive_regret(self):
         eid = "electrical-bongabon-generator-001"
@@ -351,6 +374,17 @@ class EconomicsTests(unittest.TestCase):
         row = self.economics_report("e1", 1, selected=100, oracle=90)
         with self.assertRaisesRegex(EconomicsError, "Duplicate"):
             freeze_reference_cohort([row, row], [row])
+
+    def test_matched_baseline_grids_must_be_identical(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=100, oracle=90),
+            self.economics_report("e2", 1, selected=100, oracle=90),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=100, oracle=90),
+        ]
+        with self.assertRaisesRegex(EconomicsError, "grids differ"):
+            freeze_reference_cohort(coverage, react)
 
 
 if __name__ == "__main__":
