@@ -297,6 +297,33 @@ relabeling the failed ledger/planner/verifier/progress variants as a successful
 ProcureHarness reliability architecture. The next artifact is the manuscript,
 not another agent design.
 
+
+## Post-held-out extension — new-method protocol (September 2026)
+
+The earlier instruction to stop bespoke architecture search remains valid for
+the **frozen LongProcureBench held-out paper evidence**. Episodes 021-030 have
+already been evaluated and inspected and must not be reused as untouched test
+evidence for a newly designed method.
+
+Architecture work is reopened only as a separate method-development phase
+because later trajectory diagnostics isolated a more specific failure:
+
+- Coverage+Repair recovered much of ReAct's quality at lower inference cost;
+- residual failures concentrated around prerequisite validity and recovery
+  after state invalidation;
+- static Plan-and-Execute then failed the targeted mechanism pilot, including
+  clarification fixation and zero unplanned-exception activation.
+
+The resulting candidate is frozen separately as
+`state-validity-frontier-v0.1`. It recomputes a versioned workflow-validity
+graph from visible facts, invalidates only dependent state after visible
+changes, exposes a minimal valid-action frontier, and uses model deliberation
+only when multiple valid actions remain.
+
+This is **not** retroactive support for a ProcureHarness method claim. The new
+candidate must pass its own development gate, ablations, and a future untouched
+031+ held-out set before any paper-level method claim is allowed.
+
 ## References
 
 - Google Cloud Architecture Center, *Choose a design pattern for your agentic AI
