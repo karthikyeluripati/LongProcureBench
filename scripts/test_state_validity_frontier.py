@@ -256,6 +256,21 @@ class StateValidityFrontierTests(unittest.TestCase):
         fourth, state = _take(policy, env, state, episode_id, 4)
         self.assertEqual(fourth["supplier_id"], "syn-burauen-c")
 
+        compiled = policy._prompt_state(state)
+        graph = policy._validity_graph(compiled)
+        pre_eval_frontier = policy._frontier(compiled, graph)
+        revision_suppliers = {
+            row["supplier_id"]
+            for row in pre_eval_frontier
+            if row["type"] == "request_quote_revision"
+        }
+        self.assertEqual(revision_suppliers, {"syn-burauen-b"})
+        self.assertNotIn("syn-burauen-c", revision_suppliers)
+        self.assertIn(
+            "evaluate_quotes",
+            {row["type"] for row in pre_eval_frontier},
+        )
+
         fifth, state = _take(policy, env, state, episode_id, 5)
         self.assertEqual(fifth["type"], "evaluate_quotes")
         self.assertEqual(
