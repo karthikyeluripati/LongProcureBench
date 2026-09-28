@@ -1,0 +1,235 @@
+{
+  "schema_version": "0.1.0",
+  "experiment": "plan-execute-targeted-v0.1",
+  "status": "development_mechanism_diagnostic",
+  "source": {
+    "workflow_run_id": 36396684099,
+    "artifact_id": 10957769763,
+    "artifact_name": "plan-execute-targeted-36396684099-1",
+    "artifact_digest": "sha256:b5588478661f9ccc30ceeac563cdef2dc4b6fd48eb6515603b0117c7d935925f",
+    "artifact_expires_at": "2026-10-28T08:23:04Z",
+    "benchmark_code_sha": "5257769482b79ff3c8c717715b96d2e116552ac1",
+    "execution_commit": "135ff49e61c557da6efc7dc5b36e57fbbc8e64a6",
+    "model": "openai/gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "temperature": null,
+    "repeats": 1,
+    "max_actions": 50,
+    "episodes": [
+      "electrical-burauen-generator-008",
+      "electrical-dla-transformer-013",
+      "electrical-dla-power-supply-016"
+    ]
+  },
+  "aggregate": {
+    "runs": 3,
+    "completed": 2,
+    "max_actions": 1,
+    "terminal_feasible": [
+      0,
+      3
+    ],
+    "feasible_obligation_success": [
+      0,
+      3
+    ],
+    "strict_v02": [
+      0,
+      3
+    ],
+    "economic_objective": [
+      0,
+      3
+    ],
+    "accepted_actions": 59,
+    "planner_calls": 3,
+    "executor_calls": 59,
+    "model_calls": 62,
+    "total_tokens": 245646,
+    "latency_ms": 174980.660675,
+    "known_cost_usd": 1.381479,
+    "unplanned_exceptions": 0
+  },
+  "runs": [
+    {
+      "episode_id": "electrical-burauen-generator-008",
+      "status": "completed",
+      "outcomes": {
+        "terminal_feasible": false,
+        "feasible_obligation_success": false,
+        "strict_v02": false,
+        "economic_objective": false
+      },
+      "efficiency": {
+        "accepted_actions": 3,
+        "planner_calls": 1,
+        "executor_calls": 3,
+        "model_calls": 4,
+        "total_tokens": 9015,
+        "latency_ms": 27964.206708000005,
+        "cost_usd": 0.06603300000000001,
+        "unplanned_exceptions": 0
+      },
+      "trajectory_rle": [
+        {
+          "steps": "1-2",
+          "type": "request_buyer_clarification",
+          "count": 2
+        },
+        {
+          "steps": "3",
+          "type": "no_award",
+          "count": 1
+        }
+      ],
+      "reached_target_event": false,
+      "target_event": "supplier_withdrawal",
+      "interpretation": "Static planning gated on additional clarification and terminated before supplier discovery, so the intended withdrawal-recovery mechanism was never exercised."
+    },
+    {
+      "episode_id": "electrical-dla-transformer-013",
+      "status": "completed",
+      "outcomes": {
+        "terminal_feasible": false,
+        "feasible_obligation_success": false,
+        "strict_v02": false,
+        "economic_objective": false
+      },
+      "efficiency": {
+        "accepted_actions": 6,
+        "planner_calls": 1,
+        "executor_calls": 6,
+        "model_calls": 7,
+        "total_tokens": 17084,
+        "latency_ms": 27710.703042000005,
+        "cost_usd": 0.10888900000000001,
+        "unplanned_exceptions": 0
+      },
+      "trajectory_rle": [
+        {
+          "steps": "1-5",
+          "type": "request_buyer_clarification",
+          "count": 5,
+          "observed_at_step_1": "buyer_clarification:e1"
+        },
+        {
+          "steps": "6",
+          "type": "no_award",
+          "count": 1
+        }
+      ],
+      "prerequisite_obligation_resolved": true,
+      "interpretation": "The first clarification resolved the benchmark's starting requirement-gap obligation, but the executor continued treating unrelated missing metadata as blocking and terminated without sourcing."
+    },
+    {
+      "episode_id": "electrical-dla-power-supply-016",
+      "status": "max_actions",
+      "outcomes": {
+        "terminal_feasible": false,
+        "feasible_obligation_success": false,
+        "strict_v02": false,
+        "economic_objective": false
+      },
+      "efficiency": {
+        "accepted_actions": 50,
+        "planner_calls": 1,
+        "executor_calls": 50,
+        "model_calls": 51,
+        "total_tokens": 219547,
+        "latency_ms": 119305.75092499987,
+        "cost_usd": 1.206557,
+        "unplanned_exceptions": 0
+      },
+      "trajectory_rle": [
+        {
+          "steps": "1-4",
+          "type": "request_buyer_clarification",
+          "count": 4,
+          "observed_at_step_4": "requirement_change:e4"
+        },
+        {
+          "steps": "5",
+          "type": "issue_amendment",
+          "count": 1
+        },
+        {
+          "steps": "6-50",
+          "type": "request_buyer_clarification",
+          "count": 45
+        }
+      ],
+      "amendment_obligation_resolved": true,
+      "interpretation": "The agent responded to the requirement change with an amendment, then fell into clarification fixation and exhausted the 50-action budget before supplier solicitation or quote-revision recovery."
+    }
+  ],
+  "matched_development_context": {
+    "note": "Descriptive context only; Plan-and-Execute has one targeted repeat while the frozen comparators have three repeats per episode, so these are not inferential matched-rate comparisons.",
+    "coverage_repair": {
+      "episode_008": {
+        "strict": [
+          0,
+          3
+        ],
+        "economic": [
+          0,
+          3
+        ]
+      },
+      "episode_013": {
+        "terminal_feasible": [
+          3,
+          3
+        ],
+        "strict": [
+          0,
+          3
+        ],
+        "economic": [
+          0,
+          3
+        ]
+      },
+      "episode_016": {
+        "terminal_feasible": [
+          3,
+          3
+        ],
+        "feasible_obligation_success": [
+          3,
+          3
+        ],
+        "strict": [
+          3,
+          3
+        ],
+        "economic": [
+          3,
+          3
+        ]
+      }
+    }
+  },
+  "decision": {
+    "run_full_development_grid": false,
+    "reason": "The targeted mechanism pilot fails all three quality objectives, activates zero unplanned exceptions, and exhibits clarification fixation including one max-action loop. A broader static Plan-and-Execute grid is not scientifically or economically justified.",
+    "comparator_role": "negative_external_comparator",
+    "next_research_target": "structured workflow-state validity with explicit event-driven invalidation and selective deliberation at the valid decision frontier"
+  },
+  "durable_evidence": {
+    "manifest": "evidence/plan-execute-targeted-v0.1/manifest.json",
+    "replay_format": "gzip(JSONL compact replay) encoded as checksum-locked base64 chunks",
+    "replay_records": 3,
+    "preserves": [
+      "accepted actions",
+      "revealed observations",
+      "fixed plan",
+      "execution trace",
+      "model configuration",
+      "usage and cost metrics"
+    ],
+    "provenance": "evidence/plan-execute-targeted-v0.1/source-provenance.txt",
+    "audit_script": "scripts/audit_plan_execute_targeted_v01.py",
+    "source_verifier": "scripts/verify_plan_execute_targeted_source_artifact_v01.py",
+    "durability": "Independent replay audit does not depend on the GitHub Actions artifact remaining available."
+  }
+}
