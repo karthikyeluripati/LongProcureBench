@@ -11,6 +11,24 @@ The current electrical-procurement slice is deliberately real-data-centric:
 
 The repository now includes a deterministic evaluator and a first non-oracle reactive LLM baseline; there is still no leaderboard.
 
+## Post-held-out ProcureHarness method track
+
+The frozen LongProcureBench paper evaluation remains unchanged, but a **separate
+post-held-out method-development track** is now preregistered. Its goal is to
+search a bounded agentic design-pattern space toward a ProcureHarness
+quality/economic-efficiency frontier before adding memory, knowledge graphs,
+forecasting, dynamic model routing, or self-improvement.
+
+- Episodes 001-020 remain development-exposed.
+- Episodes 021-030 remain diagnostic-only for any newly designed method.
+- New 031-040 episodes are reserved for architecture-search validation.
+- New 041-050 episodes are reserved for the untouched final method test.
+- The search ceiling is an operational Pareto plateau (two consecutive rounds
+  without a new admissible frontier point), not a claim of global optimality.
+- Continuous feasible-price regret and paired procurement savings must be
+  implemented uniformly before any paid architecture-search run.
+- See [`docs/procureharness-architecture-search-v0.1.md`](docs/procureharness-architecture-search-v0.1.md).
+
 ## Current milestones
 
 ### Initial-state dataset
