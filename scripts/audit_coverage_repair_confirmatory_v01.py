@@ -398,16 +398,22 @@ def main() -> None:
             ),
         }
 
-    _close(
-        results["deltas"]["versus_context"],
-        compare_delta(coverage, context),
-        "results.deltas.versus_context",
-    )
-    _close(
-        results["deltas"]["versus_react"],
-        compare_delta(coverage, react),
-        "results.deltas.versus_react",
-    )
+    for label, baseline in (
+        ("versus_context", context),
+        ("versus_react", react),
+    ):
+        derived_delta = compare_delta(coverage, baseline)
+        frozen_delta = results["deltas"][label]
+        if set(frozen_delta) != set(derived_delta):
+            raise ValueError(
+                f"Delta field mismatch at results.deltas.{label}"
+            )
+        for key, expected in derived_delta.items():
+            _close(
+                frozen_delta[key],
+                expected,
+                f"results.deltas.{label}.{key}",
+            )
 
     diag = results["coverage_repair_diagnostics"]
     diag_actual = {
