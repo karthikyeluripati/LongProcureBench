@@ -60,7 +60,7 @@ jobs:
                   repeat = int(Path(name).stem.split("-")[-1])
                   records.append(compact_record_from_raw(raw, repeat))
 
-          records.sort(key=lambda row: (EPISODES.index(row["episode_id"]), row["repeat"]))
+          records.sort(key=lambda row: (row["episode_id"], row["repeat"]))
           if len(records) != 60:
               raise SystemExit(f"expected 60 run records, got {len(records)}")
 
