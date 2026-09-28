@@ -55,6 +55,8 @@ jobs:
         run: python scripts/audit_coverage_repair_confirmatory_v01.py
       - name: Audit frozen State Validity Frontier Stage-1 evidence
         run: python scripts/audit_state_validity_frontier_stage1_v01.py
+      - name: Audit frozen State Validity Frontier development v0.2 evidence
+        run: python scripts/audit_state_validity_frontier_development_v02.py
       - name: Validate frozen development comparator matrix
         run: python scripts/validate_development_comparator_matrix_v01.py
       - name: Validate frozen held-out episode package
