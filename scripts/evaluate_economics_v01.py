@@ -26,7 +26,12 @@ def _load_many(paths):
 
 
 def _write(payload, output):
-    text = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    text = json.dumps(
+        payload,
+        indent=2,
+        sort_keys=True,
+        allow_nan=False,
+    ) + "\n"
     if output:
         path = Path(output)
         path.parent.mkdir(parents=True, exist_ok=True)
