@@ -53,6 +53,12 @@ PLAN_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
 }
 
+CROSS_SUPPLIER_EXCEPTION_EVENT_TYPES = {
+    "supplier_withdrawal",
+    "requirement_change",
+    "quantity_change",
+}
+
 EXCEPTION_EVENT_TYPES: dict[str, set[str]] = {
     "send_follow_up": {"supplier_non_response"},
     "answer_supplier_question": {"supplier_question"},
@@ -61,6 +67,7 @@ EXCEPTION_EVENT_TYPES: dict[str, set[str]] = {
         "quote_received",
         "quote_revision",
         "substitution_proposed",
+        "supplier_withdrawal",
         "lead_time_change",
         "requirement_change",
         "quantity_change",
@@ -166,7 +173,7 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace: list[dict[str, Any]] = []
         self._pending_execution: dict[str, Any] | None = None
-        self._initial_event_ids: set[str] = set()
+        self._seen_event_ids: set[str] = set()
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
@@ -175,7 +182,7 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace = []
         self._pending_execution = None
-        self._initial_event_ids = set()
+        self._seen_event_ids = set()
 
     @classmethod
     def _executor_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -267,7 +274,7 @@ Return only the structured executor response."""
 
         compiled = compile_visible_state(state)
         initial_events = compiled.get("event_history") or []
-        self._initial_event_ids = {
+        self._seen_event_ids = {
             event.get("event_id")
             for event in initial_events
             if isinstance(event, dict)
@@ -323,10 +330,10 @@ Return only the structured executor response."""
         """Validate that plan_step_index=0 denotes a real plan departure.
 
         An exception is valid when the action operation is absent from the
-        fixed plan, or when a post-plan visible event of a relevant type
-        motivates that action. This prevents ordinary planned actions from
-        being mislabeled as exceptions while still allowing later environment
-        changes to force departures from the static plan.
+        fixed plan, or when a newly revealed event since the previous
+        executor decision motivates that action. This prevents older evidence
+        from being misattributed as the cause of a later plan departure while
+        still allowing environment changes to force recovery.
         """
         if self._fixed_plan is None:
             raise PlanExecuteProtocolError("Fixed plan is unavailable")
@@ -345,19 +352,26 @@ Return only the structured executor response."""
             if not isinstance(event, dict):
                 continue
             event_id = event.get("event_id")
+            event_type = event.get("type")
             if (
                 not isinstance(event_id, str)
-                or event_id in self._initial_event_ids
-                or event.get("type") not in relevant_types
+                or event_id in self._seen_event_ids
+                or event_type not in relevant_types
             ):
                 continue
+
             event_supplier = event.get("supplier_id")
+            supplier_matches = (
+                supplier_id is None
+                or event_supplier is None
+                or event_supplier == supplier_id
+            )
             if (
-                supplier_id is not None
-                and event_supplier is not None
-                and event_supplier != supplier_id
+                not supplier_matches
+                and event_type not in CROSS_SUPPLIER_EXCEPTION_EVENT_TYPES
             ):
                 continue
+
             matching_event_ids.append(event_id)
 
         if not matching_event_ids:
@@ -449,6 +463,12 @@ Return only the structured executor response."""
             "action": deepcopy(runtime_action),
             "state_step": state.get("step"),
             "exception_event_ids": exception_event_ids,
+            "visible_event_ids": sorted(
+                event.get("event_id")
+                for event in (compiled.get("event_history") or [])
+                if isinstance(event, dict)
+                and isinstance(event.get("event_id"), str)
+            ),
         }
         return runtime_action
 
@@ -483,6 +503,9 @@ Return only the structured executor response."""
                 self._pending_execution["exception_event_ids"]
             ),
         })
+        self._seen_event_ids.update(
+            self._pending_execution["visible_event_ids"]
+        )
         self._pending_execution = None
 
     def get_run_metadata(self) -> dict[str, Any]:
