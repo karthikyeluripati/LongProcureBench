@@ -1,0 +1,142 @@
+{
+  "aggregate": {
+    "accepted_actions": 517,
+    "actionable_obligations": 90,
+    "completed": 51,
+    "deterministic_frontier_actions": 284,
+    "economic_objective": [24, 60],
+    "feasible_obligation_success": [38, 60],
+    "frontier_size_counts": {"1": 284, "2": 153, "3": 47, "4": 31, "5": 2},
+    "known_cost_usd": 2.7651588,
+    "latency_ms": 479978.94023299916,
+    "llm_frontier_calls": 233,
+    "model_calls": 233,
+    "policy_error": 9,
+    "quote_invalidations": 216,
+    "requirement_invalidations": 12,
+    "resolved_obligations": 80,
+    "runs": 60,
+    "strict_v02": [23, 60],
+    "terminal_feasible": [39, 60],
+    "total_tokens": 561945,
+    "unresolved_obligations": 10,
+    "validity_frontier_interventions": 517,
+    "validity_invalidations": 243,
+    "withdrawal_invalidations": 15
+  },
+  "comparisons": {
+    "context": {
+      "accepted_actions_pct": 11.422413793103448,
+      "cost_pct": -40.000760308362324,
+      "economic_pp": 16.666666666666668,
+      "feasible_obligation_pp": -3.3333333333333335,
+      "latency_pct": -44.80217274303611,
+      "model_calls_pct": -49.78448275862068,
+      "strict_pp": 15.0,
+      "terminal_pp": -11.666666666666666,
+      "tokens_pct": -42.317759657075285
+    },
+    "coverage_repair": {
+      "accepted_actions_pct": 8.613445378151251,
+      "cost_pct": -7.136884595542059,
+      "economic_pp": -10.0,
+      "feasible_obligation_pp": -20.0,
+      "latency_pct": -28.0750782111714,
+      "model_calls_pct": -28.08641975308642,
+      "strict_pp": -11.666666666666666,
+      "terminal_pp": -21.666666666666668,
+      "tokens_pct": -18.258027352784588
+    },
+    "react": {
+      "accepted_actions_pct": 5.942622950819665,
+      "cost_pct": -65.36712893279069,
+      "economic_pp": -6.666666666666667,
+      "feasible_obligation_pp": -5.0,
+      "latency_pct": -62.360714733132504,
+      "model_calls_pct": -52.25409836065573,
+      "strict_pp": -6.666666666666667,
+      "terminal_pp": -21.666666666666668,
+      "tokens_pct": -61.356890974506804
+    }
+  },
+  "execution_failures": {
+    "error_fingerprints": [{
+      "count": 9,
+      "message": "Withdrawal recovery has no unattempted active-supplier quote evidence left; replacement evidence was not obtained",
+      "type": "StateValidityFrontierError"
+    }],
+    "policy_errors_by_episode": {
+      "electrical-dla-battery-charger-015": 3,
+      "electrical-dla-breaker-004": 3,
+      "electrical-dla-relay-012": 3
+    }
+  },
+  "experiment": "state-validity-frontier-development-v0.2",
+  "gates": {
+    "efficiency_branch": false,
+    "execution_clean": false,
+    "overall_development_gate": false,
+    "prerequisite_sequence_pass": false,
+    "quality_branch": false,
+    "quality_requirements": {
+      "economic_ge_30": false,
+      "feasible_ge_47": false,
+      "strict_ge_30": false
+    }
+  },
+  "interpretation": [
+    "The frozen development gate fails on execution integrity, the episode-013 prerequisite sequence requirement, all three quality thresholds, and both contribution branches.",
+    "Nine policy errors are concentrated in episodes 004, 012, and 015 and share one StateValidityFrontierError: withdrawal recovery exhausts active-supplier revision attempts without obtaining replacement evidence.",
+    "State Validity Frontier uses materially fewer model calls, tokens, latency, and cost than ReAct, but quality is also materially lower than Coverage+Repair and ReAct.",
+    "Do not tune State Validity Frontier on episodes 001-020 after this result. Treat it as a negative development result; no component ablations or new held-out evaluation are authorized by the v0.2 protocol."
+  ],
+  "per_episode": {
+    "electrical-barrie-transformer-005":{"accepted_actions":21,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1006802,"model_calls":9,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[3,3],"total_tokens":20767,"unresolved_obligations":0},
+    "electrical-bfar-generator-006":{"accepted_actions":23,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1060796,"model_calls":10,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[3,3],"total_tokens":21173,"unresolved_obligations":0},
+    "electrical-bongabon-generator-001":{"accepted_actions":25,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1385962,"model_calls":13,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[3,3],"total_tokens":28216,"unresolved_obligations":0},
+    "electrical-burauen-generator-008":{"accepted_actions":30,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.151842,"model_calls":13,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":29882,"unresolved_obligations":0},
+    "electrical-dla-battery-charger-015":{"accepted_actions":29,"completed":0,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1453498,"model_calls":14,"policy_error":3,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":29351,"unresolved_obligations":3},
+    "electrical-dla-battery-supply-014":{"accepted_actions":23,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1772962,"model_calls":10,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":37389,"unresolved_obligations":0},
+    "electrical-dla-breaker-004":{"accepted_actions":26,"completed":0,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1432938,"model_calls":14,"policy_error":3,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":29063,"unresolved_obligations":3},
+    "electrical-dla-power-supply-016":{"accepted_actions":32,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.152296,"model_calls":14,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":31244,"unresolved_obligations":0},
+    "electrical-dla-qpl-breaker-017":{"accepted_actions":19,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.07898140000000001,"model_calls":9,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[3,3],"total_tokens":17291,"unresolved_obligations":0},
+    "electrical-dla-relay-012":{"accepted_actions":29,"completed":0,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1499282,"model_calls":13,"policy_error":3,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":28936,"unresolved_obligations":3},
+    "electrical-dla-transformer-013":{"accepted_actions":29,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[2,3],"known_cost_usd":0.20275739999999998,"model_calls":16,"policy_error":0,"strict_v02":[2,3],"terminal_feasible":[3,3],"total_tokens":40479,"unresolved_obligations":1},
+    "electrical-highpoint-cable-018":{"accepted_actions":21,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1469106,"model_calls":9,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":33984,"unresolved_obligations":0},
+    "electrical-highpoint-transformer-009":{"accepted_actions":24,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1613496,"model_calls":12,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":31959,"unresolved_obligations":0},
+    "electrical-national-museum-lighting-002":{"accepted_actions":21,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.120256,"model_calls":11,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":24061,"unresolved_obligations":0},
+    "electrical-negros-wire-007":{"accepted_actions":21,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.10213539999999999,"model_calls":9,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[3,3],"total_tokens":20967,"unresolved_obligations":0},
+    "electrical-neust-cable-003":{"accepted_actions":28,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1094708,"model_calls":10,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":22268,"unresolved_obligations":0},
+    "electrical-painesville-switchgear-010":{"accepted_actions":21,"completed":3,"economic_objective":[0,3],"feasible_obligation_success":[0,3],"known_cost_usd":0.1198726,"model_calls":9,"policy_error":0,"strict_v02":[0,3],"terminal_feasible":[0,3],"total_tokens":24742,"unresolved_obligations":0},
+    "electrical-sagada-generator-011":{"accepted_actions":32,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1591614,"model_calls":13,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":31474,"unresolved_obligations":0},
+    "electrical-usaf-ups-019":{"accepted_actions":30,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.13187939999999998,"model_calls":12,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":25739,"unresolved_obligations":0},
+    "electrical-vre-generator-020":{"accepted_actions":33,"completed":3,"economic_objective":[3,3],"feasible_obligation_success":[3,3],"known_cost_usd":0.1670222,"model_calls":13,"policy_error":0,"strict_v02":[3,3],"terminal_feasible":[3,3],"total_tokens":32960,"unresolved_obligations":0}
+  },
+  "prerequisite_sequence_gate": {
+    "checks": [
+      {"first_rfq_step":3,"pass":true,"repeat":1,"response_step":1},
+      {"first_rfq_step":3,"pass":true,"repeat":2,"response_step":2},
+      {"first_rfq_step":2,"pass":false,"repeat":3,"response_step":null}
+    ],
+    "episode_id":"electrical-dla-transformer-013",
+    "pass":false
+  },
+  "schema_version":"0.2.0",
+  "source":{
+    "artifact_bytes":279764,
+    "artifact_digest":"sha256:29e8ae46319336c5d508c116784523ddaca191352b369a100e4d663b91817a4c",
+    "artifact_expires_at":"2026-10-28T12:01:19Z",
+    "artifact_id":10968521526,
+    "artifact_name":"state-validity-frontier-development-v0.2-36418270289-1",
+    "benchmark_code_sha":"4e1e0836b042d5228bf1b24a5167587b3a25f4a5",
+    "development_grid":"001-020 x 3",
+    "execution_commit":"f6582efbae16d564b36369fd85e4989f10bed93e",
+    "max_actions":50,
+    "model":"openai/gpt-5.6-sol",
+    "reasoning_effort":"medium",
+    "temperature":null,
+    "workflow_job_id":108914532289,
+    "workflow_run_id":36418270289
+  },
+  "status":"frozen_negative_development_result"
+}
