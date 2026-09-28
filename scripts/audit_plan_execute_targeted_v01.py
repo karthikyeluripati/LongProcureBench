@@ -1,6 +1,7 @@
 """Audit frozen Plan-and-Execute targeted development evidence."""
 from __future__ import annotations
 
+from copy import deepcopy
 from hashlib import sha256
 import json
 import math
@@ -12,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from longprocurebench import LongProcureBenchEvaluator
+from longprocurebench import LongProcureBenchEnv, LongProcureBenchEvaluator
 from frozen_plan_execute_targeted_v01 import (
     EPISODES,
     _canonical_line,
@@ -96,6 +97,35 @@ def _obligation_resolved(
         and row.get("status") == "resolved"
         for row in evaluation["obligations"]["results"]
     )
+
+
+def _replay_and_check_trajectory(
+    record: dict[str, Any],
+) -> None:
+    """Require the current runtime to reproduce the frozen trace exactly."""
+    episode_id = record["episode_id"]
+    env = LongProcureBenchEnv(repo_root=ROOT)
+    state = env.reset(episode_id)
+
+    for frozen_row in record["trajectory"]:
+        action = deepcopy(frozen_row["action"])
+        state = env.step(action)
+
+        _close(
+            state["step"],
+            frozen_row["step"],
+            f"{episode_id}.trajectory.step",
+        )
+        _close(
+            state["observations"],
+            frozen_row["observations"],
+            f"{episode_id}.trajectory.step_{frozen_row['step']}.observations",
+        )
+
+    if len(state["action_history"]) != len(record["trajectory"]):
+        raise ValueError(
+            f"Replay action-history length drift for {episode_id}"
+        )
 
 
 def _check_manifest(manifest: dict[str, Any]) -> None:
@@ -234,6 +264,7 @@ def main() -> None:
     by_episode = {record["episode_id"]: record for record in records}
     for episode_id in EPISODES:
         record = by_episode[episode_id]
+        _replay_and_check_trajectory(record)
         evaluations[episode_id] = evaluator.evaluate_actions(
             episode_id,
             reconstruct_actions(record),
