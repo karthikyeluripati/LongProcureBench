@@ -7,7 +7,10 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from run_state_validity_frontier_development_v02 import (
+    CONTROLLER_PATH,
     PREREQUISITE_SEQUENCE_REQUIREMENTS,
+    PROTOCOL_PATH,
+    RUNNER_PATH,
     TARGET_EPISODES,
     TARGET_MAX_ACTIONS,
     TARGET_MODEL,
@@ -15,8 +18,10 @@ from run_state_validity_frontier_development_v02 import (
     TARGET_REPEATS,
     TARGET_RUNS,
     TARGET_TEMPERATURE,
+    _git_blob_sha,
     validate_exact_grid,
     validate_execution_statuses,
+    validate_frozen_implementation,
     validate_prerequisite_sequences,
 )
 
@@ -113,23 +118,72 @@ class StateValidityFrontierDevelopmentV02RunnerTests(unittest.TestCase):
                 "repeat": 1,
                 "status": "completed",
                 "error_type": None,
+                "evaluation_error_type": None,
             }
         ]
         validate_execution_statuses(rows)
 
+        for error_type in (
+            "StateValidityFrontierError",
+            "RunnerError",
+        ):
+            bad = [
+                {
+                    "episode_id": "electrical-bongabon-generator-001",
+                    "repeat": 1,
+                    "status": "policy_error",
+                    "error_type": error_type,
+                    "evaluation_error_type": None,
+                }
+            ]
+            with self.assertRaisesRegex(
+                ValueError,
+                "execution-status gate failed",
+            ):
+                validate_execution_statuses(bad)
+
+    def test_execution_status_gate_rejects_hidden_evaluation_error(self):
         bad = [
             {
                 "episode_id": "electrical-bongabon-generator-001",
                 "repeat": 1,
                 "status": "policy_error",
-                "error_type": "StateValidityFrontierError",
+                "error_type": "EnvironmentError",
+                "evaluation_error_type": "EvaluationError",
             }
         ]
         with self.assertRaisesRegex(
             ValueError,
-            "execution-status gate failed",
+            "evaluation_error=EvaluationError",
         ):
             validate_execution_statuses(bad)
+
+    def test_actual_executable_hashes_match_frozen_protocol(self):
+        actual = validate_frozen_implementation()
+        self.assertEqual(
+            actual["controller_blob_sha"],
+            _git_blob_sha(CONTROLLER_PATH),
+        )
+        self.assertEqual(
+            actual["runner_blob_sha"],
+            _git_blob_sha(RUNNER_PATH),
+        )
+
+    def test_executable_hash_drift_is_rejected(self):
+        protocol = json.loads(PROTOCOL_PATH.read_text(encoding="utf-8"))
+        protocol["implementation"]["runner_blob_sha"] = "0" * 40
+
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "protocol.json"
+            path.write_text(
+                json.dumps(protocol),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ValueError,
+                "implementation hash drift",
+            ):
+                validate_frozen_implementation(protocol_path=path)
 
     def test_sequence_gate_accepts_rfq_after_clarification(self):
         with TemporaryDirectory() as tmp:
