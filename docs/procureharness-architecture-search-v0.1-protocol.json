@@ -1,0 +1,369 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "status": "preregistered_no_search_runs",
+  "frozen_on_main_sha": "ed97bd0e37219fa09ef2ab207a09413267b6413f",
+  "purpose": "Search for a ProcureHarness agentic design-pattern skeleton that improves the long-horizon procurement quality/economic-efficiency frontier before adding memory, knowledge graphs, forecasting, dynamic model routing, or self-improvement.",
+  "scientific_scope": {
+    "phase": "agentic_design_pattern_search",
+    "claim_if_success": "A frozen ProcureHarness design pattern produces a better quality/economic-efficiency tradeoff than matched Coverage+Repair and ReAct comparators on a new untouched final method test.",
+    "forbidden_claims": [
+      "global optimum over all possible agent architectures",
+      "maximum achievable LongProcureBench score",
+      "memory, knowledge-graph, forecasting, model-routing, or self-improvement gains before those axes are separately tested"
+    ]
+  },
+  "benchmark_exposure": {
+    "development_exposed": {
+      "episodes": "001-020",
+      "count": 20,
+      "role": "architecture_search_and_failure_analysis",
+      "fresh_test_claim_allowed": false
+    },
+    "prior_heldout_exposed": {
+      "episodes": "021-030",
+      "count": 10,
+      "role": "diagnostic_only_for_new_method",
+      "fresh_test_claim_allowed": false
+    },
+    "required_new_collection": [
+      {
+        "episodes": "031-040",
+        "count": 10,
+        "role": "architecture_search_validation",
+        "state_at_freeze": "not_collected_or_authored",
+        "may_guide_design": true,
+        "final_method_claim_set": false
+      },
+      {
+        "episodes": "041-050",
+        "count": 10,
+        "role": "final_method_test",
+        "state_at_freeze": "not_collected_or_authored",
+        "may_guide_design": false,
+        "final_method_claim_set": true
+      }
+    ],
+    "collection_rule": "Every new episode must start from a distinct real public procurement package, preserve the existing real/synthetic boundary, pass deterministic reference control, and be frozen before model-backed evaluation."
+  },
+  "execution_defaults": {
+    "model": "openai/gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "temperature": null,
+    "temperature_mode": "omitted",
+    "max_actions": 50,
+    "context_strategy": "factual_compiled_v0.1",
+    "no_oracle_or_evaluator_access": true
+  },
+  "frozen_development_comparators": {
+    "coverage_repair": {
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        50,
+        60
+      ],
+      "strict_v02": [
+        30,
+        60
+      ],
+      "economic_objective": [
+        30,
+        60
+      ],
+      "obligation_resolution": [
+        90,
+        98
+      ],
+      "accepted_actions": 476,
+      "model_calls": 324,
+      "total_tokens": 687462,
+      "latency_ms": 667333.2807259995,
+      "known_cost_usd": 2.9776718
+    },
+    "react": {
+      "runs": 60,
+      "terminal_feasible": [
+        52,
+        60
+      ],
+      "feasible_obligation_success": [
+        41,
+        60
+      ],
+      "strict_v02": [
+        27,
+        60
+      ],
+      "economic_objective": [
+        28,
+        60
+      ],
+      "obligation_resolution": [
+        95,
+        112
+      ],
+      "accepted_actions": 488,
+      "model_calls": 488,
+      "total_tokens": 1454192,
+      "latency_ms": 1275207.3713140013,
+      "known_cost_usd": 7.9842032
+    },
+    "factual_context": {
+      "runs": 60,
+      "terminal_feasible": [
+        46,
+        60
+      ],
+      "feasible_obligation_success": [
+        40,
+        60
+      ],
+      "strict_v02": [
+        14,
+        60
+      ],
+      "economic_objective": [
+        14,
+        60
+      ],
+      "obligation_resolution": [
+        72,
+        86
+      ],
+      "accepted_actions": 464,
+      "model_calls": 464,
+      "total_tokens": 974208,
+      "latency_ms": 869561.2926909978,
+      "known_cost_usd": 4.6086564
+    }
+  },
+  "architecture_grammar": {
+    "fixed_information_boundary": "agent-visible state only; no episode-specific rules, hidden events, oracle fields, evaluator labels, or future-event access",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "searchable_axes": [
+      {
+        "name": "obligation_routing",
+        "choices": [
+          "deterministic_priority",
+          "hybrid_llm_tiebreak"
+        ]
+      },
+      {
+        "name": "local_planning",
+        "choices": [
+          "none",
+          "bounded_local_plan"
+        ]
+      },
+      {
+        "name": "skill_reasoning",
+        "choices": [
+          "direct_action",
+          "bounded_mini_react"
+        ]
+      },
+      {
+        "name": "verification",
+        "choices": [
+          "none",
+          "deterministic_visible_invariants",
+          "single_terminal_llm_critique"
+        ]
+      },
+      {
+        "name": "fallback",
+        "choices": [
+          "none",
+          "bounded_react_fallback"
+        ]
+      }
+    ],
+    "hard_complexity_limits": {
+      "max_model_calls_between_accepted_actions": 3,
+      "max_local_plan_steps": 4,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "deferred_harness_axes": [
+      "persistent_memory_or_AWM",
+      "knowledge_graph_or_GraphRAG",
+      "cross_episode_self_improvement",
+      "dynamic_model_routing_or_Jev",
+      "forecasting_tools",
+      "multi_agent_orchestration",
+      "long_running_checkpoint_rehydration"
+    ]
+  },
+  "search_procedure": {
+    "candidate_representation": "code-represented workflow assembled from the frozen module grammar; every candidate config and code hash must be committed before execution",
+    "candidate_generation": "enumeration, recombination, or meta-agent proposal is allowed only inside the frozen grammar; every proposal must record parent candidates and module deltas",
+    "max_rounds": 3,
+    "max_new_candidates_per_round": 6,
+    "max_unique_candidates": 18,
+    "screening": {
+      "episodes": "001-020",
+      "repeats_per_episode": 1,
+      "max_runs_per_candidate": 20,
+      "purpose": "cheap development screening; not confirmatory evidence"
+    },
+    "development_confirmation": {
+      "episodes": "001-020",
+      "repeats_per_episode": 3,
+      "max_candidates_per_round": 2,
+      "runs_per_candidate": 60,
+      "baseline_policy": "reuse frozen comparator evidence; do not rerun Coverage+Repair, ReAct, or factual context"
+    },
+    "search_validation": {
+      "episodes": "031-040",
+      "repeats_per_episode": 3,
+      "requires_package_freeze_before_calls": true,
+      "matched_baselines": [
+        "coverage_repair",
+        "react"
+      ],
+      "baseline_runs_once_per_frozen_package": true,
+      "may_guide_subsequent_search_rounds": true
+    },
+    "ceiling_stop_rule": {
+      "plateau_rounds": 2,
+      "definition": "Stop agent-design-pattern search after two consecutive completed search rounds add no candidate to the admissible validation Pareto frontier, or when max_rounds/max_unique_candidates is reached, whichever comes first.",
+      "not_a_global_optimum_claim": true
+    }
+  },
+  "reporting_contract": {
+    "no_weighted_composite_score": true,
+    "primary_quality_metric": "feasible_obligation_success",
+    "mandatory_quality_metrics": [
+      "terminal_feasible",
+      "strict_v02",
+      "obligation_resolution_rate",
+      "economic_objective_satisfied"
+    ],
+    "economic_metrics": [
+      "feasible_price_regret_native",
+      "feasible_price_regret_pct",
+      "paired_savings_vs_baseline_native",
+      "paired_savings_vs_baseline_pct"
+    ],
+    "efficiency_metrics": [
+      "accepted_actions",
+      "model_calls",
+      "prompt_tokens",
+      "completion_tokens",
+      "total_tokens",
+      "latency_ms",
+      "known_cost_usd",
+      "deterministic_action_fraction"
+    ],
+    "economic_regret_v01": {
+      "implementation_status": "required_before_paid_architecture_search",
+      "eligible_when": "terminal award matches an acceptable feasible outcome, all hard constraints pass, economic objective kind is minimize_total_price, and all compared outcome prices use one native currency",
+      "selected_cost": "sum total_price for the quote_event_id referenced by each award in the matched acceptable outcome",
+      "oracle_cost": "minimum summed total_price across oracle preferred_outcome_ids",
+      "feasible_price_regret_native": "max(0, selected_cost - oracle_cost)",
+      "feasible_price_regret_pct": "100 * feasible_price_regret_native / oracle_cost",
+      "infeasible_or_no_award_policy": "report regret as not_eligible rather than assigning an arbitrary monetary penalty; reliability metrics carry the failure",
+      "aggregation": "report per-currency native regret separately and aggregate normalized regret percent; never sum different native currencies",
+      "savings_contract": "paired savings is baseline selected_cost minus candidate selected_cost only when both matched runs are regret-eligible; report native currency and percent"
+    }
+  },
+  "admissibility_and_frontier": {
+    "execution_requirements": [
+      "zero setup, environment, evaluator, metadata, provider-call, or controller-contract failures",
+      "exact frozen model/settings and candidate code/config hashes",
+      "no episode-id branches, oracle access, evaluator labels, hidden-state access, or future-event access"
+    ],
+    "development_confirmation_floor": {
+      "feasible_obligation_success_min": [
+        47,
+        60
+      ],
+      "strict_v02_min": [
+        27,
+        60
+      ],
+      "economic_objective_min": [
+        27,
+        60
+      ]
+    },
+    "frontier_dimensions": {
+      "maximize": [
+        "feasible_obligation_success",
+        "strict_v02",
+        "obligation_resolution_rate",
+        "economic_objective_satisfied"
+      ],
+      "minimize": [
+        "feasible_price_regret_pct",
+        "known_cost_usd",
+        "total_tokens",
+        "latency_ms",
+        "model_calls"
+      ]
+    },
+    "development_promotion_branch": [
+      "quality: improve feasible-obligation, strict, or economic success by at least 3/60 versus Coverage+Repair, with no other mandatory quality metric worse by more than 3/60 and cost no higher than frozen ReAct",
+      "efficiency: remain within 3/60 of Coverage+Repair on feasible-obligation, strict, and economic success, with regret no worse and at least 20% lower known API cost than Coverage+Repair"
+    ]
+  },
+  "final_method_freeze": {
+    "freeze_before_final_test": [
+      "winning architecture code and module config",
+      "all prompts and skill definitions",
+      "model/settings",
+      "economic-regret evaluator implementation",
+      "episodes 041-050 package and reference-control validation",
+      "final comparison rows and statistical reporting procedure"
+    ],
+    "final_test": {
+      "episodes": "041-050",
+      "repeats_per_episode": 3,
+      "rows": [
+        "procureharness_winner",
+        "coverage_repair",
+        "react",
+        "reference_control"
+      ],
+      "no_tuning_after_first_model_call": true
+    },
+    "method_claim_gate": [
+      "quality branch: ProcureHarness improves feasible-obligation success by at least 3/30 over the better matched baseline, is no worse by more than 1/30 on strict and economic success, and costs no more than ReAct",
+      "efficiency branch: ProcureHarness is within 1/30 of the better matched baseline on feasible-obligation, strict, and economic success, has no worse normalized feasible-price regret, and reduces known API cost by at least 30% versus the better-quality matched baseline"
+    ]
+  },
+  "phase2_after_pattern_freeze": {
+    "entry_condition": "Only after a ProcureHarness design-pattern winner is frozen from the architecture-search phase.",
+    "axes_to_test_one_at_a_time": [
+      "persistent workflow memory/AWM",
+      "operational knowledge graph",
+      "forecasting/risk tools",
+      "dynamic low-cost/strong-model routing",
+      "cross-episode self-improvement",
+      "long-running checkpoint/resume state"
+    ],
+    "rule": "Each harness axis requires a matched ablation on the frozen skeleton before it enters the final amalgamation."
+  }
+}
