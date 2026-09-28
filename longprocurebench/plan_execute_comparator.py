@@ -127,7 +127,9 @@ plan step you are executing.
 Set plan_step_index = 0 only for a genuine unplanned exception:
 - the chosen operation is absent from the fixed plan; or
 - the operation exists in the plan, but a relevant fact revealed after planning
-  now motivates a departure from ordinary plan-step execution.
+  motivates a departure from ordinary plan-step execution. A post-plan fact may
+  justify different downstream recovery operations; do not assume it stops
+  mattering after the first response.
 
 Do not label an ordinary planned action as an exception. Do not rewrite or
 extend the plan.
@@ -173,7 +175,10 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace: list[dict[str, Any]] = []
         self._pending_execution: dict[str, Any] | None = None
-        self._seen_event_ids: set[str] = set()
+        self._initial_event_ids: set[str] = set()
+        self._event_first_seen: dict[str, int] = {}
+        self._exception_event_uses: set[tuple[str, str]] = set()
+        self._executor_decision_index = 0
 
     def reset(self, state: dict[str, Any]) -> None:
         super().reset(state)
@@ -182,7 +187,10 @@ Return only the structured executor response."""
         self._executor_calls = 0
         self._execution_trace = []
         self._pending_execution = None
-        self._seen_event_ids = set()
+        self._initial_event_ids = set()
+        self._event_first_seen = {}
+        self._exception_event_uses = set()
+        self._executor_decision_index = 0
 
     @classmethod
     def _executor_schema(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -274,7 +282,7 @@ Return only the structured executor response."""
 
         compiled = compile_visible_state(state)
         initial_events = compiled.get("event_history") or []
-        self._seen_event_ids = {
+        self._initial_event_ids = {
             event.get("event_id")
             for event in initial_events
             if isinstance(event, dict)
@@ -329,11 +337,10 @@ Return only the structured executor response."""
     ) -> list[str]:
         """Validate that plan_step_index=0 denotes a real plan departure.
 
-        An exception is valid when the action operation is absent from the
-        fixed plan, or when a newly revealed event since the previous
-        executor decision motivates that action. This prevents older evidence
-        from being misattributed as the cause of a later plan departure while
-        still allowing environment changes to force recovery.
+        Post-plan events may legitimately drive multiple downstream recovery
+        operations. Therefore an event is consumed per operation, not globally.
+        For a given operation, prefer the most recently revealed relevant event
+        batch so older evidence cannot mask a later disruption.
         """
         if self._fixed_plan is None:
             raise PlanExecuteProtocolError("Fixed plan is unavailable")
@@ -347,7 +354,8 @@ Return only the structured executor response."""
 
         relevant_types = EXCEPTION_EVENT_TYPES.get(action_type, set())
         supplier_id = action.get("supplier_id")
-        matching_event_ids = []
+        candidates: list[tuple[int, str]] = []
+
         for event in compiled.get("event_history") or []:
             if not isinstance(event, dict):
                 continue
@@ -355,8 +363,9 @@ Return only the structured executor response."""
             event_type = event.get("type")
             if (
                 not isinstance(event_id, str)
-                or event_id in self._seen_event_ids
+                or event_id in self._initial_event_ids
                 or event_type not in relevant_types
+                or (event_id, action_type) in self._exception_event_uses
             ):
                 continue
 
@@ -372,14 +381,26 @@ Return only the structured executor response."""
             ):
                 continue
 
-            matching_event_ids.append(event_id)
+            first_seen = self._event_first_seen.get(event_id)
+            if first_seen is None:
+                # The event became visible in the current executor decision.
+                first_seen = self._executor_decision_index
+                self._event_first_seen[event_id] = first_seen
+            candidates.append((first_seen, event_id))
 
-        if not matching_event_ids:
+        if not candidates:
             raise PlanExecuteProtocolError(
                 "plan_step_index=0 requires an operation absent from the "
-                "fixed plan or a relevant post-plan visible event"
+                "fixed plan or an unused relevant post-plan event for this "
+                "operation"
             )
-        return sorted(matching_event_ids)
+
+        newest_index = max(index for index, _ in candidates)
+        return sorted(
+            event_id
+            for index, event_id in candidates
+            if index == newest_index
+        )
 
     def act(self, state: dict[str, Any]) -> dict[str, Any]:
         if self._pending_execution is not None:
@@ -391,6 +412,20 @@ Return only the structured executor response."""
 
         allowed_scopes = self._allowed_award_scopes(state)
         compiled = compile_visible_state(state)
+        self._executor_decision_index += 1
+        for event in compiled.get("event_history") or []:
+            if not isinstance(event, dict):
+                continue
+            event_id = event.get("event_id")
+            if (
+                isinstance(event_id, str)
+                and event_id not in self._initial_event_ids
+                and event_id not in self._event_first_seen
+            ):
+                self._event_first_seen[event_id] = (
+                    self._executor_decision_index
+                )
+
         payload = {
             "fixed_plan": deepcopy(self._fixed_plan),
             "current_visible_state": compiled,
@@ -463,12 +498,6 @@ Return only the structured executor response."""
             "action": deepcopy(runtime_action),
             "state_step": state.get("step"),
             "exception_event_ids": exception_event_ids,
-            "visible_event_ids": sorted(
-                event.get("event_id")
-                for event in (compiled.get("event_history") or [])
-                if isinstance(event, dict)
-                and isinstance(event.get("event_id"), str)
-            ),
         }
         return runtime_action
 
@@ -503,9 +532,14 @@ Return only the structured executor response."""
                 self._pending_execution["exception_event_ids"]
             ),
         })
-        self._seen_event_ids.update(
-            self._pending_execution["visible_event_ids"]
-        )
+        if self._pending_execution["plan_step_index"] == 0:
+            action_type = accepted["type"]
+            for event_id in self._pending_execution[
+                "exception_event_ids"
+            ]:
+                self._exception_event_uses.add(
+                    (event_id, action_type)
+                )
         self._pending_execution = None
 
     def get_run_metadata(self) -> dict[str, Any]:
