@@ -30,8 +30,20 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
             "24dd50e28864fe450039e098e4d28e4518097956",
         )
         self.assertEqual(
+            implementation["runner_path"],
+            "scripts/run_state_validity_frontier_development_v02.py",
+        )
+        self.assertEqual(
             implementation["runner_blob_sha"],
-            "94c7f8bafbb24618b4211a35223a89bca56ea56a",
+            "691a8ff3b640e4d157fba1be3ce311e86c2ea554",
+        )
+        self.assertIn(
+            "001-020",
+            implementation["execution_procedure"],
+        )
+        self.assertIn(
+            "3 repeats",
+            implementation["execution_procedure"],
         )
         self.assertIn(
             "No controller",
@@ -50,7 +62,7 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
         self.assertEqual(stage1["unresolved_obligations"], 0)
         self.assertFalse(stage1["strict_v01_gate_pass"])
         self.assertIn(
-            "remains frozen",
+            "remain unchanged",
             self.protocol["semantic_clarification"]["anti_retcon"],
         )
 
@@ -108,6 +120,22 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
         self.assertIsNone(grid["temperature"])
         self.assertEqual(grid["max_actions"], 50)
         self.assertFalse(grid["heldout_access"])
+        self.assertEqual(
+            grid["sequence_requirements"],
+            [
+                {
+                    "episode_id": "electrical-dla-transformer-013",
+                    "repeats": [1, 2, 3],
+                    "response_event_type": "buyer_clarification",
+                    "blocked_action_type": "send_rfq",
+                    "requirement": (
+                        "For every repeat, the first accepted send_rfq must "
+                        "occur strictly after the first visible "
+                        "buyer_clarification response."
+                    ),
+                }
+            ],
+        )
 
     def test_frozen_comparator_anchor_values(self):
         rows = {
@@ -170,6 +198,14 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
                 "strict_v02 >= 30/60 (50.0%)",
                 "economic_objective >= 30/60 (50.0%)",
             ],
+        )
+        self.assertIn(
+            (
+                "all three electrical-dla-transformer-013 repeats pass the "
+                "frozen prerequisite sequence gate: first accepted send_rfq "
+                "occurs strictly after the visible buyer_clarification response"
+            ),
+            gate["execution_requirements"],
         )
         self.assertEqual(len(gate["contribution_branch"]), 2)
         self.assertIn("3/60", gate["contribution_branch"][0])
