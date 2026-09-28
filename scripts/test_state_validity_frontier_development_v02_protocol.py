@@ -35,7 +35,7 @@ class StateValidityFrontierDevelopmentV02ProtocolTests(unittest.TestCase):
         )
         self.assertEqual(
             implementation["runner_blob_sha"],
-            "691a8ff3b640e4d157fba1be3ce311e86c2ea554",
+            "263e074e5f8aeac617338d3f1894b84c3e2acbc8",
         )
         self.assertIn(
             "001-020",
