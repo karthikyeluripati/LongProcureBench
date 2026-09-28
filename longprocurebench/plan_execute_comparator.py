@@ -117,9 +117,13 @@ Choose exactly one next semantic procurement action. Use the plan when an
 applicable planned operation exists. Return the 1-based plan_step_index for the
 plan step you are executing.
 
-If a newly visible fact requires a necessary action that the fixed plan did not
-represent, set plan_step_index = 0 and take that necessary action as an
-unplanned exception. Do not rewrite or extend the plan.
+Set plan_step_index = 0 only for a genuine unplanned exception:
+- the chosen operation is absent from the fixed plan; or
+- the operation exists in the plan, but a relevant fact revealed after planning
+  now motivates a departure from ordinary plan-step execution.
+
+Do not label an ordinary planned action as an exception. Do not rewrite or
+extend the plan.
 
 Use only visible facts. Do not assume hidden suppliers, future events, oracle
 answers, evaluator state, or unrevealed quotes. Preserve changed requirements,
