@@ -286,7 +286,8 @@
             "abs_tol": 1e-9
           },
           "candidate_id_part_of_vector": false
-        }
+        },
+        "empty_regret_cohort_rule": "apply reporting_contract.economic_regret_v01.eligibility_aware_comparison.empty_reference_cohort_policy uniformly before Pareto dominance/equivalence"
       }
     },
     "ceiling_stop_rule": {
@@ -398,7 +399,16 @@
         ],
         "candidate_comparability_requirement": "candidate must be regret-eligible on every run key in the frozen reference cohort before regret may be used for Pareto dominance, promotion, winner selection, or a final method claim",
         "paired_baseline_rule": "compute candidate-minus-baseline regret and baseline-minus-candidate savings only on identical run keys from the frozen reference cohort; never rank candidates by an aggregate formed from each candidate's own eligible subset",
-        "failure_handling": "candidate ineligibility on any reference-cohort key fails regret comparability and remains visible through reliability metrics; it is not silently dropped from the denominator"
+        "failure_handling": "candidate ineligibility on any reference-cohort key fails regret comparability and remains visible through reliability metrics; it is not silently dropped from the denominator",
+        "empty_reference_cohort_policy": {
+          "status": "unavailable_empty_reference_cohort",
+          "mean_regret_value": null,
+          "prohibition": "do not impute zero, infinity, or any sentinel numeric regret and do not rank candidates as better or worse because the cohort is empty",
+          "pareto_rule": "for that matched comparison package, omit mean_feasible_price_regret_pct_on_reference_cohort from every row's Pareto vector uniformly and recompute dominance/equivalence using the remaining frozen dimensions",
+          "development_efficiency_promotion_rule": "the efficiency promotion branch is unavailable when its required regret reference cohort is empty; a candidate may still advance only through the quality promotion branch",
+          "winner_selection_rule": "if the cumulative validation regret reference cohort is empty, skip the regret priority for every eligible candidate and continue the frozen lexicographic order at known_cost_usd; record winner_regret_basis = unavailable_empty_reference_cohort",
+          "final_claim_rule": "if the 041-050 matched regret reference cohort is empty, neither final method-claim gate may pass because both require regret evidence; report the architecture results without a paper-level better-design-pattern claim"
+        }
       },
       "aggregation": "report native regret separately by currency for all regret-eligible runs; aggregate normalized regret percentage only on the frozen positive-oracle-cost reference cohort after full candidate comparability; never sum different native currencies",
       "savings_contract": "paired savings is baseline scope-resolved selected_cost minus candidate scope-resolved selected_cost on the same reference-cohort run key; report native currency always, and percent only when baseline selected_cost is strictly greater than zero",
@@ -541,7 +551,8 @@
           "direction": "asc"
         }
       ],
-      "freeze_rule": "select exactly once from frozen 031-040 validation evidence, then freeze winner code/config/prompts/settings before any 041-050 model-backed call"
+      "freeze_rule": "select exactly once from frozen 031-040 validation evidence, then freeze winner code/config/prompts/settings before any 041-050 model-backed call",
+      "empty_regret_cohort_rule": "apply the frozen empty-reference-cohort winner_selection_rule: omit only the regret priority for all candidates, then continue at known_cost_usd"
     },
     "method_claim_gates": {
       "quality": {
@@ -566,7 +577,8 @@
         "regret_requirement": "no_worse_than_minimum_baseline_regret_on_full_frozen_reference_cohort",
         "cost_reference": "min_known_cost_of_coverage_repair_and_react",
         "min_known_cost_reduction_fraction": 0.3
-      }
+      },
+      "empty_regret_cohort_rule": "both final claim branches fail when final reference_cohort_count == 0 because regret evidence is required"
     }
   },
   "phase2_after_pattern_freeze": {
