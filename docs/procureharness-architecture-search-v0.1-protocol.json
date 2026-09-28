@@ -350,8 +350,8 @@
       "no_tuning_after_first_model_call": true
     },
     "method_claim_gate": [
-      "quality branch: ProcureHarness improves feasible-obligation success by at least 3/30 over the better matched baseline, is no worse by more than 1/30 on strict and economic success, and costs no more than ReAct",
-      "efficiency branch: ProcureHarness is within 1/30 of the better matched baseline on feasible-obligation, strict, and economic success, has no worse normalized feasible-price regret, and reduces known API cost by at least 30% versus the better-quality matched baseline"
+      "quality branch: ProcureHarness feasible-obligation success is at least max(Coverage+Repair, ReAct) + 3/30; strict and economic success are each no worse than their per-metric max(Coverage+Repair, ReAct) - 1/30; normalized feasible-price regret is no worse than the minimum regret among regret-eligible matched baselines; and known API cost is no higher than ReAct",
+      "efficiency branch: ProcureHarness feasible-obligation, strict, and economic success are each within 1/30 of their per-metric max(Coverage+Repair, ReAct); normalized feasible-price regret is no worse than the minimum regret among regret-eligible matched baselines; and known API cost is at least 30% lower than the cheaper of Coverage+Repair and ReAct"
     ]
   },
   "phase2_after_pattern_freeze": {
