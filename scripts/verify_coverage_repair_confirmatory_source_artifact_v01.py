@@ -109,10 +109,35 @@ def verify_artifact(path: Path) -> dict[str, str]:
             "Committed Coverage + Repair provenance is not artifact-derived"
         )
 
+    raw_provenance_root = _root(raw_lines)
+    record_provenance_root = _root(provenance_lines)
+
+    manifest = json.loads(
+        (
+            evidence / "manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    manifest_provenance = manifest.get("provenance") or {}
+    expected_raw_root = manifest_provenance.get(
+        "raw_provenance_sha256"
+    )
+    if raw_provenance_root != expected_raw_root:
+        raise ValueError(
+            "Artifact-derived raw provenance digest does not match manifest: "
+            f"expected={expected_raw_root}, actual={raw_provenance_root}"
+        )
+
+    expected_record_root = manifest_provenance.get("sha256")
+    if record_provenance_root != expected_record_root:
+        raise ValueError(
+            "Artifact-derived record provenance digest does not match manifest: "
+            f"expected={expected_record_root}, actual={record_provenance_root}"
+        )
+
     return {
         "compact_rows_sha256": compact_root,
-        "raw_provenance_sha256": _root(raw_lines),
-        "record_provenance_sha256": _root(provenance_lines),
+        "raw_provenance_sha256": raw_provenance_root,
+        "record_provenance_sha256": record_provenance_root,
     }
 
 
