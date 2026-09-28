@@ -8,6 +8,7 @@ the grid, model, repeats, or sampling settings.
 from __future__ import annotations
 
 import argparse
+from hashlib import sha1
 import json
 from pathlib import Path
 import sys
@@ -50,6 +51,12 @@ TARGET_EPISODES = [
 ]
 TARGET_RUNS = 60
 
+PROTOCOL_PATH = (
+    ROOT / "docs" / "state-validity-frontier-development-v0.2-protocol.json"
+)
+CONTROLLER_PATH = ROOT / "longprocurebench" / "state_validity_frontier.py"
+RUNNER_PATH = Path(__file__).resolve()
+
 PREREQUISITE_SEQUENCE_REQUIREMENTS = {
     "electrical-dla-transformer-013": {
         "response_event_type": "buyer_clarification",
@@ -60,6 +67,63 @@ PREREQUISITE_SEQUENCE_REQUIREMENTS = {
         ),
     },
 }
+
+
+def _git_blob_sha(path: Path) -> str:
+    """Return the Git blob SHA-1 for the exact file bytes."""
+    payload = path.read_bytes()
+    header = f"blob {len(payload)}\0".encode("ascii")
+    return sha1(header + payload).hexdigest()
+
+
+def validate_frozen_implementation(
+    *,
+    protocol_path: Path = PROTOCOL_PATH,
+    repo_root: Path = ROOT,
+    runner_path: Path = RUNNER_PATH,
+) -> dict[str, str]:
+    """Verify actual executable bytes/settings against the preregistration."""
+    protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+    implementation = protocol["implementation"]
+    grid = protocol["development_grid"]
+
+    controller_path = repo_root / implementation["controller_path"]
+    expected_runner_path = repo_root / implementation["runner_path"]
+    if runner_path.resolve() != expected_runner_path.resolve():
+        raise ValueError(
+            "development v0.2 runner path drift: "
+            f"expected={expected_runner_path}, actual={runner_path}"
+        )
+
+    actual = {
+        "controller_blob_sha": _git_blob_sha(controller_path),
+        "runner_blob_sha": _git_blob_sha(runner_path),
+    }
+    for key, value in actual.items():
+        expected = implementation[key]
+        if value != expected:
+            raise ValueError(
+                f"development v0.2 implementation hash drift for {key}: "
+                f"expected={expected}, actual={value}"
+            )
+
+    expected_settings = {
+        "episodes": TARGET_EPISODES,
+        "repeats_per_episode": TARGET_REPEATS,
+        "total_runs": TARGET_RUNS,
+        "model": TARGET_MODEL,
+        "reasoning_effort": TARGET_REASONING_EFFORT,
+        "temperature": TARGET_TEMPERATURE,
+        "max_actions": TARGET_MAX_ACTIONS,
+    }
+    for key, expected in expected_settings.items():
+        if grid.get(key) != expected:
+            raise ValueError(
+                f"development v0.2 protocol/settings drift at {key}: "
+                f"expected={expected!r}, protocol={grid.get(key)!r}"
+            )
+
+    return actual
 
 
 def _result_paths(output_dir: Path) -> list[Path]:
@@ -91,7 +155,12 @@ def validate_exact_grid(rows: list[dict[str, Any]]) -> None:
 
 
 def validate_execution_statuses(rows: list[dict[str, Any]]) -> None:
-    """Reject infrastructure/protocol failures while retaining measured action rejections."""
+    """Reject infrastructure/protocol/evaluation failures.
+
+    EnvironmentError and jsonschema ValidationError remain measured accepted
+    benchmark-action rejections. RunnerError is a runner decision-contract
+    failure and is never accepted as clean development evidence.
+    """
     infrastructure_statuses = {
         "setup_error",
         "environment_error",
@@ -101,13 +170,20 @@ def validate_execution_statuses(rows: list[dict[str, Any]]) -> None:
     measured_policy_errors = {
         "EnvironmentError",
         "ValidationError",
-        "RunnerError",
     }
 
     failures = []
     for row in rows:
         status = row.get("status")
         error_type = row.get("error_type")
+        evaluation_error_type = row.get("evaluation_error_type")
+
+        if evaluation_error_type:
+            failures.append(
+                f"{row.get('episode_id')} r{row.get('repeat')}: "
+                f"evaluation_error={evaluation_error_type}"
+            )
+
         if status in infrastructure_statuses:
             failures.append(
                 f"{row.get('episode_id')} r{row.get('repeat')}: "
@@ -239,6 +315,8 @@ def main() -> None:
         default="results/state-validity-frontier-development-v0.2",
     )
     args = parser.parse_args()
+
+    validate_frozen_implementation()
 
     output_dir = Path(args.output_dir)
     rows, _ = run_pilot(
