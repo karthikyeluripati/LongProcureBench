@@ -363,6 +363,52 @@ def main() -> None:
         for key, value in mapping.items():
             _close(frozen[key], value, f"results.rows.{name}.{key}")
 
+    def compare_delta(
+        treatment: dict[str, Any],
+        baseline: dict[str, Any],
+    ) -> dict[str, float]:
+        return {
+            "terminal_pp": 100 * (
+                treatment["terminal_feasible"] / treatment["runs"]
+                - baseline["terminal_feasible"] / baseline["runs"]
+            ),
+            "feasible_obligation_pp": 100 * (
+                treatment["feasible_obligation_success"] / treatment["runs"]
+                - baseline["feasible_obligation_success"] / baseline["runs"]
+            ),
+            "strict_pp": 100 * (
+                treatment["strict_v02"] / treatment["runs"]
+                - baseline["strict_v02"] / baseline["runs"]
+            ),
+            "economic_pp": 100 * (
+                treatment["economic_objective"] / treatment["runs"]
+                - baseline["economic_objective"] / baseline["runs"]
+            ),
+            "model_calls_pct": 100 * (
+                treatment["model_calls"] / baseline["model_calls"] - 1
+            ),
+            "tokens_pct": 100 * (
+                treatment["total_tokens"] / baseline["total_tokens"] - 1
+            ),
+            "latency_pct": 100 * (
+                treatment["latency_ms"] / baseline["latency_ms"] - 1
+            ),
+            "cost_pct": 100 * (
+                treatment["known_cost_usd"] / baseline["known_cost_usd"] - 1
+            ),
+        }
+
+    _close(
+        results["deltas"]["versus_context"],
+        compare_delta(coverage, context),
+        "results.deltas.versus_context",
+    )
+    _close(
+        results["deltas"]["versus_react"],
+        compare_delta(coverage, react),
+        "results.deltas.versus_react",
+    )
+
     diag = results["coverage_repair_diagnostics"]
     diag_actual = {
         "interventions": coverage["interventions"]["coverage_repair_interventions"],
