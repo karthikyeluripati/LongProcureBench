@@ -216,6 +216,44 @@ class EconomicsTests(unittest.TestCase):
         self.assertIsNone(pct)
         self.assertEqual(status, "not_normalizable_zero_oracle")
 
+    def test_non_finite_regret_inputs_are_rejected(self):
+        for value in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(EconomicsError, "numeric"):
+                    normalize_regret(value, 1.0)
+                with self.assertRaisesRegex(EconomicsError, "numeric"):
+                    normalize_regret(1.0, value)
+
+    def test_non_finite_quote_price_is_rejected(self):
+        episode = self.economics._load_episode(
+            "electrical-bongabon-generator-001"
+        )
+        outcome = json.loads(json.dumps(
+            episode["oracle"]["acceptable_terminal_outcomes"][0]
+        ))
+        bad_episode = json.loads(json.dumps(episode))
+        event_id = outcome["awards"][0]["quote_event_id"]
+        for event in bad_episode["events"]:
+            if event["event_id"] == event_id:
+                event["details"]["total_price"] = float("nan")
+                break
+        with self.assertRaisesRegex(EconomicsError, "non-finite"):
+            self.economics._outcome_cost(bad_episode, outcome)
+
+    def test_non_finite_lot_price_is_rejected(self):
+        episode = self.economics._load_episode(
+            "electrical-national-museum-lighting-002"
+        )
+        outcome = episode["oracle"]["acceptable_terminal_outcomes"][0]
+        bad_episode = json.loads(json.dumps(episode))
+        award = outcome["awards"][0]
+        for event in bad_episode["events"]:
+            if event["event_id"] == award["quote_event_id"]:
+                event["details"]["lots"]["1"]["price"] = float("inf")
+                break
+        with self.assertRaisesRegex(EconomicsError, "non-finite"):
+            self.economics._outcome_cost(bad_episode, outcome)
+
     def test_reference_cohort_uses_joint_positive_oracle_runs(self):
         coverage = [
             self.economics_report("e1", 1, selected=100, oracle=90),
@@ -366,6 +404,54 @@ class EconomicsTests(unittest.TestCase):
                 react_reports=react,
                 reference_cohort=cohort,
             )
+
+    def test_frozen_cohort_is_bound_to_exact_baseline_reports(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=110, oracle=100),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=105, oracle=100),
+        ]
+        candidate = [
+            self.economics_report("e1", 1, selected=101, oracle=100),
+        ]
+        cohort = freeze_reference_cohort(coverage, react)
+
+        replacement_coverage = [
+            self.economics_report("e1", 1, selected=108, oracle=100),
+        ]
+        replacement_cohort = freeze_reference_cohort(
+            replacement_coverage,
+            react,
+        )
+        self.assertEqual(cohort["run_keys"], replacement_cohort["run_keys"])
+        self.assertNotEqual(
+            cohort["baseline_report_bindings"][
+                "coverage_repair_reports_sha256"
+            ],
+            replacement_cohort["baseline_report_bindings"][
+                "coverage_repair_reports_sha256"
+            ],
+        )
+
+        with self.assertRaisesRegex(EconomicsError, "does not match"):
+            compare_candidate_on_reference_cohort(
+                candidate,
+                coverage_repair_reports=replacement_coverage,
+                react_reports=react,
+                reference_cohort=cohort,
+            )
+
+    def test_non_finite_baseline_report_cannot_be_hashed(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=110, oracle=100),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=105, oracle=100),
+        ]
+        coverage[0]["selected_cost_native"] = float("inf")
+        with self.assertRaisesRegex(EconomicsError, "non-finite"):
+            freeze_reference_cohort(coverage, react)
 
     def test_incomplete_candidate_cannot_use_regret_for_ranking(self):
         coverage = [
