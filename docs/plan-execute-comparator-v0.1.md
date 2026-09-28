@@ -37,8 +37,11 @@ The comparator adapts the Plan-and-Solve / Plan-and-Execute separation:
      operations and separate supplier-scoped repairs (for example, requirement
      change -> amendment -> revision A -> revision B); it may justify the same
      operation once per target supplier;
-   - when several unused relevant events could explain an exception, the
-     controller attributes it to the most recently revealed event batch;
+   - when several relevant events could explain an exception, the controller
+     attributes it to the most recently revealed eligible event batch;
+   - after a newer event batch has justified an operation for a target
+     supplier, later exceptions for that same operation/target cannot fall
+     back to older evidence; they require a genuinely newer relevant event;
    - cross-supplier disruptions such as a supplier withdrawal may motivate
      recovery work on a different remaining supplier;
    - the plan is still not rewritten.
