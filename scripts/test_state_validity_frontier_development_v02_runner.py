@@ -16,6 +16,7 @@ from run_state_validity_frontier_development_v02 import (
     TARGET_RUNS,
     TARGET_TEMPERATURE,
     validate_exact_grid,
+    validate_execution_statuses,
     validate_prerequisite_sequences,
 )
 
@@ -104,6 +105,31 @@ class StateValidityFrontierDevelopmentV02RunnerTests(unittest.TestCase):
         validate_exact_grid(rows)
         with self.assertRaises(ValueError):
             validate_exact_grid(rows[:-1])
+
+    def test_execution_status_gate_rejects_protocol_error(self):
+        rows = [
+            {
+                "episode_id": "electrical-bongabon-generator-001",
+                "repeat": 1,
+                "status": "completed",
+                "error_type": None,
+            }
+        ]
+        validate_execution_statuses(rows)
+
+        bad = [
+            {
+                "episode_id": "electrical-bongabon-generator-001",
+                "repeat": 1,
+                "status": "policy_error",
+                "error_type": "StateValidityFrontierError",
+            }
+        ]
+        with self.assertRaisesRegex(
+            ValueError,
+            "execution-status gate failed",
+        ):
+            validate_execution_statuses(bad)
 
     def test_sequence_gate_accepts_rfq_after_clarification(self):
         with TemporaryDirectory() as tmp:
