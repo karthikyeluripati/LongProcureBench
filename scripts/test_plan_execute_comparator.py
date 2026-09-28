@@ -329,6 +329,9 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         policy._exception_event_uses.add(
             ("e-change", "issue_amendment", None)
         )
+        policy._exception_causal_floor[
+            ("issue_amendment", None)
+        ] = 2
 
         revision_a_events = policy._validate_unplanned_exception(
             {
@@ -342,6 +345,9 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         policy._exception_event_uses.add(
             ("e-change", "request_quote_revision", "syn-ps-a")
         )
+        policy._exception_causal_floor[
+            ("request_quote_revision", "syn-ps-a")
+        ] = 2
 
         revision_b_events = policy._validate_unplanned_exception(
             {
@@ -355,6 +361,9 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         policy._exception_event_uses.add(
             ("e-change", "request_quote_revision", "syn-ps-b")
         )
+        policy._exception_causal_floor[
+            ("request_quote_revision", "syn-ps-b")
+        ] = 2
 
         with self.assertRaises(PlanExecuteProtocolError):
             policy._validate_unplanned_exception(
@@ -365,6 +374,51 @@ class PlanExecuteComparatorTests(unittest.TestCase):
                 },
                 compiled,
             )
+
+    def test_newer_event_can_reopen_same_supplier_revision_exception(self):
+        plan = _plan()
+        plan["steps"].append({
+            "step_id": 6,
+            "operation": "request_quote_revision",
+            "purpose": "Refresh a supplier offer after new evidence.",
+            "condition": "Use when new visible evidence makes revision useful.",
+        })
+        policy = PlanExecuteLLMPolicy(
+            "fake/test-model",
+            client=SequenceClient([]),
+        )
+        policy._fixed_plan = plan
+        policy._initial_event_ids = set()
+        policy._event_first_seen = {
+            "e-old": 1,
+            "e-new": 3,
+        }
+        policy._exception_causal_floor[
+            ("request_quote_revision", "syn-b")
+        ] = 2
+
+        event_ids = policy._validate_unplanned_exception(
+            {
+                "type": "request_quote_revision",
+                "supplier_id": "syn-b",
+                "arguments": {"awards": None, "reason": None},
+            },
+            {
+                "event_history": [
+                    {
+                        "event_id": "e-old",
+                        "type": "quote_received",
+                        "supplier_id": "syn-b",
+                    },
+                    {
+                        "event_id": "e-new",
+                        "type": "lead_time_change",
+                        "supplier_id": "syn-b",
+                    },
+                ],
+            },
+        )
+        self.assertEqual(event_ids, ["e-new"])
 
     def test_operation_absent_from_plan_can_be_exception(self):
         policy = PlanExecuteLLMPolicy(
