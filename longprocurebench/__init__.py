@@ -18,6 +18,10 @@ from .progress_aware_reactive import (
 from .react_comparator import ReActLLMPolicy, ReActProtocolError
 from .reactive_llm import ReactiveLLMPolicy
 from .reference import ScriptedReferencePolicy
+from .state_validity_frontier import (
+    StateValidityFrontierError,
+    StateValidityFrontierPolicy,
+)
 from .runner import AgentPolicy, BenchmarkRunner, RunnerError
 from .runtime import EnvironmentError, LongProcureBenchEnv
 from .working_plan_reactive import (
@@ -45,6 +49,8 @@ __all__ = [
     "ReactiveLLMPolicy",
     "RunnerError",
     "ScriptedReferencePolicy",
+    "StateValidityFrontierError",
+    "StateValidityFrontierPolicy",
     "WorkingPlanError",
     "WorkingPlanReactiveLLMPolicy",
 ]
