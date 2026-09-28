@@ -8,9 +8,9 @@
     "controller_path": "longprocurebench/state_validity_frontier.py",
     "controller_blob_sha": "24dd50e28864fe450039e098e4d28e4518097956",
     "runner_path": "scripts/run_state_validity_frontier_development_v02.py",
-    "runner_blob_sha": "691a8ff3b640e4d157fba1be3ce311e86c2ea554",
+    "runner_blob_sha": "263e074e5f8aeac617338d3f1894b84c3e2acbc8",
     "change_policy": "No controller, prompt, action-contract, evaluator, or context-view changes are permitted between this protocol freeze and the 60-run development execution.",
-    "execution_procedure": "Execute `python scripts/run_state_validity_frontier_development_v02.py --output-dir <fresh-dir>`. The runner itself fixes episodes 001-020, 3 repeats, GPT-5.6 Sol, medium reasoning, omitted temperature, and max_actions=50; it validates the exact 60-run grid and the frozen prerequisite action sequence before reporting completion."
+    "execution_procedure": "Execute `python scripts/run_state_validity_frontier_development_v02.py --output-dir <fresh-dir>`. The runner itself fixes episodes 001-020, 3 repeats, GPT-5.6 Sol, medium reasoning, omitted temperature, and max_actions=50; it validates the exact 60-run grid, rejects infrastructure/protocol status failures, and enforces the frozen prerequisite action sequence before reporting completion."
   },
   "stage1_reference": {
     "evidence": "evidence/state-validity-frontier-stage1-v0.1/",
