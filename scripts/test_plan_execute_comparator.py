@@ -409,7 +409,7 @@ class PlanExecuteComparatorTests(unittest.TestCase):
                 compiled,
             )
 
-    def test_newer_event_can_reopen_same_supplier_revision_exception(self):
+    def test_act_discovers_newer_event_before_reopening_revision(self):
         plan = _plan()
         plan["steps"].append({
             "step_id": 6,
@@ -417,88 +417,102 @@ class PlanExecuteComparatorTests(unittest.TestCase):
             "purpose": "Refresh a supplier offer after new evidence.",
             "condition": "Use when new visible evidence makes revision useful.",
         })
+
+        revision_response = _executor(
+            0,
+            "request_quote_revision",
+            supplier_id="syn-b",
+        )
+        client = SequenceClient([
+            revision_response,
+            revision_response,
+            revision_response,
+        ])
         policy = PlanExecuteLLMPolicy(
             "fake/test-model",
-            client=SequenceClient([]),
+            client=client,
         )
+        base_state = LongProcureBenchEnv().reset(
+            "electrical-dla-power-supply-016"
+        )
+        policy.reset(base_state)
         policy._fixed_plan = plan
-        policy._initial_event_ids = set()
-        policy._event_first_seen = {
-            "e-old": 1,
-            "e-change": 2,
-            "e-new": 3,
-        }
 
-        first_compiled = {
-            "event_history": [
-                {
-                    "event_id": "e-old",
-                    "type": "quote_received",
-                    "supplier_id": "syn-b",
-                },
-                {
-                    "event_id": "e-change",
-                    "type": "requirement_change",
-                    "supplier_id": None,
-                },
-            ],
-        }
-        action = {
-            "type": "request_quote_revision",
-            "supplier_id": "syn-b",
-            "arguments": {},
-        }
-
-        first_events = policy._validate_unplanned_exception(
+        first_state = deepcopy(base_state)
+        first_state["revealed_events"] = [
             {
-                "type": "request_quote_revision",
+                "event_id": "e-old",
+                "type": "quote_received",
                 "supplier_id": "syn-b",
-                "arguments": {"awards": None, "reason": None},
+                "observation": "Older visible quote.",
+                "details": {},
+                "offer_scope": {"kind": "package"},
             },
-            first_compiled,
+            {
+                "event_id": "e-change",
+                "type": "requirement_change",
+                "supplier_id": None,
+                "observation": "Buyer changed the requirement.",
+                "details": {},
+            },
+        ]
+
+        first_action = policy.act(first_state)
+        self.assertEqual(
+            policy._event_first_seen,
+            {
+                "e-old": 1,
+                "e-change": 1,
+            },
         )
-        self.assertEqual(first_events, ["e-change"])
-        _accept_exception(
-            policy,
-            action,
-            first_events,
-            state_step=2,
+        self.assertEqual(
+            policy._pending_execution["exception_event_ids"],
+            ["e-change"],
+        )
+        policy.on_action_accepted(
+            {
+                "type": first_action["type"],
+                "supplier_id": first_action["supplier_id"],
+                "arguments": deepcopy(first_action["arguments"]),
+            },
+            {"step": 1},
+        )
+        self.assertEqual(
+            policy._exception_causal_floor[
+                ("request_quote_revision", "syn-b")
+            ],
+            1,
         )
 
         with self.assertRaises(PlanExecuteProtocolError):
-            policy._validate_unplanned_exception(
-                {
-                    "type": "request_quote_revision",
-                    "supplier_id": "syn-b",
-                    "arguments": {"awards": None, "reason": None},
-                },
-                first_compiled,
-            )
+            policy.act(first_state)
+        self.assertNotIn("e-new", policy._event_first_seen)
 
-        second_compiled = {
-            "event_history": [
-                *first_compiled["event_history"],
-                {
-                    "event_id": "e-new",
-                    "type": "lead_time_change",
-                    "supplier_id": "syn-b",
-                },
-            ],
-        }
-        event_ids = policy._validate_unplanned_exception(
-            {
-                "type": "request_quote_revision",
-                "supplier_id": "syn-b",
-                "arguments": {"awards": None, "reason": None},
-            },
-            second_compiled,
+        second_state = deepcopy(first_state)
+        second_state["revealed_events"].append({
+            "event_id": "e-new",
+            "type": "lead_time_change",
+            "supplier_id": "syn-b",
+            "observation": "Supplier B reports a new lead-time change.",
+            "details": {},
+        })
+
+        reopened_action = policy.act(second_state)
+        self.assertEqual(
+            policy._event_first_seen["e-new"],
+            3,
         )
-        self.assertEqual(event_ids, ["e-new"])
-        _accept_exception(
-            policy,
-            action,
-            event_ids,
-            state_step=3,
+        self.assertEqual(
+            policy._pending_execution["exception_event_ids"],
+            ["e-new"],
+        )
+        policy.on_action_accepted(
+            {
+                "type": reopened_action["type"],
+                "supplier_id": reopened_action["supplier_id"],
+                "arguments": deepcopy(reopened_action["arguments"]),
+            },
+            {"step": 2},
         )
         self.assertEqual(
             policy._exception_causal_floor[
