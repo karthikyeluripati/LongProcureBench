@@ -169,6 +169,15 @@ class EconomicsTests(unittest.TestCase):
             )
         )
 
+    def test_result_and_evaluation_episode_must_match(self):
+        result = self.runner.run(
+            ScriptedReferencePolicy(),
+            "electrical-bongabon-generator-001",
+        )
+        result["evaluation"]["episode_id"] = "different-episode"
+        with self.assertRaisesRegex(EconomicsError, "does not match"):
+            self.economics.score_result(result, repeat=1)
+
     def test_infeasible_terminal_is_not_regret_eligible(self):
         eid = "electrical-bongabon-generator-001"
         actions = [
@@ -335,6 +344,28 @@ class EconomicsTests(unittest.TestCase):
             ],
             16.0,
         )
+
+    def test_supplied_cohort_must_match_baseline_derived_cohort(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=110, oracle=100),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=105, oracle=100),
+        ]
+        candidate = [
+            self.economics_report("e1", 1, selected=101, oracle=100),
+        ]
+        cohort = freeze_reference_cohort(coverage, react)
+        cohort["run_keys"] = []
+        cohort["reference_cohort_count"] = 0
+        cohort["status"] = "unavailable_empty_reference_cohort"
+        with self.assertRaisesRegex(EconomicsError, "does not match"):
+            compare_candidate_on_reference_cohort(
+                candidate,
+                coverage_repair_reports=coverage,
+                react_reports=react,
+                reference_cohort=cohort,
+            )
 
     def test_incomplete_candidate_cannot_use_regret_for_ranking(self):
         coverage = [
