@@ -107,7 +107,7 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
         self._validity_generation = 0
         self._evaluation_generation: int | None = None
         self._last_withdrawal_generation: int | None = None
-        self._revision_request_generations: set[tuple[str, int]] = set()
+        self._revision_attempt_offer_ids: set[str] = set()
 
         self._frontier_trace: list[dict[str, Any]] = []
         self._pending_decision: dict[str, Any] | None = None
@@ -266,12 +266,6 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             self._amended_epochs.add(self._requirement_epoch)
         elif action_type == "evaluate_quotes":
             self._evaluation_generation = self._validity_generation
-        elif action_type == "request_quote_revision":
-            if isinstance(supplier_id, str):
-                self._revision_request_generations.add(
-                    (supplier_id, self._validity_generation)
-                )
-
         if action_type in {"send_follow_up", "answer_supplier_question"}:
             matching = sorted(
                 (
@@ -348,11 +342,27 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             for row in latest_offers
             if row["current"]
         ]
-        stale_suppliers = sorted({
-            row["supplier_id"]
+        stale_offers = [
+            row
             for row in latest_offers
             if row["supplier_id"] in active
             and row["requirement_epoch"] < self._requirement_epoch
+        ]
+        stale_suppliers = sorted({
+            row["supplier_id"] for row in stale_offers
+        })
+        pending_stale_offers = [
+            row
+            for row in stale_offers
+            if row["event_id"] not in self._revision_attempt_offer_ids
+        ]
+        pending_stale_suppliers = sorted({
+            row["supplier_id"] for row in pending_stale_offers
+        })
+        exhausted_stale_suppliers = sorted({
+            row["supplier_id"]
+            for row in stale_offers
+            if row["event_id"] in self._revision_attempt_offer_ids
         })
 
         pending_repairs = sorted(
@@ -375,7 +385,7 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             and self._evaluation_generation == self._validity_generation
             and not amendment_required
             and not pending_repairs
-            and not stale_suppliers
+            and not pending_stale_suppliers
         )
 
         post_withdrawal_offer = False
@@ -417,6 +427,15 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             "latest_offers": latest_offers,
             "current_offers": current_offers,
             "stale_supplier_ids": stale_suppliers,
+            "pending_stale_supplier_ids": pending_stale_suppliers,
+            "exhausted_stale_supplier_ids": exhausted_stale_suppliers,
+            "pending_stale_offers": deepcopy(pending_stale_offers),
+            "revision_opportunities": [
+                deepcopy(row)
+                for row in current_offers
+                if row["type"] == "quote_received"
+                and row["event_id"] not in self._revision_attempt_offer_ids
+            ],
             "pending_repairs": pending_repairs,
             "last_withdrawal_generation": self._last_withdrawal_generation,
             "post_withdrawal_new_offer": post_withdrawal_offer,
@@ -433,12 +452,15 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
         terminal_award: bool = False,
         allowed_supplier_ids: list[str] | None = None,
         allowed_quote_event_ids: list[str] | None = None,
+        basis_offer_event_id: str | None = None,
     ) -> dict[str, Any]:
         row: dict[str, Any] = {
             "type": action_type,
             "supplier_id": supplier_id,
             "reason": reason,
         }
+        if basis_offer_event_id is not None:
+            row["basis_offer_event_id"] = basis_offer_event_id
         if terminal_award:
             row["terminal_award"] = True
             row["allowed_supplier_ids"] = list(
@@ -490,72 +512,53 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
                     )
                 ]
 
-        if graph["stale_supplier_ids"]:
-            candidates = []
-            for supplier_id in graph["stale_supplier_ids"]:
-                key = (supplier_id, self._validity_generation)
-                if key in self._revision_request_generations:
-                    continue
-                candidates.append(
-                    self._candidate(
-                        "request_quote_revision",
-                        supplier_id,
-                        reason="visible requirement epoch made offer stale",
-                    )
+        if graph["pending_stale_offers"]:
+            candidates = [
+                self._candidate(
+                    "request_quote_revision",
+                    row["supplier_id"],
+                    reason="visible requirement epoch made offer stale",
+                    basis_offer_event_id=row["event_id"],
                 )
-            if candidates:
-                return candidates
-            raise StateValidityFrontierError(
-                "Stale offers remain but all refresh actions for the current "
-                "validity generation were already attempted without new evidence"
-            )
+                for row in graph["pending_stale_offers"]
+            ]
+            return candidates
 
         if (
             self._last_withdrawal_generation is not None
             and not graph["evaluation_current"]
         ):
             if not graph["post_withdrawal_new_offer"]:
-                candidates = []
-                current_offer_suppliers = sorted({
-                    row["supplier_id"]
+                candidates = [
+                    self._candidate(
+                        "request_quote_revision",
+                        row["supplier_id"],
+                        reason=(
+                            "withdrawal invalidated evaluation; acquire "
+                            "replacement evidence from an active supplier"
+                        ),
+                        basis_offer_event_id=row["event_id"],
+                    )
                     for row in graph["current_offers"]
-                })
-                for supplier_id in current_offer_suppliers:
-                    key = (supplier_id, self._validity_generation)
-                    if key in self._revision_request_generations:
-                        continue
-                    candidates.append(
-                        self._candidate(
-                            "request_quote_revision",
-                            supplier_id,
-                            reason=(
-                                "withdrawal invalidated evaluation; acquire "
-                                "replacement evidence from an active supplier"
-                            ),
-                        )
-                    )
-                if graph["current_offers"]:
-                    candidates.append(
-                        self._candidate(
-                            "evaluate_quotes",
-                            reason=(
-                                "withdrawal invalidated evaluation; current "
-                                "active offers may be reevaluated"
-                            ),
-                        )
-                    )
+                    if row["event_id"]
+                    not in self._revision_attempt_offer_ids
+                ]
                 if candidates:
                     return candidates
-            else:
-                return [
-                    self._candidate(
-                        "evaluate_quotes",
-                        reason=(
-                            "new active-supplier quote evidence arrived after "
-                            "withdrawal; reevaluate before terminal decision"
-                        ),
-                    )
-                ]
+                raise StateValidityFrontierError(
+                    "Withdrawal recovery has no unattempted active-supplier "
+                    "quote evidence left; replacement evidence was not obtained"
+                )
+
+            return [
+                self._candidate(
+                    "evaluate_quotes",
+                    reason=(
+                        "new active-supplier quote evidence arrived after "
+                        "withdrawal; reevaluate before terminal decision"
+                    ),
+                )
+            ]
 
         if not graph["sourcing_started"]:
             candidates = []
@@ -597,12 +600,27 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
                 return candidates
 
         if not graph["evaluation_current"]:
-            return [
+            candidates = []
+            if self._evaluation_generation is None:
+                candidates.extend(
+                    self._candidate(
+                        "request_quote_revision",
+                        row["supplier_id"],
+                        reason=(
+                            "visible unrevised offer may warrant additional "
+                            "evidence before the first evaluation"
+                        ),
+                        basis_offer_event_id=row["event_id"],
+                    )
+                    for row in graph["revision_opportunities"]
+                )
+            candidates.append(
                 self._candidate(
                     "evaluate_quotes",
                     reason="current visible evidence has not been evaluated",
                 )
-            ]
+            )
+            return candidates
 
         current_suppliers = sorted({
             row["supplier_id"]
@@ -944,9 +962,22 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             "evaluation_current_after": None,
         }
         self._frontier_trace.append(trace)
+        chosen_candidate = next(
+            (
+                deepcopy(row)
+                for row in candidates
+                if row["type"] == decision["type"]
+                and (
+                    row.get("supplier_id") == decision.get("supplier_id")
+                    or row.get("terminal_award")
+                )
+            ),
+            None,
+        )
         self._pending_decision = {
             "action": deepcopy(decision),
             "trace_index": len(self._frontier_trace) - 1,
+            "candidate": chosen_candidate,
         }
         return decision
 
@@ -975,6 +1006,13 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             )
 
         self._record_accepted_action(accepted)
+        candidate = self._pending_decision.get("candidate") or {}
+        basis_offer_event_id = candidate.get("basis_offer_event_id")
+        if (
+            accepted.get("type") == "request_quote_revision"
+            and isinstance(basis_offer_event_id, str)
+        ):
+            self._revision_attempt_offer_ids.add(basis_offer_event_id)
 
         compiled = compile_visible_state(state)
         self._observe_events(compiled)
@@ -1036,6 +1074,9 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
             "amended_epochs": sorted(self._amended_epochs),
             "handled_repair_event_ids": sorted(
                 self._handled_repair_event_ids
+            ),
+            "revision_attempt_offer_ids": sorted(
+                self._revision_attempt_offer_ids
             ),
             "coverage_forced_rfqs": self._coverage_forced_rfqs,
             "coverage_forced_followups": self._coverage_forced_followups,
