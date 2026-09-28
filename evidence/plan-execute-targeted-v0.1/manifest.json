@@ -1,0 +1,94 @@
+{
+  "schema_version": "0.1.0",
+  "experiment": "plan-execute-targeted-v0.1",
+  "status": "development_mechanism_diagnostic_frozen",
+  "purpose": "Durable replay and provenance for the frozen three-episode static Plan-and-Execute mechanism pilot.",
+  "source_workflow_run_id": 36396684099,
+  "source_workflow_run_attempt": 1,
+  "source_artifact_id": 10957769763,
+  "source_artifact_name": "plan-execute-targeted-36396684099-1",
+  "source_artifact_bytes": 18258,
+  "source_artifact_digest": "sha256:b5588478661f9ccc30ceeac563cdef2dc4b6fd48eb6515603b0117c7d935925f",
+  "source_artifact_expires_at": "2026-10-28T08:23:04Z",
+  "benchmark_code_sha": "5257769482b79ff3c8c717715b96d2e116552ac1",
+  "execution_commit": "135ff49e61c557da6efc7dc5b36e57fbbc8e64a6",
+  "model": "openai/gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "temperature": null,
+  "records": 3,
+  "episodes": [
+    "electrical-burauen-generator-008",
+    "electrical-dla-transformer-013",
+    "electrical-dla-power-supply-016"
+  ],
+  "repeats_per_episode": 1,
+  "max_actions": 50,
+  "source_members": [
+    {
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-burauen-generator-008/run-001.json",
+      "bytes": 19064,
+      "sha256": "9d74b792f980fb65926a7e6bafc08054862b59513c73762ff0f470a7c09d1e05"
+    },
+    {
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-dla-power-supply-016/run-001.json",
+      "bytes": 127875,
+      "sha256": "d6df2c804c1a79b25511c22b8f87cf897afba2526f1b077a6bf737eafc61607b"
+    },
+    {
+      "path": "openai-gpt-5.6-sol--0510680735/electrical-dla-transformer-013/run-001.json",
+      "bytes": 25493,
+      "sha256": "c1a08f62ad9e73529a556380e34f43aeb555529e1e6769849865ccf86021442d"
+    },
+    {
+      "path": "plan-execute-diagnostics.json",
+      "bytes": 1426,
+      "sha256": "80cf975b8ea8897b79b3f2edcab342f5b6dd67f389a15e833165ee23af4e523b"
+    },
+    {
+      "path": "runs.csv",
+      "bytes": 2403,
+      "sha256": "bb89675302f5988272bf65b2f6db33356c9ac20cd6b66115b57ddaedd8b342b5"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 2354,
+      "sha256": "c4034a313feeb723fd9bfb8a27813860ba1980082bdac9b713e408ff77bd7f96"
+    }
+  ],
+  "storage": {
+    "format": "gzip(JSONL canonical compact replay records) encoded as base64 text and split into checksum-locked chunks",
+    "chunks": [
+      {
+        "path": "replay-source.b64.part00",
+        "bytes": 3020,
+        "sha256": "1bc969059b483ecea31747f27eed296a5adf6bc01f3f927b17b65d67109f1f0d"
+      },
+      {
+        "path": "replay-source.b64.part01",
+        "bytes": 3020,
+        "sha256": "f88b4456b7ea4c3bbac2451705b0a56ce93035131152998b7142a348f50f1a4a"
+      },
+      {
+        "path": "replay-source.b64.part02",
+        "bytes": 3020,
+        "sha256": "5b8ec7d7bedbce9c582e0849bc4ac1af8f09dcaa676c2aebae5c42b0cbddbccd"
+      }
+    ],
+    "encoded_bytes": 9060,
+    "encoded_sha256": "92794c31b8880908b4859ce769468a11a445761b72e2639f4e5fe9870332c297",
+    "compressed_bytes": 6794,
+    "compressed_sha256": "840c9dabccfcc8cc26b11789f08fee8ad4e14abdc466ebd25a93b82d00b720cb",
+    "compact_rows_bytes": 77050,
+    "compact_rows_sha256": "bde30bb86265b76e0717ce6d467eb3b7f92a6d0a5f963b497ac29ac940601872"
+  },
+  "provenance": {
+    "path": "source-provenance.txt",
+    "bytes": 733,
+    "sha256": "e1fedf30349c7eb364785cc8caf7c58a4f9a6ffc9d580ccf193d268698e038e5",
+    "raw_provenance_sha256": "e70284e6031b49328990d007d5d625e7f3e9b45080cee0521a466b974816393c",
+    "format": "episode_id|artifact_member|raw_bytes|raw_run_sha256|compact_record_sha256"
+  },
+  "source_verifier": "scripts/verify_plan_execute_targeted_source_artifact_v01.py",
+  "audit_script": "scripts/audit_plan_execute_targeted_v01.py",
+  "durability": "The committed replay retains every accepted action and observation plus fixed-plan, execution-trace, model-setting, and usage fields required to audit the mechanism and re-run Evaluator v0.2 after the temporary GitHub Actions artifact expires. Provenance binds each compact replay record to the exact raw run bytes in the original artifact."
+}
