@@ -50,6 +50,28 @@ def _close(actual: Any, expected: Any, path: str) -> None:
                 f"Numeric drift at {path}: expected={expected}, actual={actual}"
             )
         return
+
+    if isinstance(expected, dict):
+        if not isinstance(actual, dict) or set(actual) != set(expected):
+            raise ValueError(
+                f"Evidence drift at {path}: expected keys={set(expected)!r}, "
+                f"actual keys={set(actual) if isinstance(actual, dict) else None!r}"
+            )
+        for key in expected:
+            _close(actual[key], expected[key], f"{path}.{key}")
+        return
+
+    if isinstance(expected, (list, tuple)):
+        if not isinstance(actual, (list, tuple)) or len(actual) != len(expected):
+            raise ValueError(
+                f"Evidence drift at {path}: expected={expected!r}, actual={actual!r}"
+            )
+        for index, (actual_item, expected_item) in enumerate(
+            zip(actual, expected)
+        ):
+            _close(actual_item, expected_item, f"{path}[{index}]")
+        return
+
     if actual != expected:
         raise ValueError(
             f"Evidence drift at {path}: expected={expected!r}, actual={actual!r}"
