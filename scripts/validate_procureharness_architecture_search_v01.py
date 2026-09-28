@@ -117,9 +117,31 @@ EXPECTED_PARETO_FRONTIER = {
     ),
     "round_update_rule": (
         "after each completed round, recompute the cumulative frontier; the "
-        "round adds a frontier point only if at least one candidate first "
-        "validated in that round is on the recomputed candidate frontier"
+        "round adds a new frontier point only if at least one candidate first "
+        "validated in that round is on the recomputed candidate frontier and "
+        "its frozen frontier vector is not equivalent to any pre-round "
+        "frontier row under frontier_vector_equivalence; an exact/numerical "
+        "tie does not reset the plateau counter"
     ),
+    "frontier_vector_equivalence": {
+        "compared_fields": [
+            "feasible_obligation_success",
+            "strict_v02",
+            "obligation_resolution_rate",
+            "economic_objective_satisfied",
+            "mean_feasible_price_regret_pct_on_reference_cohort",
+            "known_cost_usd",
+            "total_tokens",
+            "latency_ms",
+            "model_calls",
+        ],
+        "integer_and_count_fields": "exact equality",
+        "floating_fields": {
+            "rel_tol": 1e-12,
+            "abs_tol": 1e-9,
+        },
+        "candidate_id_part_of_vector": False,
+    },
 }
 EXPECTED_CEILING_RULE = {
     "plateau_rounds": 2,
@@ -177,13 +199,15 @@ EXPECTED_REGRET_CONTRACT = {
         "reference_cohort": (
             "for each matched comparison package, freeze the intersection "
             "of run keys where both Coverage+Repair and ReAct are "
-            "regret-eligible"
+            "regret-eligible and the episode oracle_cost is strictly greater "
+            "than zero"
         ),
         "required_reports": [
             "reference_cohort_count",
             "candidate_regret_eligible_count_on_reference_cohort",
             "candidate_regret_eligibility_rate_on_reference_cohort",
             "mean_feasible_price_regret_pct_on_reference_cohort",
+            "zero_oracle_cost_run_count_outside_percentage_reference_cohort",
         ],
         "candidate_comparability_requirement": (
             "candidate must be regret-eligible on every run key in the frozen "
@@ -203,15 +227,43 @@ EXPECTED_REGRET_CONTRACT = {
         ),
     },
     "aggregation": (
-        "report native regret separately by currency; aggregate normalized "
-        "regret percentage only on the frozen reference cohort after full "
-        "candidate comparability; never sum different native currencies"
+        "report native regret separately by currency for all regret-eligible "
+        "runs; aggregate normalized regret percentage only on the frozen "
+        "positive-oracle-cost reference cohort after full candidate "
+        "comparability; never sum different native currencies"
     ),
     "savings_contract": (
         "paired savings is baseline scope-resolved selected_cost minus "
         "candidate scope-resolved selected_cost on the same reference-cohort "
-        "run key; report native currency and percent"
+        "run key; report native currency always, and percent only when "
+        "baseline selected_cost is strictly greater than zero"
     ),
+    "normalized_regret_zero_oracle_policy": {
+        "oracle_cost_positive": (
+            "feasible_price_regret_pct = 100 * feasible_price_regret_native / "
+            "oracle_cost"
+        ),
+        "oracle_cost_zero_selected_cost_zero": (
+            "report feasible_price_regret_native = 0 and "
+            "normalized_regret_status = not_normalizable_zero_oracle; do not "
+            "fabricate a percentage"
+        ),
+        "oracle_cost_zero_selected_cost_positive": (
+            "report positive native regret and normalized_regret_status = "
+            "not_normalizable_zero_oracle; do not fabricate a percentage"
+        ),
+        "percentage_reference_cohort_rule": (
+            "normalized-regret reference cohorts include only run keys whose "
+            "episode oracle_cost is strictly greater than zero; because "
+            "oracle_cost is episode-defined, this exclusion is identical for "
+            "every method"
+        ),
+        "paired_savings_percentage_zero_baseline_rule": (
+            "if the matched baseline selected_cost is zero, report paired "
+            "native savings but paired_savings_pct = "
+            "not_normalizable_zero_baseline; never divide by zero"
+        ),
+    },
 }
 EXPECTED_DEVELOPMENT_PROMOTION = {
     "quality": {
