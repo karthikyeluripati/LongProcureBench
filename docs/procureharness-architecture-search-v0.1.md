@@ -270,6 +270,16 @@ marked `not_normalizable_zero_oracle` rather than dividing by zero. Likewise,
 if a paired baseline selected cost is zero, paired native savings are reported
 but savings percentage is marked `not_normalizable_zero_baseline`.
 
+If the frozen positive-oracle-cost reference cohort is **empty**, normalized
+regret is marked `unavailable_empty_reference_cohort`; it is never imputed as
+0, infinity, or another numeric sentinel. For that matched package, the regret
+dimension is omitted uniformly from every Pareto vector and winner ordering
+continues at API cost. The development **efficiency** promotion branch is
+unavailable because it requires regret evidence. If the final 041-050 regret
+cohort is empty, neither paper-level method-claim branch may pass; the quality,
+reliability, and cost results are still reported without a "better design
+pattern" claim.
+
 Do not sum dollars/pesos/etc. across currencies. Native regret is reported by
 currency; only normalized regret percentages on the frozen positive-oracle-cost
 common cohort are aggregated.
