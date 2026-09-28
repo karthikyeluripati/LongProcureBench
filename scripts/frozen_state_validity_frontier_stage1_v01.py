@@ -41,6 +41,70 @@ EXPECTED_ROWS_SHA256 = (
 )
 
 
+COMPACT_POLICY_METRIC_FIELDS = (
+    "agent_pattern",
+    "amended_epochs",
+    "amendment_required_epochs",
+    "clarification_epochs_used",
+    "clarification_lease_blocks",
+    "completion_tokens",
+    "cost_usd",
+    "coverage_forced_answers",
+    "coverage_forced_followups",
+    "coverage_forced_rfqs",
+    "deterministic_frontier_actions",
+    "evaluation_current",
+    "evaluation_generation",
+    "frontier_decisions",
+    "frontier_trace",
+    "handled_repair_event_ids",
+    "latency_ms",
+    "llm_frontier_calls",
+    "max_frontier_size",
+    "model",
+    "model_calls",
+    "model_calls_attempted",
+    "model_calls_failed",
+    "model_calls_succeeded",
+    "prompt_tokens",
+    "quote_invalidations",
+    "reasoning_effort",
+    "requirement_epoch",
+    "requirement_invalidations",
+    "revision_attempt_offer_ids",
+    "state_strategy",
+    "temperature",
+    "total_tokens",
+    "usage_incomplete",
+    "validity_frontier_interventions",
+    "validity_generation",
+    "validity_graph",
+    "validity_invalidations",
+    "withdrawal_invalidations",
+)
+
+
+def compact_record_from_raw(
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    metrics = record.get("policy_metrics")
+    if not isinstance(metrics, dict):
+        raise ValueError("Raw Stage-1 run is missing policy_metrics")
+
+    return {
+        "run_id": record["run_id"],
+        "episode_id": record["episode_id"],
+        "repeat": 1,
+        "status": record["status"],
+        "max_actions": record["max_actions"],
+        "trajectory": record["trajectory"],
+        "policy_metrics": {
+            key: metrics.get(key)
+            for key in COMPACT_POLICY_METRIC_FIELDS
+        },
+    }
+
+
 def canonical_line(record: dict[str, Any]) -> bytes:
     return (
         json.dumps(record, sort_keys=True, separators=(",", ":"))
