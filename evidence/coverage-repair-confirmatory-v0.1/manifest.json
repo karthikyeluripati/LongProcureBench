@@ -2,12 +2,74 @@
   "schema_version": "0.1.0",
   "experiment": "coverage-repair-confirmatory-v0.1",
   "status": "development_diagnostic_frozen",
+  "purpose": "Durable development evidence for the predeclared Coverage + Repair confirmatory comparison.",
   "source_workflow_run_id": 36345529581,
+  "source_workflow_run_attempt": 1,
   "source_artifact_id": 10941001111,
   "source_artifact_name": "coverage-repair-20x3-36345529581-1",
+  "source_artifact_bytes": 206620,
   "source_artifact_digest": "sha256:c8a0c85e6ec00af8199d0085a9bcbc64ea46826d92d0a20a0df00aad485474a5",
   "source_artifact_expires_at": "2026-10-27T19:57:25Z",
   "protocol_commit": "005c526416eb18789a2431d347c1cc3f635f035d",
   "execution_commit": "e2bdf265bd284cfbebab5eddf16629acd1a0a885",
-  "note": "The Actions artifact is temporary development evidence. Materialize a compact replay source before expiry if this diagnostic is promoted into final paper evidence."
+  "model": "openai/gpt-5.6-sol",
+  "records": 60,
+  "episodes": 20,
+  "repeats_per_episode": 3,
+  "storage": {
+    "format": "gzip(JSONL canonical compact replay records) encoded as base64 text and split into checksum-locked chunks",
+    "chunks": [
+      {
+        "path": "replay-source.b64.part00",
+        "bytes": 2200,
+        "sha256": "760149ed1a2f5081a6b0b1a966bdc0d1dc5941bb762f3e933323f84f8c184ba2"
+      },
+      {
+        "path": "replay-source.b64.part01",
+        "bytes": 2200,
+        "sha256": "5d5ef0f2d853538c63c810e1abf78dc9bd48473a7aaf4e8ee6b19bc4ba04fdaf"
+      },
+      {
+        "path": "replay-source.b64.part02",
+        "bytes": 2200,
+        "sha256": "703632f14cbd0b512b869cc6956069f6aa1fbcf7a8a1b40c89b6c7112807a9dc"
+      }
+    ],
+    "encoded_bytes": 6600,
+    "compact_rows_bytes": 39183,
+    "compact_rows_sha256": "ab5054761af6af31f91fa88526d2a393e278b657c5f7a2618552241cd1477607",
+    "compressed_bytes": 4949,
+    "compressed_sha256": "6b0cbb6602b3654e7c3301831b841b219b16846da767e209733ad0cf7868b9c8"
+  },
+  "provenance": {
+    "format": "per-record artifact member, raw-run SHA-256, and compact-record SHA-256",
+    "chunks": [
+      {
+        "path": "source-provenance.txt.part00",
+        "bytes": 3156,
+        "sha256": "7087beaf7a98c1747d301922fffeb11cf4902f5ceba898cdef5e59c661d5610b"
+      },
+      {
+        "path": "source-provenance.txt.part01",
+        "bytes": 3168,
+        "sha256": "38b21672de5ed560b46b13b049e581eb6b3ef68648d96b28973a5588a5f177a8"
+      },
+      {
+        "path": "source-provenance.txt.part02",
+        "bytes": 3156,
+        "sha256": "08c5a448dd5907e9504a0937cfe0903becd987045ac3c200a85359c611494d9b"
+      },
+      {
+        "path": "source-provenance.txt.part03",
+        "bytes": 3126,
+        "sha256": "519bb470b4dcc1f011d624a2a8c2cb31a5e9ca99f8a88c19c453efe01a74e7f2"
+      }
+    ],
+    "bytes": 12606,
+    "sha256": "016fd2f237854356d34f85fae65096b28273c27301c52909f51d8470abd7d122",
+    "raw_provenance_sha256": "ba74befd2b64dd07e5ea08d2621941407fd11fa7a7f32c2fa76876318a80b97f"
+  },
+  "source_verifier": "scripts/verify_coverage_repair_confirmatory_source_artifact_v01.py",
+  "audit_script": "scripts/audit_coverage_repair_confirmatory_v01.py",
+  "durability": "The committed compact replay and provenance are sufficient to re-run the deterministic evaluator and reproduce frozen Coverage + Repair results after the temporary Actions artifact expires. While the artifact remains available, the source verifier independently links every committed compact record to its exact raw run bytes."
 }
