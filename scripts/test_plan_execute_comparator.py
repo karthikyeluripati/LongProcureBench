@@ -273,6 +273,18 @@ class PlanExecuteComparatorTests(unittest.TestCase):
         self.assertEqual(temperature, 0.2)
         self.assertIsNone(reasoning_effort)
 
+    def test_executor_prompt_matches_exception_and_multi_award_contract(self):
+        prompt = PlanExecuteLLMPolicy.EXECUTOR_PROMPT
+        self.assertIn(
+            "Do not label an ordinary planned action as an exception",
+            prompt,
+        )
+        self.assertIn(
+            "for multiple awards, top-level supplier_id must be",
+            prompt,
+        )
+        self.assertIn("null.", prompt)
+
     def test_planner_receives_compiled_visible_state_without_oracle(self):
         state = LongProcureBenchEnv().reset(
             "electrical-dla-transformer-013"
