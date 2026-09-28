@@ -559,6 +559,12 @@ Return only the structured action. Do not provide chain-of-thought or prose."""
 
         if not graph["sourcing_started"]:
             candidates = []
+            if (
+                self._operational_missing(compiled)
+                and not graph["clarification_available"]
+            ):
+                self._clarification_lease_blocks += 1
+
             if graph["clarification_available"]:
                 candidates.append(
                     self._candidate(
