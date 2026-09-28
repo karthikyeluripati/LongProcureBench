@@ -87,7 +87,12 @@ def _finite_mean(values: Iterable[float], *, label: str) -> float:
         raise EconomicsError(f"{label} requires at least one value")
     if not all(math.isfinite(value) for value in numeric):
         raise EconomicsError(f"{label} contains non-finite values")
-    total = math.fsum(numeric)
+    try:
+        total = math.fsum(numeric)
+    except OverflowError as exc:
+        raise EconomicsError(
+            f"{label} accumulation overflowed"
+        ) from exc
     if not math.isfinite(total):
         raise EconomicsError(f"{label} accumulation is non-finite")
     mean = total / len(numeric)
@@ -743,7 +748,12 @@ def compare_candidate_on_reference_cohort(
         float(row["feasible_price_regret_pct"])
         for row in comparable_rows
     ]
-    regret_sum = math.fsum(regret_values)
+    try:
+        regret_sum = math.fsum(regret_values)
+    except OverflowError as exc:
+        raise EconomicsError(
+            "Mean regret accumulation overflowed"
+        ) from exc
     if not math.isfinite(regret_sum):
         raise EconomicsError("Mean regret accumulation is non-finite")
     mean_regret = regret_sum / cohort_count
