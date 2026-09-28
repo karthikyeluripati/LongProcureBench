@@ -95,6 +95,15 @@ class ProcureHarnessArchitectureSearchV01Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Economic regret contract"):
             validate_protocol(mutated)
 
+    def test_zero_oracle_regret_policy_cannot_be_removed(self):
+        mutated = deepcopy(self.protocol)
+        regret = mutated["reporting_contract"]["economic_regret_v01"]
+        regret["normalized_regret_zero_oracle_policy"][
+            "oracle_cost_zero_selected_cost_zero"
+        ] = "report 0 percent by convention"
+        with self.assertRaisesRegex(ValueError, "Economic regret contract"):
+            validate_protocol(mutated)
+
     def test_baseline_reruns_cannot_be_enabled(self):
         mutated = deepcopy(self.protocol)
         mutated["search_procedure"]["development_confirmation"][
@@ -125,6 +134,17 @@ class ProcureHarnessArchitectureSearchV01Tests(unittest.TestCase):
             "plateau_rounds"
         ] = 1
         with self.assertRaisesRegex(ValueError, "plateau"):
+            validate_protocol(mutated)
+
+    def test_frontier_tie_cannot_reset_plateau(self):
+        mutated = deepcopy(self.protocol)
+        frontier = mutated["search_procedure"]["search_validation"][
+            "pareto_frontier"
+        ]
+        frontier["frontier_vector_equivalence"][
+            "candidate_id_part_of_vector"
+        ] = True
+        with self.assertRaisesRegex(ValueError, "Pareto-frontier"):
             validate_protocol(mutated)
 
     def test_development_quality_promotion_threshold_cannot_weaken(self):
