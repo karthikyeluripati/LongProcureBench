@@ -30,6 +30,22 @@ Therefore, for the 013-style starting-prerequisite mechanism:
 
 All other State Validity Frontier v0.1 mechanics remain unchanged.
 
+### Explicit prerequisite sequence gate
+
+This ordering is checked directly from the accepted trajectory; it is **not**
+inferred from `strict_v02`.
+
+For each of the three development repeats of episode 013:
+
+1. locate the first visible `buyer_clarification` response;
+2. locate the first accepted `send_rfq`;
+3. require `first_send_rfq_step > buyer_clarification_step`.
+
+The development runner writes `prerequisite-sequence-gate.json` and fails the
+protocol execution if any of the three repeats violates this ordering. Thus a
+run cannot count as a passing development result merely because its evaluator
+quality metrics are favorable.
+
 ## Development experiment
 
 Run the already-merged controller unchanged on the frozen development suite:
@@ -46,6 +62,23 @@ Run the already-merged controller unchanged on the frozen development suite:
 
 Do **not** rerun the baselines. Compare against their already-frozen 20x3
 evidence.
+
+### Frozen execution procedure
+
+Use only:
+
+```bash
+python scripts/run_state_validity_frontier_development_v02.py \
+  --output-dir <fresh-output-directory>
+```
+
+The development runner itself hard-codes episodes 001-020, three repeats,
+`openai/gpt-5.6-sol`, medium reasoning, omitted temperature, and max-actions
+50. It exposes no CLI override for those experimental settings and validates
+the exact 60 episode/repeat pairs after execution.
+
+The earlier `run_state_validity_frontier.py` remains the historical **three-run
+Stage-1 runner** and is not the development execution procedure.
 
 | Method | Feasible-obligation | Strict v0.2 | Economic objective | Tokens | Cost |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -100,6 +133,8 @@ context.
 ## Frozen development gate
 
 Execution must be clean and use the exact frozen grid/settings/code.
+Additionally, **all three episode-013 repeats must pass the explicit
+buyer-clarification-before-first-RFQ sequence gate**.
 
 Quality requirements:
 
