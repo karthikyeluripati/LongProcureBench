@@ -375,6 +375,10 @@ class EconomicRegretEvaluator:
         if not isinstance(evaluation, Mapping):
             report["eligibility_reason"] = "missing_evaluation"
             return report
+        if evaluation.get("episode_id") != report["episode_id"]:
+            raise EconomicsError(
+                "Result episode_id does not match evaluation episode_id"
+            )
 
         objective = evaluation.get("economic_objective")
         if (
@@ -502,6 +506,19 @@ def freeze_reference_cohort(
         if float(left_oracle) == 0:
             zero_oracle += 1
             continue
+
+        for label, row in (
+            ("Coverage+Repair", left),
+            ("ReAct", right),
+        ):
+            if row.get("normalized_regret_status") != "normalizable":
+                raise EconomicsError(
+                    f"{label} positive-oracle row is not normalizable on {key}"
+                )
+            if not _is_number(row.get("feasible_price_regret_pct")):
+                raise EconomicsError(
+                    f"{label} positive-oracle row missing regret percent on {key}"
+                )
         positive_keys.append(key)
 
     status = (
@@ -538,11 +555,17 @@ def compare_candidate_on_reference_cohort(
         label="Coverage+Repair",
     )
     react = _index_reports(react_reports, label="ReAct")
-    cohort = (
-        dict(reference_cohort)
-        if reference_cohort is not None
-        else freeze_reference_cohort(coverage.values(), react.values())
+    expected_cohort = freeze_reference_cohort(
+        coverage.values(),
+        react.values(),
     )
+    if reference_cohort is not None:
+        supplied = dict(reference_cohort)
+        if supplied != expected_cohort:
+            raise EconomicsError(
+                "Supplied reference cohort does not match baseline-derived cohort"
+            )
+    cohort = expected_cohort
 
     raw_keys = cohort.get("run_keys")
     if not isinstance(raw_keys, list):
