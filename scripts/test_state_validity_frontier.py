@@ -74,7 +74,7 @@ def _take(policy, env, state, episode_id, number):
 
 
 class StateValidityFrontierTests(unittest.TestCase):
-    def test_013_clarification_lease_then_advances_to_sourcing(self):
+    def test_013_clarification_then_revision_question_recovery(self):
         env = LongProcureBenchEnv()
         state = env.reset("electrical-dla-transformer-013")
         episode_id = state["episode_id"]
@@ -82,6 +82,8 @@ class StateValidityFrontierTests(unittest.TestCase):
         client = SequenceActionClient([
             _model_action("request_buyer_clarification"),
             _model_action("send_rfq", "syn-dla-xfmr-a"),
+            _model_action("request_quote_revision", "syn-dla-xfmr-c"),
+            _model_action("evaluate_quotes"),
         ])
         policy = StateValidityFrontierPolicy(
             "fake/test-model",
@@ -109,20 +111,39 @@ class StateValidityFrontierTests(unittest.TestCase):
         fourth, state = _take(policy, env, state, episode_id, 4)
         self.assertEqual(fourth["type"], "send_rfq")
         self.assertEqual(fourth["supplier_id"], "syn-dla-xfmr-b")
-        self.assertEqual(len(client.calls), 2)
 
         fifth, state = _take(policy, env, state, episode_id, 5)
         self.assertEqual(fifth["type"], "send_rfq")
         self.assertEqual(fifth["supplier_id"], "syn-dla-xfmr-c")
         self.assertEqual(len(client.calls), 2)
 
-        sixth = policy.act(state)
-        self.assertEqual(sixth["type"], "evaluate_quotes")
-        self.assertEqual(len(client.calls), 2)
+        sixth, state = _take(policy, env, state, episode_id, 6)
+        self.assertEqual(sixth, {
+            "type": "request_quote_revision",
+            "supplier_id": "syn-dla-xfmr-c",
+            "arguments": {},
+        })
+        self.assertEqual({x["event_id"] for x in state["observations"]}, {"e5"})
+        self.assertEqual(len(client.calls), 3)
+
+        seventh, state = _take(policy, env, state, episode_id, 7)
+        self.assertEqual(seventh, {
+            "type": "answer_supplier_question",
+            "supplier_id": "syn-dla-xfmr-c",
+            "arguments": {},
+        })
+        self.assertEqual({x["event_id"] for x in state["observations"]}, {"e6"})
+        self.assertEqual(len(client.calls), 3)
+
+        eighth = policy.act(state)
+        self.assertEqual(eighth["type"], "evaluate_quotes")
+        self.assertEqual(len(client.calls), 4)
 
         metrics = policy.get_run_metadata()
         self.assertEqual(metrics["clarification_epochs_used"], [0])
         self.assertEqual(metrics["coverage_forced_rfqs"], 2)
+        self.assertEqual(metrics["coverage_forced_answers"], 1)
+        self.assertIn("e4", metrics["revision_attempt_offer_ids"])
         self.assertGreater(metrics["validity_frontier_interventions"], 0)
 
         first_user_prompt = client.calls[0]["messages"][1]["content"]
@@ -139,6 +160,7 @@ class StateValidityFrontierTests(unittest.TestCase):
             _model_action("identify_suppliers"),
             _model_action("send_rfq", "syn-ps-a"),
             _model_action("request_quote_revision", "syn-ps-a"),
+            _model_action("evaluate_quotes"),
         ])
         policy = StateValidityFrontierPolicy(
             "fake/test-model",
@@ -195,7 +217,7 @@ class StateValidityFrontierTests(unittest.TestCase):
 
         ninth = policy.act(state)
         self.assertEqual(ninth["type"], "evaluate_quotes")
-        self.assertEqual(len(client.calls), 3)
+        self.assertEqual(len(client.calls), 4)
 
         metrics = policy.get_run_metadata()
         self.assertEqual(metrics["requirement_epoch"], 1)
@@ -213,6 +235,7 @@ class StateValidityFrontierTests(unittest.TestCase):
         client = SequenceActionClient([
             _model_action("identify_suppliers"),
             _model_action("send_rfq", "syn-burauen-a"),
+            _model_action("evaluate_quotes"),
             _model_action("request_quote_revision", "syn-burauen-c"),
         ])
         policy = StateValidityFrontierPolicy(
@@ -240,6 +263,18 @@ class StateValidityFrontierTests(unittest.TestCase):
             {"e4"},
         )
 
+        compiled = policy._prompt_state(state)
+        graph = policy._validity_graph(compiled)
+        frontier = policy._frontier(compiled, graph)
+        self.assertNotIn(
+            "evaluate_quotes",
+            {row["type"] for row in frontier},
+        )
+        self.assertEqual(
+            {row["supplier_id"] for row in frontier},
+            {"syn-burauen-b", "syn-burauen-c"},
+        )
+
         sixth, state = _take(policy, env, state, episode_id, 6)
         self.assertEqual(sixth, {
             "type": "request_quote_revision",
@@ -263,6 +298,55 @@ class StateValidityFrontierTests(unittest.TestCase):
         self.assertEqual(metrics["withdrawal_invalidations"], 1)
         self.assertEqual(metrics["clarification_epochs_used"], [])
         self.assertGreater(metrics["validity_frontier_interventions"], 0)
+
+    def test_stale_revision_nonresponse_advances_to_other_supplier(self):
+        env = LongProcureBenchEnv()
+        episode = env.load_episode("electrical-dla-power-supply-016")
+        episode = deepcopy(episode)
+        episode["events"] = [
+            event
+            for event in episode["events"]
+            if event["event_id"] != "e5"
+        ]
+        state = env.reset(episode)
+        episode_id = state["episode_id"]
+
+        client = SequenceActionClient([
+            _model_action("identify_suppliers"),
+            _model_action("send_rfq", "syn-ps-a"),
+            _model_action("request_quote_revision", "syn-ps-a"),
+        ])
+        policy = StateValidityFrontierPolicy(
+            "fake/test-model",
+            client=client,
+        )
+        policy.reset(state)
+
+        _, state = _take(policy, env, state, episode_id, 1)
+        _, state = _take(policy, env, state, episode_id, 2)
+        _, state = _take(policy, env, state, episode_id, 3)
+        _, state = _take(policy, env, state, episode_id, 4)
+        _, state = _take(policy, env, state, episode_id, 5)
+        _, state = _take(policy, env, state, episode_id, 6)
+
+        seventh, state = _take(policy, env, state, episode_id, 7)
+        self.assertEqual(seventh, {
+            "type": "request_quote_revision",
+            "supplier_id": "syn-ps-a",
+            "arguments": {},
+        })
+        self.assertEqual(state["observations"], [])
+
+        graph = policy.get_run_metadata()["validity_graph"]
+        self.assertIn("syn-ps-a", graph["exhausted_stale_supplier_ids"])
+        self.assertIn("syn-ps-b", graph["pending_stale_supplier_ids"])
+
+        eighth = policy.act(state)
+        self.assertEqual(eighth, {
+            "type": "request_quote_revision",
+            "supplier_id": "syn-ps-b",
+            "arguments": {},
+        })
 
     def test_model_choice_outside_frontier_is_rejected(self):
         env = LongProcureBenchEnv()
