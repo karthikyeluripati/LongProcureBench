@@ -142,6 +142,11 @@ EXPECTED_PARETO_FRONTIER = {
         },
         "candidate_id_part_of_vector": False,
     },
+    "empty_regret_cohort_rule": (
+        "apply reporting_contract.economic_regret_v01."
+        "eligibility_aware_comparison.empty_reference_cohort_policy uniformly "
+        "before Pareto dominance/equivalence"
+    ),
 }
 EXPECTED_CEILING_RULE = {
     "plateau_rounds": 2,
@@ -225,6 +230,39 @@ EXPECTED_REGRET_CONTRACT = {
             "comparability and remains visible through reliability metrics; "
             "it is not silently dropped from the denominator"
         ),
+        "empty_reference_cohort_policy": {
+            "status": "unavailable_empty_reference_cohort",
+            "mean_regret_value": None,
+            "prohibition": (
+                "do not impute zero, infinity, or any sentinel numeric regret "
+                "and do not rank candidates as better or worse because the "
+                "cohort is empty"
+            ),
+            "pareto_rule": (
+                "for that matched comparison package, omit "
+                "mean_feasible_price_regret_pct_on_reference_cohort from every "
+                "row's Pareto vector uniformly and recompute "
+                "dominance/equivalence using the remaining frozen dimensions"
+            ),
+            "development_efficiency_promotion_rule": (
+                "the efficiency promotion branch is unavailable when its "
+                "required regret reference cohort is empty; a candidate may "
+                "still advance only through the quality promotion branch"
+            ),
+            "winner_selection_rule": (
+                "if the cumulative validation regret reference cohort is "
+                "empty, skip the regret priority for every eligible candidate "
+                "and continue the frozen lexicographic order at "
+                "known_cost_usd; record winner_regret_basis = "
+                "unavailable_empty_reference_cohort"
+            ),
+            "final_claim_rule": (
+                "if the 041-050 matched regret reference cohort is empty, "
+                "neither final method-claim gate may pass because both require "
+                "regret evidence; report the architecture results without a "
+                "paper-level better-design-pattern claim"
+            ),
+        },
     },
     "aggregation": (
         "report native regret separately by currency for all regret-eligible "
@@ -320,6 +358,11 @@ EXPECTED_WINNER_SELECTION = {
         "freeze winner code/config/prompts/settings before any 041-050 "
         "model-backed call"
     ),
+    "empty_regret_cohort_rule": (
+        "apply the frozen empty-reference-cohort winner_selection_rule: omit "
+        "only the regret priority for all candidates, then continue at "
+        "known_cost_usd"
+    ),
 }
 EXPECTED_FINAL_TEST = {
     "episodes": "041-050",
@@ -371,6 +414,10 @@ EXPECTED_METHOD_CLAIM_GATES = {
         ),
         "min_known_cost_reduction_fraction": 0.30,
     },
+    "empty_regret_cohort_rule": (
+        "both final claim branches fail when final reference_cohort_count == 0 "
+        "because regret evidence is required"
+    ),
 }
 EXPECTED_PHASE2_ENTRY = (
     "Only after a ProcureHarness design-pattern winner is frozen from the "
