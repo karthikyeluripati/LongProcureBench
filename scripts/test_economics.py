@@ -224,6 +224,19 @@ class EconomicsTests(unittest.TestCase):
                 with self.assertRaisesRegex(EconomicsError, "numeric"):
                     normalize_regret(1.0, value)
 
+    def test_regret_percentage_avoids_intermediate_overflow(self):
+        pct, status = normalize_regret(1e307, 1e306)
+        self.assertEqual(status, "normalizable")
+        self.assertTrue(math.isfinite(pct))
+        self.assertTrue(math.isclose(pct, 900.0))
+
+    def test_unrepresentable_regret_percentage_is_rejected_early(self):
+        with self.assertRaisesRegex(
+            EconomicsError,
+            "feasible price regret",
+        ):
+            normalize_regret(1e308, 1e-308)
+
     def test_non_finite_quote_price_is_rejected(self):
         episode = self.economics._load_episode(
             "electrical-bongabon-generator-001"
@@ -328,6 +341,42 @@ class EconomicsTests(unittest.TestCase):
             comparison[
                 "mean_feasible_price_regret_pct_on_reference_cohort"
             ]
+        )
+
+    def test_paired_savings_percentage_avoids_intermediate_overflow(self):
+        coverage = [
+            self.economics_report(
+                "e1",
+                1,
+                selected=1e306,
+                oracle=1e305,
+            ),
+        ]
+        react = [
+            self.economics_report(
+                "e1",
+                1,
+                selected=1e306,
+                oracle=1e305,
+            ),
+        ]
+        candidate = [
+            self.economics_report(
+                "e1",
+                1,
+                selected=1e307,
+                oracle=1e305,
+            ),
+        ]
+        comparison = compare_candidate_on_reference_cohort(
+            candidate,
+            coverage_repair_reports=coverage,
+            react_reports=react,
+        )
+        savings = comparison["paired_savings"]["coverage_repair"]["pairs"][0]
+        self.assertTrue(math.isfinite(savings["paired_savings_pct"]))
+        self.assertTrue(
+            math.isclose(savings["paired_savings_pct"], -900.0)
         )
 
     def test_candidate_comparison_is_paired_on_same_run_keys(self):
