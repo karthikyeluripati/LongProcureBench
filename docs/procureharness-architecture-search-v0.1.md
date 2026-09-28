@@ -1,0 +1,287 @@
+# ProcureHarness architecture search v0.1
+
+## Decision
+
+Reopen method development as a **separate post-held-out research track**. The
+goal is not to add another isolated mechanism. The goal is to search a bounded,
+interpretable design-pattern space until the quality/economic-efficiency frontier
+plateaus, then freeze one ProcureHarness skeleton before adding memory,
+knowledge graphs, forecasting, model routing, or self-improvement.
+
+This protocol does **not** rewrite the frozen LongProcureBench paper evidence.
+Episodes 001-020 are development-exposed and 021-030 are already held-out
+exposed. Neither may be called a fresh test set for the new method.
+
+The machine-readable freeze is
+[`procureharness-architecture-search-v0.1-protocol.json`](procureharness-architecture-search-v0.1-protocol.json).
+
+## Why architecture search is reopened
+
+The completed experiments do not show an agent-design ceiling.
+
+- **Coverage+Repair** is the strongest observed development point:
+  50/60 feasible-obligation, 30/60 strict v0.2, 30/60 economic objective,
+  90/98 obligations resolved, 324 model calls, and $2.9777 known API cost.
+  It shows that explicit procurement workflow control can recover substantial
+  quality without reasoning on every action.
+- **ReAct** improves strict/economic behavior over factual context but is much
+  more expensive and does not dominate the primary feasible-obligation metric.
+- **Static Plan-and-Execute** failed its targeted diagnostic.
+- **State Validity Frontier v0.2** reduced deliberative calls but failed to
+  generalize: 38/60 feasible-obligation, 23/60 strict, 24/60 economic, with
+  nine identical withdrawal-recovery policy errors.
+
+The evidence therefore rejects several formulations, not the broader space of
+agentic design patterns.
+
+## Research basis
+
+The next phase uses a constrained architecture-search framing rather than
+choosing another popular pattern by name.
+
+- **ReAct** interleaves reasoning and acting so reasoning can update plans and
+  handle exceptions during interaction.
+  https://arxiv.org/abs/2210.03629
+- **AdaPlanner** motivates closed-loop plan refinement from environment feedback
+  instead of static plans.
+  https://proceedings.neurips.cc/paper_files/paper/2023/hash/b5c8c1c117618267944b2617add0a766-Abstract-Conference.html
+- **Automated Design of Agentic Systems (ADAS)** treats code-represented agent
+  systems as a search space rather than assuming hand-designed workflows are
+  optimal.
+  https://proceedings.iclr.cc/paper_files/paper/2025/hash/36b7acf6f6010652b3f2a433774a66fe-Abstract-Conference.html
+- **AgentSquare** explicitly searches modular agent designs and separates
+  planning, reasoning, tool use, and memory as distinct axes.
+  https://proceedings.iclr.cc/paper_files/paper/2025/hash/0ae94013da7cd459402fd77874e09ee3-Abstract-Conference.html
+- **AFlow** searches code-represented workflows using execution feedback and a
+  tree search.
+  https://arxiv.org/abs/2410.10762
+- **Agent S** provides evidence for hierarchical planning with subtask execution
+  on long-horizon interactive tasks.
+  https://proceedings.iclr.cc/paper_files/paper/2025/hash/394c7c30ea87b5c3521b4d9e9d419071-Abstract-Conference.html
+- **Agent Workflow Memory (AWM)** is intentionally deferred to phase 2 because
+  it tests reusable cross-task workflow memory, a different causal axis from
+  the within-episode controller skeleton.
+  https://openreview.net/pdf?id=NTAhi2JEEE
+
+These papers motivate the search formulation. They are not evidence that their
+reported gains transfer to procurement.
+
+## Initial hypothesis: event-driven hierarchical skill graph
+
+The seed hypothesis for ProcureHarness is:
+
+> Track visible actionable obligations, route the highest-priority obligation
+> to a bounded procurement skill, execute mechanically forced transitions
+> deterministically, deliberate only inside the active skill when semantic
+> choice is necessary, and locally replan or fall back when a new visible event
+> invalidates the current skill.
+
+This is deliberately between Coverage+Repair and ReAct.
+
+- Coverage+Repair is efficient but contains only a small set of explicit repair
+  routines.
+- ReAct is flexible but pays for reasoning on essentially every semantic action.
+- Static global plans are too rigid.
+- The SVF global validity graph was too brittle on recovery behavior.
+
+### Required skill graph
+
+The frozen skill vocabulary is:
+
+1. resolve requirement gap;
+2. supplier discovery;
+3. RFQ coverage;
+4. non-response follow-up;
+5. supplier-question handling;
+6. amendment handling;
+7. quote revision;
+8. withdrawal recovery;
+9. quote leveling;
+10. terminal award/no-award decision.
+
+A new event may interrupt the active skill. Recovery is local by default rather
+than rebuilding a global plan.
+
+## Search space
+
+Phase 1 keeps the information boundary and semantic action contract fixed.
+Candidates may vary only these modules:
+
+- obligation routing: deterministic priority vs hybrid LLM tie-break;
+- local planning: none vs bounded local plan;
+- skill reasoning: direct action vs bounded mini-ReAct;
+- verification: none vs deterministic visible invariants vs one terminal LLM
+  critique;
+- fallback: none vs bounded ReAct fallback.
+
+Every candidate is code-represented, committed before execution, and records
+its parent candidates and module deltas. Enumeration, recombination, or a
+meta-agent proposal is allowed only inside this grammar.
+
+Hard limits prevent an architecture-search system from winning merely by
+spending unlimited inference:
+
+- at most 3 model calls between accepted actions;
+- at most 4 steps in a local plan;
+- at most 3 actions in a ReAct fallback;
+- no multi-agent system;
+- no cross-episode persistent memory in phase 1.
+
+## What is intentionally **not** searched yet
+
+The following are harness axes, not part of this causal design-pattern search:
+
+- persistent workflow memory / AWM;
+- operational knowledge graph / GraphRAG;
+- cross-episode self-improvement;
+- dynamic cheap/strong-model routing (including a future Jev-style router if
+  that remains the intended option);
+- forecasting/risk tools;
+- multi-agent orchestration;
+- true long-running checkpoint/resume state.
+
+They enter only after a design-pattern winner is frozen, one matched ablation at
+a time.
+
+## Data hygiene
+
+The existing 30 episodes cannot support another untouched method claim:
+
+- **001-020**: architecture-development exposed;
+- **021-030**: prior held-out exposed and diagnostic-only for the new method.
+
+Before architecture search can claim generalization, collect **20 additional
+distinct real public starting states**:
+
+- **031-040**: architecture-search validation; may guide later search rounds;
+- **041-050**: untouched final method test; cannot guide design.
+
+Both packages retain the existing real-public starting state / controlled
+synthetic interaction boundary and must pass deterministic reference control
+before model-backed execution.
+
+## Search budget and operational ceiling
+
+Maximum search:
+
+- 3 search rounds;
+- at most 6 new candidates per round;
+- at most 18 unique candidates total.
+
+Cheap screening uses 001-020 once per candidate. At most two candidates per
+round receive the full 20 x 3 development confirmation. Frozen comparator
+evidence is reused; do not pay to rerun it on 001-020.
+
+Once 031-040 exists, matched Coverage+Repair and ReAct rows are executed once
+for that package. Candidate validation uses 3 repeats per episode.
+
+**Operational design-pattern ceiling:** stop after two consecutive completed
+rounds add no candidate to the admissible validation Pareto frontier, or the
+3-round / 18-candidate budget is exhausted. This is a search plateau, **not a
+claim of global optimality**.
+
+## Metrics
+
+There is still **no weighted magic score**.
+
+### Reliability
+
+Primary:
+
+- feasible-obligation success.
+
+Mandatory:
+
+- terminal feasibility;
+- strict v0.2 success;
+- obligation resolution;
+- economic-objective satisfaction.
+
+### Procurement economics
+
+Before any paid architecture-search run, implement one deterministic metric for
+all methods:
+
+- feasible price regret in native currency;
+- feasible price regret percent;
+- paired savings versus a baseline in native currency;
+- paired savings percent.
+
+For an eligible feasible award:
+
+`regret = selected feasible award cost - oracle minimum feasible award cost`.
+
+If the terminal decision is infeasible or a no-award case cannot support a
+meaningful price comparison, price regret is **not eligible** rather than being
+assigned an arbitrary penalty. Reliability metrics carry that failure.
+
+Do not sum dollars/pesos/etc. across currencies. Report native regret by currency
+and aggregate normalized regret percentage.
+
+### Agent efficiency
+
+Always report:
+
+- accepted actions;
+- model calls;
+- prompt/completion/total tokens;
+- model latency;
+- known API cost;
+- deterministic-action fraction.
+
+## Promotion logic
+
+A candidate first has to execute cleanly and pass a minimum development quality
+floor. Promotion then requires a new quality or efficiency frontier point.
+
+Development promotion can happen through either:
+
+- **quality branch:** at least +3/60 on feasible-obligation, strict, or economic
+  success versus Coverage+Repair, with no other mandatory quality metric worse
+  by more than 3/60 and cost no higher than ReAct; or
+- **efficiency branch:** within 3/60 of Coverage+Repair on feasible-obligation,
+  strict, and economic success, no worse price regret, and at least 20% lower
+  known API cost than Coverage+Repair.
+
+This prevents a cheap but unreliable controller, or an expensive controller that
+buys tiny quality gains, from being called progress.
+
+## Final method claim
+
+After search plateaus, freeze:
+
+- winning architecture and module config;
+- code hashes;
+- prompts / skill definitions;
+- model settings;
+- regret evaluator;
+- 041-050 episode package;
+- matched rows and statistical procedure.
+
+Then execute exactly:
+
+- ProcureHarness winner;
+- Coverage+Repair;
+- ReAct;
+- deterministic reference control;
+
+on 041-050, with 3 repeats for each model-backed row. No tuning after the first
+model call.
+
+A paper-level "better design pattern" claim requires one of the two frozen
+quality/efficiency branches in the protocol JSON. If neither passes, the honest
+result is that the architecture search plateaued without establishing a new
+ProcureHarness method.
+
+## Immediate implementation order
+
+1. **This PR:** freeze architecture grammar, search budget, data hygiene,
+   metrics, economic-regret semantics, stop rule, and claim gate.
+2. Implement and regression-test economic regret uniformly.
+3. Collect/freeze real public starting states and episodes 031-050.
+4. Implement the code-represented skill-graph search harness.
+5. Run bounded architecture search to the frozen plateau rule.
+6. Freeze the winner.
+7. Run the one-time 041-050 method comparison.
+8. Only then start the memory/KG/forecasting/routing/self-improvement harness
+   phase.
