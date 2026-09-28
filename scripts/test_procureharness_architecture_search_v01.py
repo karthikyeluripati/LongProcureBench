@@ -64,12 +64,116 @@ class ProcureHarnessArchitectureSearchV01Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Weighted composite"):
             validate_protocol(mutated)
 
-    def test_regret_metric_is_required_before_paid_search(self):
+    def test_package_and_lot_price_paths_are_frozen(self):
         mutated = deepcopy(self.protocol)
-        mutated["reporting_contract"]["economic_regret_v01"][
-            "implementation_status"
-        ] = "optional"
-        with self.assertRaisesRegex(ValueError, "Economic regret"):
+        contract = mutated["reporting_contract"]["economic_regret_v01"][
+            "award_cost_contract"
+        ]
+        contract["lot"]["price_source"] = "quote_event.details.total_price"
+        with self.assertRaisesRegex(ValueError, "Economic regret contract"):
+            validate_protocol(mutated)
+
+    def test_candidate_specific_regret_subset_cannot_rank_candidates(self):
+        mutated = deepcopy(self.protocol)
+        comparison = mutated["reporting_contract"]["economic_regret_v01"][
+            "eligibility_aware_comparison"
+        ]
+        comparison["candidate_comparability_requirement"] = (
+            "candidate may compare only its own eligible runs"
+        )
+        with self.assertRaisesRegex(ValueError, "Economic regret contract"):
+            validate_protocol(mutated)
+
+    def test_regret_reference_cohort_is_frozen(self):
+        mutated = deepcopy(self.protocol)
+        comparison = mutated["reporting_contract"]["economic_regret_v01"][
+            "eligibility_aware_comparison"
+        ]
+        comparison["reference_cohort"] = (
+            "each candidate chooses its own eligible run keys"
+        )
+        with self.assertRaisesRegex(ValueError, "Economic regret contract"):
+            validate_protocol(mutated)
+
+    def test_baseline_reruns_cannot_be_enabled(self):
+        mutated = deepcopy(self.protocol)
+        mutated["search_procedure"]["development_confirmation"][
+            "baseline_policy"
+        ]["rerun_allowed"] = True
+        with self.assertRaisesRegex(ValueError, "baseline policy"):
+            validate_protocol(mutated)
+
+    def test_validation_entry_requires_promotion(self):
+        mutated = deepcopy(self.protocol)
+        mutated["search_procedure"]["validation_entry"][
+            "requires_development_promotion_branch"
+        ] = False
+        with self.assertRaisesRegex(ValueError, "Validation-entry"):
+            validate_protocol(mutated)
+
+    def test_validation_frontier_floor_cannot_be_weakened(self):
+        mutated = deepcopy(self.protocol)
+        mutated["search_procedure"]["search_validation"][
+            "frontier_admission"
+        ]["max_deficit_runs"]["strict_v02"] = 3
+        with self.assertRaisesRegex(ValueError, "frontier admission"):
+            validate_protocol(mutated)
+
+    def test_plateau_rule_cannot_change_frontier_semantics(self):
+        mutated = deepcopy(self.protocol)
+        mutated["search_procedure"]["ceiling_stop_rule"][
+            "plateau_rounds"
+        ] = 1
+        with self.assertRaisesRegex(ValueError, "plateau"):
+            validate_protocol(mutated)
+
+    def test_development_quality_promotion_threshold_cannot_weaken(self):
+        mutated = deepcopy(self.protocol)
+        mutated["admissibility_and_frontier"][
+            "development_promotion_branches"
+        ]["quality"]["improve_any_metric_by_runs"] = 2
+        with self.assertRaisesRegex(ValueError, "Development promotion"):
+            validate_protocol(mutated)
+
+    def test_development_efficiency_threshold_cannot_weaken(self):
+        mutated = deepcopy(self.protocol)
+        mutated["admissibility_and_frontier"][
+            "development_promotion_branches"
+        ]["efficiency"]["min_known_cost_reduction_fraction"] = 0.10
+        with self.assertRaisesRegex(ValueError, "Development promotion"):
+            validate_protocol(mutated)
+
+    def test_no_winner_rule_cannot_be_removed(self):
+        mutated = deepcopy(self.protocol)
+        mutated["final_method_freeze"]["winner_selection"][
+            "no_winner_rule"
+        ] = "pick the cheapest candidate anyway"
+        with self.assertRaisesRegex(ValueError, "winner-selection"):
+            validate_protocol(mutated)
+
+    def test_winner_priority_cannot_be_reordered_posthoc(self):
+        mutated = deepcopy(self.protocol)
+        priority = mutated["final_method_freeze"]["winner_selection"][
+            "priority"
+        ]
+        priority[0], priority[1] = priority[1], priority[0]
+        with self.assertRaisesRegex(ValueError, "winner-selection"):
+            validate_protocol(mutated)
+
+    def test_final_quality_claim_threshold_cannot_weaken(self):
+        mutated = deepcopy(self.protocol)
+        mutated["final_method_freeze"]["method_claim_gates"][
+            "quality"
+        ]["min_primary_gain_runs"] = 2
+        with self.assertRaisesRegex(ValueError, "method-claim"):
+            validate_protocol(mutated)
+
+    def test_final_efficiency_claim_threshold_cannot_weaken(self):
+        mutated = deepcopy(self.protocol)
+        mutated["final_method_freeze"]["method_claim_gates"][
+            "efficiency"
+        ]["min_known_cost_reduction_fraction"] = 0.20
+        with self.assertRaisesRegex(ValueError, "method-claim"):
             validate_protocol(mutated)
 
     def test_global_optimum_claim_is_prohibited(self):
