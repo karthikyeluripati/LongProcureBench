@@ -81,21 +81,57 @@ def _safe_percent(
     return percent
 
 
-def _finite_mean(values: Iterable[float], *, label: str) -> float:
+def _finite_scaled_sum(values: Iterable[float], *, label: str) -> float:
+    """Sum finite signed floats without avoidable intermediate overflow."""
     numeric = [float(value) for value in values]
     if not numeric:
         raise EconomicsError(f"{label} requires at least one value")
     if not all(math.isfinite(value) for value in numeric):
         raise EconomicsError(f"{label} contains non-finite values")
+
+    scale = max(abs(value) for value in numeric)
+    if scale == 0:
+        return 0.0
+
+    scaled = [value / scale for value in numeric]
     try:
-        total = math.fsum(numeric)
+        scaled_total = math.fsum(scaled)
     except OverflowError as exc:
         raise EconomicsError(
-            f"{label} accumulation overflowed"
+            f"{label} scaled accumulation overflowed"
         ) from exc
+    if not math.isfinite(scaled_total):
+        raise EconomicsError(f"{label} scaled accumulation is non-finite")
+
+    total = scale * scaled_total
     if not math.isfinite(total):
-        raise EconomicsError(f"{label} accumulation is non-finite")
-    mean = total / len(numeric)
+        raise EconomicsError(f"{label} final sum is non-finite")
+    return total
+
+
+def _finite_mean(values: Iterable[float], *, label: str) -> float:
+    """Mean finite floats without requiring their raw sum to be representable."""
+    numeric = [float(value) for value in values]
+    if not numeric:
+        raise EconomicsError(f"{label} requires at least one value")
+    if not all(math.isfinite(value) for value in numeric):
+        raise EconomicsError(f"{label} contains non-finite values")
+
+    scale = max(abs(value) for value in numeric)
+    if scale == 0:
+        return 0.0
+
+    scaled = [value / scale for value in numeric]
+    try:
+        scaled_mean = math.fsum(scaled) / len(numeric)
+    except OverflowError as exc:
+        raise EconomicsError(
+            f"{label} scaled mean accumulation overflowed"
+        ) from exc
+    if not math.isfinite(scaled_mean):
+        raise EconomicsError(f"{label} scaled mean is non-finite")
+
+    mean = scale * scaled_mean
     if not math.isfinite(mean):
         raise EconomicsError(f"{label} mean is non-finite")
     return mean
@@ -748,17 +784,10 @@ def compare_candidate_on_reference_cohort(
         float(row["feasible_price_regret_pct"])
         for row in comparable_rows
     ]
-    try:
-        regret_sum = math.fsum(regret_values)
-    except OverflowError as exc:
-        raise EconomicsError(
-            "Mean regret accumulation overflowed"
-        ) from exc
-    if not math.isfinite(regret_sum):
-        raise EconomicsError("Mean regret accumulation is non-finite")
-    mean_regret = regret_sum / cohort_count
-    if not math.isfinite(mean_regret):
-        raise EconomicsError("Mean regret is non-finite")
+    mean_regret = _finite_mean(
+        regret_values,
+        label="Mean feasible price regret percent",
+    )
 
     def paired(
         baseline: Mapping[tuple[str, int], Mapping[str, Any]],
@@ -766,6 +795,7 @@ def compare_candidate_on_reference_cohort(
     ) -> dict[str, Any]:
         pairs = []
         by_currency: dict[str, dict[str, Any]] = {}
+        native_values_by_currency: dict[str, list[float]] = {}
         pct_values = []
 
         for key in keys:
@@ -822,15 +852,11 @@ def compare_candidate_on_reference_cohort(
                 currency,
                 {
                     "pairs": 0,
-                    "sum_paired_savings_native": 0.0,
+                    "sum_paired_savings_native": None,
                 },
             )
             bucket["pairs"] += 1
-            bucket["sum_paired_savings_native"] += savings
-            if not math.isfinite(bucket["sum_paired_savings_native"]):
-                raise EconomicsError(
-                    f"{label} native savings accumulation is non-finite"
-                )
+            native_values_by_currency.setdefault(currency, []).append(savings)
 
             pairs.append(
                 {
@@ -845,6 +871,14 @@ def compare_candidate_on_reference_cohort(
                     "paired_savings_pct": savings_pct,
                     "paired_savings_pct_status": savings_pct_status,
                 }
+            )
+
+        for currency, values in native_values_by_currency.items():
+            by_currency[currency]["sum_paired_savings_native"] = (
+                _finite_scaled_sum(
+                    values,
+                    label=f"{label} {currency} native savings",
+                )
             )
 
         return {
