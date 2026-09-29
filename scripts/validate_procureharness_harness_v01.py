@@ -51,16 +51,16 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "b8abe3b73973df563f268908d8eb3caf90843dbb"
+    "824c41004de04215018442742f12d29e531bc29f"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
-    "docs/procureharness-architecture-harness-v0.1.md": "3cc9ce4cbd84decc1780dbad694acd3c925d5808",
-    "docs/procureharness-candidate-registry-v0.1.json": "3c0485825224daff9b6cb064241488233fc89f0d",
+    "docs/procureharness-architecture-harness-v0.1.md": "d6cc3893f2148bf9c740a002e306f15b0cf46cb3",
+    "docs/procureharness-candidate-registry-v0.1.json": "269d33be258dca488ad3b463542b218164f72dca",
     "longprocurebench/__init__.py": "339a66eaf338d33dba2c687768ed7688782f1eec",
     "longprocurebench/context_compiled_reactive.py": "82b102d60c077247672d3d9ba1377243233672a9",
     "longprocurebench/evaluator.py": "ef0204f605027bafde6839cce2f14a03d15425bd",
     "longprocurebench/litellm_client.py": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1",
-    "longprocurebench/procureharness.py": "b71f91e1191b3f54ae371c9b3844d41ad6f84c98",
+    "longprocurebench/procureharness.py": "1d83a29a2c6991c31cc0e007a17448edf64ba575",
     "longprocurebench/reactive_llm.py": "d237f262b0377ae78608fb28833adfa6f2ff5853",
     "longprocurebench/runner.py": "a5108b71b0d7e67d91ffa0492e298508a26ff573",
     "longprocurebench/runtime.py": "3f283ed874db363d849ff759a108f4d650336760",
@@ -71,7 +71,9 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "schema/evaluation.schema.json": "031a8a72e68a904ba51054ff7db68ef4a513991c",
     "schema/initial-state.schema.json": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926",
     "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
-    "scripts/run_procureharness_search_v01.py": "265cb1a59bf272f466f3625fb1af35632d4f4760",
+    "scripts/run_procureharness_search_v01.py": "838f86bc21973017526ccba37bf413745e59fae9",
+    "scripts/select_procureharness_screening_v01.py": "0b331c1119ed835408bc9ddaa88b820fe60b5612",
+    "scripts/select_procureharness_validation_v01.py": "24d375a021cab4d8e57341471253e1d21aed12ca",
 }
 
 
