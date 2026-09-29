@@ -7,7 +7,11 @@ from unittest.mock import patch
 
 from jsonschema import ValidationError
 
-from longprocurebench import BenchmarkRunner, ScriptedReferencePolicy
+from longprocurebench import (
+    BenchmarkRunner,
+    FreshScriptedReferencePolicy,
+    ScriptedReferencePolicy,
+)
 from run_reference import run_all_reference
 
 
@@ -83,6 +87,18 @@ class RunnerTests(unittest.TestCase):
         for episode_id in ScriptedReferencePolicy.episode_ids():
             with self.subTest(episode_id=episode_id):
                 result = self.runner.run(ScriptedReferencePolicy(), episode_id)
+                self.assertEqual(result["status"], "completed")
+                self.assertTrue(result["evaluation"]["episode_success"])
+                self.assertTrue(result["evaluation"]["terminated"])
+                self.assertGreater(len(result["trajectory"]), 0)
+
+    def test_fresh_reference_control_passes_031_to_050(self):
+        for episode_id in FreshScriptedReferencePolicy.episode_ids():
+            with self.subTest(episode_id=episode_id):
+                result = self.runner.run(
+                    FreshScriptedReferencePolicy(),
+                    episode_id,
+                )
                 self.assertEqual(result["status"], "completed")
                 self.assertTrue(result["evaluation"]["episode_success"])
                 self.assertTrue(result["evaluation"]["terminated"])
@@ -283,10 +299,12 @@ class RunnerTests(unittest.TestCase):
         episode_ids = {
             path.stem for path in episode_dir.glob("*.json")
         }
-        self.assertEqual(
-            set(ScriptedReferencePolicy.episode_ids()),
-            episode_ids,
-        )
+        legacy_ids = set(ScriptedReferencePolicy.episode_ids())
+        fresh_ids = set(FreshScriptedReferencePolicy.episode_ids())
+        self.assertFalse(legacy_ids & fresh_ids)
+        self.assertEqual(legacy_ids | fresh_ids, episode_ids)
+        self.assertEqual(len(legacy_ids), 30)
+        self.assertEqual(len(fresh_ids), 20)
 
 if __name__ == "__main__":
     unittest.main()
