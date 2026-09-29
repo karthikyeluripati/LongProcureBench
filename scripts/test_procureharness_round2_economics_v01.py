@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,8 +116,74 @@ class ProcureHarnessRound2EconomicsEvidenceTests(unittest.TestCase):
                 "openai/gpt-5.6-sol",
             )
 
+    def test_candidate_scoring_requires_frozen_raw_result_hash(self):
+        bindings = materializer._confirmation_source_bindings()
+        path = materializer._candidate_result_path(
+            "ph-r2-c12",
+            materializer.DEVELOPMENT_EPISODES[0],
+            1,
+        )
+        path_value = path.as_posix()
+        self.assertIn(path_value, bindings)
+
+        materializer._verify_frozen_confirmation_result(
+            path,
+            source_bindings=bindings,
+        )
+
+        tampered = {
+            key: dict(value)
+            for key, value in bindings.items()
+        }
+        tampered[path_value]["sha256"] = "0" * 64
+        with self.assertRaisesRegex(
+            ValueError,
+            "SHA-256 mismatch",
+        ):
+            materializer._verify_frozen_confirmation_result(
+                path,
+                source_bindings=tampered,
+            )
+
+    def test_recoverable_json_reuses_exact_survivor_and_rejects_mismatch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "artifact.json"
+            payload = {"schema_version": "0.1.0", "value": 1}
+
+            materializer._write_recoverable_json(path, payload)
+            first = path.read_bytes()
+
+            materializer._write_recoverable_json(path, payload)
+            self.assertEqual(path.read_bytes(), first)
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "does not match recomputed frozen content",
+            ):
+                materializer._write_recoverable_json(
+                    path,
+                    {"schema_version": "0.1.0", "value": 2},
+                )
+
+    def test_complete_frozen_package_is_idempotently_recoverable(self):
+        before = materializer._read_json(
+            materializer.GATE_RESULT_REL
+        )
+        after = materializer.materialize()
+        self.assertEqual(after, before)
+        self.assertEqual(
+            materializer._read_json(materializer.GATE_RESULT_REL),
+            before,
+        )
+
     def test_gate_result_recomputes_exact_efficiency_decisions(self):
         gate = self.gate_result
+        self.assertEqual(gate["schema_version"], "0.1.0")
+        self.assertEqual(gate["protocol_id"], materializer.PROTOCOL_ID)
+        self.assertEqual(
+            gate["rule"],
+            "frozen_development_efficiency_promotion_v0.1",
+        )
         self.assertEqual(gate["round"], 2)
         self.assertEqual(gate["provider_calls"], 0)
 
