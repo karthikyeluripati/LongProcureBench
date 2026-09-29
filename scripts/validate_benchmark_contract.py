@@ -1,4 +1,4 @@
-"""Validate the frozen benchmark split and observability contract."""
+"""Validate the legacy frozen v0.3 split/observability contract (001-030)."""
 from __future__ import annotations
 
 import csv
@@ -11,6 +11,7 @@ MATRIX_PATH = ROOT / "OBSERVABILITY_MATRIX.csv"
 SPLIT_PATH = ROOT / "data/splits/electrical-v0.3-plan.json"
 EPISODE_DIR = ROOT / "data/episodes/electrical"
 INITIAL_STATE_DIR = ROOT / "data/initial_states/electrical"
+LEGACY_MAX_SUFFIX = 30
 
 REQUIRED_COLUMNS = {
     "episode_id",
@@ -111,22 +112,39 @@ def load_split(path: Path = SPLIT_PATH) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _episode_suffix(episode_id: str) -> int:
+    try:
+        return int(episode_id.rsplit("-", 1)[1])
+    except (IndexError, ValueError) as exc:
+        raise ValueError(f"Episode lacks numeric suffix: {episode_id}") from exc
+
+
 def load_episodes(root: Path = EPISODE_DIR) -> dict[str, dict]:
+    """Load only the immutable legacy v0.3 universe, episodes 001-030."""
     episodes = {}
     for path in sorted(root.glob("*.json")):
         record = json.loads(path.read_text(encoding="utf-8"))
         if path.stem != record["episode_id"]:
             raise ValueError(f"Episode filename mismatch: {path.name}")
+        if _episode_suffix(record["episode_id"]) > LEGACY_MAX_SUFFIX:
+            continue
         episodes[record["episode_id"]] = record
     return episodes
 
 
 def load_initial_states(root: Path = INITIAL_STATE_DIR) -> dict[str, dict]:
+    """Load only initial states referenced by the legacy 001-030 universe."""
+    legacy_package_ids = {
+        episode["initial_state_ref"]["package_id"]
+        for episode in load_episodes().values()
+    }
     records = {}
     for path in sorted(root.glob("*.json")):
         record = json.loads(path.read_text(encoding="utf-8"))
         if path.stem != record["package_id"]:
             raise ValueError(f"Initial-state filename mismatch: {path.name}")
+        if record["package_id"] not in legacy_package_ids:
+            continue
         records[record["package_id"]] = record
     return records
 
