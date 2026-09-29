@@ -46,14 +46,23 @@ EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
     "16357d8a8393043e2457d60c03fa0a2f3bcd8dd4"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
-    "docs/procureharness-architecture-harness-v0.1.md":
-        "5791a6d11ca6fe39bc6472f0ec03cf75d9fd9697",
-    "docs/procureharness-candidate-registry-v0.1.json":
-        "3c0485825224daff9b6cb064241488233fc89f0d",
-    "longprocurebench/procureharness.py":
-        "b71f91e1191b3f54ae371c9b3844d41ad6f84c98",
-    "scripts/run_procureharness_search_v01.py":
-        "4fbd50327981452c2557b1872d23c7cf7039b558",
+    "docs/procureharness-architecture-harness-v0.1.md": "5791a6d11ca6fe39bc6472f0ec03cf75d9fd9697",
+    "docs/procureharness-candidate-registry-v0.1.json": "3c0485825224daff9b6cb064241488233fc89f0d",
+    "longprocurebench/context_compiled_reactive.py": "82b102d60c077247672d3d9ba1377243233672a9",
+    "longprocurebench/evaluator.py": "ef0204f605027bafde6839cce2f14a03d15425bd",
+    "longprocurebench/litellm_client.py": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1",
+    "longprocurebench/procureharness.py": "b71f91e1191b3f54ae371c9b3844d41ad6f84c98",
+    "longprocurebench/reactive_llm.py": "d237f262b0377ae78608fb28833adfa6f2ff5853",
+    "longprocurebench/runner.py": "a5108b71b0d7e67d91ffa0492e298508a26ff573",
+    "longprocurebench/runtime.py": "3f283ed874db363d849ff759a108f4d650336760",
+    "longprocurebench/validation.py": "98f27230d28144b063cb910b5b99886d920d966b",
+    "requirements.txt": "698ec65e21cd73df53c948ed5e7770746c804bc4",
+    "schema/action.schema.json": "b47589fd82f97b5d49415d48cc8fd29cbfa17b22",
+    "schema/episode.schema.json": "3bf03a9d3b3c8b8d4b7a0ebea6856c95f9998939",
+    "schema/evaluation.schema.json": "031a8a72e68a904ba51054ff7db68ef4a513991c",
+    "schema/initial-state.schema.json": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926",
+    "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
+    "scripts/run_procureharness_search_v01.py": "4fbd50327981452c2557b1872d23c7cf7039b558",
 }
 
 
