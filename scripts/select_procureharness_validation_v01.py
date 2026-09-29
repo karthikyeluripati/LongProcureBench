@@ -420,13 +420,6 @@ def select_validation_round(
     eligible.sort(key=_ranking_key)
     selected = [row["candidate_id"] for row in eligible[:2]]
 
-    if not selected and pending_efficiency:
-        raise ValueError(
-            "no quality-qualified validation candidate is available yet; "
-            "require frozen economic comparison gate for: "
-            + ", ".join(pending_efficiency)
-        )
-
     reserved_slots = list(selected)
     for candidate_id in pending_efficiency:
         if (
@@ -588,10 +581,6 @@ def validate_frozen_validation_selection(
         raise ValueError("validation ranking order changed")
 
     selected = [row["candidate_id"] for row in eligible[:2]]
-    if not selected and pending_efficiency:
-        raise ValueError(
-            "validation selection froze before required economic gate"
-        )
     if selection.get("validation_selected_candidate_ids") != selected:
         raise ValueError("validation selected candidates changed")
     expected_branches = {
@@ -600,6 +589,403 @@ def validate_frozen_validation_selection(
     }
     if selection.get("promotion_branch_by_candidate") != expected_branches:
         raise ValueError("validation promotion branches changed")
+
+
+def _read_bound_report_list(
+    *,
+    path_value: str,
+    expected_sha256: str | None,
+    label: str,
+) -> tuple[list[dict[str, Any]], str]:
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = ROOT / path
+    if not path.is_file():
+        raise ValueError(f"{label} economics report file is missing: {path}")
+    raw = path.read_bytes()
+    observed_sha = _sha256_bytes(raw)
+    if expected_sha256 is not None and observed_sha != expected_sha256:
+        raise ValueError(f"{label} economics report hash mismatch: {path}")
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            f"{label} economics reports are not valid JSON: {path}"
+        ) from exc
+    if not isinstance(payload, list) or not all(
+        isinstance(row, dict) for row in payload
+    ):
+        raise ValueError(
+            f"{label} economics report file must contain a JSON list"
+        )
+    return payload, observed_sha
+
+
+def _confirmation_row_for_candidate(
+    selection: dict[str, Any],
+    candidate_id: str,
+) -> dict[str, Any]:
+    for row in selection.get("confirmation_rows") or []:
+        if (
+            isinstance(row, dict)
+            and row.get("candidate_id") == candidate_id
+        ):
+            return row
+    raise ValueError(
+        f"validation selection lacks confirmation row for {candidate_id}"
+    )
+
+
+def evaluate_efficiency_promotion(
+    *,
+    base_selection: dict[str, Any],
+    candidate_id: str,
+    candidate_reports_path: str,
+    coverage_reports_path: str,
+    react_reports_path: str,
+    expected_hashes: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Recompute the frozen development efficiency branch from source reports."""
+    validate_frozen_validation_selection(base_selection)
+
+    if candidate_id not in (
+        base_selection.get("pending_efficiency_candidate_ids") or []
+    ):
+        raise ValueError(
+            "efficiency promotion candidate is not pending in base selection"
+        )
+    if candidate_id not in (
+        base_selection.get("validation_slot_candidate_ids") or []
+    ):
+        raise ValueError(
+            "efficiency promotion candidate has no reserved validation slot"
+        )
+    if candidate_id in (
+        base_selection.get("validation_selected_candidate_ids") or []
+    ):
+        raise ValueError(
+            "quality-selected candidate does not need efficiency append"
+        )
+
+    confirmation = _confirmation_row_for_candidate(
+        base_selection,
+        candidate_id,
+    )
+    protocol = _load_json(PROTOCOL_PATH)
+    efficiency = (
+        protocol["admissibility_and_frontier"]
+        ["development_promotion_branches"]["efficiency"]
+    )
+    baseline = protocol["frozen_development_comparators"]["coverage_repair"]
+
+    for metric, max_deficit in efficiency["max_deficit_runs"].items():
+        candidate_value = confirmation.get(metric)
+        baseline_value = baseline.get(metric)
+        if (
+            not isinstance(candidate_value, int)
+            or isinstance(candidate_value, bool)
+            or not isinstance(baseline_value, list)
+            or len(baseline_value) != 2
+            or candidate_value < int(baseline_value[0]) - int(max_deficit)
+        ):
+            raise ValueError(
+                f"candidate fails efficiency quality deficit on {metric}"
+            )
+
+    candidate_cost = confirmation.get("known_cost_usd")
+    baseline_cost = baseline.get("known_cost_usd")
+    if not _finite_number(candidate_cost) or not _finite_number(baseline_cost):
+        raise ValueError("efficiency promotion requires finite known costs")
+    reduction = (float(baseline_cost) - float(candidate_cost)) / float(
+        baseline_cost
+    )
+    if reduction + 1e-15 < float(
+        efficiency["min_known_cost_reduction_fraction"]
+    ):
+        raise ValueError(
+            "candidate fails efficiency known-cost reduction requirement"
+        )
+
+    expected_hashes = expected_hashes or {}
+    candidate_reports, candidate_sha = _read_bound_report_list(
+        path_value=candidate_reports_path,
+        expected_sha256=expected_hashes.get("candidate"),
+        label="candidate",
+    )
+    coverage_reports, coverage_sha = _read_bound_report_list(
+        path_value=coverage_reports_path,
+        expected_sha256=expected_hashes.get("coverage_repair"),
+        label="Coverage+Repair",
+    )
+    react_reports, react_sha = _read_bound_report_list(
+        path_value=react_reports_path,
+        expected_sha256=expected_hashes.get("react"),
+        label="ReAct",
+    )
+
+    try:
+        candidate_comparison = compare_candidate_on_reference_cohort(
+            candidate_reports,
+            coverage_repair_reports=coverage_reports,
+            react_reports=react_reports,
+        )
+        coverage_comparison = compare_candidate_on_reference_cohort(
+            coverage_reports,
+            coverage_repair_reports=coverage_reports,
+            react_reports=react_reports,
+        )
+    except EconomicsError as exc:
+        raise ValueError(
+            f"efficiency economic comparison failed: {exc}"
+        ) from exc
+
+    if (
+        candidate_comparison.get("status") != "comparable"
+        or candidate_comparison.get("regret_comparable") is not True
+    ):
+        raise ValueError(
+            "candidate lacks full frozen regret reference-cohort comparability"
+        )
+    if (
+        coverage_comparison.get("status") != "comparable"
+        or coverage_comparison.get("regret_comparable") is not True
+    ):
+        raise ValueError(
+            "Coverage+Repair regret reference cohort is unavailable"
+        )
+
+    candidate_regret = candidate_comparison.get(
+        "mean_feasible_price_regret_pct_on_reference_cohort"
+    )
+    coverage_regret = coverage_comparison.get(
+        "mean_feasible_price_regret_pct_on_reference_cohort"
+    )
+    if not _finite_number(candidate_regret) or not _finite_number(
+        coverage_regret
+    ):
+        raise ValueError(
+            "efficiency promotion requires finite comparable regret means"
+        )
+    if float(candidate_regret) > float(coverage_regret) + 1e-12:
+        raise ValueError(
+            "candidate regret is worse than Coverage+Repair on frozen cohort"
+        )
+
+    return {
+        "schema_version": "0.1.0",
+        "protocol_id": PROTOCOL_ID,
+        "rule_id": EFFICIENCY_RULE_ID,
+        "candidate_id": candidate_id,
+        "round": base_selection["round"],
+        "promotion_branch": "efficiency",
+        "known_cost_usd": float(candidate_cost),
+        "coverage_repair_known_cost_usd": float(baseline_cost),
+        "known_cost_reduction_fraction": reduction,
+        "candidate_regret_mean_pct": float(candidate_regret),
+        "coverage_repair_regret_mean_pct": float(coverage_regret),
+        "reference_cohort_count": candidate_comparison.get(
+            "reference_cohort_count"
+        ),
+        "candidate_economics_reports_path": candidate_reports_path,
+        "candidate_economics_reports_sha256": candidate_sha,
+        "coverage_repair_economics_reports_path": coverage_reports_path,
+        "coverage_repair_economics_reports_sha256": coverage_sha,
+        "react_economics_reports_path": react_reports_path,
+        "react_economics_reports_sha256": react_sha,
+        "candidate_comparison": candidate_comparison,
+        "coverage_repair_comparison": coverage_comparison,
+    }
+
+
+def validate_frozen_efficiency_addendum(
+    addendum: dict[str, Any],
+) -> None:
+    if addendum.get("schema_version") != "0.1.0":
+        raise ValueError("efficiency addendum schema version changed")
+    if addendum.get("protocol_id") != PROTOCOL_ID:
+        raise ValueError("efficiency addendum protocol mismatch")
+    if addendum.get("rule_id") != EFFICIENCY_RULE_ID:
+        raise ValueError("efficiency addendum rule mismatch")
+    if addendum.get("promotion_branch") != "efficiency":
+        raise ValueError("efficiency addendum promotion branch changed")
+
+    base_path_value = addendum.get("base_validation_selection_path")
+    base_sha = addendum.get("base_validation_selection_sha256")
+    if not isinstance(base_path_value, str) or not base_path_value:
+        raise ValueError("efficiency addendum lacks base selection path")
+    if not isinstance(base_sha, str) or len(base_sha) != 64:
+        raise ValueError("efficiency addendum lacks base selection SHA-256")
+    base_path = Path(base_path_value)
+    if not base_path.is_absolute():
+        base_path = ROOT / base_path
+    if not base_path.is_file():
+        raise ValueError("efficiency addendum base selection is missing")
+    base_raw = base_path.read_bytes()
+    if _sha256_bytes(base_raw) != base_sha:
+        raise ValueError("efficiency addendum base selection hash mismatch")
+    base_selection = json.loads(base_raw.decode("utf-8"))
+    validate_frozen_validation_selection(base_selection)
+
+    candidate_id = addendum.get("candidate_id")
+    if (
+        not isinstance(candidate_id, str)
+        or candidate_id not in base_selection.get(
+            "pending_efficiency_candidate_ids", []
+        )
+    ):
+        raise ValueError("efficiency addendum candidate is not pending")
+    if addendum.get("round") != base_selection.get("round"):
+        raise ValueError("efficiency addendum round mismatch")
+
+    expected_hashes = {
+        "candidate": addendum.get(
+            "candidate_economics_reports_sha256"
+        ),
+        "coverage_repair": addendum.get(
+            "coverage_repair_economics_reports_sha256"
+        ),
+        "react": addendum.get("react_economics_reports_sha256"),
+    }
+    recomputed = evaluate_efficiency_promotion(
+        base_selection=base_selection,
+        candidate_id=candidate_id,
+        candidate_reports_path=addendum[
+            "candidate_economics_reports_path"
+        ],
+        coverage_reports_path=addendum[
+            "coverage_repair_economics_reports_path"
+        ],
+        react_reports_path=addendum["react_economics_reports_path"],
+        expected_hashes=expected_hashes,
+    )
+    for key, value in recomputed.items():
+        if addendum.get(key) != value:
+            raise ValueError(
+                f"efficiency addendum recomputation mismatch: {key}"
+            )
+
+
+def freeze_efficiency_validation_authorization(
+    *,
+    base_selection_path: Path,
+    candidate_id: str,
+    candidate_reports_path: Path,
+    coverage_reports_path: Path,
+    react_reports_path: Path,
+    output_dir: Path,
+) -> tuple[Path, Path]:
+    base_raw = base_selection_path.read_bytes()
+    base_sha = _sha256_bytes(base_raw)
+    base_selection = json.loads(base_raw.decode("utf-8"))
+    validate_frozen_validation_selection(base_selection)
+    round_id = base_selection["round"]
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with _exclusive_gate_lock(
+        output_dir,
+        gate_name="validation-selection",
+        round_id=round_id,
+    ):
+        # Re-read under the same lock so the append binds to the immutable
+        # base artifact observed at authorization time.
+        current_raw = base_selection_path.read_bytes()
+        if _sha256_bytes(current_raw) != base_sha:
+            raise ValueError(
+                "base validation selection changed before efficiency append"
+            )
+        base_selection = json.loads(current_raw.decode("utf-8"))
+        validate_frozen_validation_selection(base_selection)
+
+        promotion = evaluate_efficiency_promotion(
+            base_selection=base_selection,
+            candidate_id=candidate_id,
+            candidate_reports_path=str(candidate_reports_path),
+            coverage_reports_path=str(coverage_reports_path),
+            react_reports_path=str(react_reports_path),
+        )
+        addendum = {
+            **promotion,
+            "base_validation_selection_path": str(base_selection_path),
+            "base_validation_selection_sha256": base_sha,
+        }
+        validate_frozen_efficiency_addendum(addendum)
+
+        addendum_path = output_dir / (
+            f"validation-efficiency-addendum-round-{round_id}"
+            f"--{candidate_id}.json"
+        )
+        auth_path = output_dir / (
+            f"{candidate_id}--validation-efficiency-auth.json"
+        )
+        if addendum_path.exists() or auth_path.exists():
+            raise ValueError(
+                "refusing to overwrite frozen efficiency validation artifact"
+            )
+
+        addendum_encoded = (
+            json.dumps(
+                addendum,
+                indent=2,
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+        addendum_sha = _sha256_bytes(addendum_encoded)
+        authorization = {
+            "schema_version": "0.1.0",
+            "protocol_id": PROTOCOL_ID,
+            "candidate_id": candidate_id,
+            "round": round_id,
+            "phase": "validation",
+            "approved": True,
+            "selection_rule": RULE_ID,
+            "promotion_branch": "efficiency",
+            "validation_selection_path": str(base_selection_path),
+            "validation_selection_sha256": base_sha,
+            "validation_slot_candidate_ids": list(
+                base_selection["validation_slot_candidate_ids"]
+            ),
+            "efficiency_addendum_path": str(addendum_path),
+            "efficiency_addendum_sha256": addendum_sha,
+        }
+        auth_encoded = (
+            json.dumps(
+                authorization,
+                indent=2,
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+
+        committed: list[Path] = []
+        try:
+            with tempfile.TemporaryDirectory(
+                dir=output_dir,
+                prefix=".validation-efficiency-",
+            ) as staging_dir:
+                staging = Path(staging_dir)
+                staged_addendum = staging / addendum_path.name
+                staged_auth = staging / auth_path.name
+                staged_addendum.write_bytes(addendum_encoded)
+                staged_auth.write_bytes(auth_encoded)
+
+                for stage, final in (
+                    (staged_addendum, addendum_path),
+                    (staged_auth, auth_path),
+                ):
+                    os.replace(stage, final)
+                    committed.append(final)
+        except Exception:
+            for committed_path in reversed(committed):
+                try:
+                    committed_path.unlink()
+                except FileNotFoundError:
+                    pass
+            raise
+
+        return addendum_path, auth_path
 
 
 def freeze_validation_selection(
