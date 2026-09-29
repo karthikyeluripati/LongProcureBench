@@ -15,6 +15,10 @@
       "git_blob_sha1": "3c0485825224daff9b6cb064241488233fc89f0d"
     },
     {
+      "path": "longprocurebench/__init__.py",
+      "git_blob_sha1": "339a66eaf338d33dba2c687768ed7688782f1eec"
+    },
+    {
       "path": "longprocurebench/context_compiled_reactive.py",
       "git_blob_sha1": "82b102d60c077247672d3d9ba1377243233672a9"
     },
