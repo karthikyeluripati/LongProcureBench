@@ -182,6 +182,180 @@ class ProcureHarnessArchitectureTests(unittest.TestCase):
             (len(actions) - 1) / len(actions),
         )
 
+    def test_requirement_change_forces_quote_refresh_before_leveling(self):
+        for episode_id in (
+            "electrical-lewiston-ev-chargers-033",
+            "electrical-philadelphia-led-phase5-037",
+        ):
+            with self.subTest(episode_id=episode_id):
+                env = LongProcureBenchEnv()
+                state = env.reset(episode_id)
+
+                def accepted(number, action_type, supplier_id=None):
+                    nonlocal state
+                    action = {
+                        "action_id": f"a{number}",
+                        "episode_id": episode_id,
+                        "type": action_type,
+                        "supplier_id": supplier_id,
+                        "arguments": {},
+                    }
+                    state = env.step(action)
+
+                accepted(1, "identify_suppliers")
+                suppliers = [
+                    row["supplier_id"]
+                    for row in state["visible_suppliers"]
+                ]
+                accepted(2, "send_rfq", suppliers[0])
+                accepted(3, "send_rfq", suppliers[1])
+                accepted(4, "send_rfq", suppliers[2])
+
+                policy = ProcureHarnessPolicy(
+                    "fake/test-model",
+                    config="ph-r1-c02",
+                    client=SequenceStructuredClient([]),
+                )
+                policy.reset(state)
+                compiled = policy._prompt_state(state)
+                candidates = policy._build_candidates(compiled)
+
+                amendment = [
+                    row for row in candidates
+                    if row["skill"] == "amendment_handling"
+                ]
+                refresh = [
+                    row for row in candidates
+                    if row["skill"] == "quote_revision"
+                    and row["forced"] is True
+                ]
+                self.assertEqual(len(amendment), 1)
+                self.assertEqual(
+                    {row["supplier_id"] for row in refresh},
+                    set(suppliers),
+                )
+                self.assertFalse(
+                    any(
+                        row["skill"] == "quote_leveling"
+                        for row in candidates
+                    )
+                )
+
+    def test_versioned_quote_arriving_after_change_is_still_stale(self):
+        policy = ProcureHarnessPolicy(
+            "fake/test-model",
+            config="ph-r1-c02",
+            client=SequenceStructuredClient([]),
+        )
+        compiled = {
+            "visible_suppliers": [{"supplier_id": "syn-a"}],
+            "action_history": [],
+            "event_history": [
+                {
+                    "event_id": "change",
+                    "type": "requirement_change",
+                    "supplier_id": None,
+                    "details": {
+                        "old_requirement_version": 0,
+                        "new_requirement_version": 1,
+                    },
+                },
+                {
+                    "event_id": "q0",
+                    "type": "quote_received",
+                    "supplier_id": "syn-a",
+                    "details": {"requirement_version": 0},
+                    "offer_scope": {"kind": "package"},
+                },
+            ],
+            "latest_offers": [
+                {
+                    "event_id": "q0",
+                    "type": "quote_received",
+                    "supplier_id": "syn-a",
+                    "details": {"requirement_version": 0},
+                    "offer_scope": {"kind": "package"},
+                }
+            ],
+            "initial_state": {
+                "operational_missing_information": [],
+            },
+        }
+        candidates = policy._build_candidates(compiled)
+        refresh = [
+            row for row in candidates
+            if row["skill"] == "quote_revision"
+        ]
+        self.assertEqual(len(refresh), 1)
+        self.assertTrue(refresh[0]["forced"])
+        self.assertEqual(refresh[0]["event_id"], "q0")
+
+    def test_award_validation_requires_quote_scope_coverage(self):
+        policy = ProcureHarnessPolicy(
+            "fake/test-model",
+            config="ph-r1-c02",
+            client=SequenceStructuredClient([]),
+        )
+        state = {
+            "initial_state": {
+                "line_items": [
+                    {"item_id": "2904"},
+                    {"item_id": "79"},
+                    {"item_id": "80"},
+                    {"item_id": "4523"},
+                    {"item_id": "59"},
+                ]
+            }
+        }
+        compiled = {
+            "visible_suppliers": [{"supplier_id": "syn-hpc-c"}],
+            "latest_offers": [
+                {
+                    "event_id": "e4",
+                    "supplier_id": "syn-hpc-c",
+                    "details": {},
+                    "offer_scope": {
+                        "kind": "items",
+                        "item_ids": ["4523", "59"],
+                    },
+                }
+            ],
+            "event_history": [],
+        }
+        selected = {"skill": "terminal_decision"}
+
+        invalid = {
+            "type": "award_supplier",
+            "supplier_id": "syn-hpc-c",
+            "arguments": {
+                "awards": [
+                    {
+                        "scope": "package",
+                        "supplier_id": "syn-hpc-c",
+                        "quote_event_id": "e4",
+                    }
+                ]
+            },
+        }
+        ok, reason = policy._basic_visible_validation(
+            invalid,
+            state,
+            compiled,
+            selected,
+        )
+        self.assertFalse(ok)
+        self.assertIn("does not cover", reason)
+
+        valid = deepcopy(invalid)
+        valid["arguments"]["awards"][0]["scope"] = "lot-4523"
+        ok, _ = policy._basic_visible_validation(
+            valid,
+            state,
+            compiled,
+            selected,
+        )
+        self.assertTrue(ok)
+
     def test_withdrawal_recovery_is_model_reasoned_not_forced(self):
         policy = ProcureHarnessPolicy(
             "fake/test-model",
