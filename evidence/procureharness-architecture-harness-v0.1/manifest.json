@@ -2,7 +2,7 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "6343df3076aa62deaa0e28dd1f6ac378364f5bc3",
+  "freeze_commit": "1307765352782bb32417f980a3311506756bc293",
   "freeze_status": "implementation_refrozen_for_round2_plateau_stop_gate",
   "model_execution_status_at_freeze": "round-1 and round-2 development search completed with no validation-authorized candidate; no ProcureHarness 031-040 validation or 041-050 final-method execution; round-3 screening not executed",
   "frozen_files": [
@@ -92,15 +92,16 @@
     },
     {
       "path": "scripts/select_procureharness_round_progression_v01.py",
-      "git_blob_sha1": "4c55aec8ce677b589eef3ef7cea2c4b85ee6fec9"
+      "git_blob_sha1": "efd42cb463fcb98bedda9c6dc7c10d69a2503f83"
     }
   ],
   "notes": [
     "This refreeze occurs after complete Round-1 and Round-2 development search plus their offline economics gates; neither round produced a candidate authorized for 031-040 validation.",
     "No ProcureHarness 031-040 validation or 041-050 final-method model-backed run has executed, and Round-3 screening has not executed.",
     "The controller, candidate configs, prompts, evaluator, model settings, benchmark, economics thresholds, frontier dimensions, and plateau threshold are unchanged.",
-    "The offline progression selector now supports the completed Round-2 stop computation while preserving the previously frozen Round-1 -> Round-2 progression behavior.",
-    "The Round-2 stop gate revalidates Round-1 progression, exact Round-2 screening/confirmation manifests and raw-result summaries, the immutable Round-2 validation-entry selection, and recomputes the Round-2 efficiency decisions from bound economics reports.",
+    "The offline progression selector supports the completed Round-2 stop computation while preserving the previously frozen Round-1 -> Round-2 progression behavior.",
+    "The hardened Round-2 stop gate validates the Round-2 economics package's baseline economics manifest binding, frozen reference-cohort binding, and baseline freeze commit before recording the stop decision.",
+    "The Round-2 stop gate also revalidates Round-1 progression, exact Round-2 screening/confirmation manifests and raw-result summaries, the immutable Round-2 validation-entry selection, and recomputes the Round-2 efficiency decisions from bound economics reports.",
     "Under the frozen ceiling rule, Round 1 and Round 2 each add no validation frontier point, so the consecutive no-new-frontier counter reaches 2 and the plateau stop fires before any Round-3 screening.",
     "A stop decision emits no Round-3 screening authorization.",
     "Progression publication is retry-recoverable: exact surviving artifacts are reused and mismatched survivors fail closed.",
