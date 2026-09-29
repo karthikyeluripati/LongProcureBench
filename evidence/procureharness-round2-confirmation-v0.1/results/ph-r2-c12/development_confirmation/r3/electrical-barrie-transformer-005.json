@@ -1,0 +1,708 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-xfmr-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-xfmr-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-xfmr-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-xfmr-b",
+        "type": "request_quote_revision"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-xfmr-b",
+        "type": "answer_supplier_question"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 9,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e5",
+              "scope": "package",
+              "supplier_id": "syn-xfmr-b"
+            }
+          ],
+          "reason": "Supplier B's revised quote is the lowest-priced compliant package at CAD 1,390,000, includes the transformer, neutral grounding resistor, and monitoring relay, and meets the maximum 60-month lead time with delivery in 56 months."
+        },
+        "supplier_id": "syn-xfmr-b",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-barrie-transformer-005",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 2,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 4 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among complete feasible offers after clarification, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": "o1",
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": true
+    },
+    "efficiency": {
+      "accepted_actions": 9
+    },
+    "episode_id": "electrical-barrie-transformer-005",
+    "episode_success": true,
+    "episode_success_v02": true,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": true,
+    "feasible_process_success": true,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 4,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "package includes_ngr=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "package includes_monitoring_relay=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "The real public initial state explicitly requires a 44 kV pad-mounted transformer with neutral grounding resistor and monitoring relay.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "event_step=1, first_action_step=3",
+              "kind": "event_before_action",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "The episode cannot proceed to a valid RFQ until the synthetic buyer clarification supplies quantity and unit.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package lead_time_months=56 <= 60",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Synthetic benchmark requirement: after buyer clarification, delivery must be no later than 60 months after award. This ceiling is not inferred from the public listing's 61-month duration field.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package includes_monitoring_relay=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "The monitoring relay must be included in the awarded supplier scope.",
+          "passed": true
+        }
+      ],
+      "total": 4
+    },
+    "obligations": {
+      "actionable": 3,
+      "all_actionable_resolved": true,
+      "encountered": 3,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 0,
+      "resolution_rate": 1.0,
+      "resolved": 3,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "visible_from_initial_state",
+          "applicable": true,
+          "category": "starting_state_obligation",
+          "checkpoint": "resolve_requirement_gap",
+          "detail": "clarification_step=1, first_rfq_step=3",
+          "obligation_id": "resolve_requirement_gap:initial",
+          "resolution_step": 1,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": 0
+        },
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "handle_supplier_question",
+          "detail": "Answer after supplier question from syn-xfmr-b.",
+          "obligation_id": "handle_supplier_question:e4",
+          "resolution_step": 7,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-xfmr-b",
+          "trigger_event_id": "e4",
+          "trigger_step": 6
+        },
+        {
+          "actionable": true,
+          "applicability_reason": "selected_award_uses_revision",
+          "applicable": true,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "selected_events=['e5'], request_step=6, selected_path_repaired=True",
+          "obligation_id": "request_quote_revision:syn-xfmr-b",
+          "resolution_step": 6,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-xfmr-b",
+          "trigger_event_id": null,
+          "trigger_step": 4
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": true,
+      "completed": 8,
+      "results": [
+        {
+          "checkpoint": "resolve_requirement_gap",
+          "complete": true,
+          "detail": "clarification_step=1, first_rfq_step=3",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "handle_supplier_question",
+          "complete": true,
+          "detail": "Answered syn-xfmr-b after supplier question",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": true,
+          "detail": "Quote revision request observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 4 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 8
+    },
+    "terminal_outcome": {
+      "correct": true,
+      "detail": "Terminal award set matches an acceptable outcome.",
+      "matched_outcome_id": "o1"
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c12--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 9,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 103,
+        "cost_usd": 0.0030732000000000003,
+        "error": null,
+        "latency_ms": 2291.5234600000076,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2506,
+        "success": true,
+        "total_tokens": 2609,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 103,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.0030732000000000003,
+    "deterministic_action_fraction": 0.8888888888888888,
+    "deterministic_actions_accepted": 8,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 2291.5234600000076,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 1,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "skill_reasoning_direct": 1
+    },
+    "model_calls": 1,
+    "model_calls_attempted": 1,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 1,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c12",
+      "fallback": "bounded_react_fallback",
+      "local_planning": "none",
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "round": 2,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 2506,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "quote_revision": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "supplier_question_handling": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 2609,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c12--development_confirmation--electrical-barrie-transformer-005--r3",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [
+        {
+          "details": {
+            "delivery_location": "Barrie, Ontario, Canada",
+            "max_lead_time_months": 60,
+            "quantity": 1,
+            "required_components": [
+              "44 kV pad-mounted transformer",
+              "neutral grounding resistor",
+              "monitoring relay"
+            ],
+            "unit": "EA"
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Synthetic buyer clarification: quantity is 1 EA, delivery is to Barrie, Ontario; the package must include the neutral grounding resistor and monitoring relay; for this benchmark scenario the buyer requires delivery no later than 60 months after award.",
+          "supplier_id": null,
+          "synthetic": true,
+          "trigger": {
+            "action_type": "request_buyer_clarification",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": null
+          },
+          "type": "buyer_clarification"
+        }
+      ],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "CAD",
+            "includes_monitoring_relay": true,
+            "includes_ngr": true,
+            "lead_time_months": 58,
+            "revision": 0,
+            "total_price": 1420000
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier A quotes CAD 1,420,000, 58-month delivery, including the transformer, NGR, and monitoring relay.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-xfmr-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-xfmr-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "CAD",
+            "includes_monitoring_relay": false,
+            "includes_ngr": true,
+            "lead_time_months": 54,
+            "revision": 0,
+            "total_price": 1310000
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier B quotes CAD 1,310,000, 54-month delivery, but the offer excludes the monitoring relay.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-xfmr-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-xfmr-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "CAD",
+            "includes_monitoring_relay": true,
+            "includes_ngr": true,
+            "lead_time_months": 52,
+            "revision": 0,
+            "total_price": 1500000
+          },
+          "emission_policy": "once",
+          "event_id": "e6",
+          "observation": "Supplier C quotes CAD 1,500,000, 52-month delivery, including all required components.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-xfmr-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-xfmr-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-b",
+        "type": "request_quote_revision"
+      },
+      "observations": [
+        {
+          "details": {
+            "question": "Must the monitoring relay be included in the supplier scope?"
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier B asks whether the monitoring relay must be included in its scope.",
+          "supplier_id": "syn-xfmr-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "request_quote_revision",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-xfmr-b"
+          },
+          "type": "supplier_question"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-b",
+        "type": "answer_supplier_question"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "CAD",
+            "includes_monitoring_relay": true,
+            "includes_ngr": true,
+            "lead_time_months": 56,
+            "revision": 1,
+            "total_price": 1390000
+          },
+          "emission_policy": "once",
+          "event_id": "e5",
+          "observation": "After confirmation, Supplier B revises to CAD 1,390,000, 56-month delivery, including the monitoring relay.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-xfmr-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "answer_supplier_question",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-xfmr-b"
+          },
+          "type": "quote_revision"
+        }
+      ],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {},
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 8
+    },
+    {
+      "action": {
+        "action_id": "a9",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e5",
+              "scope": "package",
+              "supplier_id": "syn-xfmr-b"
+            }
+          ],
+          "reason": "Supplier B's revised quote is the lowest-priced compliant package at CAD 1,390,000, includes the transformer, neutral grounding resistor, and monitoring relay, and meets the maximum 60-month lead time with delivery in 56 months."
+        },
+        "episode_id": "electrical-barrie-transformer-005",
+        "supplier_id": "syn-xfmr-b",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 9
+    }
+  ]
+}

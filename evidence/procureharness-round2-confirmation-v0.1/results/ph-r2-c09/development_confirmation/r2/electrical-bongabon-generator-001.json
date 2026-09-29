@@ -1,0 +1,613 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-gen-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-gen-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-gen-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-gen-c",
+        "type": "send_follow_up"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-gen-a"
+            }
+          ],
+          "reason": "Award the package to the only offer meeting the visible budget, delivery, ISO documentation, and warranty requirements."
+        },
+        "supplier_id": "syn-gen-a",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-bongabon-generator-001",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 2,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among feasible active package offers, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": "o2",
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 8
+    },
+    "episode_id": "electrical-bongabon-generator-001",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": true,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 4,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "package total_price=382000 <= 383250",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Awarded price must not exceed the real PHP 383,250 approved budget.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package lead_time_days=12 <= 15",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Delivery must satisfy the real 15-day post-NTP delivery requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package iso_documentation=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "package warranty_months=12 >= 12",
+              "kind": "award_quote_min",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Award must satisfy the real ISO-documentation and one-year-warranty requirements.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e1, latest=e1",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Only the latest revealed revision for a supplier may be used as that supplier's active offer.",
+          "passed": true
+        }
+      ],
+      "total": 4
+    },
+    "obligations": {
+      "actionable": 1,
+      "all_actionable_resolved": true,
+      "encountered": 1,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 1,
+      "resolution_rate": 1.0,
+      "resolved": 1,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "follow_up_nonresponse",
+          "detail": "Follow-up after non-response from syn-gen-c.",
+          "obligation_id": "follow_up_nonresponse:e3",
+          "resolution_step": 6,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-gen-c",
+          "trigger_event_id": "e3",
+          "trigger_step": 5
+        },
+        {
+          "actionable": false,
+          "applicability_reason": "selected_path_does_not_require_revision",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "Selected award path is feasible without a quote revision.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 6,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "follow_up_nonresponse",
+          "complete": true,
+          "detail": "Followed up syn-gen-c after non-response",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 7
+    },
+    "terminal_outcome": {
+      "correct": true,
+      "detail": "Terminal award set matches an acceptable outcome.",
+      "matched_outcome_id": "o2"
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c09--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 8,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 180,
+        "cost_usd": 0.0043668,
+        "error": null,
+        "latency_ms": 2869.483115000008,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_mini_react",
+        "prompt_tokens": 1890,
+        "success": true,
+        "total_tokens": 2070,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 180,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.0043668,
+    "deterministic_action_fraction": 0.875,
+    "deterministic_actions_accepted": 7,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 2869.483115000008,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 1,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "skill_reasoning_mini_react": 1
+    },
+    "model_calls": 1,
+    "model_calls_attempted": 1,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 1,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c09",
+      "fallback": "none",
+      "local_planning": "none",
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "round": 2,
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 1890,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "nonresponse_followup": 1,
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 2070,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c09--development_confirmation--electrical-bongabon-generator-001--r2",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": "syn-gen-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "iso_documentation": true,
+            "lead_time_days": 12,
+            "revision": 0,
+            "total_price": 382000,
+            "warranty_months": 12
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A submits a PHP 382,000 quotation, 12-day delivery, ISO documentation, and a 12-month warranty.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-gen-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-gen-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": "syn-gen-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "iso_documentation": true,
+            "lead_time_days": 24,
+            "revision": 0,
+            "total_price": 349000,
+            "warranty_months": 12
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B submits the lowest initial price at PHP 349,000 but requires 24 days for delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-gen-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-gen-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": "syn-gen-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "status": "no_response"
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C has not responded after the normal response window.",
+          "supplier_id": "syn-gen-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-gen-c"
+          },
+          "type": "supplier_non_response"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": "syn-gen-c",
+        "type": "send_follow_up"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "iso_documentation": true,
+            "lead_time_days": 14,
+            "revision": 0,
+            "total_price": 365500,
+            "warranty_months": 6
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "After follow-up, Supplier C quotes PHP 365,500 with 14-day delivery but only a 6-month warranty.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-gen-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_follow_up",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-gen-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {},
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-gen-a"
+            }
+          ],
+          "reason": "Award the package to the only offer meeting the visible budget, delivery, ISO documentation, and warranty requirements."
+        },
+        "episode_id": "electrical-bongabon-generator-001",
+        "supplier_id": "syn-gen-a",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 8
+    }
+  ]
+}
