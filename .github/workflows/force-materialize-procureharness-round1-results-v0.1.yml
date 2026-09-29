@@ -1,0 +1,158 @@
+name: Force Materialize ProcureHarness Round 1 Results
+
+on:
+  push:
+    branches:
+      - 'codex/procureharness-round1-screening-evidence-v0.1'
+    paths:
+      - '.github/workflows/force-materialize-procureharness-round1-results-v0.1.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_RUN_ID: '36558900494'
+      SOURCE_ARTIFACT: 'procureharness-round1-screening-package-36558900494-1'
+      EVIDENCE_ROOT: evidence/procureharness-round1-screening-v0.1
+      GATE_ROOT: evidence/procureharness-search-gates-v0.1
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Download exact successful Round 1 package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/procureharness-r1
+          mkdir -p /tmp/procureharness-r1
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$SOURCE_ARTIFACT" \
+            --dir /tmp/procureharness-r1
+
+      - name: Restore exact evidence tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$EVIDENCE_ROOT"
+          cp -a /tmp/procureharness-r1/procureharness-round1-screening-v0.1 "$EVIDENCE_ROOT"
+
+          cmp --silent \
+            /tmp/procureharness-r1/procureharness-search-gates-v0.1/screening-selection-round-1.json \
+            "$GATE_ROOT/screening-selection-round-1.json"
+          cmp --silent \
+            /tmp/procureharness-r1/procureharness-search-gates-v0.1/ph-r1-c02--development-confirmation-auth.json \
+            "$GATE_ROOT/ph-r1-c02--development-confirmation-auth.json"
+          cmp --silent \
+            /tmp/procureharness-r1/procureharness-search-gates-v0.1/ph-r1-c05--development-confirmation-auth.json \
+            "$GATE_ROOT/ph-r1-c05--development-confirmation-auth.json"
+
+      - name: Verify exact manifest and selection again
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import sys
+
+          manifest_path = Path("evidence/procureharness-round1-screening-v0.1/manifest.json")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+          if manifest.get("workflow_run_id") != "36558900494":
+              raise SystemExit("unexpected source workflow run")
+          if manifest.get("workflow_commit_sha") != "a67ea18f33fca2aebfb52621017c223127e20b21":
+              raise SystemExit("unexpected source workflow commit")
+          if manifest.get("total_runs") != 120:
+              raise SystemExit("manifest total_runs must equal 120")
+          if len(manifest.get("source_files", [])) != 126:
+              raise SystemExit("expected 126 source files")
+          if len(manifest.get("gate_files", [])) != 3:
+              raise SystemExit("expected 3 gate files")
+
+          for item in [*manifest["source_files"], *manifest["gate_files"]]:
+              path = Path(item["path"])
+              if not path.is_file():
+                  raise SystemExit(f"missing manifested file: {path}")
+              raw = path.read_bytes()
+              if hashlib.sha256(raw).hexdigest() != item["sha256"]:
+                  raise SystemExit(f"hash mismatch: {path}")
+              if len(raw) != item["bytes"]:
+                  raise SystemExit(f"byte-count mismatch: {path}")
+
+          raw_runs = list(
+              Path("evidence/procureharness-round1-screening-v0.1/results")
+              .glob("ph-r1-c*/screening/r1/*.json")
+          )
+          summaries = list(
+              Path("evidence/procureharness-round1-screening-v0.1/results")
+              .glob("ph-r1-c*/screening/summary.json")
+          )
+          if len(raw_runs) != 120 or len(summaries) != 6:
+              raise SystemExit(
+                  f"unexpected evidence cardinality: raw={len(raw_runs)}, summaries={len(summaries)}"
+              )
+
+          sys.path.insert(0, "scripts")
+          from select_procureharness_screening_v01 import validate_frozen_screening_selection
+          from run_procureharness_search_v01 import validate_phase_authorization
+
+          gate_root = Path("evidence/procureharness-search-gates-v0.1")
+          selection = json.loads(
+              (gate_root / "screening-selection-round-1.json").read_text(encoding="utf-8")
+          )
+          validate_frozen_screening_selection(selection)
+          if selection.get("selected_candidate_ids") != ["ph-r1-c02", "ph-r1-c05"]:
+              raise SystemExit("frozen selection changed")
+
+          for candidate_id in ("ph-r1-c02", "ph-r1-c05"):
+              auth = json.loads(
+                  (gate_root / f"{candidate_id}--development-confirmation-auth.json")
+                  .read_text(encoding="utf-8")
+              )
+              validate_phase_authorization(
+                  candidate_id=candidate_id,
+                  phase="development_confirmation",
+                  authorization=auth,
+              )
+
+          print("verified exact Round 1 screening evidence and C02+C05 authorizations")
+          PY
+
+      - name: Revalidate frozen implementation
+        run: python scripts/validate_procureharness_harness_v01.py
+
+      - name: Force-add ignored durable results and remove bootstrap workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f "$EVIDENCE_ROOT"
+          git add "$GATE_ROOT/screening-selection-round-1.json"
+          git add "$GATE_ROOT/ph-r1-c02--development-confirmation-auth.json"
+          git add "$GATE_ROOT/ph-r1-c05--development-confirmation-auth.json"
+          git rm .github/workflows/force-materialize-procureharness-round1-results-v0.1.yml
+
+          git diff --cached --stat
+          git commit -m "Retain complete ProcureHarness Round 1 screening results"
+          git push origin "HEAD:codex/procureharness-round1-screening-evidence-v0.1"
