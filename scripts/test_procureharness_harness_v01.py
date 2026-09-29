@@ -152,37 +152,26 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                 },
             )
 
-    def test_validation_requires_floor_and_promotion_branch(self):
-        base = {
+    def test_validation_requires_bound_selection_artifact(self):
+        authorization = {
             "protocol_id": "procureharness-architecture-search-v0.1",
             "candidate_id": "ph-r1-c01",
             "round": 1,
             "phase": "validation",
             "approved": True,
-            "development_confirmation_complete": True,
-        }
-        with self.assertRaisesRegex(
-            ValueError,
-            "development_confirmation_floor_passed",
-        ):
-            validate_phase_authorization(
-                candidate_id="ph-r1-c01",
-                phase="validation",
-                authorization=base,
-            )
-
-        authorized = {
-            **base,
-            "development_confirmation_floor_passed": True,
             "promotion_branch": "quality",
             "validation_selected_candidate_ids": ["ph-r1-c01"],
             "selection_rule": "frozen_validation_entry_lexicographic_v0.1",
         }
-        validate_phase_authorization(
-            candidate_id="ph-r1-c01",
-            phase="validation",
-            authorization=authorized,
-        )
+        with self.assertRaisesRegex(
+            ValueError,
+            "validation_selection_path",
+        ):
+            validate_phase_authorization(
+                candidate_id="ph-r1-c01",
+                phase="validation",
+                authorization=authorization,
+            )
 
     def test_validation_rejects_more_than_two_selected_candidates(self):
         with self.assertRaisesRegex(ValueError, "exceeds max 2"):
@@ -195,8 +184,6 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                     "round": 2,
                     "phase": "validation",
                     "approved": True,
-                    "development_confirmation_complete": True,
-                    "development_confirmation_floor_passed": True,
                     "promotion_branch": "quality",
                     "validation_selected_candidate_ids": [
                         "ph-r2-c07",
@@ -208,7 +195,7 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                 },
             )
 
-    def test_later_round_screening_requires_prior_round_gate(self):
+    def test_later_round_screening_is_fail_closed_until_frontier_gate(self):
         with self.assertRaisesRegex(ValueError, "requires --authorization-json"):
             validate_phase_authorization(
                 candidate_id="ph-r2-c07",
@@ -216,54 +203,21 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                 authorization=None,
             )
 
-        validate_phase_authorization(
-            candidate_id="ph-r2-c07",
-            phase="screening",
-            authorization={
-                "protocol_id": "procureharness-architecture-search-v0.1",
-                "candidate_id": "ph-r2-c07",
-                "round": 2,
-                "phase": "screening",
-                "approved": True,
-                "round_candidate_ids": [
-                    "ph-r2-c07",
-                    "ph-r2-c08",
-                    "ph-r2-c09",
-                    "ph-r2-c10",
-                    "ph-r2-c11",
-                    "ph-r2-c12",
-                ],
-                "prior_round": 1,
-                "prior_round_validation_complete": True,
-                "plateau_stop_fired": False,
-                "search_budget_exhausted": False,
-            },
-        )
-
-    def test_later_round_screening_stops_when_plateau_fires(self):
-        with self.assertRaisesRegex(ValueError, "plateau_stop_fired=false"):
+        claimed_gate = {
+            "protocol_id": "procureharness-architecture-search-v0.1",
+            "candidate_id": "ph-r2-c07",
+            "round": 2,
+            "phase": "screening",
+            "approved": True,
+            "prior_round_validation_complete": True,
+            "plateau_stop_fired": False,
+            "search_budget_exhausted": False,
+        }
+        with self.assertRaisesRegex(ValueError, "fail-closed"):
             validate_phase_authorization(
                 candidate_id="ph-r2-c07",
                 phase="screening",
-                authorization={
-                    "protocol_id": "procureharness-architecture-search-v0.1",
-                    "candidate_id": "ph-r2-c07",
-                    "round": 2,
-                    "phase": "screening",
-                    "approved": True,
-                    "round_candidate_ids": [
-                        "ph-r2-c07",
-                        "ph-r2-c08",
-                        "ph-r2-c09",
-                        "ph-r2-c10",
-                        "ph-r2-c11",
-                        "ph-r2-c12",
-                    ],
-                    "prior_round": 1,
-                    "prior_round_validation_complete": True,
-                    "plateau_stop_fired": True,
-                    "search_budget_exhausted": False,
-                },
+                authorization=claimed_gate,
             )
 
     def test_candidate_phase_cannot_be_rerun_into_nonempty_output_tree(self):
