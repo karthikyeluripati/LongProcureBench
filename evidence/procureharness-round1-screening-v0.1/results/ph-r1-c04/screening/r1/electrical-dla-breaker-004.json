@@ -1,0 +1,683 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-breaker-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-breaker-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-breaker-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {
+          "reason": "Following Supplier A's withdrawal, request a revised quotation from Supplier C that meets the 134-day delivery requirement and confirms SDVOSB eligibility."
+        },
+        "supplier_id": "syn-breaker-c",
+        "type": "request_quote_revision"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 9,
+      "decision": {
+        "arguments": {
+          "reason": "No eligible, awardable offer is visibly confirmed: Supplier A withdrew; Supplier B is not SDVOSB-eligible; and Supplier C meets the 134-day delivery requirement but has no visible confirmation of SDVOSB eligibility."
+        },
+        "supplier_id": null,
+        "type": "no_award"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-dla-breaker-004",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": false,
+        "completed": 1,
+        "results": [
+          {
+            "checkpoint": "validate_eligibility",
+            "complete": false,
+            "detail": "Eligibility proxy not satisfied",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [
+      "c1",
+      "c2",
+      "c3",
+      "c4"
+    ],
+    "economic_objective": {
+      "description": "Among remaining eligible and feasible active offers, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": null,
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 9
+    },
+    "episode_id": "electrical-dla-breaker-004",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": false,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": false,
+      "passed": 0,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope None",
+              "kind": "award_supplier_equals",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Award must go to a supplier satisfying the real SDVOSB set-aside restriction.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope None",
+              "kind": "award_quote_max",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Delivery must satisfy the real 134-day ADO requirement.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope None",
+              "kind": "award_supplier_not_withdrawn",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "A withdrawn quotation cannot support award.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope None",
+              "kind": "award_quote_latest",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Supplier C's revision supersedes its original 140-day offer.",
+          "passed": false
+        }
+      ],
+      "total": 4
+    },
+    "obligations": {
+      "actionable": 1,
+      "all_actionable_resolved": false,
+      "encountered": 1,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 1,
+      "resolution_rate": 0.0,
+      "resolved": 0,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "recover_from_withdrawal",
+          "detail": "No feasible hard-constraint-satisfying terminal recovery path was established after withdrawal.",
+          "obligation_id": "recover_from_withdrawal:e4",
+          "resolution_step": null,
+          "resolved": false,
+          "status": "unresolved",
+          "supplier_id": "syn-breaker-a",
+          "trigger_event_id": "e4",
+          "trigger_step": 6
+        },
+        {
+          "actionable": false,
+          "applicability_reason": "no_selected_award_path",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "No terminal award path selected.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 1,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 6,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "validate_eligibility",
+          "complete": false,
+          "detail": "Eligibility proxy not satisfied",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "recover_from_withdrawal",
+          "complete": true,
+          "detail": "withdrawal_step=6, replacement_quote=e5@7, reevaluation_step=8",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": true,
+          "detail": "Quote revision request observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 7
+    },
+    "terminal_outcome": {
+      "correct": false,
+      "detail": "Terminal decision or award set does not match any acceptable outcome.",
+      "matched_outcome_id": null
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r1-c04--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 9,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 155,
+        "cost_usd": 0.011872,
+        "error": null,
+        "latency_ms": 2777.8337299999976,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "local_planning",
+        "prompt_tokens": 1755,
+        "success": true,
+        "total_tokens": 1910,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 99,
+        "cost_usd": 0.011392,
+        "error": null,
+        "latency_ms": 1952.2950690000016,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 1883,
+        "success": true,
+        "total_tokens": 1982,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 169,
+        "cost_usd": 0.012972000000000001,
+        "error": null,
+        "latency_ms": 3642.1139380000086,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "local_planning",
+        "prompt_tokens": 1919,
+        "success": true,
+        "total_tokens": 2088,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 79,
+        "cost_usd": 0.011812000000000001,
+        "error": null,
+        "latency_ms": 2036.2564039999995,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2047,
+        "success": true,
+        "total_tokens": 2126,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 502,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.048048,
+    "deterministic_action_fraction": 0.7777777777777778,
+    "deterministic_actions_accepted": 7,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 10408.499141000008,
+    "local_plan_count": 2,
+    "max_model_calls_between_accepted_actions_observed": 2,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 2,
+    "model_call_purposes": {
+      "local_planning": 2,
+      "skill_reasoning_direct": 2
+    },
+    "model_calls": 4,
+    "model_calls_attempted": 4,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 4,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r1-c04",
+      "fallback": "none",
+      "local_planning": "bounded_local_plan",
+      "obligation_routing": "deterministic_priority",
+      "round": 1,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 7604,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 2,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1,
+      "withdrawal_recovery": 1
+    },
+    "temperature": null,
+    "total_tokens": 8106,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r1-c04--screening--electrical-dla-breaker-004--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": "syn-breaker-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 120,
+            "quantity": 652,
+            "revision": 0,
+            "total_price": 73024
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A quotes USD 73,024 total with 120-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-breaker-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-breaker-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": "syn-breaker-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 100,
+            "quantity": 652,
+            "revision": 0,
+            "total_price": 63896
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B quotes USD 63,896 total with 100-day delivery, but is not SDVOSB-eligible.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-breaker-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-breaker-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": "syn-breaker-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 140,
+            "quantity": 652,
+            "revision": 0,
+            "total_price": 71068
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C quotes USD 71,068 total with 140-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-breaker-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-breaker-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [
+        {
+          "details": {
+            "status": "withdrawn"
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier A withdraws its quotation before award.",
+          "supplier_id": "syn-breaker-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "evaluate_quotes",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": null
+          },
+          "type": "supplier_withdrawal"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {
+          "reason": "Following Supplier A's withdrawal, request a revised quotation from Supplier C that meets the 134-day delivery requirement and confirms SDVOSB eligibility."
+        },
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": "syn-breaker-c",
+        "type": "request_quote_revision"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 130,
+            "quantity": 652,
+            "revision": 1,
+            "total_price": 72372
+          },
+          "emission_policy": "once",
+          "event_id": "e5",
+          "observation": "Supplier C revises its delivery commitment to 130 days and total price to USD 72,372.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-breaker-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "request_quote_revision",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-breaker-c"
+          },
+          "type": "quote_revision"
+        }
+      ],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {},
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 8
+    },
+    {
+      "action": {
+        "action_id": "a9",
+        "arguments": {
+          "reason": "No eligible, awardable offer is visibly confirmed: Supplier A withdrew; Supplier B is not SDVOSB-eligible; and Supplier C meets the 134-day delivery requirement but has no visible confirmation of SDVOSB eligibility."
+        },
+        "episode_id": "electrical-dla-breaker-004",
+        "supplier_id": null,
+        "type": "no_award"
+      },
+      "observations": [],
+      "step": 9
+    }
+  ]
+}

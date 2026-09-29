@@ -1,0 +1,755 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-bps-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-bps-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-bps-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-bps-d",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-bps-a"
+            }
+          ],
+          "reason": "Supplier A is eligible for the total small-business set-aside, covers all five lines, and meets the 60-day delivery requirement with a 55-day lead time. Supplier B is ineligible, while the split combination involving Supplier D fails the delivery requirement."
+        },
+        "supplier_id": "syn-bps-a",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-dla-battery-supply-014",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 4 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": false,
+        "completed": 1,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 4 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_eligibility",
+            "complete": false,
+            "detail": "Eligibility proxy not satisfied",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": false,
+            "detail": "Compliance proxy not satisfied",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 3
+      }
+    },
+    "constraint_violations": [
+      "c3",
+      "c4"
+    ],
+    "economic_objective": {
+      "description": "Among eligible feasible line assignments, prefer the lowest aggregate awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": null,
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 8
+    },
+    "episode_id": "electrical-dla-battery-supply-014",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": false,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": false,
+      "passed": 3,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "syn-bps-a eligibility_state='eligible' == 'eligible'",
+              "kind": "award_supplier_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Every awarded supplier must satisfy the real total small-business set-aside.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "award item counts={'0001': 1, '0005': 1, '0002': 1, '0003': 1, '0004': 1}, required=['0001', '0002', '0003', '0004', '0005'], optional=[]",
+              "kind": "award_scope_complete",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "All five real delivery lines must be awarded exactly once.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope 'lot-0001'",
+              "kind": "award_quote_max",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0002'",
+              "kind": "award_quote_max",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0003'",
+              "kind": "award_quote_max",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0004'",
+              "kind": "award_quote_max",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0005'",
+              "kind": "award_quote_max",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Each awarded line must meet the real 60-day ADO requirement.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope 'lot-0001'",
+              "kind": "award_quote_equals",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0002'",
+              "kind": "award_quote_equals",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0003'",
+              "kind": "award_quote_equals",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0004'",
+              "kind": "award_quote_equals",
+              "passed": false
+            },
+            {
+              "detail": "No award matches scope 'lot-0005'",
+              "kind": "award_quote_equals",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Each awarded line must cover its real line quantity.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e1, latest=e1",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c5",
+          "description": "Only the latest revealed revision for a supplier may support award.",
+          "passed": true
+        }
+      ],
+      "total": 5
+    },
+    "obligations": {
+      "actionable": 0,
+      "all_actionable_resolved": true,
+      "encountered": 0,
+      "has_actionable_obligations": false,
+      "no_opportunity": 0,
+      "not_applicable": 1,
+      "resolution_rate": null,
+      "resolved": 0,
+      "results": [
+        {
+          "actionable": false,
+          "applicability_reason": "selected_path_does_not_require_revision",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "Selected award path is feasible without a quote revision.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 4,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 4 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 4 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_eligibility",
+          "complete": false,
+          "detail": "Eligibility proxy not satisfied",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": false,
+          "detail": "Compliance proxy not satisfied",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 7
+    },
+    "terminal_outcome": {
+      "correct": false,
+      "detail": "Terminal decision or award set does not match any acceptable outcome.",
+      "matched_outcome_id": null
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r1-c06--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 8,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 171,
+        "cost_usd": 0.0050036,
+        "error": null,
+        "latency_ms": 2832.5111629999924,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 3932,
+        "success": true,
+        "total_tokens": 4103,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 319,
+        "cost_usd": 0.026312000000000002,
+        "error": null,
+        "latency_ms": 5598.66356599997,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "terminal_critique",
+        "prompt_tokens": 3987,
+        "success": true,
+        "total_tokens": 4306,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 490,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.0313156,
+    "deterministic_action_fraction": 0.875,
+    "deterministic_actions_accepted": 7,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 8431.174728999962,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 2,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "skill_reasoning_direct": 1,
+      "terminal_critique": 1
+    },
+    "model_calls": 2,
+    "model_calls_attempted": 2,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 2,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r1-c06",
+      "fallback": "none",
+      "local_planning": "none",
+      "obligation_routing": "deterministic_priority",
+      "round": 1,
+      "skill_reasoning": "direct_action",
+      "verification": "single_terminal_llm_critique"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 7919,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 4,
+      "supplier_discovery": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 8409,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r1-c06--screening--electrical-dla-battery-supply-014--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": "syn-bps-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "0001": {
+                "lead_time_days": 55,
+                "price": 100000,
+                "quantity": 10
+              },
+              "0002": {
+                "lead_time_days": 55,
+                "price": 12000,
+                "quantity": 1
+              },
+              "0003": {
+                "lead_time_days": 55,
+                "price": 12000,
+                "quantity": 1
+              },
+              "0004": {
+                "lead_time_days": 55,
+                "price": 12000,
+                "quantity": 1
+              },
+              "0005": {
+                "lead_time_days": 55,
+                "price": 12000,
+                "quantity": 1
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A quotes all five lines for an aggregate USD 148,000, with every line deliverable in 55 days.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-bps-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-bps-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": "syn-bps-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "0001": {
+                "lead_time_days": 50,
+                "price": 90000,
+                "quantity": 10
+              },
+              "0002": {
+                "lead_time_days": 50,
+                "price": 10000,
+                "quantity": 1
+              },
+              "0003": {
+                "lead_time_days": 50,
+                "price": 10000,
+                "quantity": 1
+              },
+              "0004": {
+                "lead_time_days": 50,
+                "price": 10000,
+                "quantity": 1
+              },
+              "0005": {
+                "lead_time_days": 50,
+                "price": 10000,
+                "quantity": 1
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B quotes all five lines for an aggregate USD 130,000 at 50 days, but is not eligible under the small-business set-aside.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-bps-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-bps-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": "syn-bps-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "0001": {
+                "lead_time_days": 58,
+                "price": 95000,
+                "quantity": 10
+              },
+              "0002": {
+                "lead_time_days": 58,
+                "price": 11000,
+                "quantity": 1
+              },
+              "0003": {
+                "lead_time_days": 58,
+                "price": 11000,
+                "quantity": 1
+              },
+              "0004": null,
+              "0005": null
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C quotes lines 0001-0003 at 58-day delivery.",
+          "offer_scope": {
+            "item_ids": [
+              "0001",
+              "0002",
+              "0003"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-bps-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-bps-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": "syn-bps-d",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "0001": null,
+              "0002": null,
+              "0003": null,
+              "0004": {
+                "lead_time_days": 65,
+                "price": 9000,
+                "quantity": 1
+              },
+              "0005": {
+                "lead_time_days": 65,
+                "price": 9000,
+                "quantity": 1
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier D quotes lines 0004-0005 at 65-day delivery.",
+          "offer_scope": {
+            "item_ids": [
+              "0004",
+              "0005"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-bps-d",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-bps-d"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {},
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-bps-a"
+            }
+          ],
+          "reason": "Supplier A is eligible for the total small-business set-aside, covers all five lines, and meets the 60-day delivery requirement with a 55-day lead time. Supplier B is ineligible, while the split combination involving Supplier D fails the delivery requirement."
+        },
+        "episode_id": "electrical-dla-battery-supply-014",
+        "supplier_id": "syn-bps-a",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 8
+    }
+  ]
+}
