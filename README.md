@@ -85,6 +85,17 @@ forecasting, dynamic model routing, or self-improvement.
 - Frozen 60-run Luna rescore: **62/91 actionable obligations resolved (68.1%)**; **50.0% feasible-obligation success** vs the legacy **18.3% process-complete rate**.
 - See [`docs/evaluator.md`](docs/evaluator.md) and [`docs/evaluator-v0.2-luna-rescore.md`](docs/evaluator-v0.2-luna-rescore.md).
 
+### Economic Regret v0.1
+
+- Additive deterministic procurement-economics layer; Evaluator v0.2 semantics remain unchanged.
+- Computes package and lot-level award costs from the frozen episode quote data.
+- Reports feasible native-price regret and normalized regret when the oracle cost is positive.
+- Freezes matched Coverage+Repair/ReAct run-key cohorts so failed candidate runs cannot disappear from the economic denominator.
+- Handles zero-cost and empty-cohort cases without fabricated percentages or sentinel regret values.
+- Computes paired procurement savings by native currency; currencies are never summed together.
+- Provides an offline CLI and makes no model/provider calls.
+- See [`docs/economic-regret-v0.1.md`](docs/economic-regret-v0.1.md).
+
 ### Benchmark Runner v0.1
 
 - Minimal policy interface shared by future agent baselines.

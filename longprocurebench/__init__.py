@@ -3,6 +3,13 @@
 from .context_compiled_reactive import ContextCompiledReactiveLLMPolicy
 from .coverage_repair_context import CoverageRepairContextPolicy
 from .evaluator import EvaluationError, LongProcureBenchEvaluator
+from .economics import (
+    EconomicRegretEvaluator,
+    EconomicsError,
+    compare_candidate_on_reference_cohort,
+    freeze_reference_cohort,
+    normalize_regret,
+)
 from .plan_execute_comparator import (
     PlanExecuteLLMPolicy,
     PlanExecuteProtocolError,
@@ -36,6 +43,8 @@ __all__ = [
     "CoverageRepairContextPolicy",
     "EnvironmentError",
     "EvaluationError",
+    "EconomicRegretEvaluator",
+    "EconomicsError",
     "LongProcureBenchEnv",
     "LongProcureBenchEvaluator",
     "OperationalLedgerError",
@@ -53,4 +62,7 @@ __all__ = [
     "StateValidityFrontierPolicy",
     "WorkingPlanError",
     "WorkingPlanReactiveLLMPolicy",
+    "compare_candidate_on_reference_cohort",
+    "freeze_reference_cohort",
+    "normalize_regret",
 ]
