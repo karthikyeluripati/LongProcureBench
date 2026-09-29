@@ -112,6 +112,13 @@ class ProcureHarnessRound2ScreeningEvidenceTests(unittest.TestCase):
         self.assertEqual(manifest["model"], MODEL)
         self.assertEqual(manifest["reasoning_effort"], REASONING_EFFORT)
         self.assertEqual(manifest["temperature"], TEMPERATURE)
+        self.assertEqual(manifest["workflow_run_id"], "36585855832")
+        self.assertEqual(manifest["workflow_run_attempt"], "1")
+        self.assertEqual(
+            manifest["workflow_commit_sha"],
+            "ff5cd8d1d4500ad44cd025795bfe95373e22219c",
+        )
+        self.assertTrue(manifest["recovery_workflow_run_id"])
 
         expected_paths = set()
         for candidate_id in self.candidates:
