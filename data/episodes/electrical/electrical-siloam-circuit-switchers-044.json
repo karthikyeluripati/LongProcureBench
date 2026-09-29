@@ -1,0 +1,279 @@
+{
+  "schema_version": "0.1.0",
+  "episode_id": "electrical-siloam-circuit-switchers-044",
+  "procurement_category": "electrical",
+  "initial_state_ref": {
+    "package_id": "us-siloam-springs-ar-69kv-circuit-switchers-2026",
+    "path": "data/initial_states/electrical/us-siloam-springs-ar-69kv-circuit-switchers-2026.json",
+    "grounding": "real_public"
+  },
+  "scenario": {
+    "title": "Supplier question and compliant quote revision",
+    "summary": "One lower-price supplier initially omits a controlled compliance element, asks a question when revision is requested, and becomes the lowest feasible offer only after the buyer answer and revised quote.",
+    "difficulty": "hard",
+    "tags": [
+      "supplier_question",
+      "quote_received",
+      "quote_revision",
+      "compliance_conflict"
+    ]
+  },
+  "realism": {
+    "initial_state_data": "real_public",
+    "supplier_profiles": "synthetic",
+    "quotes_and_messages": "synthetic",
+    "event_timeline": "synthetic",
+    "notes": "The procurement requirement is the cited real public starting state. Supplier identities, supplier behavior, quote values, delivery commitments, qualification states, and event timing are synthetic controlled benchmark facts and are not historical claims about real vendors or buyers.",
+    "calibration_sources": [
+      {
+        "title": "FAR 15.306 Exchanges with offerors after receipt of proposals",
+        "url": "https://www.acquisition.gov/far/15.306",
+        "role": "Process-pattern reference for clarification/discussion events; used only to calibrate synthetic interaction structure."
+      },
+      {
+        "title": "FAR 15.206 Amending the solicitation",
+        "url": "https://www.acquisition.gov/far/15.206",
+        "role": "Process-pattern reference for controlled buyer changes and solicitation amendments."
+      },
+      {
+        "title": "UNDP How we buy",
+        "url": "https://www.undp.org/procurement/doing-business-undp/how-we-buy",
+        "role": "Process-pattern reference for quotation evaluation across compliance, price, and delivery."
+      }
+    ]
+  },
+  "objective": {
+    "terminal_state": "award_ready",
+    "description": "Reach an award-ready procurement decision without violating the real starting requirement or synthetic scenario facts revealed during the episode."
+  },
+  "suppliers": [
+    {
+      "supplier_id": "syn-44-a",
+      "display_name": "Synthetic 44 Supplier A",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Complete offer."
+    },
+    {
+      "supplier_id": "syn-44-b",
+      "display_name": "Synthetic 44 Supplier B",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "unknown",
+      "notes": "Initially incomplete; can repair after a supplier question."
+    },
+    {
+      "supplier_id": "syn-44-c",
+      "display_name": "Synthetic 44 Supplier C",
+      "synthetic": true,
+      "eligibility_state": "eligible",
+      "compliance_state": "compliant",
+      "notes": "Complete higher-price offer."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "e1",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-44-a",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-44-a",
+        "step": null
+      },
+      "observation": "Supplier A quotes USD 185000 with 72-day delivery and meets the frozen public requirement.",
+      "details": {
+        "currency": "USD",
+        "total_price": 185000,
+        "lead_time_days": 72,
+        "meets_public_requirement": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e2",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-44-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-44-b",
+        "step": null
+      },
+      "observation": "Supplier B quotes USD 165000 with 68-day delivery but omits a controlled compliance element.",
+      "details": {
+        "currency": "USD",
+        "total_price": 165000,
+        "lead_time_days": 68,
+        "meets_public_requirement": false,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e3",
+      "type": "supplier_question",
+      "synthetic": true,
+      "supplier_id": "syn-44-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "request_quote_revision",
+        "supplier_id": "syn-44-b",
+        "step": null
+      },
+      "observation": "Supplier B asks whether the omitted compliance element is mandatory.",
+      "details": {
+        "question": "Is the omitted compliance element mandatory for award?"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e4",
+      "type": "quote_revision",
+      "synthetic": true,
+      "supplier_id": "syn-44-b",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "answer_supplier_question",
+        "supplier_id": "syn-44-b",
+        "step": null
+      },
+      "observation": "After confirmation, Supplier B revises to USD 175000 with 70-day delivery and meets the frozen public requirement.",
+      "details": {
+        "currency": "USD",
+        "total_price": 175000,
+        "lead_time_days": 70,
+        "meets_public_requirement": true,
+        "revision": 1
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    },
+    {
+      "event_id": "e5",
+      "type": "quote_received",
+      "synthetic": true,
+      "supplier_id": "syn-44-c",
+      "trigger": {
+        "kind": "after_action",
+        "action_type": "send_rfq",
+        "supplier_id": "syn-44-c",
+        "step": null
+      },
+      "observation": "Supplier C quotes USD 190000 with 66-day delivery and meets the frozen public requirement.",
+      "details": {
+        "currency": "USD",
+        "total_price": 190000,
+        "lead_time_days": 66,
+        "meets_public_requirement": true,
+        "revision": 0
+      },
+      "offer_scope": {
+        "kind": "package"
+      },
+      "emission_policy": "once"
+    }
+  ],
+  "oracle": {
+    "hard_constraints": [
+      {
+        "constraint_id": "c1",
+        "basis": "real_initial_state",
+        "description": "Awarded offer must satisfy the frozen public package requirement."
+      },
+      {
+        "constraint_id": "c2",
+        "basis": "synthetic_scenario",
+        "description": "Delivery must be no later than 90 days."
+      },
+      {
+        "constraint_id": "c3",
+        "basis": "synthetic_scenario",
+        "description": "Awarded supplier must remain eligible."
+      },
+      {
+        "constraint_id": "c4",
+        "basis": "synthetic_scenario",
+        "description": "Only the latest revealed quote revision for a supplier may support award."
+      },
+      {
+        "constraint_id": "c5",
+        "basis": "real_initial_state",
+        "description": "The required package scope must be fully awarded exactly once."
+      }
+    ],
+    "required_checkpoints": [
+      "solicit_competition",
+      "handle_supplier_question",
+      "request_quote_revision",
+      "normalize_quotes",
+      "validate_eligibility",
+      "validate_compliance",
+      "evaluate_quotes",
+      "award_or_recommend"
+    ],
+    "acceptable_terminal_outcomes": [
+      {
+        "outcome_id": "o1",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-44-b",
+            "quote_event_id": "e4"
+          }
+        ],
+        "rationale": "Supplier B's repaired quote is complete, feasible, and the lowest-price acceptable offer.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o2",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-44-a",
+            "quote_event_id": "e1"
+          }
+        ],
+        "rationale": "Supplier A is complete and feasible but costs more than Supplier B's revision.",
+        "decision": "award"
+      },
+      {
+        "outcome_id": "o3",
+        "awards": [
+          {
+            "scope": "package",
+            "supplier_id": "syn-44-c",
+            "quote_event_id": "e5"
+          }
+        ],
+        "rationale": "Supplier C is complete and feasible but costs more than Supplier B's revision.",
+        "decision": "award"
+      }
+    ],
+    "economic_objective": {
+      "kind": "minimize_total_price",
+      "description": "Among acceptable feasible terminal outcomes, prefer the lowest total awarded price.",
+      "preferred_outcome_ids": [
+        "o1"
+      ]
+    },
+    "failure_conditions": [
+      "Awarding Supplier B's original incomplete quote.",
+      "Ignoring Supplier B's question after requesting revision.",
+      "Awarding a stale supplier quote after a revision is revealed."
+    ]
+  }
+}

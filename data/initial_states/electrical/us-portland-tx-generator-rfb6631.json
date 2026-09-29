@@ -1,0 +1,155 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-portland-tx-generator-rfb6631",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Portland, Texas",
+    "project_name": "Installation of Emergency Backup Generator and Automatic Transfer Switch (ATS)",
+    "project_description": "Installation of a 200 kW diesel generator for emergency backup service together with an automatic transfer switch.",
+    "location": "Portland, Texas, USA"
+  },
+  "package_subscope": "Install one 200 kW diesel emergency backup generator and automatic transfer switch.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": null,
+    "boundary": "Buyer-authored solicitation facts visible on the cited official public notice only; excludes supplier responses, offered prices, negotiations, awards, later amendments/results, and all synthetic episode facts."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Install one 200 kW diesel emergency backup generator and automatic transfer switch.",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "Install a 200 kW diesel emergency backup generator and associated automatic transfer switch.",
+          "verbatim_excerpt": null,
+          "source_locator": "Official solicitation page > Description / project scope"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": null
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "City of Portland RFB 6631 - Emergency Backup Generator and ATS",
+      "url": "https://www.portlandtx.gov/bids.aspx?bidID=85",
+      "document_type": "notice_html",
+      "issued_date": null,
+      "retrieved_date": "2026-09-28",
+      "sha256": null,
+      "snapshot_policy": "Official public notice URL and retrieval date retained. Raw source bytes are not committed in this collection pass; the notice is used only to reconstruct the pre-response requirement boundary."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation page > header, dates, and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited official buyer notice. The single benchmark line item is a curator representation of the solicitation package scope; no supplier outcome information is included."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/initial_state/source_issue_date",
+      "reason": "not_stated",
+      "detail": "A reliable original issue/publication date was not explicit in the reviewed notice text; no date inferred."
+    },
+    {
+      "field_path": "/line_items/0/unit",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/bid_submission_deadline",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/issued_date",
+      "reason": "not_stated",
+      "detail": "A reliable original issue/publication date was not explicit in the reviewed notice text; no date inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured in this collection pass; checksum intentionally omitted."
+    }
+  ]
+}
