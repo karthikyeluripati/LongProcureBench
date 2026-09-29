@@ -2,17 +2,17 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "b8abe3b73973df563f268908d8eb3caf90843dbb",
+  "freeze_commit": "824c41004de04215018442742f12d29e531bc29f",
   "freeze_status": "implementation_frozen_no_model_runs",
   "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
   "frozen_files": [
     {
       "path": "docs/procureharness-architecture-harness-v0.1.md",
-      "git_blob_sha1": "3cc9ce4cbd84decc1780dbad694acd3c925d5808"
+      "git_blob_sha1": "d6cc3893f2148bf9c740a002e306f15b0cf46cb3"
     },
     {
       "path": "docs/procureharness-candidate-registry-v0.1.json",
-      "git_blob_sha1": "3c0485825224daff9b6cb064241488233fc89f0d"
+      "git_blob_sha1": "269d33be258dca488ad3b463542b218164f72dca"
     },
     {
       "path": "longprocurebench/__init__.py",
@@ -32,7 +32,7 @@
     },
     {
       "path": "longprocurebench/procureharness.py",
-      "git_blob_sha1": "b71f91e1191b3f54ae371c9b3844d41ad6f84c98"
+      "git_blob_sha1": "1d83a29a2c6991c31cc0e007a17448edf64ba575"
     },
     {
       "path": "longprocurebench/reactive_llm.py",
@@ -76,7 +76,15 @@
     },
     {
       "path": "scripts/run_procureharness_search_v01.py",
-      "git_blob_sha1": "265cb1a59bf272f466f3625fb1af35632d4f4760"
+      "git_blob_sha1": "838f86bc21973017526ccba37bf413745e59fae9"
+    },
+    {
+      "path": "scripts/select_procureharness_screening_v01.py",
+      "git_blob_sha1": "0b331c1119ed835408bc9ddaa88b820fe60b5612"
+    },
+    {
+      "path": "scripts/select_procureharness_validation_v01.py",
+      "git_blob_sha1": "24d375a021cab4d8e57341471253e1d21aed12ca"
     }
   ],
   "notes": [
@@ -85,6 +93,7 @@
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
     "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
     "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt.",
-    "The executable runner enforces round progression, at-most-two confirmation/validation selections, plateau/budget authorization for later rounds, and refusal to rerun into a nonempty candidate/phase output tree."
+    "The executable runner enforces round progression, at-most-two confirmation/validation selections, plateau/budget authorization for later rounds, and refusal to rerun into a nonempty candidate/phase output tree.",
+    "The immutable behavior set includes both offline paid-run selectors; screening and validation ranking/gating changes require a new harness freeze."
   ]
 }
