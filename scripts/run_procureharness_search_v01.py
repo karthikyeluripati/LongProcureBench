@@ -318,13 +318,6 @@ def validate_phase_authorization(
             )
         return
 
-    selected = _validate_selected_candidates(
-        authorization=authorization,
-        field="validation_selected_candidate_ids",
-        candidate_id=candidate_id,
-        round_id=config.round,
-        max_count=2,
-    )
     if authorization.get("selection_rule") != (
         "frozen_validation_entry_lexicographic_v0.1"
     ):
@@ -336,6 +329,8 @@ def validate_phase_authorization(
         sha_field="validation_selection_sha256",
     )
     from select_procureharness_validation_v01 import (
+        EFFICIENCY_RULE_ID,
+        validate_frozen_efficiency_addendum,
         validate_frozen_validation_selection,
     )
     validate_frozen_validation_selection(selection)
@@ -348,21 +343,69 @@ def validate_phase_authorization(
         raise ValueError("validation selection rule mismatch")
     if selection.get("round") != config.round:
         raise ValueError("validation selection round mismatch")
-    if selection.get("validation_selected_candidate_ids") != selected:
-        raise ValueError(
-            "validation selection artifact/authorization candidate mismatch"
+
+    branch = authorization.get("promotion_branch")
+    if branch == "quality":
+        selected = _validate_selected_candidates(
+            authorization=authorization,
+            field="validation_selected_candidate_ids",
+            candidate_id=candidate_id,
+            round_id=config.round,
+            max_count=2,
         )
-    branches = selection.get("promotion_branch_by_candidate")
-    if not isinstance(branches, dict):
-        raise ValueError("validation selection lacks promotion branches")
-    branch = branches.get(candidate_id)
-    if authorization.get("promotion_branch") != branch:
-        raise ValueError(
-            "validation authorization promotion branch does not match "
-            "recomputed selection artifact"
+        if selection.get("validation_selected_candidate_ids") != selected:
+            raise ValueError(
+                "validation selection artifact/authorization candidate mismatch"
+            )
+        branches = selection.get("promotion_branch_by_candidate")
+        if not isinstance(branches, dict):
+            raise ValueError("validation selection lacks promotion branches")
+        if branches.get(candidate_id) != "quality":
+            raise ValueError(
+                "quality authorization does not match base selection"
+            )
+        return
+
+    if branch == "efficiency":
+        slots = authorization.get("validation_slot_candidate_ids")
+        if slots != selection.get("validation_slot_candidate_ids"):
+            raise ValueError(
+                "efficiency authorization validation-slot reservation mismatch"
+            )
+        if candidate_id not in (slots or []):
+            raise ValueError(
+                "efficiency candidate lacks reserved validation slot"
+            )
+        if candidate_id not in (
+            selection.get("pending_efficiency_candidate_ids") or []
+        ):
+            raise ValueError(
+                "efficiency candidate is not pending in base selection"
+            )
+        if authorization.get("promotion_rule") != EFFICIENCY_RULE_ID:
+            raise ValueError("efficiency promotion_rule mismatch")
+
+        addendum = _load_bound_json_artifact(
+            authorization=authorization,
+            path_field="efficiency_addendum_path",
+            sha_field="efficiency_addendum_sha256",
         )
-    if branch not in {"quality", "efficiency"}:
-        raise ValueError("validation candidate lacks an admissible promotion")
+        validate_frozen_efficiency_addendum(addendum)
+        if addendum.get("candidate_id") != candidate_id:
+            raise ValueError("efficiency addendum candidate mismatch")
+        if addendum.get("round") != config.round:
+            raise ValueError("efficiency addendum round mismatch")
+        if addendum.get("promotion_branch") != "efficiency":
+            raise ValueError("efficiency addendum promotion mismatch")
+        if addendum.get("base_validation_selection_sha256") != (
+            authorization.get("validation_selection_sha256")
+        ):
+            raise ValueError(
+                "efficiency addendum/base selection hash mismatch"
+            )
+        return
+
+    raise ValueError("validation candidate lacks an admissible promotion")
 
 
 def validate_frozen_implementation_for_execution() -> None:
