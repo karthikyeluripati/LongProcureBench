@@ -35,7 +35,10 @@ class ProcureHarnessFreshPackageTests(unittest.TestCase):
     def test_frozen_blob_hash_cannot_change(self):
         mutated = deepcopy(self.manifest)
         mutated["frozen_files"][0]["git_blob_sha1"] = "0" * 40
-        with self.assertRaisesRegex(ValueError, "Frozen file drift"):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Manifest hash does not match freeze commit",
+        ):
             validate_manifest(mutated)
 
 
