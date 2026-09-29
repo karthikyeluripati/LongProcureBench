@@ -1,0 +1,45 @@
+name: Retire ProcureHarness Round 1 Confirmation Workflow
+
+on:
+  push:
+    branches:
+      - 'codex/procureharness-round1-confirmation-v0.1'
+    paths:
+      - '.github/workflows/retire-procureharness-round1-confirmation-v0.1.yml'
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Disable one-time confirmation workflow at GitHub control plane
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORKFLOW_ID: '370090799'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api             --method PUT             "repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/disable"
+          state="$(
+            gh api               "repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID"               --jq '.state'
+          )"
+          echo "workflow state=$state"
+          test "$state" = "disabled_manually"
+
+      - name: Remove retirement workflow from final PR diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/retire-procureharness-round1-confirmation-v0.1.yml
+          git commit -m "Retire ProcureHarness Round 1 confirmation workflow"
+          git push origin "HEAD:codex/procureharness-round1-confirmation-v0.1"
