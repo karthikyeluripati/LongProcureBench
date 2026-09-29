@@ -21,15 +21,12 @@
     {
       "path": "scripts/run_procureharness_search_v01.py",
       "git_blob_sha1": "406d17c2530a072727a0d50b5a0dbcf6b66d0643"
-    },
-    {
-      "path": "scripts/validate_procureharness_harness_v01.py",
-      "git_blob_sha1": "fc639d7f4e58eb36c47bdfc675efd912a4e8f320"
     }
   ],
   "notes": [
     "This freeze predates any paid/model-backed ProcureHarness architecture-search execution.",
     "Any controller/config/runner change requires a new harness version and a new freeze commit.",
-    "Episodes 041-050 remain non-executable in the architecture-search runner."
+    "Episodes 041-050 remain non-executable in the architecture-search runner.",
+    "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash."
   ]
 }
