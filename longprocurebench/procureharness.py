@@ -330,6 +330,8 @@ hidden facts, future events, oracle data, or evaluator labels."""
         self._seen_event_ids: set[str] = set()
         self._handled_event_ids: set[str] = set()
         self._pending_event_skills: dict[str, dict[str, Any]] = {}
+        self._stale_offer_event_ids: set[str] = set()
+        self._active_requirement_version: float | None = None
         self._last_evaluated_offer_ids: set[str] = set()
         self._fallback_actions_used = 0
         self._calls_between_actions = 0
@@ -454,7 +456,26 @@ hidden facts, future events, oracle data, or evaluator labels."""
             ):
                 continue
             self._seen_event_ids.add(event_id)
-            skill = EVENT_SKILL_MAP.get(event.get("type"))
+            event_type = event.get("type")
+            skill = EVENT_SKILL_MAP.get(event_type)
+
+            if event_type in {"requirement_change", "quantity_change"}:
+                for offer in compiled.get("latest_offers") or []:
+                    if not isinstance(offer, dict):
+                        continue
+                    offer_id = offer.get("event_id")
+                    if isinstance(offer_id, str) and offer_id:
+                        self._stale_offer_event_ids.add(offer_id)
+
+                details = event.get("details")
+                if isinstance(details, dict):
+                    new_version = details.get("new_requirement_version")
+                    if (
+                        isinstance(new_version, (int, float))
+                        and not isinstance(new_version, bool)
+                    ):
+                        self._active_requirement_version = float(new_version)
+
             if skill is None:
                 continue
             self._pending_event_skills[event_id] = self._candidate(
@@ -464,10 +485,26 @@ hidden facts, future events, oracle data, or evaluator labels."""
                     if isinstance(event.get("supplier_id"), str)
                     else None
                 ),
-                reason=f"visible event {event.get('type')} requires {skill}",
+                reason=f"visible event {event_type} requires {skill}",
                 forced=skill in FORCED_SKILLS,
                 event_id=event_id,
             )
+
+        if self._active_requirement_version is not None:
+            for offer in compiled.get("latest_offers") or []:
+                if not isinstance(offer, dict):
+                    continue
+                offer_id = offer.get("event_id")
+                details = offer.get("details")
+                if not isinstance(offer_id, str) or not isinstance(details, dict):
+                    continue
+                version = details.get("requirement_version")
+                if (
+                    isinstance(version, (int, float))
+                    and not isinstance(version, bool)
+                    and float(version) < self._active_requirement_version
+                ):
+                    self._stale_offer_event_ids.add(offer_id)
 
     @staticmethod
     def _has_requirement_gap(compiled: dict[str, Any]) -> bool:
@@ -601,6 +638,31 @@ hidden facts, future events, oracle data, or evaluator labels."""
                         reason="visible supplier has not received an RFQ",
                         forced=True,
                     ))
+
+        withdrawn = _withdrawn_supplier_ids(compiled)
+        for offer in compiled.get("latest_offers") or []:
+            if not isinstance(offer, dict):
+                continue
+            offer_id = offer.get("event_id")
+            supplier_id = offer.get("supplier_id")
+            if (
+                not isinstance(offer_id, str)
+                or offer_id not in self._stale_offer_event_ids
+                or offer_id in self._handled_event_ids
+                or not isinstance(supplier_id, str)
+                or supplier_id in withdrawn
+            ):
+                continue
+            out.append(self._candidate(
+                skill="quote_revision",
+                supplier_id=supplier_id,
+                reason=(
+                    "current visible offer predates a revealed buyer "
+                    "requirement change and must be refreshed"
+                ),
+                forced=True,
+                event_id=offer_id,
+            ))
 
         out.extend(self._offer_revision_candidates(compiled))
 
@@ -884,6 +946,51 @@ hidden facts, future events, oracle data, or evaluator labels."""
         return self._runtime_decision(decision)
 
     @staticmethod
+    def _quote_covers_award_scope(
+        *,
+        state: dict[str, Any],
+        quote: dict[str, Any],
+        award_scope: str,
+    ) -> bool:
+        initial = state.get("initial_state")
+        line_items = (
+            initial.get("line_items")
+            if isinstance(initial, dict)
+            else None
+        )
+        item_ids = {
+            row.get("item_id")
+            for row in (line_items or [])
+            if isinstance(row, dict)
+            and isinstance(row.get("item_id"), str)
+        }
+        offer_scope = quote.get("offer_scope")
+        if not isinstance(offer_scope, dict):
+            offer_scope = {"kind": "package"}
+
+        kind = offer_scope.get("kind")
+        if kind == "package":
+            covered = set(item_ids)
+        elif kind == "items":
+            raw = offer_scope.get("item_ids")
+            if not isinstance(raw, list):
+                return False
+            covered = {
+                item_id
+                for item_id in raw
+                if isinstance(item_id, str)
+            }
+        else:
+            return False
+
+        if award_scope == "package":
+            return bool(item_ids) and item_ids.issubset(covered)
+        if award_scope.startswith("lot-"):
+            item_id = award_scope[len("lot-"):]
+            return item_id in item_ids and item_id in covered
+        return False
+
+    @staticmethod
     def _visible_current_quotes(
         compiled: dict[str, Any],
     ) -> dict[tuple[str, str], dict[str, Any]]:
@@ -951,8 +1058,15 @@ hidden facts, future events, oracle data, or evaluator labels."""
                     return False, "award references a stale or unrevealed quote"
                 if award.get("supplier_id") in withdrawn:
                     return False, "award references a withdrawn supplier"
-                if award.get("scope") not in allowed_scopes:
+                award_scope = award.get("scope")
+                if award_scope not in allowed_scopes:
                     return False, "award scope is outside visible episode scopes"
+                if not self._quote_covers_award_scope(
+                    state=state,
+                    quote=quote,
+                    award_scope=award_scope,
+                ):
+                    return False, "referenced quote does not cover award scope"
                 if _details_show_visible_noncompliance(quote.get("details")):
                     return False, "award quote has explicit visible noncompliance"
 
