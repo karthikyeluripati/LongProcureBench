@@ -539,7 +539,9 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
             ),
             "freeze_commit": REAL_ECONOMICS_BINDING_FIXTURE_COMMIT,
             "binding_descriptor": {
-                "path": str(descriptor_path.relative_to(Path.cwd())),
+                "path": str(
+                    descriptor_path.relative_to(validation_selector.ROOT)
+                ),
                 "git_blob_sha1": validation_selector._git_blob_sha1(
                     descriptor_raw
                 ),
@@ -555,7 +557,7 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
 
     def test_development_economics_binding_uses_real_git_snapshot(self):
         descriptor_path = (
-            Path.cwd()
+            validation_selector.ROOT
             / REAL_ECONOMICS_BINDING_FIXTURE_ROOT
             / "binding.json"
         )
