@@ -314,9 +314,17 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
 
             candidate_reports = Path(tmp) / "candidate-economics.json"
             candidate_reports.write_text("[]\n", encoding="utf-8")
-            with self.assertRaisesRegex(
-                ValueError,
-                "frozen development economics binding manifest exists",
+            missing_binding = Path(tmp) / "missing-economics-manifest.json"
+            with (
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_BINDING_PATH",
+                    missing_binding,
+                ),
+                self.assertRaisesRegex(
+                    ValueError,
+                    "frozen development economics binding manifest exists",
+                ),
             ):
                 freeze_efficiency_validation_authorization(
                     base_selection_path=validation_path,
