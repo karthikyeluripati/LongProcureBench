@@ -48,6 +48,7 @@ EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
 EXPECTED_IMPLEMENTATION_BLOBS = {
     "docs/procureharness-architecture-harness-v0.1.md": "5791a6d11ca6fe39bc6472f0ec03cf75d9fd9697",
     "docs/procureharness-candidate-registry-v0.1.json": "3c0485825224daff9b6cb064241488233fc89f0d",
+    "longprocurebench/__init__.py": "339a66eaf338d33dba2c687768ed7688782f1eec",
     "longprocurebench/context_compiled_reactive.py": "82b102d60c077247672d3d9ba1377243233672a9",
     "longprocurebench/evaluator.py": "ef0204f605027bafde6839cce2f14a03d15425bd",
     "longprocurebench/litellm_client.py": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1",
