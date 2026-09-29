@@ -66,6 +66,12 @@ DEVELOPMENT_ECONOMICS_BINDING_PATH = (
     / "procureharness-development-economics-v0.1"
     / "manifest.json"
 )
+DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH = (
+    ROOT
+    / "evidence"
+    / "procureharness-development-economics-v0.1"
+    / "binding.json"
+)
 
 VALIDATION_RANKING_PRIORITY = [
     {"metric": "feasible_obligation_success", "direction": "desc"},
@@ -178,10 +184,22 @@ def _blob_at_commit(commit: str, path: str) -> str:
 
 
 def _load_development_economics_binding() -> dict[str, Any]:
+    """Load a satisfiable, commit-frozen baseline economics binding.
+
+    The binding descriptor and baseline report files are frozen together in
+    the freeze commit. The later manifest points to that snapshot. The
+    descriptor intentionally does not contain the freeze commit itself, which
+    avoids requiring a cryptographic fixed point merely to bootstrap evidence.
+    """
     if not DEVELOPMENT_ECONOMICS_BINDING_PATH.is_file():
         raise ValueError(
             "efficiency append is unavailable until the frozen development "
             "economics binding manifest exists"
+        )
+    if not DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH.is_file():
+        raise ValueError(
+            "efficiency append is unavailable until the frozen development "
+            "economics binding descriptor exists"
         )
 
     raw = DEVELOPMENT_ECONOMICS_BINDING_PATH.read_bytes()
@@ -201,21 +219,66 @@ def _load_development_economics_binding() -> dict[str, Any]:
     ):
         raise ValueError("development economics binding freeze_commit invalid")
 
-    rel_manifest = str(
-        DEVELOPMENT_ECONOMICS_BINDING_PATH.relative_to(ROOT)
-    )
-    immutable_manifest_blob = _blob_at_commit(
-        freeze_commit,
-        rel_manifest,
-    )
-    if immutable_manifest_blob != _git_blob_sha1(raw):
+    descriptor_row = manifest.get("binding_descriptor")
+    if not isinstance(descriptor_row, dict):
         raise ValueError(
-            "development economics binding manifest drifted from freeze commit"
+            "development economics binding descriptor metadata missing"
+        )
+    descriptor_rel = str(
+        DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH.relative_to(ROOT)
+    )
+    if descriptor_row.get("path") != descriptor_rel:
+        raise ValueError(
+            "development economics binding descriptor path changed"
+        )
+    expected_descriptor_blob = descriptor_row.get("git_blob_sha1")
+    expected_descriptor_sha = descriptor_row.get("sha256")
+    if (
+        not isinstance(expected_descriptor_blob, str)
+        or len(expected_descriptor_blob) != 40
+    ):
+        raise ValueError("development economics descriptor blob invalid")
+    if (
+        not isinstance(expected_descriptor_sha, str)
+        or len(expected_descriptor_sha) != 64
+    ):
+        raise ValueError("development economics descriptor SHA-256 invalid")
+
+    immutable_descriptor_blob = _blob_at_commit(
+        freeze_commit,
+        descriptor_rel,
+    )
+    if immutable_descriptor_blob != expected_descriptor_blob:
+        raise ValueError(
+            "development economics descriptor disagrees with freeze commit"
         )
 
+    descriptor_raw = DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH.read_bytes()
+    if _git_blob_sha1(descriptor_raw) != expected_descriptor_blob:
+        raise ValueError("development economics descriptor drift")
+    if _sha256_bytes(descriptor_raw) != expected_descriptor_sha:
+        raise ValueError(
+            "development economics descriptor SHA-256 mismatch"
+        )
+
+    descriptor = json.loads(descriptor_raw.decode("utf-8"))
+    if descriptor.get("schema_version") != "0.1.0":
+        raise ValueError("development economics descriptor schema changed")
+    if descriptor.get("protocol_id") != PROTOCOL_ID:
+        raise ValueError("development economics descriptor protocol mismatch")
+    if descriptor.get("package") != DEVELOPMENT_ECONOMICS_BINDING_PACKAGE:
+        raise ValueError("development economics descriptor package changed")
+
     reports = manifest.get("reports")
+    descriptor_reports = descriptor.get("reports")
     if not isinstance(reports, dict):
         raise ValueError("development economics binding reports missing")
+    if reports != descriptor_reports:
+        raise ValueError(
+            "development economics manifest reports disagree with "
+            "frozen binding descriptor"
+        )
+
     for key in ("coverage_repair", "react"):
         row = reports.get(key)
         if not isinstance(row, dict):
