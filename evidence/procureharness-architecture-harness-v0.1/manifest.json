@@ -15,8 +15,60 @@
       "git_blob_sha1": "3c0485825224daff9b6cb064241488233fc89f0d"
     },
     {
+      "path": "longprocurebench/context_compiled_reactive.py",
+      "git_blob_sha1": "82b102d60c077247672d3d9ba1377243233672a9"
+    },
+    {
+      "path": "longprocurebench/evaluator.py",
+      "git_blob_sha1": "ef0204f605027bafde6839cce2f14a03d15425bd"
+    },
+    {
+      "path": "longprocurebench/litellm_client.py",
+      "git_blob_sha1": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1"
+    },
+    {
       "path": "longprocurebench/procureharness.py",
       "git_blob_sha1": "b71f91e1191b3f54ae371c9b3844d41ad6f84c98"
+    },
+    {
+      "path": "longprocurebench/reactive_llm.py",
+      "git_blob_sha1": "d237f262b0377ae78608fb28833adfa6f2ff5853"
+    },
+    {
+      "path": "longprocurebench/runner.py",
+      "git_blob_sha1": "a5108b71b0d7e67d91ffa0492e298508a26ff573"
+    },
+    {
+      "path": "longprocurebench/runtime.py",
+      "git_blob_sha1": "3f283ed874db363d849ff759a108f4d650336760"
+    },
+    {
+      "path": "longprocurebench/validation.py",
+      "git_blob_sha1": "98f27230d28144b063cb910b5b99886d920d966b"
+    },
+    {
+      "path": "requirements.txt",
+      "git_blob_sha1": "698ec65e21cd73df53c948ed5e7770746c804bc4"
+    },
+    {
+      "path": "schema/action.schema.json",
+      "git_blob_sha1": "b47589fd82f97b5d49415d48cc8fd29cbfa17b22"
+    },
+    {
+      "path": "schema/episode.schema.json",
+      "git_blob_sha1": "3bf03a9d3b3c8b8d4b7a0ebea6856c95f9998939"
+    },
+    {
+      "path": "schema/evaluation.schema.json",
+      "git_blob_sha1": "031a8a72e68a904ba51054ff7db68ef4a513991c"
+    },
+    {
+      "path": "schema/initial-state.schema.json",
+      "git_blob_sha1": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926"
+    },
+    {
+      "path": "schema/result.schema.json",
+      "git_blob_sha1": "1c16655142c02eada9c045010b414bae207e1e1b"
     },
     {
       "path": "scripts/run_procureharness_search_v01.py",
@@ -27,6 +79,7 @@
     "This freeze predates any paid/model-backed ProcureHarness architecture-search execution.",
     "Any controller/config/runner change requires a new harness version and a new freeze commit.",
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
-    "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash."
+    "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
+    "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt."
   ]
 }
