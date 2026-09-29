@@ -1,0 +1,579 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-light-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-light-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-light-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "lot-1",
+              "supplier_id": "syn-light-a"
+            }
+          ],
+          "reason": "Award Lot 1 at PHP 2,250,000 with 25-day delivery, subject to full technical, eligibility, and RA 9184 compliance. Do not award Lot 2 because syn-light-b exceeds the PHP 2,000,000 lot budget and syn-light-c exceeds the stated 30-day delivery requirement."
+        },
+        "supplier_id": "syn-light-a",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-national-museum-lighting-002",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 1,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 1
+      }
+    },
+    "constraint_violations": [
+      "c2",
+      "c3",
+      "c4"
+    ],
+    "economic_objective": {
+      "description": "Among feasible lot assignments, prefer the combination with the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": null,
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 7
+    },
+    "episode_id": "electrical-national-museum-lighting-002",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": false,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": false,
+      "passed": 1,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "lot-1 lots.1.price=2250000 <= 2400000",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Lot 1 award must not exceed its real PHP 2,400,000 budget.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "No award matches scope 'lot-2'",
+              "kind": "award_quote_max",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Lot 2 award must not exceed its real PHP 2,000,000 budget.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "lot-1 lots.1.lead_time_days=25 <= 30",
+              "kind": "award_quote_max",
+              "passed": true
+            },
+            {
+              "detail": "No award matches scope 'lot-2'",
+              "kind": "award_quote_max",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Delivery must fit the real 30-day delivery requirement.",
+          "passed": false
+        },
+        {
+          "checks": [
+            {
+              "detail": "award item counts={'2': 0, '1': 1}, required=['1', '2'], optional=[]",
+              "kind": "award_scope_complete",
+              "passed": false
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Partial quotations may be combined across suppliers if each awarded lot independently satisfies constraints.",
+          "passed": false
+        }
+      ],
+      "total": 4
+    },
+    "obligations": {
+      "actionable": 0,
+      "all_actionable_resolved": true,
+      "encountered": 0,
+      "has_actionable_obligations": false,
+      "no_opportunity": 0,
+      "not_applicable": 1,
+      "resolution_rate": null,
+      "resolved": 0,
+      "results": [
+        {
+          "actionable": false,
+          "applicability_reason": "selected_path_does_not_require_revision",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "Selected award path is feasible without a quote revision.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 4,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 5
+    },
+    "terminal_outcome": {
+      "correct": false,
+      "detail": "Terminal decision or award set does not match any acceptable outcome.",
+      "matched_outcome_id": null
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c08--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 7,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 211,
+        "cost_usd": 0.014327000000000003,
+        "error": null,
+        "latency_ms": 3965.629157000002,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "local_planning",
+        "prompt_tokens": 2022,
+        "success": true,
+        "total_tokens": 2233,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 166,
+        "cost_usd": 0.014287000000000001,
+        "error": null,
+        "latency_ms": 2712.7701640000055,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2194,
+        "success": true,
+        "total_tokens": 2360,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 377,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.028614000000000004,
+    "deterministic_action_fraction": 0.8571428571428571,
+    "deterministic_actions_accepted": 6,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 6678.399321000008,
+    "local_plan_count": 1,
+    "max_model_calls_between_accepted_actions_observed": 2,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "local_planning": 1,
+      "skill_reasoning_direct": 1
+    },
+    "model_calls": 2,
+    "model_calls_attempted": 2,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 2,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c08",
+      "fallback": "none",
+      "local_planning": "bounded_local_plan",
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "round": 2,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 4216,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 4593,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c08--screening--electrical-national-museum-lighting-002--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": "syn-light-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "lots": {
+              "1": {
+                "lead_time_days": 25,
+                "price": 2250000
+              },
+              "2": null
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A offers Lot 1 for PHP 2,250,000 with 25-day delivery and does not quote Lot 2.",
+          "offer_scope": {
+            "item_ids": [
+              "1"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-light-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-light-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": "syn-light-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "lots": {
+              "1": {
+                "lead_time_days": 28,
+                "price": 2320000
+              },
+              "2": {
+                "lead_time_days": 28,
+                "price": 2050000
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B offers Lot 1 for PHP 2,320,000 and Lot 2 for PHP 2,050,000, both with 28-day delivery; Lot 2 exceeds its real lot budget.",
+          "offer_scope": {
+            "item_ids": [
+              "1",
+              "2"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-light-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-light-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": "syn-light-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "lots": {
+              "1": null,
+              "2": {
+                "lead_time_days": 35,
+                "price": 1850000
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C offers Lot 2 for PHP 1,850,000 but requires 35 days.",
+          "offer_scope": {
+            "item_ids": [
+              "2"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-light-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-light-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "lot-1",
+              "supplier_id": "syn-light-a"
+            }
+          ],
+          "reason": "Award Lot 1 at PHP 2,250,000 with 25-day delivery, subject to full technical, eligibility, and RA 9184 compliance. Do not award Lot 2 because syn-light-b exceeds the PHP 2,000,000 lot budget and syn-light-c exceeds the stated 30-day delivery requirement."
+        },
+        "episode_id": "electrical-national-museum-lighting-002",
+        "supplier_id": "syn-light-a",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 7
+    }
+  ]
+}
