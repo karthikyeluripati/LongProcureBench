@@ -56,7 +56,7 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "6343df3076aa62deaa0e28dd1f6ac378364f5bc3"
+    "1307765352782bb32417f980a3311506756bc293"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
     "docs/procureharness-architecture-harness-v0.1.md": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1",
@@ -80,7 +80,7 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "scripts/run_procureharness_search_v01.py": "883341ff8de12931a30a7e1ea5d7e46c81c0376e",
     "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
     "scripts/select_procureharness_validation_v01.py": "e587711d821d397a981c01e41341f7ae6be15ecc",
-    "scripts/select_procureharness_round_progression_v01.py": "4c55aec8ce677b589eef3ef7cea2c4b85ee6fec9",
+    "scripts/select_procureharness_round_progression_v01.py": "efd42cb463fcb98bedda9c6dc7c10d69a2503f83",
 }
 
 
