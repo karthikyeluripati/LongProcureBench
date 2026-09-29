@@ -16,6 +16,7 @@ from run_procureharness_search_v01 import (
     VALIDATION_EPISODES,
     _assert_output_tree_fresh,
     _assert_phase_exposure,
+    _validate_selected_candidates,
     phase_plan,
     validate_phase_authorization,
 )
@@ -175,24 +176,18 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
 
     def test_validation_rejects_more_than_two_selected_candidates(self):
         with self.assertRaisesRegex(ValueError, "exceeds max 2"):
-            validate_phase_authorization(
-                candidate_id="ph-r2-c07",
-                phase="validation",
+            _validate_selected_candidates(
                 authorization={
-                    "protocol_id": "procureharness-architecture-search-v0.1",
-                    "candidate_id": "ph-r2-c07",
-                    "round": 2,
-                    "phase": "validation",
-                    "approved": True,
-                    "promotion_branch": "quality",
                     "validation_selected_candidate_ids": [
                         "ph-r2-c07",
                         "ph-r2-c08",
                         "ph-r2-c09",
                     ],
-                    "selection_rule":
-                        "frozen_validation_entry_lexicographic_v0.1",
                 },
+                field="validation_selected_candidate_ids",
+                candidate_id="ph-r2-c07",
+                round_id=2,
+                max_count=2,
             )
 
     def test_later_round_screening_is_fail_closed_until_frontier_gate(self):
