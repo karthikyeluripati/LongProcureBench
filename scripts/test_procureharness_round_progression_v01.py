@@ -201,6 +201,49 @@ class ProcureHarnessRoundProgressionTests(unittest.TestCase):
                 )
             self.assertEqual(observed, expected)
 
+    def test_round2_economics_baseline_provenance_is_bound(self):
+        economics_manifest = progression_selector._load_json(
+            progression_selector.ROUND2_ECONOMICS_MANIFEST_PATH
+        )
+        progression_selector._validate_round2_economics_baseline_provenance(
+            economics_manifest
+        )
+
+        cases = [
+            (
+                "baseline_economics_manifest",
+                "sha256",
+                "0" * 64,
+                "baseline manifest binding drift",
+            ),
+            (
+                "baseline_reference_cohort",
+                "sha256",
+                "0" * 64,
+                "reference-cohort binding drift",
+            ),
+        ]
+        for field, key, value, pattern in cases:
+            mutated = deepcopy(economics_manifest)
+            mutated[field][key] = value
+            with self.subTest(field=field), self.assertRaisesRegex(
+                ValueError,
+                pattern,
+            ):
+                progression_selector._validate_round2_economics_baseline_provenance(
+                    mutated
+                )
+
+        mutated = deepcopy(economics_manifest)
+        mutated["baseline_freeze_commit"] = "0" * 40
+        with self.assertRaisesRegex(
+            ValueError,
+            "baseline freeze commit drift",
+        ):
+            progression_selector._validate_round2_economics_baseline_provenance(
+                mutated
+            )
+
     def test_round2_progression_fires_two_round_plateau_stop(self):
         progression = compute_round2_progression()
         self.assertEqual(progression["completed_round"], 2)
