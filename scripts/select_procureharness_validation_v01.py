@@ -13,12 +13,13 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
-from hashlib import sha256
+from hashlib import sha1, sha256
 import json
 import math
 import os
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 from typing import Any
 
@@ -52,6 +53,12 @@ PROTOCOL_PATH = (
 )
 RULE_ID = "frozen_validation_entry_lexicographic_v0.1"
 EFFICIENCY_RULE_ID = "frozen_development_efficiency_promotion_v0.1"
+DEVELOPMENT_ECONOMICS_BINDING_PATH = (
+    ROOT
+    / "evidence"
+    / "procureharness-development-economics-v0.1"
+    / "manifest.json"
+)
 
 VALIDATION_RANKING_PRIORITY = [
     {"metric": "feasible_obligation_success", "direction": "desc"},
@@ -137,6 +144,126 @@ def _exclusive_gate_lock(
 
 def _sha256_bytes(data: bytes) -> str:
     return sha256(data).hexdigest()
+
+
+def _git_blob_sha1(data: bytes) -> str:
+    header = f"blob {len(data)}\0".encode("ascii")
+    return sha1(header + data).hexdigest()
+
+
+def _blob_at_commit(commit: str, path: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", f"{commit}:{path}"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            f"frozen economics path missing at commit: {path}"
+        ) from exc
+    blob = result.stdout.strip()
+    if len(blob) != 40:
+        raise ValueError(f"invalid frozen economics blob for {path}: {blob!r}")
+    return blob
+
+
+def _load_development_economics_binding() -> dict[str, Any]:
+    if not DEVELOPMENT_ECONOMICS_BINDING_PATH.is_file():
+        raise ValueError(
+            "efficiency append is unavailable until the frozen development "
+            "economics binding manifest exists"
+        )
+
+    raw = DEVELOPMENT_ECONOMICS_BINDING_PATH.read_bytes()
+    manifest = json.loads(raw.decode("utf-8"))
+    if manifest.get("schema_version") != "0.1.0":
+        raise ValueError("development economics binding schema changed")
+    if manifest.get("protocol_id") != PROTOCOL_ID:
+        raise ValueError("development economics binding protocol mismatch")
+    if manifest.get("package") != (
+        "procureharness-development-economics-v0.1"
+    ):
+        raise ValueError("development economics binding package changed")
+
+    freeze_commit = manifest.get("freeze_commit")
+    if (
+        not isinstance(freeze_commit, str)
+        or len(freeze_commit) != 40
+        or any(ch not in "0123456789abcdef" for ch in freeze_commit)
+    ):
+        raise ValueError("development economics binding freeze_commit invalid")
+
+    rel_manifest = str(
+        DEVELOPMENT_ECONOMICS_BINDING_PATH.relative_to(ROOT)
+    )
+    immutable_manifest_blob = _blob_at_commit(
+        freeze_commit,
+        rel_manifest,
+    )
+    if immutable_manifest_blob != _git_blob_sha1(raw):
+        raise ValueError(
+            "development economics binding manifest drifted from freeze commit"
+        )
+
+    reports = manifest.get("reports")
+    if not isinstance(reports, dict):
+        raise ValueError("development economics binding reports missing")
+    for key in ("coverage_repair", "react"):
+        row = reports.get(key)
+        if not isinstance(row, dict):
+            raise ValueError(f"development economics binding lacks {key}")
+        path_value = row.get("path")
+        expected_blob = row.get("git_blob_sha1")
+        expected_sha = row.get("sha256")
+        if not isinstance(path_value, str) or not path_value:
+            raise ValueError(f"{key} economics binding path missing")
+        if not isinstance(expected_blob, str) or len(expected_blob) != 40:
+            raise ValueError(f"{key} economics binding blob invalid")
+        if not isinstance(expected_sha, str) or len(expected_sha) != 64:
+            raise ValueError(f"{key} economics binding SHA-256 invalid")
+
+        immutable_blob = _blob_at_commit(freeze_commit, path_value)
+        if immutable_blob != expected_blob:
+            raise ValueError(
+                f"{key} economics binding disagrees with freeze commit"
+            )
+        path = ROOT / path_value
+        if not path.is_file():
+            raise ValueError(f"{key} frozen economics reports missing")
+        report_raw = path.read_bytes()
+        if _git_blob_sha1(report_raw) != expected_blob:
+            raise ValueError(f"{key} frozen economics report drift")
+        if _sha256_bytes(report_raw) != expected_sha:
+            raise ValueError(f"{key} frozen economics SHA-256 mismatch")
+
+    return {
+        **manifest,
+        "manifest_sha256": _sha256_bytes(raw),
+    }
+
+
+def _validate_economics_report_grid(
+    reports: list[dict[str, Any]],
+    *,
+    label: str,
+) -> None:
+    keys = []
+    for row in reports:
+        run_key = row.get("run_key")
+        if not isinstance(run_key, dict):
+            raise ValueError(f"{label} economics report lacks run_key")
+        episode_id = run_key.get("episode_id")
+        repeat = run_key.get("repeat")
+        if not isinstance(episode_id, str) or not isinstance(repeat, int):
+            raise ValueError(f"{label} economics report has invalid run_key")
+        keys.append((episode_id, repeat))
+    if keys != _expected_run_keys():
+        raise ValueError(
+            f"{label} economics reports must cover exact 001-020 x3 grid"
+        )
 
 
 def _finite_number(value: Any) -> bool:
@@ -618,6 +745,7 @@ def _read_bound_report_list(
         raise ValueError(
             f"{label} economics report file must contain a JSON list"
         )
+    _validate_economics_report_grid(payload, label=label)
     return payload, observed_sha
 
 
