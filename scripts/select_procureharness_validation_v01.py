@@ -31,6 +31,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from longprocurebench.economics import (
+    EconomicsError,
+    compare_candidate_on_reference_cohort,
+)
 from longprocurebench.procureharness import get_candidate
 from run_procureharness_search_v01 import (
     DEVELOPMENT_EPISODES,
@@ -43,7 +47,11 @@ from select_procureharness_screening_v01 import (
 )
 
 REGISTRY_PATH = ROOT / "docs" / "procureharness-candidate-registry-v0.1.json"
+PROTOCOL_PATH = (
+    ROOT / "docs" / "procureharness-architecture-search-v0.1-protocol.json"
+)
 RULE_ID = "frozen_validation_entry_lexicographic_v0.1"
+EFFICIENCY_RULE_ID = "frozen_development_efficiency_promotion_v0.1"
 
 VALIDATION_RANKING_PRIORITY = [
     {"metric": "feasible_obligation_success", "direction": "desc"},
@@ -419,6 +427,14 @@ def select_validation_round(
             + ", ".join(pending_efficiency)
         )
 
+    reserved_slots = list(selected)
+    for candidate_id in pending_efficiency:
+        if (
+            candidate_id not in reserved_slots
+            and len(reserved_slots) < 2
+        ):
+            reserved_slots.append(candidate_id)
+
     return {
         "schema_version": "0.1.0",
         "protocol_id": PROTOCOL_ID,
@@ -429,7 +445,16 @@ def select_validation_round(
         "screening_selection_sha256": screening_sha,
         "screening_selected_candidate_ids": selected_screening,
         "validation_selected_candidate_ids": selected,
+        "validation_slot_candidate_ids": reserved_slots,
         "pending_efficiency_candidate_ids": pending_efficiency,
+        "selection_status": (
+            "partial_pending_efficiency"
+            if pending_efficiency
+            else "complete"
+        ),
+        "efficiency_append_policy": (
+            "append_only_authorization_bound_to_immutable_base_selection"
+        ),
         "ranking": eligible,
         "confirmation_rows": rows,
         "promotion_branch_by_candidate": {
@@ -525,6 +550,33 @@ def validate_frozen_validation_selection(
         raise ValueError(
             "validation pending-efficiency candidate set changed"
         )
+
+    selected_now = selection.get("validation_selected_candidate_ids")
+    reserved_slots = selection.get("validation_slot_candidate_ids")
+    if not isinstance(selected_now, list) or not isinstance(reserved_slots, list):
+        raise ValueError("validation selection lacks slot reservation metadata")
+    if len(reserved_slots) != len(set(reserved_slots)) or len(reserved_slots) > 2:
+        raise ValueError("validation slot reservation is invalid")
+    expected_reserved = list(selected_now)
+    for candidate_id in pending_efficiency:
+        if (
+            candidate_id not in expected_reserved
+            and len(expected_reserved) < 2
+        ):
+            expected_reserved.append(candidate_id)
+    if reserved_slots != expected_reserved:
+        raise ValueError("validation slot reservation changed")
+    expected_status = (
+        "partial_pending_efficiency"
+        if pending_efficiency
+        else "complete"
+    )
+    if selection.get("selection_status") != expected_status:
+        raise ValueError("validation selection status changed")
+    if selection.get("efficiency_append_policy") != (
+        "append_only_authorization_bound_to_immutable_base_selection"
+    ):
+        raise ValueError("validation efficiency append policy changed")
 
     eligible = [
         row for row in recomputed
