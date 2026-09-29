@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from longprocurebench import FreshScriptedReferencePolicy
+
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = (
     ROOT / "evidence" / "procureharness-fresh-package-v0.1" / "manifest.json"
@@ -171,6 +173,12 @@ def validate_manifest(manifest=None) -> None:
 
     if len(set(urls)) != 20:
         raise ValueError("Fresh states must use 20 distinct public source URLs")
+
+    reference_ids = FreshScriptedReferencePolicy.episode_ids()
+    if reference_ids != EXPECTED_VALIDATION + EXPECTED_FINAL:
+        raise ValueError(
+            "Fresh reference control must cover exactly episodes 031-050"
+        )
 
 
 def main() -> None:
