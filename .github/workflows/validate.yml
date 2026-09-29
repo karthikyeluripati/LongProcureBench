@@ -37,6 +37,8 @@ jobs:
         run: python scripts/validate_evaluation.py
       - name: Validate benchmark observability contract
         run: python scripts/validate_benchmark_contract.py
+      - name: Validate fresh ProcureHarness observability
+        run: python scripts/validate_procureharness_observability_v01.py
       - name: Audit frozen cross-family reactive evidence
         run: python scripts/audit_cross_family_reactive_v01.py --check
       - name: Audit frozen context-compiled evidence
@@ -71,3 +73,5 @@ jobs:
         run: python scripts/audit_heldout_paper_v01.py
       - name: Run reference control integration check
         run: python scripts/run_reference.py --output-dir /tmp/longprocurebench-reference
+      - name: Run fresh 031-050 reference integration check
+        run: python scripts/run_fresh_reference.py --output-dir /tmp/longprocurebench-fresh-reference
