@@ -16,6 +16,7 @@ import materialize_procureharness_development_economics_v01 as materializer
 from run_procureharness_search_v01 import validate_phase_authorization
 from select_procureharness_validation_v01 import (
     _load_development_economics_binding,
+    evaluate_efficiency_promotion,
     validate_frozen_efficiency_addendum,
 )
 
@@ -123,11 +124,41 @@ class ProcureHarnessDevelopmentEconomicsEvidenceTests(unittest.TestCase):
                 authorization=authorization,
             )
 
+        base_selection = materializer._read_json(
+            materializer.BASE_SELECTION_REL
+        )
+        comparisons = materializer._read_json(
+            materializer.COMPARISONS_REL
+        )
+
         for candidate_id in rejected:
             outcome = gate_result["outcomes"][candidate_id]
             self.assertFalse(outcome["approved"])
             self.assertEqual(outcome["status"], "not_promoted")
-            self.assertTrue(outcome["reason"])
+
+            candidate_path = materializer.CANDIDATE_REPORT_FILES[
+                candidate_id
+            ]
+            with self.assertRaises(ValueError) as caught:
+                evaluate_efficiency_promotion(
+                    base_selection=base_selection,
+                    candidate_id=candidate_id,
+                    candidate_reports_path=candidate_path.as_posix(),
+                    expected_candidate_sha256=materializer._sha256_path(
+                        candidate_path
+                    ),
+                )
+
+            reason = str(caught.exception)
+            self.assertTrue(
+                materializer._is_expected_rejection(reason),
+                f"unexpected recomputed rejection: {reason}",
+            )
+            self.assertEqual(outcome["reason"], reason)
+            self.assertEqual(
+                outcome["comparison"],
+                comparisons["candidates"][candidate_id],
+            )
 
     def test_base_validation_selection_remains_immutable(self):
         selection = materializer._read_json(
