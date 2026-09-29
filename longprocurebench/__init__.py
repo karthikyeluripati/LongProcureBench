@@ -18,6 +18,14 @@ from .operational_ledger_reactive import (
     OperationalLedgerError,
     OperationalLedgerReactiveLLMPolicy,
 )
+from .procureharness import (
+    ProcureHarnessConfig,
+    ProcureHarnessPolicy,
+    ProcureHarnessProtocolError,
+    candidate_registry,
+    get_candidate,
+    validate_candidate_registry,
+)
 from .progress_aware_reactive import (
     ProgressAwareReactiveLLMPolicy,
     ProgressControlError,
@@ -53,6 +61,9 @@ __all__ = [
     "PlanExecuteLLMPolicy",
     "PlanExecuteProtocolError",
     "OperationalLedgerReactiveLLMPolicy",
+    "ProcureHarnessConfig",
+    "ProcureHarnessPolicy",
+    "ProcureHarnessProtocolError",
     "ProgressAwareReactiveLLMPolicy",
     "ProgressControlError",
     "ReActLLMPolicy",
@@ -64,7 +75,10 @@ __all__ = [
     "StateValidityFrontierPolicy",
     "WorkingPlanError",
     "WorkingPlanReactiveLLMPolicy",
+    "candidate_registry",
     "compare_candidate_on_reference_cohort",
+    "get_candidate",
     "freeze_reference_cohort",
     "normalize_regret",
+    "validate_candidate_registry",
 ]

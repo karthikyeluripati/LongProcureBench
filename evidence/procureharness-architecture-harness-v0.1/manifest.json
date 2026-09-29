@@ -1,0 +1,108 @@
+{
+  "schema_version": "0.1.0",
+  "package": "procureharness-architecture-harness-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "freeze_commit": "f4d2759880d2bfc078874db456ed8c96dfb712c6",
+  "freeze_status": "implementation_frozen_no_model_runs",
+  "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
+  "frozen_files": [
+    {
+      "path": "docs/procureharness-architecture-harness-v0.1.md",
+      "git_blob_sha1": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1"
+    },
+    {
+      "path": "docs/procureharness-candidate-registry-v0.1.json",
+      "git_blob_sha1": "95a8b5be76d71167013998520ced42bf45eeeaf0"
+    },
+    {
+      "path": "longprocurebench/__init__.py",
+      "git_blob_sha1": "339a66eaf338d33dba2c687768ed7688782f1eec"
+    },
+    {
+      "path": "longprocurebench/context_compiled_reactive.py",
+      "git_blob_sha1": "82b102d60c077247672d3d9ba1377243233672a9"
+    },
+    {
+      "path": "longprocurebench/economics.py",
+      "git_blob_sha1": "240233e2ed114bb9fe81716569c6c1cf15c9cca7"
+    },
+    {
+      "path": "longprocurebench/evaluator.py",
+      "git_blob_sha1": "ef0204f605027bafde6839cce2f14a03d15425bd"
+    },
+    {
+      "path": "longprocurebench/litellm_client.py",
+      "git_blob_sha1": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1"
+    },
+    {
+      "path": "longprocurebench/procureharness.py",
+      "git_blob_sha1": "1d83a29a2c6991c31cc0e007a17448edf64ba575"
+    },
+    {
+      "path": "longprocurebench/reactive_llm.py",
+      "git_blob_sha1": "d237f262b0377ae78608fb28833adfa6f2ff5853"
+    },
+    {
+      "path": "longprocurebench/runner.py",
+      "git_blob_sha1": "a5108b71b0d7e67d91ffa0492e298508a26ff573"
+    },
+    {
+      "path": "longprocurebench/runtime.py",
+      "git_blob_sha1": "3f283ed874db363d849ff759a108f4d650336760"
+    },
+    {
+      "path": "longprocurebench/validation.py",
+      "git_blob_sha1": "98f27230d28144b063cb910b5b99886d920d966b"
+    },
+    {
+      "path": "requirements.txt",
+      "git_blob_sha1": "698ec65e21cd73df53c948ed5e7770746c804bc4"
+    },
+    {
+      "path": "schema/action.schema.json",
+      "git_blob_sha1": "b47589fd82f97b5d49415d48cc8fd29cbfa17b22"
+    },
+    {
+      "path": "schema/episode.schema.json",
+      "git_blob_sha1": "3bf03a9d3b3c8b8d4b7a0ebea6856c95f9998939"
+    },
+    {
+      "path": "schema/evaluation.schema.json",
+      "git_blob_sha1": "031a8a72e68a904ba51054ff7db68ef4a513991c"
+    },
+    {
+      "path": "schema/initial-state.schema.json",
+      "git_blob_sha1": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926"
+    },
+    {
+      "path": "schema/result.schema.json",
+      "git_blob_sha1": "1c16655142c02eada9c045010b414bae207e1e1b"
+    },
+    {
+      "path": "scripts/run_procureharness_search_v01.py",
+      "git_blob_sha1": "6a436adbb5cc0528edcd37f1e0e16b0a7add6ef5"
+    },
+    {
+      "path": "scripts/select_procureharness_screening_v01.py",
+      "git_blob_sha1": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901"
+    },
+    {
+      "path": "scripts/select_procureharness_validation_v01.py",
+      "git_blob_sha1": "a38332aeb3e628c353a582625f3a78ca3c0de709"
+    }
+  ],
+  "notes": [
+    "This freeze predates any paid/model-backed ProcureHarness architecture-search execution.",
+    "Any controller/config/runner change requires a new harness version and a new freeze commit.",
+    "Episodes 041-050 remain non-executable in the architecture-search runner.",
+    "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
+    "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt.",
+    "The immutable behavior set includes both offline paid-run selectors; screening and validation ranking/gating changes require a new harness freeze.",
+    "Harness v0.1 authorizes round-1 screening, evidence-derived development confirmation, and evidence-derived 031-040 validation; round-2/3 screening remains fail-closed until a frozen frontier/plateau progression gate is added.",
+    "Validation selections reserve pending efficiency slots immutably; later efficiency qualification is append-only and cannot rewrite the base selection.",
+    "Selector locking uses POSIX flock, so a killed process releases the lock automatically even if the lock-file entry remains.",
+    "The behavior freeze now includes economics.py because the late efficiency authorization recomputes regret from bound economics reports.",
+    "Late efficiency promotion candidate economics reports are bound to the exact frozen ProcureHarness candidate policy_id, not only the 001-020 x3 grid and file hash.",
+    "Efficiency addendum/authorization writes are retry-recoverable: an exact surviving half is reused and only the missing counterpart is created; mismatched survivors fail closed."
+  ]
+}
