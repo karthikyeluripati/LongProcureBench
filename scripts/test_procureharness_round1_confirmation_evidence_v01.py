@@ -30,6 +30,44 @@ class ProcureHarnessRound1ConfirmationEvidenceTests(unittest.TestCase):
             (EVIDENCE_ROOT / "manifest.json").read_text(encoding="utf-8")
         )
 
+    @staticmethod
+    def _expected_summary_row(
+        *,
+        raw_result: dict,
+        episode_id: str,
+        repeat: int,
+    ) -> dict:
+        evaluation = raw_result.get("evaluation") or {}
+        metrics = raw_result.get("policy_metrics") or {}
+        obligations = evaluation.get("obligations") or {}
+
+        return {
+            "episode_id": episode_id,
+            "repeat": repeat,
+            "status": raw_result["status"],
+            "terminal_feasible": bool(evaluation.get("episode_success")),
+            "feasible_obligation_success": bool(
+                evaluation.get("feasible_obligation_success")
+            ),
+            "strict_v02": bool(evaluation.get("episode_success_v02")),
+            "economic_objective": bool(
+                (evaluation.get("economic_objective") or {}).get("satisfied")
+            ),
+            "obligation_resolved": obligations.get("resolved"),
+            "obligation_actionable": obligations.get("actionable"),
+            "obligation_resolution_rate": obligations.get("resolution_rate"),
+            "accepted_actions": (
+                (evaluation.get("efficiency") or {}).get("accepted_actions")
+            ),
+            "model_calls": metrics.get("model_calls"),
+            "total_tokens": metrics.get("total_tokens"),
+            "latency_ms": metrics.get("latency_ms"),
+            "known_cost_usd": metrics.get("cost_usd"),
+            "deterministic_action_fraction": metrics.get(
+                "deterministic_action_fraction"
+            ),
+        }
+
     def test_raw_result_filenames_match_exact_frozen_grid(self):
         expected_names = {
             f"{episode_id}.json"
@@ -111,7 +149,35 @@ class ProcureHarnessRound1ConfirmationEvidenceTests(unittest.TestCase):
                 f"manifest byte-count mismatch: {path}",
             )
 
-    def test_summary_rows_match_exact_frozen_run_keys(self):
+        gate_files = manifest.get("gate_files")
+        self.assertIsInstance(gate_files, list)
+        expected_gate_paths = {
+            str(
+                (
+                    GATE_ROOT / "validation-selection-round-1.json"
+                ).relative_to(ROOT)
+            ),
+        }
+        self.assertEqual(
+            {item["path"] for item in gate_files},
+            expected_gate_paths,
+        )
+        for item in gate_files:
+            path = ROOT / item["path"]
+            self.assertTrue(path.is_file(), f"missing manifested gate: {path}")
+            raw = path.read_bytes()
+            self.assertEqual(
+                sha256(raw).hexdigest(),
+                item["sha256"],
+                f"manifest gate SHA-256 mismatch: {path}",
+            )
+            self.assertEqual(
+                len(raw),
+                item["bytes"],
+                f"manifest gate byte-count mismatch: {path}",
+            )
+
+    def test_summary_rows_match_raw_results_and_exact_frozen_run_keys(self):
         expected_keys = [
             (episode_id, repeat)
             for repeat in REPEATS
@@ -119,24 +185,52 @@ class ProcureHarnessRound1ConfirmationEvidenceTests(unittest.TestCase):
         ]
 
         for candidate_id in CANDIDATES:
-            summary_path = (
+            root = (
                 EVIDENCE_ROOT
                 / "results"
                 / candidate_id
                 / "development_confirmation"
-                / "summary.json"
             )
+            summary_path = root / "summary.json"
             summary = json.loads(summary_path.read_text(encoding="utf-8"))
             self.assertEqual(summary["candidate_id"], candidate_id)
             self.assertEqual(summary["phase"], "development_confirmation")
             self.assertEqual(summary["planned_runs"], 60)
             self.assertEqual(summary["completed_runs"], 60)
             self.assertEqual(summary["execution_failures"], 0)
+
+            rows = summary["rows"]
             observed_keys = [
                 (row.get("episode_id"), row.get("repeat"))
-                for row in summary["rows"]
+                for row in rows
             ]
             self.assertEqual(observed_keys, expected_keys)
+
+            for row in rows:
+                episode_id = row["episode_id"]
+                repeat = row["repeat"]
+                raw_path = (
+                    root
+                    / f"r{repeat}"
+                    / f"{episode_id}.json"
+                )
+                raw_result = json.loads(
+                    raw_path.read_text(encoding="utf-8")
+                )
+                expected_row = self._expected_summary_row(
+                    raw_result=raw_result,
+                    episode_id=episode_id,
+                    repeat=repeat,
+                )
+                self.assertEqual(
+                    row,
+                    expected_row,
+                    (
+                        f"{candidate_id} summary row does not match raw "
+                        f"result for {episode_id} repeat {repeat}"
+                    ),
+                )
+
 
     def test_frozen_validation_selection_recomputes_from_bound_summaries(self):
         selection_path = GATE_ROOT / "validation-selection-round-1.json"
