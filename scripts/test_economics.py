@@ -454,14 +454,14 @@ class EconomicsTests(unittest.TestCase):
     def test_signed_native_savings_preserves_small_residual(self):
         coverage = [
             self.economics_report("e1", 1, selected=1.01e308, oracle=1e305),
-            self.economics_report("e2", 1, selected=1e306, oracle=1e305),
-            self.economics_report("e3", 1, selected=2.0, oracle=1.0),
+            self.economics_report("e2", 1, selected=2.0, oracle=1.0),
+            self.economics_report("e3", 1, selected=1e306, oracle=1e305),
         ]
         react = [dict(row) for row in coverage]
         candidate = [
             self.economics_report("e1", 1, selected=1e306, oracle=1e305),
-            self.economics_report("e2", 1, selected=1.01e308, oracle=1e305),
-            self.economics_report("e3", 1, selected=1.0, oracle=1.0),
+            self.economics_report("e2", 1, selected=1.0, oracle=1.0),
+            self.economics_report("e3", 1, selected=1.01e308, oracle=1e305),
         ]
         comparison = compare_candidate_on_reference_cohort(
             candidate,
@@ -469,8 +469,17 @@ class EconomicsTests(unittest.TestCase):
             react_reports=react,
         )
         savings = comparison["paired_savings"]["coverage_repair"]["pairs"]
-        self.assertEqual(savings[0]["paired_savings_native"], -savings[1]["paired_savings_native"])
-        self.assertEqual(savings[2]["paired_savings_native"], 1.0)
+        large_positive = savings[0]["paired_savings_native"]
+        small_residual = savings[1]["paired_savings_native"]
+        large_negative = savings[2]["paired_savings_native"]
+
+        self.assertEqual(large_positive, -large_negative)
+        self.assertEqual(small_residual, 1.0)
+        self.assertEqual(
+            (large_positive + small_residual) + large_negative,
+            0.0,
+        )
+
         total = comparison["paired_savings"]["coverage_repair"][
             "native_savings_by_currency"
         ]["USD"]["sum_paired_savings_native"]
