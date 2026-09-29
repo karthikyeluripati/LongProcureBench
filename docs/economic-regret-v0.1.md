@@ -52,6 +52,12 @@ arithmetic divides before multiplying by 100 to avoid intermediate overflow
 when the mathematically correct percentage is still representable; any truly
 non-finite ratio/percentage is rejected before JSON serialization.
 
+Aggregate percentage means use max-magnitude scaling before summation, so a
+representable mean is not rejected merely because the raw sum of several large
+finite percentages would overflow. Signed native-savings totals use the same
+scaled summation strategy, allowing large gains and losses to cancel before the
+final finite total is materialized.
+
 ## Matched reference cohort
 
 Coverage+Repair and ReAct economics reports must have the **same run-key grid**.
