@@ -22,6 +22,8 @@ from select_procureharness_screening_v01 import (
     validate_frozen_screening_selection,
 )
 from select_procureharness_validation_v01 import (
+    _read_bound_report_list,
+    _write_recoverable_artifact_pair,
     freeze_efficiency_validation_authorization,
     freeze_validation_selection,
     validate_frozen_validation_selection,
@@ -101,6 +103,22 @@ def _confirmation_summary(
         "execution_failures": 0,
         "rows": rows,
     }
+
+
+def _economics_reports(policy_id: str) -> list[dict]:
+    rows = []
+    for repeat in range(1, 4):
+        for episode_id in DEVELOPMENT_EPISODES:
+            rows.append({
+                "run_key": {
+                    "episode_id": episode_id,
+                    "repeat": repeat,
+                },
+                "episode_id": episode_id,
+                "repeat": repeat,
+                "policy_id": policy_id,
+            })
+    return rows
 
 
 class ProcureHarnessSelectorTests(unittest.TestCase):
@@ -388,6 +406,92 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
             self.assertFalse(
                 (gates / "validation-selection-round-1.json").exists()
             )
+
+    def test_candidate_economics_reports_bind_exact_policy_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "candidate-economics.json"
+            path.write_text(
+                json.dumps(
+                    _economics_reports(
+                        "procureharness--ph-r1-c01--openai/gpt-5.6-sol"
+                    ),
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "policy_id mismatch"):
+                _read_bound_report_list(
+                    path_value=str(path),
+                    expected_sha256=None,
+                    label="candidate",
+                    expected_policy_id=(
+                        "procureharness--ph-r1-c02--openai/gpt-5.6-sol"
+                    ),
+                )
+
+            reports, _ = _read_bound_report_list(
+                path_value=str(path),
+                expected_sha256=None,
+                label="candidate",
+                expected_policy_id=(
+                    "procureharness--ph-r1-c01--openai/gpt-5.6-sol"
+                ),
+            )
+            self.assertEqual(len(reports), 60)
+
+    def test_efficiency_append_recovers_exact_surviving_addendum(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            addendum_path = output_dir / "addendum.json"
+            auth_path = output_dir / "auth.json"
+            addendum_bytes = b'{"kind":"addendum"}\n'
+            auth_bytes = b'{"kind":"authorization"}\n'
+
+            # Simulate process death after finalizing the addendum but before
+            # finalizing the authorization.
+            addendum_path.write_bytes(addendum_bytes)
+
+            _write_recoverable_artifact_pair(
+                output_dir=output_dir,
+                first_path=addendum_path,
+                first_bytes=addendum_bytes,
+                second_path=auth_path,
+                second_bytes=auth_bytes,
+            )
+            self.assertEqual(addendum_path.read_bytes(), addendum_bytes)
+            self.assertEqual(auth_path.read_bytes(), auth_bytes)
+
+            # A retry after both files exist is idempotent.
+            _write_recoverable_artifact_pair(
+                output_dir=output_dir,
+                first_path=addendum_path,
+                first_bytes=addendum_bytes,
+                second_path=auth_path,
+                second_bytes=auth_bytes,
+            )
+
+    def test_efficiency_append_rejects_mismatched_surviving_half(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            addendum_path = output_dir / "addendum.json"
+            auth_path = output_dir / "auth.json"
+            addendum_path.write_bytes(b'{"wrong":true}\n')
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "does not match recomputed frozen content",
+            ):
+                _write_recoverable_artifact_pair(
+                    output_dir=output_dir,
+                    first_path=addendum_path,
+                    first_bytes=b'{"kind":"addendum"}\n',
+                    second_path=auth_path,
+                    second_bytes=b'{"kind":"authorization"}\n',
+                )
+            self.assertFalse(auth_path.exists())
 
     def test_validation_authorization_is_recomputed_from_confirmation_results(self):
         with tempfile.TemporaryDirectory() as tmp:
