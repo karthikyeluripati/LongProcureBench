@@ -2,13 +2,13 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "16357d8a8393043e2457d60c03fa0a2f3bcd8dd4",
+  "freeze_commit": "b8abe3b73973df563f268908d8eb3caf90843dbb",
   "freeze_status": "implementation_frozen_no_model_runs",
   "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
   "frozen_files": [
     {
       "path": "docs/procureharness-architecture-harness-v0.1.md",
-      "git_blob_sha1": "5791a6d11ca6fe39bc6472f0ec03cf75d9fd9697"
+      "git_blob_sha1": "3cc9ce4cbd84decc1780dbad694acd3c925d5808"
     },
     {
       "path": "docs/procureharness-candidate-registry-v0.1.json",
@@ -76,7 +76,7 @@
     },
     {
       "path": "scripts/run_procureharness_search_v01.py",
-      "git_blob_sha1": "4fbd50327981452c2557b1872d23c7cf7039b558"
+      "git_blob_sha1": "265cb1a59bf272f466f3625fb1af35632d4f4760"
     }
   ],
   "notes": [
@@ -84,6 +84,7 @@
     "Any controller/config/runner change requires a new harness version and a new freeze commit.",
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
     "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
-    "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt."
+    "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt.",
+    "The executable runner enforces round progression, at-most-two confirmation/validation selections, plateau/budget authorization for later rounds, and refusal to rerun into a nonempty candidate/phase output tree."
   ]
 }
