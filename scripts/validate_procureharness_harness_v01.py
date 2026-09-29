@@ -33,6 +33,14 @@ from run_procureharness_search_v01 import (
     TEMPERATURE,
     VALIDATION_EPISODES,
 )
+from select_procureharness_screening_v01 import (
+    RULE_ID as SCREENING_RULE_ID,
+    SCREENING_RANKING_PRIORITY,
+)
+from select_procureharness_validation_v01 import (
+    RULE_ID as VALIDATION_RULE_ID,
+    VALIDATION_RANKING_PRIORITY,
+)
 
 PROTOCOL_PATH = ROOT / "docs" / "procureharness-architecture-search-v0.1-protocol.json"
 REGISTRY_PATH = ROOT / "docs" / "procureharness-candidate-registry-v0.1.json"
@@ -162,6 +170,31 @@ def validate_harness() -> dict[str, int]:
         raise ValueError("candidate registry protocol mismatch")
     if registry.get("status") != "implementation_frozen_no_model_runs":
         raise ValueError("candidate registry status changed")
+
+    screening_rule = registry.get("screening_selection_rule")
+    if not isinstance(screening_rule, dict):
+        raise ValueError("screening selection rule missing from registry")
+    if screening_rule.get("rule_id") != SCREENING_RULE_ID:
+        raise ValueError("screening selector rule_id/registry mismatch")
+    if screening_rule.get("priority") != SCREENING_RANKING_PRIORITY:
+        raise ValueError("screening selector ranking/registry mismatch")
+
+    validation_rule = registry.get("validation_selection_rule")
+    if not isinstance(validation_rule, dict):
+        raise ValueError("validation selection rule missing from registry")
+    if validation_rule.get("rule_id") != VALIDATION_RULE_ID:
+        raise ValueError("validation selector rule_id/registry mismatch")
+    if validation_rule.get("priority") != VALIDATION_RANKING_PRIORITY:
+        raise ValueError("validation selector ranking/registry mismatch")
+
+    protocol_priority = (
+        protocol["search_procedure"]["validation_entry"]
+        ["oversubscription_selection"]["priority"]
+    )
+    if validation_rule.get("priority") != protocol_priority:
+        raise ValueError(
+            "validation selector ranking disagrees with frozen protocol"
+        )
 
     budget = registry.get("search_budget")
     if budget != {
