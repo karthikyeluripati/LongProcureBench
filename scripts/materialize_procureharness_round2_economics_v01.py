@@ -85,6 +85,25 @@ def _write_json(path: Path, value: Any) -> None:
     target.write_bytes(_canonical_json_bytes(value))
 
 
+def _write_recoverable_json(path: Path, value: Any) -> None:
+    """Create an immutable deterministic JSON artifact, or reuse an exact survivor."""
+    target = ROOT / path
+    encoded = _canonical_json_bytes(value)
+    if target.exists():
+        if not target.is_file() or target.read_bytes() != encoded:
+            raise ValueError(
+                "existing Round-2 economics artifact does not match "
+                f"recomputed frozen content: {path}"
+            )
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_name(f".{target.name}.tmp")
+    if temporary.exists():
+        temporary.unlink()
+    temporary.write_bytes(encoded)
+    temporary.replace(target)
+
+
 def _read_json(path: Path) -> Any:
     return json.loads((ROOT / path).read_text(encoding="utf-8"))
 
@@ -143,14 +162,89 @@ def _candidate_result_path(
     )
 
 
+def _confirmation_source_bindings() -> dict[str, dict[str, Any]]:
+    manifest = _read_json(CONFIRMATION_MANIFEST_REL)
+    if manifest.get("candidate_ids") != list(CANDIDATES):
+        raise ValueError("Round-2 confirmation manifest candidate set changed")
+    if manifest.get("total_runs") != 120:
+        raise ValueError("Round-2 confirmation manifest run count changed")
+
+    rows = manifest.get("source_files")
+    if not isinstance(rows, list):
+        raise ValueError("Round-2 confirmation manifest source_files missing")
+
+    by_path: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("Round-2 confirmation source binding is invalid")
+        path_value = row.get("path")
+        expected_sha = row.get("sha256")
+        expected_bytes = row.get("bytes")
+        if not isinstance(path_value, str) or not path_value:
+            raise ValueError("Round-2 confirmation source path is invalid")
+        if path_value in by_path:
+            raise ValueError(
+                f"duplicate Round-2 confirmation source path: {path_value}"
+            )
+        if (
+            not isinstance(expected_sha, str)
+            or len(expected_sha) != 64
+            or any(ch not in "0123456789abcdef" for ch in expected_sha)
+        ):
+            raise ValueError(
+                f"invalid Round-2 confirmation source SHA-256: {path_value}"
+            )
+        if (
+            not isinstance(expected_bytes, int)
+            or isinstance(expected_bytes, bool)
+            or expected_bytes < 0
+        ):
+            raise ValueError(
+                f"invalid Round-2 confirmation source byte count: {path_value}"
+            )
+        by_path[path_value] = row
+    return by_path
+
+
+def _verify_frozen_confirmation_result(
+    path: Path,
+    *,
+    source_bindings: dict[str, dict[str, Any]],
+) -> bytes:
+    path_value = path.as_posix()
+    row = source_bindings.get(path_value)
+    if row is None:
+        raise ValueError(
+            f"raw confirmation result is not bound by frozen manifest: {path}"
+        )
+    target = ROOT / path
+    if not target.is_file():
+        raise ValueError(f"frozen confirmation result is missing: {path}")
+    raw = target.read_bytes()
+    if len(raw) != row["bytes"]:
+        raise ValueError(
+            f"frozen confirmation result byte count mismatch: {path}"
+        )
+    if sha256(raw).hexdigest() != row["sha256"]:
+        raise ValueError(
+            f"frozen confirmation result SHA-256 mismatch: {path}"
+        )
+    return raw
+
+
 def _score_candidate(candidate_id: str) -> list[dict[str, Any]]:
     economics = EconomicRegretEvaluator(repo_root=ROOT)
     expected_policy_id = f"procureharness--{candidate_id}--{MODEL}"
     reports: list[dict[str, Any]] = []
+    source_bindings = _confirmation_source_bindings()
 
     for episode_id, repeat in _expected_run_keys():
         path = _candidate_result_path(candidate_id, episode_id, repeat)
-        result = _read_json(path)
+        raw = _verify_frozen_confirmation_result(
+            path,
+            source_bindings=source_bindings,
+        )
+        result = json.loads(raw.decode("utf-8"))
         if result.get("episode_id") != episode_id:
             raise ValueError(f"{candidate_id} raw result episode mismatch")
         if result.get("status") not in {"completed", "max_actions"}:
@@ -270,13 +364,8 @@ def _is_expected_rejection(message: str) -> bool:
 
 
 def materialize() -> dict[str, Any]:
-    package = ROOT / PACKAGE_REL
-    if package.exists():
-        raise ValueError(
-            f"refusing to overwrite Round-2 economics package: {package}"
-        )
-    package.mkdir(parents=True)
-
+    # Validate all frozen inputs and compute deterministic payloads before
+    # publishing any package artifact. A retry may then reuse exact survivors.
     base_selection = _read_json(BASE_SELECTION_REL)
     validate_frozen_validation_selection(base_selection)
     if base_selection.get("round") != 2:
@@ -299,9 +388,18 @@ def materialize() -> dict[str, Any]:
         raise ValueError("Round-2 confirmation manifest run count changed")
 
     payloads = build_round2_economics_payloads()
+
+    # Publish deterministic package pieces recoverably. Exact files left by an
+    # interrupted attempt are reused; any mismatched survivor fails closed.
     for candidate_id, path in CANDIDATE_REPORT_FILES.items():
-        _write_json(path, payloads["candidates"][candidate_id])
-    _write_json(COMPARISONS_REL, payloads["comparisons"])
+        _write_recoverable_json(
+            path,
+            payloads["candidates"][candidate_id],
+        )
+    _write_recoverable_json(
+        COMPARISONS_REL,
+        payloads["comparisons"],
+    )
 
     manifest = {
         "schema_version": "0.1.0",
@@ -335,7 +433,7 @@ def materialize() -> dict[str, Any]:
             "provider_calls": 0,
         },
     }
-    _write_json(MANIFEST_REL, manifest)
+    _write_recoverable_json(MANIFEST_REL, manifest)
 
     comparisons = payloads["comparisons"]
     outcomes: dict[str, Any] = {}
@@ -352,6 +450,22 @@ def materialize() -> dict[str, Any]:
             message = str(exc)
             if not _is_expected_rejection(message):
                 raise
+            stale_paths = (
+                ROOT
+                / GATE_REL
+                / (
+                    f"validation-efficiency-addendum-round-2"
+                    f"--{candidate_id}.json"
+                ),
+                ROOT
+                / GATE_REL
+                / f"{candidate_id}--validation-efficiency-auth.json",
+            )
+            if any(path.exists() for path in stale_paths):
+                raise ValueError(
+                    f"{candidate_id} is rejected but an efficiency "
+                    "authorization artifact already exists"
+                ) from exc
             outcomes[candidate_id] = {
                 "candidate_id": candidate_id,
                 "approved": False,
@@ -411,7 +525,7 @@ def materialize() -> dict[str, Any]:
         ],
         "provider_calls": 0,
     }
-    _write_json(GATE_RESULT_REL, result)
+    _write_recoverable_json(GATE_RESULT_REL, result)
 
     if _read_json(BASE_SELECTION_REL) != base_selection:
         raise ValueError("Round-2 base validation selection changed")
