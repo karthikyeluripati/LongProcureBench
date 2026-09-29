@@ -173,8 +173,12 @@ selection.
 
 The efficiency-only promotion branch is deliberately fail-closed until a
 separately frozen economic-comparison gate supplies the required full-cohort
-regret evidence. This avoids treating an unverified boolean as economic
-evidence.
+regret evidence. This does **not** block a peer that already qualifies through
+the independent quality branch: quality-qualified candidates receive validation
+authorization immediately, while unresolved peers are recorded in
+`pending_efficiency_candidate_ids`. This avoids treating an unverified
+boolean as economic evidence without withholding an independently justified
+promotion.
 
 ### Later search rounds
 
@@ -183,3 +187,14 @@ frontier/plateau progression gate recomputes prior-round validation,
 nondominance, plateau state, and budget state from bound evidence. Claimed
 `prior_round_validation_complete`, `plateau_stop_fired`, or
 `search_budget_exhausted` fields cannot unlock paid runs.
+
+
+### Gate-write concurrency
+
+Screening and validation selectors acquire an exclusive per-round lock in the
+gate output directory before recomputing or writing any frozen artifact.
+Concurrent selector invocations for the same round therefore fail before they
+can pass independent existence checks. After acquiring the lock, each selector
+preflights all final paths, stages every artifact, and only then finalizes the
+selection and authorizations. A pre-existing target leaves no partial selection
+behind.
