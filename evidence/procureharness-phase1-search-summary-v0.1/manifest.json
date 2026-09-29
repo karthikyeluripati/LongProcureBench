@@ -1,0 +1,108 @@
+{
+  "execution": {
+    "mode": "offline_evidence_summary",
+    "provider_calls": 0
+  },
+  "generated_files": {
+    "readme": {
+      "bytes": 1660,
+      "path": "evidence/procureharness-phase1-search-summary-v0.1/README.md",
+      "sha256": "ab1a1385129248966779ecc280bf292e29501f6385ef4a07728b3ff78d55dc76"
+    },
+    "summary": {
+      "bytes": 27213,
+      "path": "evidence/procureharness-phase1-search-summary-v0.1/summary.json",
+      "sha256": "e83a3d235fa6d708bcdbf93feafc0355b25bab6c08a7f5bce49805349d3c2b96"
+    }
+  },
+  "package_id": "procureharness-phase1-search-summary-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "schema_version": "0.1.0",
+  "source_evidence": {
+    "architecture_harness_manifest": {
+      "bytes": 5381,
+      "path": "evidence/procureharness-architecture-harness-v0.1/manifest.json",
+      "sha256": "d80f201aadbcd1a7659792f609a6e4fa39a9c1591a6699a947047307cc6c949c"
+    },
+    "candidate_registry": {
+      "bytes": 16264,
+      "path": "docs/procureharness-candidate-registry-v0.1.json",
+      "sha256": "8419fb08be4fa374852c0d353f1ce1795886fd735b74f2adb15fa72537bbd5be"
+    },
+    "protocol": {
+      "bytes": 23495,
+      "path": "docs/procureharness-architecture-search-v0.1-protocol.json",
+      "sha256": "92fd03c2f26d7749a908e4fa3d6043bab5997a252df61527a9a37d821fea4fba"
+    },
+    "round1_confirmation_manifest": {
+      "bytes": 33621,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/manifest.json",
+      "sha256": "c04ed5d790e22340d322d6af979469395bcad3ab91743b8e73900f410df0662c"
+    },
+    "round1_economics_manifest": {
+      "bytes": 2658,
+      "path": "evidence/procureharness-development-economics-v0.1/manifest.json",
+      "sha256": "85f113f459d27a384094d4fa104d0f4b90a19fae92f86307b414723bafad5add"
+    },
+    "round1_efficiency_result": {
+      "bytes": 1922,
+      "path": "evidence/procureharness-development-economics-v0.1/efficiency-gate-result.json",
+      "sha256": "ce7f4c06b4cf55d1af2ca9f0db02dfcc795e3212d7500afd1a251b7a399e83ea"
+    },
+    "round1_progression": {
+      "bytes": 2162,
+      "path": "evidence/procureharness-search-gates-v0.1/round-progression-after-round-1.json",
+      "sha256": "35d2de0af9f58c67a2fc0480002aae450835854512d941e1260f9b1437fbe3a2"
+    },
+    "round1_screening_manifest": {
+      "bytes": 32608,
+      "path": "evidence/procureharness-round1-screening-v0.1/manifest.json",
+      "sha256": "02c6ab01c92db7e7af93c3d72e50f0bec04fdd5095f610df756b3dc7486ed85e"
+    },
+    "round1_screening_selection": {
+      "bytes": 4228,
+      "path": "evidence/procureharness-search-gates-v0.1/screening-selection-round-1.json",
+      "sha256": "4a6e94adb9dad7dffb18507a966a70a379adca11aff3adcc1f10623a1200458e"
+    },
+    "round1_validation_selection": {
+      "bytes": 2778,
+      "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-1.json",
+      "sha256": "3c12e87ae9a3a2f60f560fa2bfa92a4927a5476da0ce855b26b3f0e7fc1dc874"
+    },
+    "round2_confirmation_manifest": {
+      "bytes": 34025,
+      "path": "evidence/procureharness-round2-confirmation-v0.1/manifest.json",
+      "sha256": "3f6a3e42150ce10234fb6c7380071fcbeb7bb035e9c969a1e8ac824817df5dec"
+    },
+    "round2_economics_manifest": {
+      "bytes": 2083,
+      "path": "evidence/procureharness-round2-economics-v0.1/manifest.json",
+      "sha256": "43b0c0cdb4c11bcdffbafb823a5de222a3f65ab88181471711cbae560b2bdbb7"
+    },
+    "round2_efficiency_result": {
+      "bytes": 2027,
+      "path": "evidence/procureharness-round2-economics-v0.1/efficiency-gate-result.json",
+      "sha256": "db6f1d33f0be3a2f74102549b88a22f196711f3cfd7cb1a9cb2a72d2b655ec36"
+    },
+    "round2_progression_stop": {
+      "bytes": 2320,
+      "path": "evidence/procureharness-search-gates-v0.1/round-progression-after-round-2.json",
+      "sha256": "0699eb5e029716e710faf82e62e3464d7051ca195f364d555bc4c21b943ab980"
+    },
+    "round2_screening_manifest": {
+      "bytes": 33926,
+      "path": "evidence/procureharness-round2-screening-v0.1/manifest.json",
+      "sha256": "db95c223e6f65f9b5b26bd25ea871fcff953a03b1b31f4a1fc07d72345de36ca"
+    },
+    "round2_screening_selection": {
+      "bytes": 4242,
+      "path": "evidence/procureharness-search-gates-v0.1/screening-selection-round-2.json",
+      "sha256": "0fc3c38727c3e511567e05cb520871bb85c769eb316e14a1bce6efc6cfab5476"
+    },
+    "round2_validation_selection": {
+      "bytes": 2775,
+      "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-2.json",
+      "sha256": "823c2e65f8c40789b7a4dfb8684c6683d719f66518c5b76a8e63dd65385c026c"
+    }
+  }
+}
