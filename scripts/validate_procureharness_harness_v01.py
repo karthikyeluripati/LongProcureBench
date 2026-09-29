@@ -53,13 +53,14 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "491d027b439fd839d2732341c572496306156243"
+    "0bcd459d346487bc9eabcec082e5ddb9989d6056"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
-    "docs/procureharness-architecture-harness-v0.1.md": "2ff404c9627cdfdd491622644d36992327ba3183",
-    "docs/procureharness-candidate-registry-v0.1.json": "269d33be258dca488ad3b463542b218164f72dca",
+    "docs/procureharness-architecture-harness-v0.1.md": "cb1e4b7e84311f3ba41631ffa4ab0ff250931868",
+    "docs/procureharness-candidate-registry-v0.1.json": "95a8b5be76d71167013998520ced42bf45eeeaf0",
     "longprocurebench/__init__.py": "339a66eaf338d33dba2c687768ed7688782f1eec",
     "longprocurebench/context_compiled_reactive.py": "82b102d60c077247672d3d9ba1377243233672a9",
+    "longprocurebench/economics.py": "240233e2ed114bb9fe81716569c6c1cf15c9cca7",
     "longprocurebench/evaluator.py": "ef0204f605027bafde6839cce2f14a03d15425bd",
     "longprocurebench/litellm_client.py": "3726f763e9e88bbfcf9073ee79db86e98e58e0d1",
     "longprocurebench/procureharness.py": "1d83a29a2c6991c31cc0e007a17448edf64ba575",
@@ -73,9 +74,9 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "schema/evaluation.schema.json": "031a8a72e68a904ba51054ff7db68ef4a513991c",
     "schema/initial-state.schema.json": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926",
     "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
-    "scripts/run_procureharness_search_v01.py": "838f86bc21973017526ccba37bf413745e59fae9",
-    "scripts/select_procureharness_screening_v01.py": "7366e0680d04d28b6fe574ca5ebdab3395abf3df",
-    "scripts/select_procureharness_validation_v01.py": "f02b76a8b0a09e88b2bfe58e51029ede9e6afea7",
+    "scripts/run_procureharness_search_v01.py": "6a436adbb5cc0528edcd37f1e0e16b0a7add6ef5",
+    "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
+    "scripts/select_procureharness_validation_v01.py": "46a4c5efd04544683142ae611dc3a9ede739befa",
 }
 
 
