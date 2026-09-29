@@ -53,10 +53,10 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "0bcd459d346487bc9eabcec082e5ddb9989d6056"
+    "f4d2759880d2bfc078874db456ed8c96dfb712c6"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
-    "docs/procureharness-architecture-harness-v0.1.md": "cb1e4b7e84311f3ba41631ffa4ab0ff250931868",
+    "docs/procureharness-architecture-harness-v0.1.md": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1",
     "docs/procureharness-candidate-registry-v0.1.json": "95a8b5be76d71167013998520ced42bf45eeeaf0",
     "longprocurebench/__init__.py": "339a66eaf338d33dba2c687768ed7688782f1eec",
     "longprocurebench/context_compiled_reactive.py": "82b102d60c077247672d3d9ba1377243233672a9",
@@ -76,7 +76,7 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
     "scripts/run_procureharness_search_v01.py": "6a436adbb5cc0528edcd37f1e0e16b0a7add6ef5",
     "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
-    "scripts/select_procureharness_validation_v01.py": "46a4c5efd04544683142ae611dc3a9ede739befa",
+    "scripts/select_procureharness_validation_v01.py": "a38332aeb3e628c353a582625f3a78ca3c0de709",
 }
 
 
