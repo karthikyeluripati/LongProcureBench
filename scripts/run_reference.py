@@ -1,4 +1,4 @@
-"""Run the scripted reference control across all frozen episodes."""
+"""Run the legacy scripted reference control for frozen episodes 001-030."""
 import argparse
 from pathlib import Path
 import sys
