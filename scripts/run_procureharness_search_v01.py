@@ -272,28 +272,11 @@ def validate_phase_authorization(
         raise ValueError("authorization round mismatch")
 
     if phase == "screening":
-        expected_ids = round_candidate_ids(config.round)
-        if authorization.get("round_candidate_ids") != expected_ids:
-            raise ValueError(
-                "screening authorization round_candidate_ids must match "
-                "the frozen six-candidate round registry"
-            )
-        if authorization.get("prior_round") != config.round - 1:
-            raise ValueError("screening authorization prior_round mismatch")
-        if authorization.get("prior_round_validation_complete") is not True:
-            raise ValueError(
-                "later-round screening requires "
-                "prior_round_validation_complete=true"
-            )
-        if authorization.get("plateau_stop_fired") is not False:
-            raise ValueError(
-                "later-round screening requires plateau_stop_fired=false"
-            )
-        if authorization.get("search_budget_exhausted") is not False:
-            raise ValueError(
-                "later-round screening requires search_budget_exhausted=false"
-            )
-        return
+        raise ValueError(
+            "later-round screening is fail-closed in harness v0.1 until "
+            "a frozen frontier/plateau progression gate recomputes prior "
+            "validation and stop conditions from bound evidence"
+        )
 
     if phase == "development_confirmation":
         if authorization.get("screening_complete") is not True:
@@ -319,6 +302,10 @@ def validate_phase_authorization(
             path_field="screening_selection_path",
             sha_field="screening_selection_sha256",
         )
+        from select_procureharness_screening_v01 import (
+            validate_frozen_screening_selection,
+        )
+        validate_frozen_screening_selection(selection)
         if selection.get("protocol_id") != PROTOCOL_ID:
             raise ValueError("screening selection protocol mismatch")
         if selection.get("rule_id") != "frozen_screening_selection_v0.1":
@@ -331,21 +318,7 @@ def validate_phase_authorization(
             )
         return
 
-    if authorization.get("development_confirmation_complete") is not True:
-        raise ValueError(
-            "validation requires development_confirmation_complete=true"
-        )
-    if authorization.get("development_confirmation_floor_passed") is not True:
-        raise ValueError(
-            "validation requires development_confirmation_floor_passed=true"
-        )
-    branch = authorization.get("promotion_branch")
-    if branch not in {"quality", "efficiency"}:
-        raise ValueError(
-            "validation authorization requires quality/efficiency "
-            "promotion_branch"
-        )
-    _validate_selected_candidates(
+    selected = _validate_selected_candidates(
         authorization=authorization,
         field="validation_selected_candidate_ids",
         candidate_id=candidate_id,
@@ -356,6 +329,40 @@ def validate_phase_authorization(
         "frozen_validation_entry_lexicographic_v0.1"
     ):
         raise ValueError("validation selection_rule mismatch")
+
+    selection = _load_bound_json_artifact(
+        authorization=authorization,
+        path_field="validation_selection_path",
+        sha_field="validation_selection_sha256",
+    )
+    from select_procureharness_validation_v01 import (
+        validate_frozen_validation_selection,
+    )
+    validate_frozen_validation_selection(selection)
+
+    if selection.get("protocol_id") != PROTOCOL_ID:
+        raise ValueError("validation selection protocol mismatch")
+    if selection.get("rule_id") != (
+        "frozen_validation_entry_lexicographic_v0.1"
+    ):
+        raise ValueError("validation selection rule mismatch")
+    if selection.get("round") != config.round:
+        raise ValueError("validation selection round mismatch")
+    if selection.get("validation_selected_candidate_ids") != selected:
+        raise ValueError(
+            "validation selection artifact/authorization candidate mismatch"
+        )
+    branches = selection.get("promotion_branch_by_candidate")
+    if not isinstance(branches, dict):
+        raise ValueError("validation selection lacks promotion branches")
+    branch = branches.get(candidate_id)
+    if authorization.get("promotion_branch") != branch:
+        raise ValueError(
+            "validation authorization promotion branch does not match "
+            "recomputed selection artifact"
+        )
+    if branch not in {"quality", "efficiency"}:
+        raise ValueError("validation candidate lacks an admissible promotion")
 
 
 def validate_frozen_implementation_for_execution() -> None:
