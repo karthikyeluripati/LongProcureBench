@@ -29,6 +29,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from run_procureharness_search_v01 import (
+    DEVELOPMENT_EPISODES,
+    MODEL,
     PROTOCOL_ID,
     round_candidate_ids,
 )
@@ -37,6 +39,7 @@ from select_procureharness_screening_v01 import (
 )
 from select_procureharness_validation_v01 import (
     _load_development_economics_binding,
+    evaluate_efficiency_promotion,
     validate_frozen_validation_selection,
 )
 
@@ -141,6 +144,425 @@ def _exclusive_progression_lock(output_dir: Path, completed_round: int):
             handle.close()
 
 
+def _validate_manifest_entries(
+    *,
+    manifest: dict[str, Any],
+    field: str,
+    expected_paths: set[str],
+    label: str,
+) -> dict[str, dict[str, Any]]:
+    rows = manifest.get(field)
+    if not isinstance(rows, list):
+        raise ValueError(f"{label} manifest {field} must be a list")
+
+    by_path: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError(f"{label} manifest {field} row must be an object")
+        path_value = row.get("path")
+        expected_sha = row.get("sha256")
+        expected_bytes = row.get("bytes")
+        if not isinstance(path_value, str) or not path_value:
+            raise ValueError(f"{label} manifest {field} path is invalid")
+        if path_value in by_path:
+            raise ValueError(
+                f"{label} manifest {field} contains duplicate path: "
+                f"{path_value}"
+            )
+        if (
+            not isinstance(expected_sha, str)
+            or len(expected_sha) != 64
+            or any(ch not in "0123456789abcdef" for ch in expected_sha)
+        ):
+            raise ValueError(
+                f"{label} manifest {field} SHA-256 is invalid: {path_value}"
+            )
+        if (
+            not isinstance(expected_bytes, int)
+            or isinstance(expected_bytes, bool)
+            or expected_bytes < 0
+        ):
+            raise ValueError(
+                f"{label} manifest {field} byte count is invalid: "
+                f"{path_value}"
+            )
+        by_path[path_value] = row
+
+    if set(by_path) != expected_paths:
+        missing = sorted(expected_paths - set(by_path))
+        unexpected = sorted(set(by_path) - expected_paths)
+        raise ValueError(
+            f"{label} manifest {field} path set changed: "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+
+    for path_value, row in by_path.items():
+        path = ROOT / path_value
+        if not path.is_file():
+            raise ValueError(
+                f"{label} manifested file is missing: {path_value}"
+            )
+        raw = path.read_bytes()
+        if len(raw) != row["bytes"]:
+            raise ValueError(
+                f"{label} manifested byte count mismatch: {path_value}"
+            )
+        if sha256(raw).hexdigest() != row["sha256"]:
+            raise ValueError(
+                f"{label} manifested SHA-256 mismatch: {path_value}"
+            )
+    return by_path
+
+
+def _expected_summary_row(
+    *,
+    raw_result: dict[str, Any],
+    episode_id: str,
+    repeat: int,
+) -> dict[str, Any]:
+    evaluation = raw_result.get("evaluation") or {}
+    metrics = raw_result.get("policy_metrics") or {}
+    obligations = evaluation.get("obligations") or {}
+    return {
+        "episode_id": episode_id,
+        "repeat": repeat,
+        "status": raw_result["status"],
+        "terminal_feasible": bool(evaluation.get("episode_success")),
+        "feasible_obligation_success": bool(
+            evaluation.get("feasible_obligation_success")
+        ),
+        "strict_v02": bool(evaluation.get("episode_success_v02")),
+        "economic_objective": bool(
+            (evaluation.get("economic_objective") or {}).get("satisfied")
+        ),
+        "obligation_resolved": obligations.get("resolved"),
+        "obligation_actionable": obligations.get("actionable"),
+        "obligation_resolution_rate": obligations.get("resolution_rate"),
+        "accepted_actions": (
+            (evaluation.get("efficiency") or {}).get("accepted_actions")
+        ),
+        "model_calls": metrics.get("model_calls"),
+        "total_tokens": metrics.get("total_tokens"),
+        "latency_ms": metrics.get("latency_ms"),
+        "known_cost_usd": metrics.get("cost_usd"),
+        "deterministic_action_fraction": metrics.get(
+            "deterministic_action_fraction"
+        ),
+    }
+
+
+def _expected_candidate_source_paths(
+    *,
+    evidence_root: Path,
+    candidate_ids: list[str],
+    phase: str,
+    repeats: tuple[int, ...],
+) -> set[str]:
+    paths: set[str] = set()
+    for candidate_id in candidate_ids:
+        root = evidence_root / "results" / candidate_id / phase
+        paths.add(_repo_rel(root / "summary.json"))
+        for repeat in repeats:
+            for episode_id in DEVELOPMENT_EPISODES:
+                paths.add(
+                    _repo_rel(
+                        root
+                        / f"r{repeat}"
+                        / f"{episode_id}.json"
+                    )
+                )
+    return paths
+
+
+def _validate_candidate_evidence_tree(
+    *,
+    evidence_root: Path,
+    candidate_id: str,
+    phase: str,
+    repeats: tuple[int, ...],
+    source_entries: dict[str, dict[str, Any]],
+) -> tuple[str, str]:
+    root = evidence_root / "results" / candidate_id / phase
+    summary_path = root / "summary.json"
+    summary_rel = _repo_rel(summary_path)
+    if summary_rel not in source_entries:
+        raise ValueError(
+            f"{candidate_id} summary is not bound by its evidence manifest"
+        )
+    summary = _load_json(summary_path)
+
+    expected_run_count = len(DEVELOPMENT_EPISODES) * len(repeats)
+    if summary.get("candidate_id") != candidate_id:
+        raise ValueError(f"{candidate_id} summary candidate mismatch")
+    if summary.get("phase") != phase:
+        raise ValueError(f"{candidate_id} summary phase mismatch")
+    if summary.get("planned_runs") != expected_run_count:
+        raise ValueError(f"{candidate_id} summary planned_runs mismatch")
+    if summary.get("completed_runs") != expected_run_count:
+        raise ValueError(f"{candidate_id} summary completed_runs mismatch")
+    if summary.get("execution_failures") != 0:
+        raise ValueError(f"{candidate_id} summary execution is not clean")
+
+    rows = summary.get("rows")
+    if not isinstance(rows, list) or len(rows) != expected_run_count:
+        raise ValueError(f"{candidate_id} summary row count mismatch")
+
+    expected_keys = [
+        (episode_id, repeat)
+        for repeat in repeats
+        for episode_id in DEVELOPMENT_EPISODES
+    ]
+    observed_keys = [
+        (row.get("episode_id"), row.get("repeat"))
+        for row in rows
+        if isinstance(row, dict)
+    ]
+    if observed_keys != expected_keys:
+        raise ValueError(f"{candidate_id} summary run grid changed")
+
+    expected_policy_id = (
+        f"procureharness--{candidate_id}--{MODEL}"
+    )
+    expected_names = {
+        f"{episode_id}.json"
+        for episode_id in DEVELOPMENT_EPISODES
+    }
+
+    expected_rows = []
+    for episode_id, repeat in expected_keys:
+        repeat_dir = root / f"r{repeat}"
+        actual_names = {
+            path.name
+            for path in repeat_dir.iterdir()
+            if path.is_file() and path.suffix == ".json"
+        }
+        if actual_names != expected_names:
+            raise ValueError(
+                f"{candidate_id} repeat {repeat} raw filename grid changed"
+            )
+
+        raw_path = repeat_dir / f"{episode_id}.json"
+        raw_rel = _repo_rel(raw_path)
+        if raw_rel not in source_entries:
+            raise ValueError(
+                f"{candidate_id} raw result is not bound by manifest: "
+                f"{raw_rel}"
+            )
+        raw_result = _load_json(raw_path)
+        if raw_result.get("episode_id") != episode_id:
+            raise ValueError(f"{candidate_id} raw episode mismatch")
+        if (raw_result.get("policy") or {}).get("policy_id") != (
+            expected_policy_id
+        ):
+            raise ValueError(f"{candidate_id} raw policy_id mismatch")
+        expected_rows.append(
+            _expected_summary_row(
+                raw_result=raw_result,
+                episode_id=episode_id,
+                repeat=repeat,
+            )
+        )
+
+    if rows != expected_rows:
+        raise ValueError(
+            f"{candidate_id} summary metrics do not match raw results"
+        )
+    return summary_rel, source_entries[summary_rel]["sha256"]
+
+
+def _load_bound_json_row(
+    *,
+    row: dict[str, Any],
+    label: str,
+) -> Any:
+    path_value = row.get("path")
+    expected_sha = row.get("sha256")
+    expected_bytes = row.get("bytes")
+    if not isinstance(path_value, str) or not path_value:
+        raise ValueError(f"{label} binding path is invalid")
+    if not isinstance(expected_sha, str) or len(expected_sha) != 64:
+        raise ValueError(f"{label} binding SHA-256 is invalid")
+
+    path = ROOT / path_value
+    if not path.is_file():
+        raise ValueError(f"{label} bound file is missing: {path_value}")
+    raw = path.read_bytes()
+    if (
+        isinstance(expected_bytes, int)
+        and not isinstance(expected_bytes, bool)
+        and len(raw) != expected_bytes
+    ):
+        raise ValueError(f"{label} binding byte count mismatch")
+    if sha256(raw).hexdigest() != expected_sha:
+        raise ValueError(f"{label} binding SHA-256 mismatch")
+    return json.loads(raw.decode("utf-8"))
+
+
+def _recompute_efficiency_gate(
+    *,
+    validation_selection: dict[str, Any],
+    economics_manifest: dict[str, Any],
+    recorded_result: dict[str, Any],
+) -> tuple[list[str], list[str]]:
+    candidate_rows = economics_manifest.get("candidate_reports")
+    comparisons_row = economics_manifest.get("comparisons")
+    if not isinstance(candidate_rows, dict):
+        raise ValueError("development economics candidate reports missing")
+    if not isinstance(comparisons_row, dict):
+        raise ValueError("development economics comparisons binding missing")
+
+    pending = validation_selection.get("pending_efficiency_candidate_ids")
+    if not isinstance(pending, list):
+        raise ValueError("Round-1 pending efficiency candidate set invalid")
+    if set(candidate_rows) != set(pending):
+        raise ValueError(
+            "development economics candidate-report set does not match "
+            "pending Round-1 candidates"
+        )
+
+    comparisons = _load_bound_json_row(
+        row=comparisons_row,
+        label="development economics comparisons",
+    )
+    if (
+        not isinstance(comparisons, dict)
+        or not isinstance(comparisons.get("candidates"), dict)
+        or set(comparisons["candidates"]) != set(pending)
+    ):
+        raise ValueError(
+            "development economics candidate comparisons are incomplete"
+        )
+
+    recorded_outcomes = recorded_result.get("outcomes")
+    if (
+        not isinstance(recorded_outcomes, dict)
+        or set(recorded_outcomes) != set(pending)
+    ):
+        raise ValueError("Round-1 efficiency outcome map is incomplete")
+
+    approved: list[str] = []
+    rejected: list[str] = []
+    for candidate_id in pending:
+        binding = candidate_rows[candidate_id]
+        if not isinstance(binding, dict):
+            raise ValueError(
+                f"{candidate_id} economics report binding is invalid"
+            )
+        candidate_path = binding.get("path")
+        candidate_sha = binding.get("sha256")
+        if not isinstance(candidate_path, str) or not candidate_path:
+            raise ValueError(
+                f"{candidate_id} economics report path is invalid"
+            )
+        if not isinstance(candidate_sha, str) or len(candidate_sha) != 64:
+            raise ValueError(
+                f"{candidate_id} economics report SHA-256 is invalid"
+            )
+
+        outcome = recorded_outcomes[candidate_id]
+        if not isinstance(outcome, dict):
+            raise ValueError(
+                f"{candidate_id} recorded efficiency outcome is invalid"
+            )
+        if outcome.get("candidate_id") != candidate_id:
+            raise ValueError(
+                f"{candidate_id} recorded efficiency candidate mismatch"
+            )
+        if outcome.get("comparison") != (
+            comparisons["candidates"][candidate_id]
+        ):
+            raise ValueError(
+                f"{candidate_id} recorded economics comparison changed"
+            )
+
+        try:
+            promotion = evaluate_efficiency_promotion(
+                base_selection=validation_selection,
+                candidate_id=candidate_id,
+                candidate_reports_path=candidate_path,
+                expected_candidate_sha256=candidate_sha,
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if outcome.get("approved") is not False:
+                raise ValueError(
+                    f"{candidate_id} recorded approval disagrees with "
+                    "recomputed efficiency rejection"
+                ) from exc
+            if outcome.get("status") != "not_promoted":
+                raise ValueError(
+                    f"{candidate_id} recorded rejection status changed"
+                ) from exc
+            if outcome.get("reason") != reason:
+                raise ValueError(
+                    f"{candidate_id} recorded rejection reason disagrees "
+                    "with recomputed frozen economics"
+                ) from exc
+            rejected.append(candidate_id)
+            continue
+
+        if outcome.get("approved") is not True:
+            raise ValueError(
+                f"{candidate_id} recorded rejection disagrees with "
+                "recomputed efficiency approval"
+            )
+        if outcome.get("status") != "authorized":
+            raise ValueError(
+                f"{candidate_id} recorded approval status changed"
+            )
+        if outcome.get("promotion") != promotion:
+            raise ValueError(
+                f"{candidate_id} recorded promotion does not match "
+                "recomputed frozen economics"
+            )
+        approved.append(candidate_id)
+
+    if recorded_result.get("authorized_candidate_ids") != approved:
+        raise ValueError(
+            "Round-1 efficiency authorized candidate list changed"
+        )
+    if recorded_result.get("not_promoted_candidate_ids") != rejected:
+        raise ValueError(
+            "Round-1 efficiency rejected candidate list changed"
+        )
+    return approved, rejected
+
+
+def _write_recoverable_artifact_set(
+    *,
+    output_dir: Path,
+    artifacts: list[tuple[Path, bytes]],
+) -> None:
+    for path, encoded in artifacts:
+        if not path.exists():
+            continue
+        if path.read_bytes() != encoded:
+            raise ValueError(
+                "existing round-progression artifact does not match "
+                f"recomputed frozen content: {path}"
+            )
+
+    with tempfile.TemporaryDirectory(
+        dir=output_dir,
+        prefix=".round-progression-recovery-",
+    ) as staging_dir:
+        staging = Path(staging_dir)
+        for path, encoded in artifacts:
+            if path.exists():
+                continue
+            stage = staging / path.name
+            stage.write_bytes(encoded)
+            with stage.open("rb") as handle:
+                os.fsync(handle.fileno())
+            os.replace(stage, path)
+
+    for path, encoded in artifacts:
+        if not path.is_file() or path.read_bytes() != encoded:
+            raise ValueError(
+                f"round-progression artifact set incomplete: {path}"
+            )
+
+
 def _validate_round1_inputs() -> dict[str, Any]:
     protocol = _load_json(PROTOCOL_PATH)
     if protocol.get("protocol_id") != PROTOCOL_ID:
@@ -177,6 +599,19 @@ def _validate_round1_inputs() -> dict[str, Any]:
     ):
         raise ValueError("Round-1 screening manifest is incomplete")
 
+    screening_root = SCREENING_MANIFEST_PATH.parent
+    screening_source_entries = _validate_manifest_entries(
+        manifest=screening_manifest,
+        field="source_files",
+        expected_paths=_expected_candidate_source_paths(
+            evidence_root=screening_root,
+            candidate_ids=round1_ids,
+            phase="screening",
+            repeats=(1,),
+        ),
+        label="Round-1 screening",
+    )
+
     screening_selection = _load_json(SCREENING_SELECTION_PATH)
     validate_frozen_screening_selection(screening_selection)
     if screening_selection.get("round") != 1:
@@ -185,6 +620,53 @@ def _validate_round1_inputs() -> dict[str, Any]:
     selected = screening_selection.get("selected_candidate_ids")
     if not isinstance(selected, list) or not selected:
         raise ValueError("Round-1 screening selected no confirmation candidates")
+
+    expected_screening_gate_paths = {
+        _repo_rel(SCREENING_SELECTION_PATH),
+        *{
+            _repo_rel(
+                SCREENING_SELECTION_PATH.parent
+                / f"{candidate_id}--development-confirmation-auth.json"
+            )
+            for candidate_id in selected
+        },
+    }
+    _validate_manifest_entries(
+        manifest=screening_manifest,
+        field="gate_files",
+        expected_paths=expected_screening_gate_paths,
+        label="Round-1 screening",
+    )
+
+    screening_summary_bindings = {}
+    for candidate_id in round1_ids:
+        summary_rel, summary_sha = _validate_candidate_evidence_tree(
+            evidence_root=screening_root,
+            candidate_id=candidate_id,
+            phase="screening",
+            repeats=(1,),
+            source_entries=screening_source_entries,
+        )
+        screening_summary_bindings[candidate_id] = (
+            summary_rel,
+            summary_sha,
+        )
+
+    for row in screening_selection.get("ranking") or []:
+        candidate_id = row.get("candidate_id")
+        expected_path, expected_sha = screening_summary_bindings[
+            candidate_id
+        ]
+        if row.get("screening_summary_path") != expected_path:
+            raise ValueError(
+                f"{candidate_id} screening selection summary path is not "
+                "the manifested summary"
+            )
+        if row.get("screening_summary_sha256") != expected_sha:
+            raise ValueError(
+                f"{candidate_id} screening selection summary hash is not "
+                "the manifested summary hash"
+            )
 
     confirmation_manifest = _load_json(CONFIRMATION_MANIFEST_PATH)
     if confirmation_manifest.get("protocol_id") != PROTOCOL_ID:
@@ -198,6 +680,19 @@ def _validate_round1_inputs() -> dict[str, Any]:
     ):
         raise ValueError("Round-1 confirmation manifest is incomplete")
 
+    confirmation_root = CONFIRMATION_MANIFEST_PATH.parent
+    confirmation_source_entries = _validate_manifest_entries(
+        manifest=confirmation_manifest,
+        field="source_files",
+        expected_paths=_expected_candidate_source_paths(
+            evidence_root=confirmation_root,
+            candidate_ids=selected,
+            phase="development_confirmation",
+            repeats=(1, 2, 3),
+        ),
+        label="Round-1 confirmation",
+    )
+
     validation_selection = _load_json(VALIDATION_SELECTION_PATH)
     validate_frozen_validation_selection(validation_selection)
     if validation_selection.get("round") != 1:
@@ -206,6 +701,58 @@ def _validate_round1_inputs() -> dict[str, Any]:
         raise ValueError(
             "Round-1 screening/validation-entry candidate binding changed"
         )
+
+    expected_confirmation_gate_paths = {
+        _repo_rel(VALIDATION_SELECTION_PATH),
+        *{
+            _repo_rel(
+                VALIDATION_SELECTION_PATH.parent
+                / f"{candidate_id}--validation-auth.json"
+            )
+            for candidate_id in (
+                validation_selection.get(
+                    "validation_selected_candidate_ids"
+                )
+                or []
+            )
+        },
+    }
+    _validate_manifest_entries(
+        manifest=confirmation_manifest,
+        field="gate_files",
+        expected_paths=expected_confirmation_gate_paths,
+        label="Round-1 confirmation",
+    )
+
+    confirmation_summary_bindings = {}
+    for candidate_id in selected:
+        summary_rel, summary_sha = _validate_candidate_evidence_tree(
+            evidence_root=confirmation_root,
+            candidate_id=candidate_id,
+            phase="development_confirmation",
+            repeats=(1, 2, 3),
+            source_entries=confirmation_source_entries,
+        )
+        confirmation_summary_bindings[candidate_id] = (
+            summary_rel,
+            summary_sha,
+        )
+
+    for row in validation_selection.get("confirmation_rows") or []:
+        candidate_id = row.get("candidate_id")
+        expected_path, expected_sha = confirmation_summary_bindings[
+            candidate_id
+        ]
+        if row.get("confirmation_summary_path") != expected_path:
+            raise ValueError(
+                f"{candidate_id} validation selection summary path is not "
+                "the manifested confirmation summary"
+            )
+        if row.get("confirmation_summary_sha256") != expected_sha:
+            raise ValueError(
+                f"{candidate_id} validation selection summary hash is not "
+                "the manifested confirmation summary hash"
+            )
 
     # Revalidate the frozen economics package and its real Git snapshot.
     economics_binding = _load_development_economics_binding()
@@ -234,9 +781,12 @@ def _validate_round1_inputs() -> dict[str, Any]:
     )
     if not isinstance(quality_selected, list):
         raise ValueError("Round-1 validation-selected candidate set invalid")
-    efficiency_selected = efficiency_result.get("authorized_candidate_ids")
-    if not isinstance(efficiency_selected, list):
-        raise ValueError("Round-1 efficiency authorization set invalid")
+
+    efficiency_selected, rejected = _recompute_efficiency_gate(
+        validation_selection=validation_selection,
+        economics_manifest=economics_manifest,
+        recorded_result=efficiency_result,
+    )
 
     final_validation_candidates = list(
         dict.fromkeys([*quality_selected, *efficiency_selected])
@@ -249,23 +799,12 @@ def _validate_round1_inputs() -> dict[str, Any]:
         )
 
     pending = validation_selection.get("pending_efficiency_candidate_ids")
-    rejected = efficiency_result.get("not_promoted_candidate_ids")
-    if not isinstance(pending, list) or not isinstance(rejected, list):
-        raise ValueError("Round-1 pending/rejected candidate sets invalid")
+    if not isinstance(pending, list):
+        raise ValueError("Round-1 pending efficiency candidate set invalid")
     if sorted(pending) != sorted(rejected):
         raise ValueError(
             "Round-1 economics gate did not resolve every pending candidate"
         )
-    outcomes = efficiency_result.get("outcomes")
-    if not isinstance(outcomes, dict) or set(outcomes) != set(pending):
-        raise ValueError("Round-1 efficiency outcome map is incomplete")
-    if any(
-        not isinstance(outcomes[candidate_id], dict)
-        or outcomes[candidate_id].get("approved") is not False
-        or outcomes[candidate_id].get("status") != "not_promoted"
-        for candidate_id in pending
-    ):
-        raise ValueError("Round-1 efficiency rejection evidence changed")
 
     return {
         "protocol": protocol,
@@ -419,35 +958,14 @@ def freeze_round1_progression(
             ).encode("utf-8")
             auth_payloads.append((path, encoded))
 
-        final_paths = [
-            progression_path,
-            *[path for path, _ in auth_payloads],
+        artifacts = [
+            (progression_path, progression_bytes),
+            *auth_payloads,
         ]
-        existing = [path for path in final_paths if path.exists()]
-        if existing:
-            raise ValueError(
-                "refusing to overwrite frozen round-progression artifact(s): "
-                + ", ".join(str(path) for path in existing)
-            )
-
-        with tempfile.TemporaryDirectory(
-            dir=output_dir,
-            prefix=".round-progression-",
-        ) as staging_dir:
-            staging = Path(staging_dir)
-            staged: list[tuple[Path, Path]] = []
-
-            progression_stage = staging / progression_path.name
-            progression_stage.write_bytes(progression_bytes)
-            staged.append((progression_stage, progression_path))
-
-            for path, encoded in auth_payloads:
-                stage = staging / path.name
-                stage.write_bytes(encoded)
-                staged.append((stage, path))
-
-            for stage, final in staged:
-                os.replace(stage, final)
+        _write_recoverable_artifact_set(
+            output_dir=output_dir,
+            artifacts=artifacts,
+        )
 
         return progression_path, [path for path, _ in auth_payloads]
 
