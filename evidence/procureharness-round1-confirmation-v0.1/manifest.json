@@ -1,0 +1,669 @@
+{
+  "candidate_ids": [
+    "ph-r1-c02",
+    "ph-r1-c05"
+  ],
+  "episode_suffixes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "gate_files": [
+    {
+      "bytes": 2778,
+      "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-1.json",
+      "sha256": "3c12e87ae9a3a2f60f560fa2bfa92a4927a5476da0ce855b26b3f0e7fc1dc874"
+    }
+  ],
+  "model": "openai/gpt-5.6-sol",
+  "package_id": "procureharness-round1-confirmation-v0.1",
+  "pending_efficiency_candidate_ids": [
+    "ph-r1-c02",
+    "ph-r1-c05"
+  ],
+  "phase": "development_confirmation",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "reasoning_effort": "medium",
+  "repeats": 3,
+  "round": 1,
+  "schema_version": "0.1.0",
+  "source_files": [
+    {
+      "bytes": 20882,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-barrie-transformer-005.json",
+      "sha256": "1a3d3ca6bdfdaf718297990e5c26925cf3e43725660e79128fbc925ccabe2bad"
+    },
+    {
+      "bytes": 18793,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-bfar-generator-006.json",
+      "sha256": "546cf68f339d40ad3a37af6d8821620584edea95777f07b0f45cf1fbc4ca180c"
+    },
+    {
+      "bytes": 17472,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-bongabon-generator-001.json",
+      "sha256": "5d4bf4823e7e6c78453b8a5679b900fc68541def45ae53f64bdb9bba68213e76"
+    },
+    {
+      "bytes": 19614,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-burauen-generator-008.json",
+      "sha256": "d8c07618aa9791358b1d05df286bffbc754502dba54c4aaa01789e7480412e12"
+    },
+    {
+      "bytes": 21863,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-battery-charger-015.json",
+      "sha256": "ad7bde4dc7a7d6563f35cbb7d09a446fa29dba0a53c573cb014e195f3a20deb8"
+    },
+    {
+      "bytes": 20939,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-battery-supply-014.json",
+      "sha256": "e78d6ba47b6e96beed29b7ee0d3741dfe5099e71dfc7ac0c1d5bf19ab7693b1e"
+    },
+    {
+      "bytes": 18963,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-breaker-004.json",
+      "sha256": "ef5b68365ada94707e89c86aeb88797fc43deb2ca044324f2befb7c858ae4794"
+    },
+    {
+      "bytes": 20812,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-power-supply-016.json",
+      "sha256": "1671cea8019b5759048587cea93eb05d4ae2cc5d30e2cea6116bdd82a6ece2e0"
+    },
+    {
+      "bytes": 16866,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-qpl-breaker-017.json",
+      "sha256": "644e056d521830d3ca23ab0ed38a8f60af3ce554e4ddbe1bf3f9d4aea51cf337"
+    },
+    {
+      "bytes": 19872,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-relay-012.json",
+      "sha256": "db8ce9e12e130be00b68670844f2b4e85a9ef2819d22acdfd87adcf35bb293ed"
+    },
+    {
+      "bytes": 17688,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-dla-transformer-013.json",
+      "sha256": "af789d35b8444460cef90bac0b7cdeed1ffae96ed16aa484cc48bd6bf53f4b90"
+    },
+    {
+      "bytes": 26185,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-highpoint-cable-018.json",
+      "sha256": "8d0d4dd02efcd0e0efadd4d3279512365129acecae8519ba1a3047d35d832377"
+    },
+    {
+      "bytes": 17831,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-highpoint-transformer-009.json",
+      "sha256": "8c3c22687d50fc5b3e9561bcdcbd9acc63e2f0957157c0d34cd4ac115b6763b8"
+    },
+    {
+      "bytes": 15763,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-national-museum-lighting-002.json",
+      "sha256": "738c1ccdeba36209b3e8bd70531187987b1b93a4bd6501f887dc48fd920cc760"
+    },
+    {
+      "bytes": 17365,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-negros-wire-007.json",
+      "sha256": "5d97058906d67ec4593a61102f7650ceeae9e3849af5b615f14f82e75d83d8dd"
+    },
+    {
+      "bytes": 21668,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-neust-cable-003.json",
+      "sha256": "9586a0ae7610884501254dfe9e354a1cb69b5011124767389c924b87ab0cad06"
+    },
+    {
+      "bytes": 18584,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-painesville-switchgear-010.json",
+      "sha256": "c6dfab197be131b26d9efbf3244b6c96ddaa64aa4ba0cd2203129e12a2380079"
+    },
+    {
+      "bytes": 21858,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-sagada-generator-011.json",
+      "sha256": "bd0e943a8dc4e971491d16ed1125bce84598962c047c2488bd9d04e3a544a799"
+    },
+    {
+      "bytes": 22479,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-usaf-ups-019.json",
+      "sha256": "80d21caf3d12994303667dc16c6bd3f82c5ae0e9c4cbd2b3d7673d1c6e741678"
+    },
+    {
+      "bytes": 23890,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r1/electrical-vre-generator-020.json",
+      "sha256": "b66c086bce32110b165a40fa1163bb837c2da11b72b382c670e88c99b996842f"
+    },
+    {
+      "bytes": 20856,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-barrie-transformer-005.json",
+      "sha256": "95808d119efd0abea2652ea20081cf666032bb6b198a728ebf0f85d59bc675bd"
+    },
+    {
+      "bytes": 18693,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-bfar-generator-006.json",
+      "sha256": "5843454747a14a777505452c9e848e1b4066663d1d834b5eaf866f8ff1b5cb08"
+    },
+    {
+      "bytes": 17484,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-bongabon-generator-001.json",
+      "sha256": "cee62e0ec605d2ba3988585a00188be7f7002b19f6a6287dc3e65adaee50e993"
+    },
+    {
+      "bytes": 19540,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-burauen-generator-008.json",
+      "sha256": "9f08de4d0ae03123ae5c95d6bf3d54566ee403a7eada4623852e10f1880cd863"
+    },
+    {
+      "bytes": 21875,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-battery-charger-015.json",
+      "sha256": "b4fc1ef7d2df803241255ce0c911534c991dc971406a56b2c9aa9e3c974ee117"
+    },
+    {
+      "bytes": 20975,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-battery-supply-014.json",
+      "sha256": "cd4d884f6b95bb12b1ffd2fd7b560637906a5cc0612c6ffadd727302ab2e6e34"
+    },
+    {
+      "bytes": 18862,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-breaker-004.json",
+      "sha256": "f9444fe62548946d21ef5aba079ef78082a83341bd1fbbf17bd7ed7560f60511"
+    },
+    {
+      "bytes": 20814,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-power-supply-016.json",
+      "sha256": "08473cccfe6852212800d483513491f899ddfb4c3f61bb52e1efd1a9ce1bd5d5"
+    },
+    {
+      "bytes": 16994,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-qpl-breaker-017.json",
+      "sha256": "5bd141bd3afc1c961ce66bda00b7f93f127d77c851b505c2022cb74caf9d29e4"
+    },
+    {
+      "bytes": 20656,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-relay-012.json",
+      "sha256": "c2e2ebf243cbac592cbbeeba4655abb0f81f05ee778c0e5521b46fdad0f6035f"
+    },
+    {
+      "bytes": 17690,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-dla-transformer-013.json",
+      "sha256": "83d30b07d16f61b6d606e8f62e0a9021cc11f71a393e60857e5e23783d77d98e"
+    },
+    {
+      "bytes": 25945,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-highpoint-cable-018.json",
+      "sha256": "313dcd9abba4b06b43425809ade4f2d7aa562f570e961aa2d04417ba65646014"
+    },
+    {
+      "bytes": 17827,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-highpoint-transformer-009.json",
+      "sha256": "18e14ff9d59144164af55c2cb54543c5e871398b03d5c1485754548cb5417c92"
+    },
+    {
+      "bytes": 15825,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-national-museum-lighting-002.json",
+      "sha256": "3c1bfbbd473ba3de3ec90160c87a020d37056a750ae0cfc65cefeb53719bd3ac"
+    },
+    {
+      "bytes": 17235,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-negros-wire-007.json",
+      "sha256": "a9c232069e82c2f117834cd952931f07156181accf9ffff48b16e25fc70e489d"
+    },
+    {
+      "bytes": 21600,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-neust-cable-003.json",
+      "sha256": "1ddc1a78cda686d9bbebcf05dbef11eb85d7cbf27b065ab2ad8bf8feaa696f0b"
+    },
+    {
+      "bytes": 18576,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-painesville-switchgear-010.json",
+      "sha256": "1a10627d5c204b4caa33b14f68d6a1a70ff74413f2dffb44833a74e6b7d05f5c"
+    },
+    {
+      "bytes": 21852,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-sagada-generator-011.json",
+      "sha256": "845802b57e235be9cd919174e3c2255337e68abb2dbfeabe6a9d6503b888afaa"
+    },
+    {
+      "bytes": 22399,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-usaf-ups-019.json",
+      "sha256": "f75c82fd2915643f75f8ce3410d4798230c889f5a5e8fcacc110e432dd88ba66"
+    },
+    {
+      "bytes": 23812,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r2/electrical-vre-generator-020.json",
+      "sha256": "51a6f96dfbcfdb73407a42171bbe53412f061cf434eff589615336ef5448bf43"
+    },
+    {
+      "bytes": 20974,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-barrie-transformer-005.json",
+      "sha256": "c4260c67b02e0b7cc598efd236c187168e8965b098d47d679553111768bbb12c"
+    },
+    {
+      "bytes": 18835,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-bfar-generator-006.json",
+      "sha256": "7a515ebc3a43e57861caed045669cf84b56e6f50c5d4c7e84e2eb2bece8e0f9a"
+    },
+    {
+      "bytes": 17310,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-bongabon-generator-001.json",
+      "sha256": "a499736852a5dab5abd2bf04caf6f91cb357a72e99aa50186d7f5e0073f4b5ce"
+    },
+    {
+      "bytes": 19486,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-burauen-generator-008.json",
+      "sha256": "555207a78fc169eda42cf4bba9292b19761d2aaf963eaa3bfe917a726f52818b"
+    },
+    {
+      "bytes": 21863,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-battery-charger-015.json",
+      "sha256": "37084722643ff4b611d38295b95f471699ebae00349d9d74a5c116717ba2885d"
+    },
+    {
+      "bytes": 20895,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-battery-supply-014.json",
+      "sha256": "cc2b1f335c5464870643c038270e2811a19430568571decf1a6bbeb3fbb612eb"
+    },
+    {
+      "bytes": 18966,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-breaker-004.json",
+      "sha256": "4b776fe9480292d89af8490ea9f35cd5980d7d92c3205ee54214f42cb261685a"
+    },
+    {
+      "bytes": 20814,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-power-supply-016.json",
+      "sha256": "cdda121a2382f8101483566480d232847e4b884cc7cce3aae9c6efddf7a595e4"
+    },
+    {
+      "bytes": 16954,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-qpl-breaker-017.json",
+      "sha256": "eab95898f54482f60097cd65ab34a590c49bf73bc1d08eb3c16b8850312676c1"
+    },
+    {
+      "bytes": 20585,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-relay-012.json",
+      "sha256": "a425353af4959f9cecff541613c11d346236e266cf10c98fd5688101f4943669"
+    },
+    {
+      "bytes": 17616,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-dla-transformer-013.json",
+      "sha256": "e543e450b4d57d8569e34288678a43a26808f847748effc9cfb15906ab1414f4"
+    },
+    {
+      "bytes": 26209,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-highpoint-cable-018.json",
+      "sha256": "7f27cd483da82e212d8a97039ab1221f5f97c086c229e03464fabada329c4c65"
+    },
+    {
+      "bytes": 17841,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-highpoint-transformer-009.json",
+      "sha256": "c81b359bfacbf856623077e8e42bdcf61b0861c10bd8a6215a1dac23af27da98"
+    },
+    {
+      "bytes": 15743,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-national-museum-lighting-002.json",
+      "sha256": "ecbf1a7d81081f50f0acb7694f8ccba89f1e54e20429be990102f9000f2eab51"
+    },
+    {
+      "bytes": 17427,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-negros-wire-007.json",
+      "sha256": "04dd601c68b473a6a4adc3c0c24c69cd349dd14edcf3c60a1bd9b617086a89b1"
+    },
+    {
+      "bytes": 21542,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-neust-cable-003.json",
+      "sha256": "b19615278aff08deae0a3eb52b7cb46084d63f522cc14dc96217285eef68fd91"
+    },
+    {
+      "bytes": 18508,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-painesville-switchgear-010.json",
+      "sha256": "5cd8f1b9658bb525ecb7ec510819dea061d970e15d13c773f2e062dee794b224"
+    },
+    {
+      "bytes": 21806,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-sagada-generator-011.json",
+      "sha256": "912667bde5f2acf21196073cc52ed1873ee7bf627f6b79bd404e32065f8617e6"
+    },
+    {
+      "bytes": 22512,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-usaf-ups-019.json",
+      "sha256": "f6adf11685a07f613d3380900ee7cc88f162207236a2ab650dd8a304ec29d83c"
+    },
+    {
+      "bytes": 23822,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/r3/electrical-vre-generator-020.json",
+      "sha256": "c8d1a68652cabe657ce0962b144c8fc62539b189db55660fd5ec9706b238e1e5"
+    },
+    {
+      "bytes": 35518,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c02/development_confirmation/summary.json",
+      "sha256": "fa3d97c09dac62cf97a4615ad33cf0a13e8a2363943a88b9d5ae5ab139bd83cb"
+    },
+    {
+      "bytes": 20717,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-barrie-transformer-005.json",
+      "sha256": "bf11594738a8f5910dd0322c553a022e8b43b58463f80e795e6f7eb9faf16613"
+    },
+    {
+      "bytes": 18322,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-bfar-generator-006.json",
+      "sha256": "cce2885602e520ceed06919a869856315420bbd60025eea7230a611aaf81f5c7"
+    },
+    {
+      "bytes": 17225,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-bongabon-generator-001.json",
+      "sha256": "d87a0b4f6e5c097d93e7688a29d0b38eb8d5e615947776d450058d1477569fad"
+    },
+    {
+      "bytes": 19073,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-burauen-generator-008.json",
+      "sha256": "dbb39022e883aa43d8becf2aa8fa76b6aad1e7516408211df228e166bbc087e4"
+    },
+    {
+      "bytes": 21211,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-battery-charger-015.json",
+      "sha256": "c93386d2211057ce675487e2ffde854bbf933847b572378a82edd64074983099"
+    },
+    {
+      "bytes": 20672,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-battery-supply-014.json",
+      "sha256": "e130e13eefb581538af4085fd3f7ea048f57337adc122f5592857211a200aa42"
+    },
+    {
+      "bytes": 18534,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-breaker-004.json",
+      "sha256": "8dbc796f5aa62c1efb618a823fc342229b3cefbee85c37a5e1713cfdfc870b45"
+    },
+    {
+      "bytes": 20677,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-power-supply-016.json",
+      "sha256": "c1376eb8c143b9266b8510340ad488e2d4d580efd5408d9d5ac7c6341f414741"
+    },
+    {
+      "bytes": 16463,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-qpl-breaker-017.json",
+      "sha256": "8f5960af12a247087a7926a1dbd5ebeaad029cbe9fac789e7ad9e27c21faa03a"
+    },
+    {
+      "bytes": 20415,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-relay-012.json",
+      "sha256": "61afd27c0eeea7bbbc66dcbbf0789997473fcd3f0d1fa5ed7ddf0f5ab0e0e6c1"
+    },
+    {
+      "bytes": 17491,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-dla-transformer-013.json",
+      "sha256": "07ae8a8f9fe24c9a698b0afca41ae8187dcbe6d87600c4728516b8bd90c70842"
+    },
+    {
+      "bytes": 25694,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-highpoint-cable-018.json",
+      "sha256": "121c13456fc644b1da9ce5dd0ffd3631b406443c7b4ac944610edcf69a1f4812"
+    },
+    {
+      "bytes": 17694,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-highpoint-transformer-009.json",
+      "sha256": "31c431f50f6012f3a4098149477f9afcd91f0fe9a2c2408d1a966b838d0aeca0"
+    },
+    {
+      "bytes": 15448,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-national-museum-lighting-002.json",
+      "sha256": "e8e529f2aec3b402fe77810d5b3ebf0b56eaa2977b69264b80c36aac481ae5d2"
+    },
+    {
+      "bytes": 16822,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-negros-wire-007.json",
+      "sha256": "3b5e6c1ed25f92c8797175e48f25119315b8c6d6d3c69ac09c5a46171ac2d620"
+    },
+    {
+      "bytes": 21181,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-neust-cable-003.json",
+      "sha256": "88435a656138f4bd92eac65c295d02b9d176bb9d340f614f9bc1a400c8de09e1"
+    },
+    {
+      "bytes": 18003,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-painesville-switchgear-010.json",
+      "sha256": "80db6158b1be1aa7d326bb418fbb372f94cc57effc87b6099183744d099ed4be"
+    },
+    {
+      "bytes": 21509,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-sagada-generator-011.json",
+      "sha256": "3ce25e2f9b1be64933c0bd1d7948c365b1d720b414f2e33f0d62b959ff021328"
+    },
+    {
+      "bytes": 21764,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-usaf-ups-019.json",
+      "sha256": "5b0090590f8684e653be2bfe5bb23c962b671a68464e69054328c5f8771a191f"
+    },
+    {
+      "bytes": 23501,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r1/electrical-vre-generator-020.json",
+      "sha256": "f06d8189a79f729ec2cec2b11866db2424475786b6eaf58d09e6f9578f435fe0"
+    },
+    {
+      "bytes": 20461,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-barrie-transformer-005.json",
+      "sha256": "dd94f9667440ff8cb63cae9cb9189ef3bc137f98eab4be952a0daf00aea85b6f"
+    },
+    {
+      "bytes": 18438,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-bfar-generator-006.json",
+      "sha256": "4386d754eb7e565282e3ec8568cd393f702702277194681a3c98cda52faaa911"
+    },
+    {
+      "bytes": 17247,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-bongabon-generator-001.json",
+      "sha256": "b5db2e16f233ce516c148896edc2fb4d93e2db301da8c05a9f1f33cdb7f4f363"
+    },
+    {
+      "bytes": 19011,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-burauen-generator-008.json",
+      "sha256": "984b6b9273206f3054c72b79cbfb7ac670c4905d8ec954659a02d21479c0dd5e"
+    },
+    {
+      "bytes": 21469,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-battery-charger-015.json",
+      "sha256": "b637b87c826025f61c9c2e80f1e11829246422b87bf2d966d68e3c6b4799422a"
+    },
+    {
+      "bytes": 22078,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-battery-supply-014.json",
+      "sha256": "2dd7f12654e59cad6681fa0914fd3d4a5674d40fc6f668be3b599cdd690928d5"
+    },
+    {
+      "bytes": 18698,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-breaker-004.json",
+      "sha256": "1b328532367cf5f6601ffdfc525fef91f00eda57c3f04e567ec68997227097b8"
+    },
+    {
+      "bytes": 20637,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-power-supply-016.json",
+      "sha256": "be6195454e3323cadf3cb43824ecad68d61a44e13778e0b5fec8d14659f09a4f"
+    },
+    {
+      "bytes": 16597,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-qpl-breaker-017.json",
+      "sha256": "4eb5ca484f67b41be9bca7a7794aa87e433159381c386cc7ebb5f8c9572f7b0b"
+    },
+    {
+      "bytes": 20314,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-relay-012.json",
+      "sha256": "dda9874eab882776ada7410f0dedb89d913648731ffab985b3f09fd7488ab2f3"
+    },
+    {
+      "bytes": 17465,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-dla-transformer-013.json",
+      "sha256": "ae2f0af69aee1c2160c0cadcdff914ad11cc5dc0706f59d7b85e25ecec1318f2"
+    },
+    {
+      "bytes": 25670,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-highpoint-cable-018.json",
+      "sha256": "4a5abff74749c0e2b4f8f17a0eeb96548ee3bded18a3a6fe1790ff11d688a474"
+    },
+    {
+      "bytes": 17690,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-highpoint-transformer-009.json",
+      "sha256": "61d841b8e7ae6edefad8852d224858d3b72faf0944e5c9ddaac9b9f525e3b946"
+    },
+    {
+      "bytes": 15490,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-national-museum-lighting-002.json",
+      "sha256": "03ba1268d77d2f4512a45843a1bf9003d1a1b12a7edd3d8dea716ea959de03dd"
+    },
+    {
+      "bytes": 17056,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-negros-wire-007.json",
+      "sha256": "d9fbeca9ad40c461f95c281312df13d0a238df9198351a7096cb1f65288f3977"
+    },
+    {
+      "bytes": 21205,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-neust-cable-003.json",
+      "sha256": "b2eca8a7399d722468a13530e4d45da9312ec5b1a388a01222e35f705dc52dbf"
+    },
+    {
+      "bytes": 18247,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-painesville-switchgear-010.json",
+      "sha256": "e4f4b7942e9cec50a3c9c6fd72b6e65a212f711e9821ef13776ea5e9beeda01f"
+    },
+    {
+      "bytes": 21515,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-sagada-generator-011.json",
+      "sha256": "22829435bd17e8c3d4af0d6876a923ff65c1e02eb539d06a7cec58be423c93bb"
+    },
+    {
+      "bytes": 21754,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-usaf-ups-019.json",
+      "sha256": "89470e34406433af4105ff98ddccd067704c518471241cc8510b709b6ac0f192"
+    },
+    {
+      "bytes": 23505,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r2/electrical-vre-generator-020.json",
+      "sha256": "0467f527578dc0292a6eb88a414aec5641054ef530a0bf24eff7a5dc3b600bcc"
+    },
+    {
+      "bytes": 20651,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-barrie-transformer-005.json",
+      "sha256": "57c216b501838085cf7101e1e431393c444901a96ab20d33c29696e3865228d8"
+    },
+    {
+      "bytes": 18326,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-bfar-generator-006.json",
+      "sha256": "d5e43281dd92c8315eae3e005fcce63a1d1b4281d059445412a0a35a075f708b"
+    },
+    {
+      "bytes": 17183,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-bongabon-generator-001.json",
+      "sha256": "2401bf476d8d544bbac4cbe6e6469f2c8b51e587860ea3e8b98b7f5d32b97faa"
+    },
+    {
+      "bytes": 19209,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-burauen-generator-008.json",
+      "sha256": "01f6eb58300720b682827093cd79142d597cddeafac4b27e3c9428df33453c5b"
+    },
+    {
+      "bytes": 21198,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-battery-charger-015.json",
+      "sha256": "02aa9b92fb8772aba19f282490f1fb31f8cf98d1b9ec42c059f9a4f2ca468850"
+    },
+    {
+      "bytes": 20556,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-battery-supply-014.json",
+      "sha256": "d2561bcf47674f2443a95b4d2ae2cbbeb7b7738fe365357c92b9e92856da66ce"
+    },
+    {
+      "bytes": 18896,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-breaker-004.json",
+      "sha256": "043839985bbebac7e86cd487dde2f83dacc599b86a8b60a4f797e99208b7e5f0"
+    },
+    {
+      "bytes": 20469,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-power-supply-016.json",
+      "sha256": "604c67fa69ff0454c2a2beda288ffabdd99d0ccc091327383a47bb5141b7b2dd"
+    },
+    {
+      "bytes": 16437,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-qpl-breaker-017.json",
+      "sha256": "6739cdcae3386a97567278ad01fde72d05bf5a7b0beb60131a5ee7b063814f98"
+    },
+    {
+      "bytes": 20502,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-relay-012.json",
+      "sha256": "eb9011be04572bb2b3f5bc2850e5434d563906f98d4e03f644c69045c88f3ad9"
+    },
+    {
+      "bytes": 17477,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-dla-transformer-013.json",
+      "sha256": "dcc20b00c7b90e90ca31784f5849604a42411a3c8c3ff596dd0faccbd2998631"
+    },
+    {
+      "bytes": 25642,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-highpoint-cable-018.json",
+      "sha256": "b93039082d4cf8416fe4e65ffdf0698417dc9d629b566e282d9803dd3b3f09ba"
+    },
+    {
+      "bytes": 17692,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-highpoint-transformer-009.json",
+      "sha256": "4bb9d67da49fd0ff9c4bf3c3ef634754030aaceeccdc87c99531a82080f49b2e"
+    },
+    {
+      "bytes": 15622,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-national-museum-lighting-002.json",
+      "sha256": "cdc4bbc300e08f4bb82fd43dd001b2aca802ce2525de3c65a47ba64eea620991"
+    },
+    {
+      "bytes": 16826,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-negros-wire-007.json",
+      "sha256": "e7850591fd7692c0e46d733981462db78d045a958927201334d04715dd5e8272"
+    },
+    {
+      "bytes": 21461,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-neust-cable-003.json",
+      "sha256": "047081941ee0d4acff56594d54dafe44cf62b9674864bdd3cfc3a0eb5dd1f880"
+    },
+    {
+      "bytes": 18005,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-painesville-switchgear-010.json",
+      "sha256": "218e1584e28233a9a9b37b7156b76bb4f644097363bedbdb4d683115df6c9149"
+    },
+    {
+      "bytes": 21717,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-sagada-generator-011.json",
+      "sha256": "30c428081c67c8e210a8efc44739c2ced3b1b1f50717ea11424aa8d5bb2a6c9e"
+    },
+    {
+      "bytes": 21783,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-usaf-ups-019.json",
+      "sha256": "eb980e5a18d736c112fb0bbb8ed04a8acd79772a56e69b7079a985a70144d3b0"
+    },
+    {
+      "bytes": 23717,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/r3/electrical-vre-generator-020.json",
+      "sha256": "e8b9ef6e7dba77d435d7c809d49dd90dcba340a7baf8f6bcc1a5247ddc3d04b6"
+    },
+    {
+      "bytes": 35433,
+      "path": "evidence/procureharness-round1-confirmation-v0.1/results/ph-r1-c05/development_confirmation/summary.json",
+      "sha256": "0da8e7fc43eff8b0c9be46067a28158ca956078e0012f110146404ea0e51bcd4"
+    }
+  ],
+  "temperature": null,
+  "total_runs": 120,
+  "validation_selected_candidate_ids": [],
+  "validation_slot_candidate_ids": [
+    "ph-r1-c02",
+    "ph-r1-c05"
+  ],
+  "workflow_commit_sha": "a6343fbf233c47f905f03ac123645be4b718f5de",
+  "workflow_run_attempt": "1",
+  "workflow_run_id": "36563013286"
+}
