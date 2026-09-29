@@ -1,0 +1,308 @@
+{
+  "schema_version": "0.1.0",
+  "package": "procureharness-fresh-package-v0.1",
+  "freeze_commit": "c04697635bc4dc83a10af3fb9019c8c8b9cc5abe",
+  "freeze_date": "2026-09-28",
+  "source_policy": "real public buyer notices for initial states; synthetic supplier/quote/event layer only",
+  "model_execution_status_at_freeze": "no model/provider calls executed on episodes 031-050",
+  "validation_split": {
+    "episode_ids": [
+      "electrical-imperial-ev-phase1-031",
+      "electrical-imperial-ev-phase23-032",
+      "electrical-lewiston-ev-chargers-033",
+      "electrical-idaho-falls-ev-chargers-034",
+      "electrical-union-township-ev-chargers-035",
+      "electrical-methuen-stadium-led-036",
+      "electrical-philadelphia-led-phase5-037",
+      "electrical-hampton-fountain-led-038",
+      "electrical-danville-pole-transformer-039",
+      "electrical-danville-substation-transformers-040"
+    ],
+    "exposure_policy": "may be used for bounded architecture-search validation only after this freeze"
+  },
+  "final_split": {
+    "episode_ids": [
+      "electrical-danvers-transformers-041",
+      "electrical-rocky-mount-transformer-upgrade-042",
+      "electrical-rocky-mount-breakers-043",
+      "electrical-siloam-circuit-switchers-044",
+      "electrical-eweb-mcc-vfd-plc-045",
+      "electrical-odot-alkali-generator-046",
+      "electrical-portland-tx-generator-047",
+      "electrical-marshfield-generator-048",
+      "electrical-dubuque-generator-049",
+      "electrical-philadelphia-substation-switchgear-050"
+    ],
+    "exposure_policy": "untouched by model-backed ProcureHarness architecture search until the winning architecture is frozen"
+  },
+  "package_ids": [
+    "us-imperial-ca-ev-phase1-2026-09",
+    "us-imperial-ca-ev-phase23-2026-06",
+    "us-lewiston-me-ev-chargers-2026-008",
+    "us-idaho-falls-ev-build-ifp-26-07",
+    "us-union-township-oh-ev-pid122828",
+    "us-methuen-ma-mhs-led-lighting-2026",
+    "us-philadelphia-led-6711r-b2626934",
+    "us-hampton-va-fountain-led-rfp27-14tm",
+    "us-danville-va-pole-transformer-qb25-26-075",
+    "us-danville-va-substation-transformers-qb25-26-085",
+    "us-danvers-ma-transformers-2026-31",
+    "us-rocky-mount-nc-substation10-transformer-320-040226fd",
+    "us-rocky-mount-nc-69kv-breakers-320-010926fd",
+    "us-siloam-springs-ar-69kv-circuit-switchers-2026",
+    "us-eweb-mcc-vfd-plc-rfp26-057-gs",
+    "us-odot-alkali-lake-generator-00016455",
+    "us-portland-tx-generator-rfb6631",
+    "us-marshfield-mo-generator-10-15-2025",
+    "us-dubuque-county-generator-08042025-it016",
+    "us-philadelphia-substation-switchgear-b2625884"
+  ],
+  "frozen_files": [
+    {
+      "path": "data/episodes/electrical/electrical-danvers-transformers-041.json",
+      "git_blob_sha1": "2a9b68ca3dce61e74e16d996ded47b7ce5a557e3"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-danville-pole-transformer-039.json",
+      "git_blob_sha1": "d366c7fce7f97fca296c4ea5df90fbf3d05ac36e"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-danville-substation-transformers-040.json",
+      "git_blob_sha1": "6c0c0fbcd2a584a52cc6fad04d212beb359b8ece"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-dubuque-generator-049.json",
+      "git_blob_sha1": "04c447fa34ea0935c375cfdfcebd507764d73cbf"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-eweb-mcc-vfd-plc-045.json",
+      "git_blob_sha1": "3668cab20be0f95580df20089ebdd0bf9082bc3d"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-hampton-fountain-led-038.json",
+      "git_blob_sha1": "51c61cd8b3d25f20ff8b6fd02b915d46bde825b9"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-idaho-falls-ev-chargers-034.json",
+      "git_blob_sha1": "4354de5efee160126c7f20c42258e2fd5e17381a"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-imperial-ev-phase1-031.json",
+      "git_blob_sha1": "05b11635eb7099a79e22b98bbed6dd0fcd053837"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-imperial-ev-phase23-032.json",
+      "git_blob_sha1": "819edfad463e17bf4a74443996363d0647c6dc20"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-lewiston-ev-chargers-033.json",
+      "git_blob_sha1": "d0f3dde78813deefff999fbf6b93f7121e49e768"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-marshfield-generator-048.json",
+      "git_blob_sha1": "7d265fca720e69466d00577df6b0bd0241d28e4e"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-methuen-stadium-led-036.json",
+      "git_blob_sha1": "0b5ccbe97742797f7e8d9ff030e5985208b9c453"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-odot-alkali-generator-046.json",
+      "git_blob_sha1": "8fd40942461f9585325bb0ccc482716c9cf1fb2a"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-philadelphia-led-phase5-037.json",
+      "git_blob_sha1": "696fb4d1762bb703faaf621e974ba11daba232f1"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-philadelphia-substation-switchgear-050.json",
+      "git_blob_sha1": "210e8a38325420e5eaf608099d4327eeaaba2147"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-portland-tx-generator-047.json",
+      "git_blob_sha1": "7d1b8698bfb7bcd075ccaa29fde9e2d1647e1ecc"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-rocky-mount-breakers-043.json",
+      "git_blob_sha1": "4e11d1c7dfb5f2495cea11a6fc19897439ce536a"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-rocky-mount-transformer-upgrade-042.json",
+      "git_blob_sha1": "5392e8dde411110f09230b57213c50f73ebfbb60"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-siloam-circuit-switchers-044.json",
+      "git_blob_sha1": "173dc8890c737db5e2d1b1be19f37e433c99b18d"
+    },
+    {
+      "path": "data/episodes/electrical/electrical-union-township-ev-chargers-035.json",
+      "git_blob_sha1": "a65e5f597e413a8e00e96e69e010a6eeff9f4bd7"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-danvers-transformers-041.json",
+      "git_blob_sha1": "e1eaf87bcaf5a157ae837bde539060b4ceda9fd6"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-danville-pole-transformer-039.json",
+      "git_blob_sha1": "cbd1cefd23b94fe0876bcbfaebac08de1995d01e"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-danville-substation-transformers-040.json",
+      "git_blob_sha1": "0bdf895cded5b6b9d78736037a470feb6f64f65e"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-dubuque-generator-049.json",
+      "git_blob_sha1": "2c897328aa1d62095ec8225f804bcf2d3cbad1c1"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-eweb-mcc-vfd-plc-045.json",
+      "git_blob_sha1": "ba1de58c768381a8d960fa4be9d5f7fd8887c977"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-hampton-fountain-led-038.json",
+      "git_blob_sha1": "397a6ed35552dc3ebd1932f23efe6f980088faee"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-idaho-falls-ev-chargers-034.json",
+      "git_blob_sha1": "c4e6d75216e61a67e5f7540d330a1697335409e9"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-imperial-ev-phase1-031.json",
+      "git_blob_sha1": "d7d74b917a07d6dc23959d8c9cf1bb14f70cfbcf"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-imperial-ev-phase23-032.json",
+      "git_blob_sha1": "a2bf52aaa98e9b54d0bcad05c1b13379bc1871da"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-lewiston-ev-chargers-033.json",
+      "git_blob_sha1": "68a161776965ec65a6a781fb6d7e258bd31ec92a"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-marshfield-generator-048.json",
+      "git_blob_sha1": "ecd7b1248c21b99e265b8221c8d199ab5ea745db"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-methuen-stadium-led-036.json",
+      "git_blob_sha1": "eead179160d662e35a73f6471ecd87527f2366a0"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-odot-alkali-generator-046.json",
+      "git_blob_sha1": "085ec371e600e15b956fe9824b73ae08fe2c644b"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-philadelphia-led-phase5-037.json",
+      "git_blob_sha1": "2e5e32e062cc64aef80f1ca29c5e59d10792407c"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-philadelphia-substation-switchgear-050.json",
+      "git_blob_sha1": "869d7ce1210a3d7c77fbd76b1d17081a567fd877"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-portland-tx-generator-047.json",
+      "git_blob_sha1": "7eb3a828eb28a466450840ed2ef862eb688c77f4"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-rocky-mount-breakers-043.json",
+      "git_blob_sha1": "7bea6a839db2b4835a453076d7bf52390a401350"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-rocky-mount-transformer-upgrade-042.json",
+      "git_blob_sha1": "1f44b5dabb40fb7de26429df9d4338d6d4d7afaf"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-siloam-circuit-switchers-044.json",
+      "git_blob_sha1": "0d7c24c6028edf3852492a24a1b02c288f5dff99"
+    },
+    {
+      "path": "data/evaluation/electrical/electrical-union-township-ev-chargers-035.json",
+      "git_blob_sha1": "4d483a6a0495bacf4e51cd3ab3a7bb73651e3f34"
+    },
+    {
+      "path": "data/initial_states/electrical/us-danvers-ma-transformers-2026-31.json",
+      "git_blob_sha1": "09b3b4c9b83e71e72163e3439b97d586479d36bc"
+    },
+    {
+      "path": "data/initial_states/electrical/us-danville-va-pole-transformer-qb25-26-075.json",
+      "git_blob_sha1": "67fab4e4a93853776eef9da2f54be60555a59ee0"
+    },
+    {
+      "path": "data/initial_states/electrical/us-danville-va-substation-transformers-qb25-26-085.json",
+      "git_blob_sha1": "32a4fd685a2056391c1c3d043ff29d343ebee6a4"
+    },
+    {
+      "path": "data/initial_states/electrical/us-dubuque-county-generator-08042025-it016.json",
+      "git_blob_sha1": "a72872b81d5d5f7d3221c23bd50a30968c693679"
+    },
+    {
+      "path": "data/initial_states/electrical/us-eweb-mcc-vfd-plc-rfp26-057-gs.json",
+      "git_blob_sha1": "3e8b4877c5ce18e33e74a62844300727aa3b2c43"
+    },
+    {
+      "path": "data/initial_states/electrical/us-hampton-va-fountain-led-rfp27-14tm.json",
+      "git_blob_sha1": "b1255bac5123300779b9c8f1a14a8bd1c3bd61fb"
+    },
+    {
+      "path": "data/initial_states/electrical/us-idaho-falls-ev-build-ifp-26-07.json",
+      "git_blob_sha1": "11b0b2c7d9a9886f342ac1c28dd74a8658e591ef"
+    },
+    {
+      "path": "data/initial_states/electrical/us-imperial-ca-ev-phase1-2026-09.json",
+      "git_blob_sha1": "1d8f92115c172a5176c7fc1bc1476d12457533e9"
+    },
+    {
+      "path": "data/initial_states/electrical/us-imperial-ca-ev-phase23-2026-06.json",
+      "git_blob_sha1": "8f2d89f2e035b53211080e0ba1ff39cd2295b28c"
+    },
+    {
+      "path": "data/initial_states/electrical/us-lewiston-me-ev-chargers-2026-008.json",
+      "git_blob_sha1": "e837cde7c605c4e3aed90e67875680d022f27706"
+    },
+    {
+      "path": "data/initial_states/electrical/us-marshfield-mo-generator-10-15-2025.json",
+      "git_blob_sha1": "7c5b426e564e2648dfd30cbb4c82b46e4588458f"
+    },
+    {
+      "path": "data/initial_states/electrical/us-methuen-ma-mhs-led-lighting-2026.json",
+      "git_blob_sha1": "6745b80175c09289a845e65edf16f637373847c1"
+    },
+    {
+      "path": "data/initial_states/electrical/us-odot-alkali-lake-generator-00016455.json",
+      "git_blob_sha1": "6e019d9a5f8c4ba0f67c7baf1198a1ede9ed3bb6"
+    },
+    {
+      "path": "data/initial_states/electrical/us-philadelphia-led-6711r-b2626934.json",
+      "git_blob_sha1": "9ddf8cd3e848a2d83dba9fdb68ab15b8cd000e5a"
+    },
+    {
+      "path": "data/initial_states/electrical/us-philadelphia-substation-switchgear-b2625884.json",
+      "git_blob_sha1": "6d8a9b831b3bfd4f7d55c35109d42e74a93f2850"
+    },
+    {
+      "path": "data/initial_states/electrical/us-portland-tx-generator-rfb6631.json",
+      "git_blob_sha1": "854484ef900f4f991a7753e5e1e8a0e39c6529cc"
+    },
+    {
+      "path": "data/initial_states/electrical/us-rocky-mount-nc-69kv-breakers-320-010926fd.json",
+      "git_blob_sha1": "d65388e33ab39f3adc30c2d3eb7338afd4ccbba9"
+    },
+    {
+      "path": "data/initial_states/electrical/us-rocky-mount-nc-substation10-transformer-320-040226fd.json",
+      "git_blob_sha1": "90c8bd05aaa4972ce06b278efec085470de0f30f"
+    },
+    {
+      "path": "data/initial_states/electrical/us-siloam-springs-ar-69kv-circuit-switchers-2026.json",
+      "git_blob_sha1": "9476c2819e2013371edfdef7e5ac7fab2971dd4d"
+    },
+    {
+      "path": "data/initial_states/electrical/us-union-township-oh-ev-pid122828.json",
+      "git_blob_sha1": "23bf10efe2444f8186992869e9c183e88dcd056f"
+    }
+  ],
+  "frozen_file_count": 60,
+  "notes": [
+    "Episodes 021-030 remain diagnostic-only for post-exposure methods.",
+    "The freeze binds initial states, episode definitions, and evaluation configs; reference-control code is validated separately.",
+    "Any change to a frozen file requires an explicit new package version rather than silently updating this manifest."
+  ]
+}
