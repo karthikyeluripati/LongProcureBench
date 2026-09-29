@@ -39,6 +39,7 @@ from longprocurebench.economics import (
 from longprocurebench.procureharness import get_candidate
 from run_procureharness_search_v01 import (
     DEVELOPMENT_EPISODES,
+    MODEL,
     PROTOCOL_ID,
     round_candidate_ids,
 )
@@ -728,6 +729,7 @@ def _read_bound_report_list(
     path_value: str,
     expected_sha256: str | None,
     label: str,
+    expected_policy_id: str | None = None,
 ) -> tuple[list[dict[str, Any]], str]:
     path = Path(path_value)
     if not path.is_absolute():
@@ -751,6 +753,21 @@ def _read_bound_report_list(
             f"{label} economics report file must contain a JSON list"
         )
     _validate_economics_report_grid(payload, label=label)
+    if expected_policy_id is not None:
+        mismatched = [
+            row.get("policy_id")
+            for row in payload
+            if row.get("policy_id") != expected_policy_id
+        ]
+        if mismatched:
+            observed = sorted({
+                str(value)
+                for value in mismatched
+            })
+            raise ValueError(
+                f"{label} economics reports policy_id mismatch: "
+                f"expected {expected_policy_id!r}, observed {observed!r}"
+            )
     return payload, observed_sha
 
 
@@ -841,10 +858,14 @@ def evaluate_efficiency_promotion(
     coverage_binding = economics_binding["reports"]["coverage_repair"]
     react_binding = economics_binding["reports"]["react"]
 
+    expected_candidate_policy_id = (
+        f"procureharness--{candidate_id}--{MODEL}"
+    )
     candidate_reports, candidate_sha = _read_bound_report_list(
         path_value=candidate_reports_path,
         expected_sha256=expected_candidate_sha256,
         label="candidate",
+        expected_policy_id=expected_candidate_policy_id,
     )
     coverage_reports, coverage_sha = _read_bound_report_list(
         path_value=coverage_binding["path"],
@@ -997,6 +1018,55 @@ def validate_frozen_efficiency_addendum(
             )
 
 
+def _write_recoverable_artifact_pair(
+    *,
+    output_dir: Path,
+    first_path: Path,
+    first_bytes: bytes,
+    second_path: Path,
+    second_bytes: bytes,
+) -> None:
+    """Create/reconcile an immutable artifact pair after an interrupted write."""
+    expected = (
+        (first_path, first_bytes),
+        (second_path, second_bytes),
+    )
+
+    for path, encoded in expected:
+        if not path.exists():
+            continue
+        observed = path.read_bytes()
+        if observed != encoded:
+            raise ValueError(
+                "existing efficiency validation artifact does not match "
+                f"recomputed frozen content: {path}"
+            )
+
+    with tempfile.TemporaryDirectory(
+        dir=output_dir,
+        prefix=".validation-efficiency-recovery-",
+    ) as staging_dir:
+        staging = Path(staging_dir)
+        for path, encoded in expected:
+            if path.exists():
+                # Exact surviving half of a prior interrupted transaction.
+                continue
+            stage = staging / path.name
+            stage.write_bytes(encoded)
+            with stage.open("rb") as handle:
+                os.fsync(handle.fileno())
+            # os.replace is atomic for this final-name transition. If the
+            # process dies after one file is finalized, the next retry
+            # verifies it byte-for-byte and creates only the missing partner.
+            os.replace(stage, path)
+
+    for path, encoded in expected:
+        if not path.is_file() or path.read_bytes() != encoded:
+            raise ValueError(
+                f"efficiency validation artifact pair incomplete: {path}"
+            )
+
+
 def freeze_efficiency_validation_authorization(
     *,
     base_selection_path: Path,
@@ -1045,11 +1115,6 @@ def freeze_efficiency_validation_authorization(
         auth_path = output_dir / (
             f"{candidate_id}--validation-efficiency-auth.json"
         )
-        if addendum_path.exists() or auth_path.exists():
-            raise ValueError(
-                "refusing to overwrite frozen efficiency validation artifact"
-            )
-
         addendum_encoded = (
             json.dumps(
                 addendum,
@@ -1088,31 +1153,13 @@ def freeze_efficiency_validation_authorization(
             + "\n"
         ).encode("utf-8")
 
-        committed: list[Path] = []
-        try:
-            with tempfile.TemporaryDirectory(
-                dir=output_dir,
-                prefix=".validation-efficiency-",
-            ) as staging_dir:
-                staging = Path(staging_dir)
-                staged_addendum = staging / addendum_path.name
-                staged_auth = staging / auth_path.name
-                staged_addendum.write_bytes(addendum_encoded)
-                staged_auth.write_bytes(auth_encoded)
-
-                for stage, final in (
-                    (staged_addendum, addendum_path),
-                    (staged_auth, auth_path),
-                ):
-                    os.replace(stage, final)
-                    committed.append(final)
-        except Exception:
-            for committed_path in reversed(committed):
-                try:
-                    committed_path.unlink()
-                except FileNotFoundError:
-                    pass
-            raise
+        _write_recoverable_artifact_pair(
+            output_dir=output_dir,
+            first_path=addendum_path,
+            first_bytes=addendum_encoded,
+            second_path=auth_path,
+            second_bytes=auth_encoded,
+        )
 
         return addendum_path, auth_path
 
