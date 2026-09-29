@@ -105,6 +105,24 @@ class ProcureHarnessArchitectureTests(unittest.TestCase):
             },
         )
 
+    def test_registry_records_parent_candidates_and_module_deltas(self):
+        payload = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+        seen = set()
+        for row in payload["candidates"]:
+            self.assertIn("parent_candidates", row)
+            self.assertIn("module_deltas", row)
+            self.assertIsInstance(row["parent_candidates"], list)
+            self.assertIsInstance(row["module_deltas"], list)
+            for parent_id in row["parent_candidates"]:
+                self.assertIn(parent_id, seen)
+            if row["candidate_id"] == "ph-r1-c01":
+                self.assertEqual(row["parent_candidates"], [])
+                self.assertEqual(len(row["module_deltas"]), 5)
+            else:
+                self.assertGreaterEqual(len(row["parent_candidates"]), 1)
+                self.assertGreaterEqual(len(row["module_deltas"]), 1)
+            seen.add(row["candidate_id"])
+
     def test_unknown_candidate_is_rejected(self):
         with self.assertRaisesRegex(
             ProcureHarnessProtocolError,
