@@ -53,7 +53,7 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "f4d2759880d2bfc078874db456ed8c96dfb712c6"
+    "c50c3ea6ee9c8cc8bc46a113fc4307921ba5d1c4"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
     "docs/procureharness-architecture-harness-v0.1.md": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1",
@@ -76,7 +76,7 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
     "scripts/run_procureharness_search_v01.py": "6a436adbb5cc0528edcd37f1e0e16b0a7add6ef5",
     "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
-    "scripts/select_procureharness_validation_v01.py": "a38332aeb3e628c353a582625f3a78ca3c0de709",
+    "scripts/select_procureharness_validation_v01.py": "e587711d821d397a981c01e41341f7ae6be15ecc",
 }
 
 
@@ -128,12 +128,15 @@ def validate_implementation_freeze(manifest=None) -> None:
         raise ValueError("implementation manifest protocol identity changed")
     if manifest.get("freeze_commit") != EXPECTED_IMPLEMENTATION_FREEZE_COMMIT:
         raise ValueError("implementation freeze commit changed")
-    if manifest.get("freeze_status") != "implementation_frozen_no_model_runs":
+    if manifest.get("freeze_status") != (
+        "implementation_refrozen_after_offline_economics_binding_fix"
+    ):
         raise ValueError("implementation freeze status changed")
     if manifest.get("model_execution_status_at_freeze") != (
-        "no ProcureHarness model/provider search runs executed"
+        "round-1 screening and development confirmation completed; "
+        "no ProcureHarness 031-040 validation or 041-050 final-method execution"
     ):
-        raise ValueError("implementation pre-run status changed")
+        raise ValueError("implementation refreeze execution status changed")
 
     rows = manifest.get("frozen_files")
     if not isinstance(rows, list):

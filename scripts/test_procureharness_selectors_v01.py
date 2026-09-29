@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
+from hashlib import sha256
 
 try:
     import fcntl
@@ -21,6 +23,7 @@ from select_procureharness_screening_v01 import (
     freeze_selection,
     validate_frozen_screening_selection,
 )
+import select_procureharness_validation_v01 as validation_selector
 from select_procureharness_validation_v01 import (
     _read_bound_report_list,
     _write_recoverable_artifact_pair,
@@ -121,6 +124,15 @@ def _economics_reports(policy_id: str) -> list[dict]:
             })
     return rows
 
+
+REAL_ECONOMICS_BINDING_FIXTURE_COMMIT = (
+    "afc828f596277203bc2c8037e113de94685f71e7"
+)
+REAL_ECONOMICS_BINDING_FIXTURE_ROOT = (
+    Path("scripts")
+    / "fixtures"
+    / "procureharness_economics_binding_v01"
+)
 
 class ProcureHarnessSelectorTests(unittest.TestCase):
     def _write_screening_summaries(self, root: Path) -> None:
@@ -412,6 +424,205 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
             self.assertFalse(
                 (gates / "validation-selection-round-1.json").exists()
             )
+
+    def test_development_economics_binding_bootstraps_from_descriptor(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as tmp:
+            root = Path.cwd()
+            package = Path(tmp)
+            coverage = package / "coverage-repair-reports.json"
+            react = package / "react-reports.json"
+            descriptor_path = package / "binding.json"
+            manifest_path = package / "manifest.json"
+
+            coverage.write_text("[]\n", encoding="utf-8")
+            react.write_text("[]\n", encoding="utf-8")
+
+            reports = {}
+            for key, report_path in (
+                ("coverage_repair", coverage),
+                ("react", react),
+            ):
+                raw = report_path.read_bytes()
+                reports[key] = {
+                    "path": str(report_path.relative_to(root)),
+                    "git_blob_sha1": validation_selector._git_blob_sha1(raw),
+                    "sha256": sha256(raw).hexdigest(),
+                }
+
+            descriptor = {
+                "schema_version": "0.1.0",
+                "protocol_id": PROTOCOL_ID,
+                "package": (
+                    validation_selector
+                    .DEVELOPMENT_ECONOMICS_BINDING_PACKAGE
+                ),
+                "reports": reports,
+            }
+            descriptor_raw = (
+                json.dumps(descriptor, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            descriptor_path.write_bytes(descriptor_raw)
+
+            descriptor_rel = str(descriptor_path.relative_to(root))
+            manifest = {
+                "schema_version": "0.1.0",
+                "protocol_id": PROTOCOL_ID,
+                "package": (
+                    validation_selector
+                    .DEVELOPMENT_ECONOMICS_BINDING_PACKAGE
+                ),
+                "freeze_commit": "a" * 40,
+                "binding_descriptor": {
+                    "path": descriptor_rel,
+                    "git_blob_sha1": (
+                        validation_selector._git_blob_sha1(descriptor_raw)
+                    ),
+                    "sha256": sha256(descriptor_raw).hexdigest(),
+                },
+                "reports": reports,
+            }
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+
+            frozen_blobs = {
+                descriptor_rel: manifest["binding_descriptor"]["git_blob_sha1"],
+                reports["coverage_repair"]["path"]: (
+                    reports["coverage_repair"]["git_blob_sha1"]
+                ),
+                reports["react"]["path"]: reports["react"]["git_blob_sha1"],
+            }
+            with (
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_BINDING_PATH",
+                    manifest_path,
+                ),
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH",
+                    descriptor_path,
+                ),
+                mock.patch.object(
+                    validation_selector,
+                    "_blob_at_commit",
+                    side_effect=lambda commit, path: frozen_blobs[path],
+                ) as frozen_blob,
+            ):
+                loaded = (
+                    validation_selector._load_development_economics_binding()
+                )
+
+            self.assertEqual(loaded["freeze_commit"], "a" * 40)
+            self.assertEqual(loaded["reports"], reports)
+            frozen_blob.assert_any_call("a" * 40, descriptor_rel)
+            self.assertNotIn(
+                str(manifest_path.relative_to(root)),
+                [call.args[1] for call in frozen_blob.call_args_list],
+            )
+
+    def _write_real_economics_fixture_manifest(
+        self,
+        *,
+        manifest_path: Path,
+        descriptor_path: Path,
+    ) -> dict:
+        descriptor_raw = descriptor_path.read_bytes()
+        descriptor = json.loads(descriptor_raw.decode("utf-8"))
+        manifest = {
+            "schema_version": "0.1.0",
+            "protocol_id": PROTOCOL_ID,
+            "package": (
+                validation_selector
+                .DEVELOPMENT_ECONOMICS_BINDING_PACKAGE
+            ),
+            "freeze_commit": REAL_ECONOMICS_BINDING_FIXTURE_COMMIT,
+            "binding_descriptor": {
+                "path": str(
+                    descriptor_path.relative_to(validation_selector.ROOT)
+                ),
+                "git_blob_sha1": validation_selector._git_blob_sha1(
+                    descriptor_raw
+                ),
+                "sha256": sha256(descriptor_raw).hexdigest(),
+            },
+            "reports": descriptor["reports"],
+        }
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        return manifest
+
+    def test_development_economics_binding_uses_real_git_snapshot(self):
+        descriptor_path = (
+            validation_selector.ROOT
+            / REAL_ECONOMICS_BINDING_FIXTURE_ROOT
+            / "binding.json"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "manifest.json"
+            manifest = self._write_real_economics_fixture_manifest(
+                manifest_path=manifest_path,
+                descriptor_path=descriptor_path,
+            )
+
+            with (
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_BINDING_PATH",
+                    manifest_path,
+                ),
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH",
+                    descriptor_path,
+                ),
+            ):
+                loaded = (
+                    validation_selector._load_development_economics_binding()
+                )
+
+        self.assertEqual(
+            loaded["freeze_commit"],
+            REAL_ECONOMICS_BINDING_FIXTURE_COMMIT,
+        )
+        self.assertEqual(loaded["reports"], manifest["reports"])
+
+    def test_development_economics_binding_rejects_real_snapshot_blob_mismatch(
+        self,
+    ):
+        descriptor_path = (
+            validation_selector.ROOT
+            / REAL_ECONOMICS_BINDING_FIXTURE_ROOT
+            / "binding-mismatched-report.json"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "manifest.json"
+            self._write_real_economics_fixture_manifest(
+                manifest_path=manifest_path,
+                descriptor_path=descriptor_path,
+            )
+
+            with (
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_BINDING_PATH",
+                    manifest_path,
+                ),
+                mock.patch.object(
+                    validation_selector,
+                    "DEVELOPMENT_ECONOMICS_DESCRIPTOR_PATH",
+                    descriptor_path,
+                ),
+                self.assertRaisesRegex(
+                    ValueError,
+                    "coverage_repair economics binding disagrees "
+                    "with freeze commit",
+                ),
+            ):
+                validation_selector._load_development_economics_binding()
 
     def test_candidate_economics_reports_bind_exact_policy_id(self):
         with tempfile.TemporaryDirectory() as tmp:
