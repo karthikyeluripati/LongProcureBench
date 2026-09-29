@@ -230,6 +230,34 @@ class EconomicsTests(unittest.TestCase):
         self.assertTrue(math.isfinite(pct))
         self.assertTrue(math.isclose(pct, 900.0))
 
+    def test_mean_regret_remains_finite_when_raw_sum_overflows(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=100, oracle=100),
+            self.economics_report("e2", 1, selected=100, oracle=100),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=100, oracle=100),
+            self.economics_report("e2", 1, selected=100, oracle=100),
+        ]
+        candidate = [
+            self.economics_report(
+                "e1", 1, selected=1e308, oracle=100
+            ),
+            self.economics_report(
+                "e2", 1, selected=1e308, oracle=100
+            ),
+        ]
+        comparison = compare_candidate_on_reference_cohort(
+            candidate,
+            coverage_repair_reports=coverage,
+            react_reports=react,
+        )
+        value = comparison[
+            "mean_feasible_price_regret_pct_on_reference_cohort"
+        ]
+        self.assertTrue(math.isfinite(value))
+        self.assertGreater(value, 1e307)
+
     def test_unrepresentable_regret_percentage_is_rejected_early(self):
         with self.assertRaisesRegex(
             EconomicsError,
@@ -378,6 +406,59 @@ class EconomicsTests(unittest.TestCase):
         self.assertTrue(
             math.isclose(savings["paired_savings_pct"], -900.0)
         )
+
+    def test_mean_paired_savings_pct_survives_raw_sum_overflow(self):
+        coverage = [
+            self.economics_report("e1", 1, selected=100, oracle=100),
+            self.economics_report("e2", 1, selected=100, oracle=100),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=100, oracle=100),
+            self.economics_report("e2", 1, selected=100, oracle=100),
+        ]
+        candidate = [
+            self.economics_report("e1", 1, selected=1e308, oracle=100),
+            self.economics_report("e2", 1, selected=1e308, oracle=100),
+        ]
+        comparison = compare_candidate_on_reference_cohort(
+            candidate,
+            coverage_repair_reports=coverage,
+            react_reports=react,
+        )
+        value = comparison["paired_savings"]["coverage_repair"][
+            "mean_paired_savings_pct"
+        ]
+        self.assertTrue(math.isfinite(value))
+        self.assertLess(value, -1e307)
+
+    def test_signed_native_savings_can_cancel_after_large_terms(self):
+        oracle = 1e305
+        coverage = [
+            self.economics_report("e1", 1, selected=1e308, oracle=oracle),
+            self.economics_report("e2", 1, selected=1e308, oracle=oracle),
+            self.economics_report("e3", 1, selected=1e306, oracle=oracle),
+        ]
+        react = [
+            self.economics_report("e1", 1, selected=1e308, oracle=oracle),
+            self.economics_report("e2", 1, selected=1e308, oracle=oracle),
+            self.economics_report("e3", 1, selected=1e306, oracle=oracle),
+        ]
+        candidate = [
+            self.economics_report("e1", 1, selected=1e306, oracle=oracle),
+            self.economics_report("e2", 1, selected=1e306, oracle=oracle),
+            self.economics_report("e3", 1, selected=1e308, oracle=oracle),
+        ]
+        comparison = compare_candidate_on_reference_cohort(
+            candidate,
+            coverage_repair_reports=coverage,
+            react_reports=react,
+        )
+        total = comparison["paired_savings"]["coverage_repair"][
+            "native_savings_by_currency"
+        ]["USD"]["sum_paired_savings_native"]
+        self.assertTrue(math.isfinite(total))
+        self.assertGreater(total, 0.0)
+        self.assertTrue(math.isclose(total, 9.9e307, rel_tol=1e-12))
 
     def test_candidate_comparison_is_paired_on_same_run_keys(self):
         coverage = [
