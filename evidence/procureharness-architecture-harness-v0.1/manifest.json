@@ -2,17 +2,17 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "fa19e45693cf3e77fe0cc281b8ce9a8aa8857352",
+  "freeze_commit": "16357d8a8393043e2457d60c03fa0a2f3bcd8dd4",
   "freeze_status": "implementation_frozen_no_model_runs",
   "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
   "frozen_files": [
     {
       "path": "docs/procureharness-architecture-harness-v0.1.md",
-      "git_blob_sha1": "5560542d0b5113201ff0daa56f0cd17f876a5f72"
+      "git_blob_sha1": "5791a6d11ca6fe39bc6472f0ec03cf75d9fd9697"
     },
     {
       "path": "docs/procureharness-candidate-registry-v0.1.json",
-      "git_blob_sha1": "53d09b8f2c1f1a4583c73623d4b5c730b7fbff9f"
+      "git_blob_sha1": "3c0485825224daff9b6cb064241488233fc89f0d"
     },
     {
       "path": "longprocurebench/procureharness.py",
