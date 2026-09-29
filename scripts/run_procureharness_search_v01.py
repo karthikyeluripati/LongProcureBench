@@ -142,6 +142,46 @@ def _assert_output_tree_fresh(
     return phase_root
 
 
+def _load_bound_json_artifact(
+    *,
+    authorization: dict[str, Any],
+    path_field: str,
+    sha_field: str,
+) -> dict[str, Any]:
+    path_value = authorization.get(path_field)
+    expected_sha = authorization.get(sha_field)
+    if not isinstance(path_value, str) or not path_value:
+        raise ValueError(f"authorization requires {path_field}")
+    if (
+        not isinstance(expected_sha, str)
+        or len(expected_sha) != 64
+        or any(ch not in "0123456789abcdef" for ch in expected_sha)
+    ):
+        raise ValueError(f"authorization requires lowercase SHA-256 {sha_field}")
+
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = ROOT / path
+    if not path.is_file():
+        raise ValueError(f"bound authorization artifact is missing: {path}")
+
+    raw = path.read_bytes()
+    observed = sha256(raw).hexdigest()
+    if observed != expected_sha:
+        raise ValueError(
+            f"bound authorization artifact hash mismatch: {path}"
+        )
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            f"bound authorization artifact is not valid JSON: {path}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise ValueError("bound authorization artifact must be a JSON object")
+    return payload
+
+
 def _authorization_sha256(
     authorization: dict[str, Any] | None,
 ) -> str | None:
@@ -260,7 +300,7 @@ def validate_phase_authorization(
             raise ValueError(
                 "development confirmation requires screening_complete=true"
             )
-        _validate_selected_candidates(
+        selected = _validate_selected_candidates(
             authorization=authorization,
             field="screening_selected_candidate_ids",
             candidate_id=candidate_id,
@@ -272,6 +312,22 @@ def validate_phase_authorization(
         ):
             raise ValueError(
                 "development confirmation selection_rule mismatch"
+            )
+
+        selection = _load_bound_json_artifact(
+            authorization=authorization,
+            path_field="screening_selection_path",
+            sha_field="screening_selection_sha256",
+        )
+        if selection.get("protocol_id") != PROTOCOL_ID:
+            raise ValueError("screening selection protocol mismatch")
+        if selection.get("rule_id") != "frozen_screening_selection_v0.1":
+            raise ValueError("screening selection rule mismatch")
+        if selection.get("round") != config.round:
+            raise ValueError("screening selection round mismatch")
+        if selection.get("selected_candidate_ids") != selected:
+            raise ValueError(
+                "screening selection artifact/authorization candidate mismatch"
             )
         return
 
