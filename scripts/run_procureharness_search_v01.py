@@ -11,6 +11,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -178,6 +179,23 @@ def validate_phase_authorization(
         )
 
 
+def validate_frozen_implementation_for_execution() -> None:
+    """Fail closed on any controller/config/runner drift before a model call."""
+    try:
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "validate_procureharness_harness_v01.py"),
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            "ProcureHarness implementation freeze validation failed"
+        ) from exc
+
+
 def _assert_phase_exposure(phase: str) -> None:
     suffixes = {
         int(episode_id.rsplit("-", 1)[1])
@@ -200,6 +218,7 @@ def execute_candidate(
     output_dir: Path,
     authorization: dict[str, Any] | None,
 ) -> dict[str, Any]:
+    validate_frozen_implementation_for_execution()
     validate_candidate_registry()
     validate_phase_authorization(
         candidate_id=candidate_id,
