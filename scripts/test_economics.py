@@ -232,19 +232,27 @@ class EconomicsTests(unittest.TestCase):
 
     def test_mean_regret_remains_finite_when_raw_sum_overflows(self):
         coverage = [
-            self.economics_report("e1", 1, selected=100, oracle=100),
-            self.economics_report("e2", 1, selected=100, oracle=100),
+            self.economics_report(
+                "e1", 1, selected=100, oracle=100, currency="USD"
+            ),
+            self.economics_report(
+                "e2", 1, selected=100, oracle=100, currency="PHP"
+            ),
         ]
         react = [
-            self.economics_report("e1", 1, selected=100, oracle=100),
-            self.economics_report("e2", 1, selected=100, oracle=100),
+            self.economics_report(
+                "e1", 1, selected=100, oracle=100, currency="USD"
+            ),
+            self.economics_report(
+                "e2", 1, selected=100, oracle=100, currency="PHP"
+            ),
         ]
         candidate = [
             self.economics_report(
-                "e1", 1, selected=1e308, oracle=100
+                "e1", 1, selected=1e308, oracle=100, currency="USD"
             ),
             self.economics_report(
-                "e2", 1, selected=1e308, oracle=100
+                "e2", 1, selected=1e308, oracle=100, currency="PHP"
             ),
         ]
         comparison = compare_candidate_on_reference_cohort(
@@ -409,16 +417,28 @@ class EconomicsTests(unittest.TestCase):
 
     def test_mean_paired_savings_pct_survives_raw_sum_overflow(self):
         coverage = [
-            self.economics_report("e1", 1, selected=100, oracle=100),
-            self.economics_report("e2", 1, selected=100, oracle=100),
+            self.economics_report(
+                "e1", 1, selected=100, oracle=100, currency="USD"
+            ),
+            self.economics_report(
+                "e2", 1, selected=100, oracle=100, currency="PHP"
+            ),
         ]
         react = [
-            self.economics_report("e1", 1, selected=100, oracle=100),
-            self.economics_report("e2", 1, selected=100, oracle=100),
+            self.economics_report(
+                "e1", 1, selected=100, oracle=100, currency="USD"
+            ),
+            self.economics_report(
+                "e2", 1, selected=100, oracle=100, currency="PHP"
+            ),
         ]
         candidate = [
-            self.economics_report("e1", 1, selected=1e308, oracle=100),
-            self.economics_report("e2", 1, selected=1e308, oracle=100),
+            self.economics_report(
+                "e1", 1, selected=1e308, oracle=100, currency="USD"
+            ),
+            self.economics_report(
+                "e2", 1, selected=1e308, oracle=100, currency="PHP"
+            ),
         ]
         comparison = compare_candidate_on_reference_cohort(
             candidate,
@@ -431,34 +451,30 @@ class EconomicsTests(unittest.TestCase):
         self.assertTrue(math.isfinite(value))
         self.assertLess(value, -1e307)
 
-    def test_signed_native_savings_can_cancel_after_large_terms(self):
-        oracle = 1e305
+    def test_signed_native_savings_preserves_small_residual(self):
         coverage = [
-            self.economics_report("e1", 1, selected=1e308, oracle=oracle),
-            self.economics_report("e2", 1, selected=1e308, oracle=oracle),
-            self.economics_report("e3", 1, selected=1e306, oracle=oracle),
+            self.economics_report("e1", 1, selected=1.01e308, oracle=1e305),
+            self.economics_report("e2", 1, selected=1e306, oracle=1e305),
+            self.economics_report("e3", 1, selected=2.0, oracle=1.0),
         ]
-        react = [
-            self.economics_report("e1", 1, selected=1e308, oracle=oracle),
-            self.economics_report("e2", 1, selected=1e308, oracle=oracle),
-            self.economics_report("e3", 1, selected=1e306, oracle=oracle),
-        ]
+        react = [dict(row) for row in coverage]
         candidate = [
-            self.economics_report("e1", 1, selected=1e306, oracle=oracle),
-            self.economics_report("e2", 1, selected=1e306, oracle=oracle),
-            self.economics_report("e3", 1, selected=1e308, oracle=oracle),
+            self.economics_report("e1", 1, selected=1e306, oracle=1e305),
+            self.economics_report("e2", 1, selected=1.01e308, oracle=1e305),
+            self.economics_report("e3", 1, selected=1.0, oracle=1.0),
         ]
         comparison = compare_candidate_on_reference_cohort(
             candidate,
             coverage_repair_reports=coverage,
             react_reports=react,
         )
+        savings = comparison["paired_savings"]["coverage_repair"]["pairs"]
+        self.assertEqual(savings[0]["paired_savings_native"], -savings[1]["paired_savings_native"])
+        self.assertEqual(savings[2]["paired_savings_native"], 1.0)
         total = comparison["paired_savings"]["coverage_repair"][
             "native_savings_by_currency"
         ]["USD"]["sum_paired_savings_native"]
-        self.assertTrue(math.isfinite(total))
-        self.assertGreater(total, 0.0)
-        self.assertTrue(math.isclose(total, 9.9e307, rel_tol=1e-12))
+        self.assertEqual(total, 1.0)
 
     def test_candidate_comparison_is_paired_on_same_run_keys(self):
         coverage = [
