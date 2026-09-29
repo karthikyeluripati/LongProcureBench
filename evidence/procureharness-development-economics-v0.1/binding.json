@@ -1,0 +1,17 @@
+{
+  "package": "procureharness-development-economics-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "reports": {
+    "coverage_repair": {
+      "git_blob_sha1": "e9140b45a6db8fed3eeb448af29ec4ea95baa24d",
+      "path": "evidence/procureharness-development-economics-v0.1/coverage-repair-reports.json",
+      "sha256": "46c1d32a6a67d3a30588420e175d1de0a960a91c4f90657f47fb00569e36e8ae"
+    },
+    "react": {
+      "git_blob_sha1": "6223515e19105e16f415c544955b73776062d92c",
+      "path": "evidence/procureharness-development-economics-v0.1/react-reports.json",
+      "sha256": "f8ff4cedec94d08c8761314ccfccb8578bda8cfd4e9f3cabab552113038825be"
+    }
+  },
+  "schema_version": "0.1.0"
+}

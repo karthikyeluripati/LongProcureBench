@@ -1,0 +1,60 @@
+{
+  "binding_descriptor": {
+    "git_blob_sha1": "7dde3747c15486d45ace196ddbfd929fa631e67c",
+    "path": "evidence/procureharness-development-economics-v0.1/binding.json",
+    "sha256": "2441e90e4bb694d15706016a04944e36d8b93d11ae208364ef11c730206dfd96"
+  },
+  "candidate_reports": {
+    "ph-r1-c02": {
+      "bytes": 43073,
+      "git_blob_sha1": "051595a4c3e430bac75d0e68a6f40c91b5b6f465",
+      "path": "evidence/procureharness-development-economics-v0.1/ph-r1-c02-reports.json",
+      "policy_id": "procureharness--ph-r1-c02--openai/gpt-5.6-sol",
+      "sha256": "5aabb26aca42390db21ed0b4497cc7aba05dcd85f43c40286041c3d43f04cd80"
+    },
+    "ph-r1-c05": {
+      "bytes": 43056,
+      "git_blob_sha1": "26d52ec94fc859447e3343d27d7c9a47e5ee93fa",
+      "path": "evidence/procureharness-development-economics-v0.1/ph-r1-c05-reports.json",
+      "policy_id": "procureharness--ph-r1-c05--openai/gpt-5.6-sol",
+      "sha256": "76ce105e751ab498ebf1f6458fca446f1f3e6b7cb84d3b464c1c125b06eaa873"
+    }
+  },
+  "comparisons": {
+    "bytes": 49273,
+    "git_blob_sha1": "4b40d11eb8b608064e8f8b1f3ba98334de30d623",
+    "path": "evidence/procureharness-development-economics-v0.1/comparisons.json",
+    "sha256": "2f7ce56306a1c7285b340dd67dc0c849f9a619e06c5369e102dbfc4b5bdc2902"
+  },
+  "execution": {
+    "mode": "offline_deterministic_replay_and_economics",
+    "provider_calls": 0
+  },
+  "freeze_commit": "7b101f08eb2ad2ca33df628e30fd3c3173befc32",
+  "package": "procureharness-development-economics-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "reference_cohort": {
+    "bytes": 4724,
+    "git_blob_sha1": "fcbcb5f0c312f7604c515abafcc21bdd3d2ea965",
+    "path": "evidence/procureharness-development-economics-v0.1/reference-cohort.json",
+    "sha256": "14f1cacc75f88f9e3068b93e84d4360d2586fee3992438396b463e51720e8e7a"
+  },
+  "reports": {
+    "coverage_repair": {
+      "git_blob_sha1": "e9140b45a6db8fed3eeb448af29ec4ea95baa24d",
+      "path": "evidence/procureharness-development-economics-v0.1/coverage-repair-reports.json",
+      "sha256": "46c1d32a6a67d3a30588420e175d1de0a960a91c4f90657f47fb00569e36e8ae"
+    },
+    "react": {
+      "git_blob_sha1": "6223515e19105e16f415c544955b73776062d92c",
+      "path": "evidence/procureharness-development-economics-v0.1/react-reports.json",
+      "sha256": "f8ff4cedec94d08c8761314ccfccb8578bda8cfd4e9f3cabab552113038825be"
+    }
+  },
+  "schema_version": "0.1.0",
+  "source_evidence": {
+    "coverage_repair": "evidence/coverage-repair-confirmatory-v0.1",
+    "procureharness_confirmation": "evidence/procureharness-round1-confirmation-v0.1",
+    "react": "evidence/react-comparator-v0.1"
+  }
+}
