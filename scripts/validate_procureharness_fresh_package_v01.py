@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 
 from longprocurebench import FreshScriptedReferencePolicy
 
@@ -80,6 +81,26 @@ def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def frozen_blob_at_commit(commit: str, path: str) -> str:
+    """Resolve the immutable Git blob ID for path at the declared freeze commit."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", f"{commit}:{path}"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            f"Frozen path missing at freeze commit: {path}"
+        ) from exc
+    blob = result.stdout.strip()
+    if len(blob) != 40:
+        raise ValueError(f"Invalid frozen blob ID for {path}: {blob!r}")
+    return blob
+
+
 def validate_manifest(manifest=None) -> None:
     if manifest is None:
         manifest = _load(MANIFEST_PATH)
@@ -133,12 +154,24 @@ def validate_manifest(manifest=None) -> None:
         raise ValueError("Frozen path set changed")
 
     for row in frozen:
-        path = ROOT / row["path"]
+        relpath = row["path"]
+        path = ROOT / relpath
         if not path.is_file():
-            raise ValueError(f"Missing frozen file: {row['path']}")
+            raise ValueError(f"Missing frozen file: {relpath}")
+
+        immutable_blob = frozen_blob_at_commit(
+            EXPECTED_FREEZE_COMMIT,
+            relpath,
+        )
+        declared_blob = row.get("git_blob_sha1")
+        if declared_blob != immutable_blob:
+            raise ValueError(
+                f"Manifest hash does not match freeze commit: {relpath}"
+            )
+
         observed = git_blob_sha1(path.read_bytes())
-        if observed != row.get("git_blob_sha1"):
-            raise ValueError(f"Frozen file drift: {row['path']}")
+        if observed != immutable_blob:
+            raise ValueError(f"Frozen file drift: {relpath}")
 
     seen_packages = []
     for eid in EXPECTED_VALIDATION + EXPECTED_FINAL:
