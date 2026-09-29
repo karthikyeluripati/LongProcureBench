@@ -187,6 +187,85 @@ def validate_harness() -> dict[str, int]:
     if json_rows != code_rows:
         raise ValueError("candidate registry JSON/code drift")
 
+    axis_names = (
+        "obligation_routing",
+        "local_planning",
+        "skill_reasoning",
+        "verification",
+        "fallback",
+    )
+    seen_candidates = {}
+    for row in registry["candidates"]:
+        candidate_id = row["candidate_id"]
+        parents = row.get("parent_candidates")
+        deltas = row.get("module_deltas")
+        if not isinstance(parents, list) or not isinstance(deltas, list):
+            raise ValueError(
+                f"candidate lineage metadata missing: {candidate_id}"
+            )
+
+        for parent_id in parents:
+            parent = seen_candidates.get(parent_id)
+            if parent is None:
+                raise ValueError(
+                    f"candidate parent must precede child: "
+                    f"{candidate_id} -> {parent_id}"
+                )
+            if parent["round"] > row["round"]:
+                raise ValueError(
+                    f"candidate parent cannot come from a later round: "
+                    f"{candidate_id} -> {parent_id}"
+                )
+
+        if not parents:
+            if candidate_id != "ph-r1-c01":
+                raise ValueError(
+                    "only ph-r1-c01 may be the lineage seed"
+                )
+            if {delta.get("axis") for delta in deltas} != set(axis_names):
+                raise ValueError(
+                    "seed candidate must declare all five architecture axes"
+                )
+            for delta in deltas:
+                if (
+                    delta.get("relative_to") is not None
+                    or delta.get("from") is not None
+                    or delta.get("to") != row[delta["axis"]]
+                ):
+                    raise ValueError("seed candidate lineage delta changed")
+        else:
+            primary_id = parents[0]
+            reconstructed = {
+                axis: seen_candidates[primary_id][axis]
+                for axis in axis_names
+            }
+            for delta in deltas:
+                axis = delta.get("axis")
+                if axis not in axis_names:
+                    raise ValueError(
+                        f"unknown lineage axis for {candidate_id}: {axis!r}"
+                    )
+                if delta.get("relative_to") != primary_id:
+                    raise ValueError(
+                        f"lineage delta relative_to mismatch for {candidate_id}"
+                    )
+                if delta.get("from") != reconstructed[axis]:
+                    raise ValueError(
+                        f"lineage delta from-value mismatch for {candidate_id}"
+                    )
+                reconstructed[axis] = delta.get("to")
+
+            if reconstructed != {
+                axis: row[axis]
+                for axis in axis_names
+            }:
+                raise ValueError(
+                    f"candidate module deltas do not reproduce config: "
+                    f"{candidate_id}"
+                )
+
+        seen_candidates[candidate_id] = row
+
     axes = {
         row["name"]: set(row["choices"])
         for row in protocol["architecture_grammar"]["searchable_axes"]
