@@ -7,6 +7,7 @@ an executable phase in this search runner.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -89,6 +90,72 @@ PHASES = {
 }
 
 
+def round_candidate_ids(round_id: int) -> list[str]:
+    return [
+        config.candidate_id
+        for config in CANDIDATE_CONFIGS
+        if config.round == round_id
+    ]
+
+
+def _validate_selected_candidates(
+    *,
+    authorization: dict[str, Any],
+    field: str,
+    candidate_id: str,
+    round_id: int,
+    max_count: int,
+) -> list[str]:
+    selected = authorization.get(field)
+    if not isinstance(selected, list) or not selected:
+        raise ValueError(f"authorization requires non-empty {field}")
+    if len(selected) != len(set(selected)):
+        raise ValueError(f"authorization {field} contains duplicates")
+    if len(selected) > max_count:
+        raise ValueError(
+            f"authorization {field} exceeds max {max_count} candidates"
+        )
+    allowed = set(round_candidate_ids(round_id))
+    if not set(selected).issubset(allowed):
+        raise ValueError(
+            f"authorization {field} contains candidate outside round {round_id}"
+        )
+    if candidate_id not in selected:
+        raise ValueError(
+            f"candidate is not included in authorization {field}"
+        )
+    return selected
+
+
+def _assert_output_tree_fresh(
+    *,
+    output_dir: Path,
+    candidate_id: str,
+    phase: str,
+) -> Path:
+    phase_root = output_dir / candidate_id / phase
+    if phase_root.exists() and any(phase_root.rglob("*")):
+        raise ValueError(
+            "Refusing to rerun candidate/phase into nonempty output tree: "
+            f"{phase_root}"
+        )
+    return phase_root
+
+
+def _authorization_sha256(
+    authorization: dict[str, Any] | None,
+) -> str | None:
+    if authorization is None:
+        return None
+    encoded = json.dumps(
+        authorization,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return sha256(encoded).hexdigest()
+
+
 def model_slug(model: str) -> str:
     readable = re.sub(r"[^A-Za-z0-9._-]+", "-", model).strip("-") or "model"
     digest = sha256(model.encode("utf-8")).hexdigest()[:10]
@@ -139,14 +206,19 @@ def validate_phase_authorization(
     phase: str,
     authorization: dict[str, Any] | None,
 ) -> None:
-    if phase == "screening":
+    config = get_candidate(candidate_id)
+
+    if phase == "screening" and config.round == 1:
         if authorization is not None:
-            raise ValueError("screening does not accept an authorization file")
+            raise ValueError(
+                "round-1 screening does not accept an authorization file"
+            )
         return
 
     if authorization is None:
         raise ValueError(
-            f"{phase} requires --authorization-json from the prior frozen gate"
+            f"{phase} for round {config.round} requires "
+            "--authorization-json from the prior frozen gate"
         )
     if authorization.get("protocol_id") != PROTOCOL_ID:
         raise ValueError("authorization protocol_id mismatch")
@@ -156,18 +228,57 @@ def validate_phase_authorization(
         raise ValueError("authorization phase mismatch")
     if authorization.get("approved") is not True:
         raise ValueError("authorization must record approved=true")
-
-    config = get_candidate(candidate_id)
     if authorization.get("round") != config.round:
         raise ValueError("authorization round mismatch")
 
-    if phase == "development_confirmation":
-        if authorization.get("screening_selected") is not True:
+    if phase == "screening":
+        expected_ids = round_candidate_ids(config.round)
+        if authorization.get("round_candidate_ids") != expected_ids:
             raise ValueError(
-                "development confirmation requires screening_selected=true"
+                "screening authorization round_candidate_ids must match "
+                "the frozen six-candidate round registry"
+            )
+        if authorization.get("prior_round") != config.round - 1:
+            raise ValueError("screening authorization prior_round mismatch")
+        if authorization.get("prior_round_validation_complete") is not True:
+            raise ValueError(
+                "later-round screening requires "
+                "prior_round_validation_complete=true"
+            )
+        if authorization.get("plateau_stop_fired") is not False:
+            raise ValueError(
+                "later-round screening requires plateau_stop_fired=false"
+            )
+        if authorization.get("search_budget_exhausted") is not False:
+            raise ValueError(
+                "later-round screening requires search_budget_exhausted=false"
             )
         return
 
+    if phase == "development_confirmation":
+        if authorization.get("screening_complete") is not True:
+            raise ValueError(
+                "development confirmation requires screening_complete=true"
+            )
+        _validate_selected_candidates(
+            authorization=authorization,
+            field="screening_selected_candidate_ids",
+            candidate_id=candidate_id,
+            round_id=config.round,
+            max_count=2,
+        )
+        if authorization.get("selection_rule") != (
+            "frozen_screening_selection_v0.1"
+        ):
+            raise ValueError(
+                "development confirmation selection_rule mismatch"
+            )
+        return
+
+    if authorization.get("development_confirmation_complete") is not True:
+        raise ValueError(
+            "validation requires development_confirmation_complete=true"
+        )
     if authorization.get("development_confirmation_floor_passed") is not True:
         raise ValueError(
             "validation requires development_confirmation_floor_passed=true"
@@ -175,8 +286,20 @@ def validate_phase_authorization(
     branch = authorization.get("promotion_branch")
     if branch not in {"quality", "efficiency"}:
         raise ValueError(
-            "validation authorization requires quality/efficiency promotion_branch"
+            "validation authorization requires quality/efficiency "
+            "promotion_branch"
         )
+    _validate_selected_candidates(
+        authorization=authorization,
+        field="validation_selected_candidate_ids",
+        candidate_id=candidate_id,
+        round_id=config.round,
+        max_count=2,
+    )
+    if authorization.get("selection_rule") != (
+        "frozen_validation_entry_lexicographic_v0.1"
+    ):
+        raise ValueError("validation selection_rule mismatch")
 
 
 def validate_frozen_implementation_for_execution() -> None:
@@ -218,6 +341,11 @@ def execute_candidate(
     output_dir: Path,
     authorization: dict[str, Any] | None,
 ) -> dict[str, Any]:
+    phase_root = _assert_output_tree_fresh(
+        output_dir=output_dir,
+        candidate_id=candidate_id,
+        phase=phase,
+    )
     validate_frozen_implementation_for_execution()
     validate_candidate_registry()
     validate_phase_authorization(
@@ -298,8 +426,19 @@ def execute_candidate(
             f"cost={summary['known_cost_usd']}"
         )
 
+    implementation_manifest = json.loads(
+        (
+            ROOT
+            / "evidence"
+            / "procureharness-architecture-harness-v0.1"
+            / "manifest.json"
+        ).read_text(encoding="utf-8")
+    )
     summary_payload = {
         "protocol_id": PROTOCOL_ID,
+        "implementation_freeze_commit": implementation_manifest[
+            "freeze_commit"
+        ],
         "candidate_id": candidate_id,
         "phase": phase,
         "model": MODEL,
@@ -308,9 +447,11 @@ def execute_candidate(
         "planned_runs": plan["run_count"],
         "completed_runs": completed,
         "execution_failures": execution_failures,
+        "authorization_sha256": _authorization_sha256(authorization),
+        "authorization": deepcopy(authorization),
         "rows": rows,
     }
-    summary_path = output_dir / candidate_id / phase / "summary.json"
+    summary_path = phase_root / "summary.json"
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(
         json.dumps(summary_payload, indent=2, sort_keys=True) + "\n",
