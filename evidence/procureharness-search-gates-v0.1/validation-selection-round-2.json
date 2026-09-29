@@ -1,0 +1,75 @@
+{
+  "confirmation_rows": [
+    {
+      "candidate_id": "ph-r2-c12",
+      "confirmation_summary_path": "evidence/procureharness-round2-confirmation-v0.1/results/ph-r2-c12/development_confirmation/summary.json",
+      "confirmation_summary_sha256": "866bcb132c88a2e006ed033ae34c8cc4ee946cffc42f8bed58483ef68bebc5b8",
+      "development_confirmation_floor_passed": true,
+      "economic_objective": 27,
+      "efficiency_promotion_status": "requires_frozen_economic_comparison_gate",
+      "feasible_obligation_success": 48,
+      "known_cost_complete": true,
+      "known_cost_usd": 0.4188892,
+      "obligation_actionable": 96,
+      "obligation_resolution_rate": 0.9375,
+      "obligation_resolved": 90,
+      "quality_improved_metrics": [],
+      "quality_promotion_passed": false,
+      "round": 2,
+      "strict_v02": 27,
+      "total_tokens": 182813,
+      "total_tokens_complete": true
+    },
+    {
+      "candidate_id": "ph-r2-c09",
+      "confirmation_summary_path": "evidence/procureharness-round2-confirmation-v0.1/results/ph-r2-c09/development_confirmation/summary.json",
+      "confirmation_summary_sha256": "2383ec77e182353fca30516fc551ba71b1ee35ac5d83f4bf1263d1caf8fd1641",
+      "development_confirmation_floor_passed": true,
+      "economic_objective": 29,
+      "efficiency_promotion_status": "requires_frozen_economic_comparison_gate",
+      "feasible_obligation_success": 48,
+      "known_cost_complete": true,
+      "known_cost_usd": 0.7127608000000001,
+      "obligation_actionable": 98,
+      "obligation_resolution_rate": 0.9387755102040817,
+      "obligation_resolved": 92,
+      "quality_improved_metrics": [],
+      "quality_promotion_passed": false,
+      "round": 2,
+      "strict_v02": 29,
+      "total_tokens": 187099,
+      "total_tokens_complete": true
+    }
+  ],
+  "efficiency_append_policy": "append_only_authorization_bound_to_immutable_base_selection",
+  "pending_efficiency_candidate_ids": [
+    "ph-r2-c12",
+    "ph-r2-c09"
+  ],
+  "promotion_branch_by_candidate": {},
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "ranking": [],
+  "round": 2,
+  "round_candidate_ids": [
+    "ph-r2-c07",
+    "ph-r2-c08",
+    "ph-r2-c09",
+    "ph-r2-c10",
+    "ph-r2-c11",
+    "ph-r2-c12"
+  ],
+  "rule_id": "frozen_validation_entry_lexicographic_v0.1",
+  "schema_version": "0.1.0",
+  "screening_selected_candidate_ids": [
+    "ph-r2-c12",
+    "ph-r2-c09"
+  ],
+  "screening_selection_path": "evidence/procureharness-search-gates-v0.1/screening-selection-round-2.json",
+  "screening_selection_sha256": "0fc3c38727c3e511567e05cb520871bb85c769eb316e14a1bce6efc6cfab5476",
+  "selection_status": "partial_pending_efficiency",
+  "validation_selected_candidate_ids": [],
+  "validation_slot_candidate_ids": [
+    "ph-r2-c12",
+    "ph-r2-c09"
+  ]
+}

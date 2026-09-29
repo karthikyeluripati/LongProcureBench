@@ -1,0 +1,671 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-burauen-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-burauen-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-burauen-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "package",
+              "supplier_id": "syn-burauen-c"
+            }
+          ],
+          "reason": "Supplier A withdrew. Supplier C remains active, meets the required 250 kVA, 3-phase, 230 V with ATS configuration, satisfies the 20-day delivery requirement with 19-day delivery, and quotes within the PHP 2,500,000 budget. Supplier B's 24-day lead time exceeds the delivery requirement."
+        },
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "package",
+              "supplier_id": "syn-burauen-c"
+            }
+          ],
+          "reason": "Supplier C's active quote meets the required 250 kVA, 3-phase, 230 V generator with ATS specification, the 20-day delivery requirement with a 19-day lead time, and the PHP 2,500,000 budget. Supplier A withdrew, and Supplier B's 24-day lead time is noncompliant."
+        },
+        "supplier_id": "syn-burauen-c",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-burauen-generator-008",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 2,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among remaining feasible active offers, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": null,
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 8
+    },
+    "episode_id": "electrical-burauen-generator-008",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": false,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 5,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "package total_price=2420000 <= 2500000",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Awarded price must not exceed the real PHP 2,500,000 buyer budget.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package lead_time_days=19 <= 20",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Delivery must satisfy the real 20-day requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package kva=250 == 250",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "package phases=3 == 3",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "package voltage_v=230 == 230",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "package has_ats=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Award must match the real 250 kVA, 3-phase, 230 V generator-with-ATS requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "syn-burauen-c withdrawn=False",
+              "kind": "award_supplier_not_withdrawn",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "A withdrawn supplier cannot receive award.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e3, latest=e3",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c5",
+          "description": "Only the latest revealed revision for a supplier may support award.",
+          "passed": true
+        }
+      ],
+      "total": 5
+    },
+    "obligations": {
+      "actionable": 2,
+      "all_actionable_resolved": false,
+      "encountered": 2,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 0,
+      "resolution_rate": 0.0,
+      "resolved": 0,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "recover_from_withdrawal",
+          "detail": "No feasible hard-constraint-satisfying terminal recovery path was established after withdrawal.",
+          "obligation_id": "recover_from_withdrawal:e4",
+          "resolution_step": null,
+          "resolved": false,
+          "status": "unresolved",
+          "supplier_id": "syn-burauen-a",
+          "trigger_event_id": "e4",
+          "trigger_step": 6
+        },
+        {
+          "actionable": true,
+          "applicability_reason": "selected_original_offer_has_revision_repair_path",
+          "applicable": true,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "selected_events=['e3'], request_step=None, selected_path_repaired=False",
+          "obligation_id": "request_quote_revision:syn-burauen-c",
+          "resolution_step": null,
+          "resolved": false,
+          "status": "unresolved",
+          "supplier_id": "syn-burauen-c",
+          "trigger_event_id": null,
+          "trigger_step": 5
+        }
+      ],
+      "unresolved": 2,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 5,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "recover_from_withdrawal",
+          "complete": false,
+          "detail": "withdrawal_step=6; no new quote/revision was revealed after withdrawal",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 7
+    },
+    "terminal_outcome": {
+      "correct": false,
+      "detail": "Terminal decision or award set does not match any acceptable outcome.",
+      "matched_outcome_id": null
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c12--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 8,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 192,
+        "cost_usd": 0.0046524,
+        "error": null,
+        "latency_ms": 3961.025888999998,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2004,
+        "success": true,
+        "total_tokens": 2196,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 123,
+        "cost_usd": 0.012967000000000001,
+        "error": null,
+        "latency_ms": 2641.9885520000007,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2102,
+        "success": true,
+        "total_tokens": 2225,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 315,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.0176194,
+    "deterministic_action_fraction": 0.75,
+    "deterministic_actions_accepted": 6,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 6603.014440999999,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 1,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 2,
+    "model_call_purposes": {
+      "skill_reasoning_direct": 2
+    },
+    "model_calls": 2,
+    "model_calls_attempted": 2,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 2,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c12",
+      "fallback": "bounded_react_fallback",
+      "local_planning": "none",
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "round": 2,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 4106,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1,
+      "withdrawal_recovery": 1
+    },
+    "temperature": null,
+    "total_tokens": 4421,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c12--development_confirmation--electrical-burauen-generator-008--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": "syn-burauen-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "has_ats": true,
+            "kva": 250,
+            "lead_time_days": 18,
+            "phases": 3,
+            "revision": 0,
+            "total_price": 2350000,
+            "voltage_v": 230
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A quotes PHP 2,350,000 with 18-day delivery for a 250 kVA, 3-phase, 230 V generator with ATS.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-burauen-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-burauen-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": "syn-burauen-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "has_ats": true,
+            "kva": 250,
+            "lead_time_days": 24,
+            "phases": 3,
+            "revision": 0,
+            "total_price": 2280000,
+            "voltage_v": 230
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B quotes PHP 2,280,000 but requires 24 days.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-burauen-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-burauen-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": "syn-burauen-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "PHP",
+            "has_ats": true,
+            "kva": 250,
+            "lead_time_days": 19,
+            "phases": 3,
+            "revision": 0,
+            "total_price": 2420000,
+            "voltage_v": 230
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C quotes PHP 2,420,000 with 19-day delivery for the required configuration.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-burauen-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-burauen-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [
+        {
+          "details": {
+            "status": "withdrawn"
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier A withdraws its quotation before award.",
+          "supplier_id": "syn-burauen-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "evaluate_quotes",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": null
+          },
+          "type": "supplier_withdrawal"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "package",
+              "supplier_id": "syn-burauen-c"
+            }
+          ],
+          "reason": "Supplier A withdrew. Supplier C remains active, meets the required 250 kVA, 3-phase, 230 V with ATS configuration, satisfies the 20-day delivery requirement with 19-day delivery, and quotes within the PHP 2,500,000 budget. Supplier B's 24-day lead time exceeds the delivery requirement."
+        },
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "package",
+              "supplier_id": "syn-burauen-c"
+            }
+          ],
+          "reason": "Supplier C's active quote meets the required 250 kVA, 3-phase, 230 V generator with ATS specification, the 20-day delivery requirement with a 19-day lead time, and the PHP 2,500,000 budget. Supplier A withdrew, and Supplier B's 24-day lead time is noncompliant."
+        },
+        "episode_id": "electrical-burauen-generator-008",
+        "supplier_id": "syn-burauen-c",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 8
+    }
+  ]
+}
