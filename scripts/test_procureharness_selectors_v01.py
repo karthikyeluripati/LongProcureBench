@@ -6,6 +6,11 @@ from pathlib import Path
 import tempfile
 import unittest
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover
+    fcntl = None
+
 from run_procureharness_search_v01 import (
     DEVELOPMENT_EPISODES,
     PROTOCOL_ID,
@@ -17,6 +22,7 @@ from select_procureharness_screening_v01 import (
     validate_frozen_screening_selection,
 )
 from select_procureharness_validation_v01 import (
+    freeze_efficiency_validation_authorization,
     freeze_validation_selection,
     validate_frozen_validation_selection,
 )
@@ -158,28 +164,51 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                 "{}\n",
             )
 
-    def test_screening_gate_rejects_concurrent_freeze_lock(self):
+    def test_screening_gate_recovers_from_stale_lock_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "results"
             gates = Path(tmp) / "gates"
             self._write_screening_summaries(root)
             gates.mkdir(parents=True, exist_ok=True)
             lock = gates / ".screening-selection-round-1.lock"
-            lock.write_text("pid=other\n", encoding="utf-8")
+            lock.write_text("stale\n", encoding="utf-8")
 
-            with self.assertRaisesRegex(ValueError, "already in progress"):
-                freeze_selection(
-                    round_id=1,
-                    results_root=root,
-                    output_dir=gates,
+            selection_path, _ = freeze_selection(
+                round_id=1,
+                results_root=root,
+                output_dir=gates,
+            )
+            self.assertTrue(selection_path.is_file())
+
+    @unittest.skipIf(fcntl is None, "POSIX advisory locking unavailable")
+    def test_screening_gate_rejects_live_concurrent_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "results"
+            gates = Path(tmp) / "gates"
+            self._write_screening_summaries(root)
+            gates.mkdir(parents=True, exist_ok=True)
+            lock = gates / ".screening-selection-round-1.lock"
+
+            with lock.open("a+", encoding="utf-8") as handle:
+                fcntl.flock(
+                    handle.fileno(),
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
                 )
+                try:
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "already in progress",
+                    ):
+                        freeze_selection(
+                            round_id=1,
+                            results_root=root,
+                            output_dir=gates,
+                        )
+                finally:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
             self.assertFalse(
                 (gates / "screening-selection-round-1.json").exists()
-            )
-            self.assertEqual(
-                lock.read_text(encoding="utf-8"),
-                "pid=other\n",
             )
 
     def test_quality_candidate_advances_while_peer_waits_for_efficiency_gate(self):
@@ -237,7 +266,33 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                 selection["pending_efficiency_candidate_ids"],
                 ["ph-r1-c02"],
             )
+            self.assertEqual(
+                selection["validation_slot_candidate_ids"],
+                ["ph-r1-c01", "ph-r1-c02"],
+            )
+            self.assertEqual(
+                selection["selection_status"],
+                "partial_pending_efficiency",
+            )
             self.assertEqual(len(auth_paths), 1)
+
+            candidate_reports = Path(tmp) / "candidate-economics.json"
+            candidate_reports.write_text("[]\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "frozen development economics binding manifest exists",
+            ):
+                freeze_efficiency_validation_authorization(
+                    base_selection_path=validation_path,
+                    candidate_id="ph-r1-c02",
+                    candidate_reports_path=candidate_reports,
+                    output_dir=gates,
+                )
+
+            unchanged = json.loads(
+                validation_path.read_text(encoding="utf-8")
+            )
+            self.assertEqual(unchanged, selection)
 
             authorization = json.loads(
                 auth_paths[0].read_text(encoding="utf-8")
@@ -252,7 +307,34 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                 authorization=authorization,
             )
 
-    def test_validation_gate_rejects_concurrent_freeze_lock(self):
+    def _write_quality_confirmation_summaries(
+        self,
+        root: Path,
+    ) -> None:
+        for candidate_id in ("ph-r1-c01", "ph-r1-c02"):
+            path = (
+                root
+                / candidate_id
+                / "development_confirmation"
+                / "summary.json"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(
+                    _confirmation_summary(
+                        candidate_id,
+                        feasible=53,
+                        strict=30,
+                        economic=30,
+                    ),
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+    def test_validation_gate_recovers_from_stale_lock_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "results"
             gates = Path(tmp) / "gates"
@@ -260,46 +342,51 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                 root,
                 gates,
             )
-
-            for candidate_id in ("ph-r1-c01", "ph-r1-c02"):
-                path = (
-                    root
-                    / candidate_id
-                    / "development_confirmation"
-                    / "summary.json"
-                )
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(
-                    json.dumps(
-                        _confirmation_summary(
-                            candidate_id,
-                            feasible=53,
-                            strict=30,
-                            economic=30,
-                        ),
-                        indent=2,
-                        sort_keys=True,
-                    )
-                    + "\n",
-                    encoding="utf-8",
-                )
-
+            self._write_quality_confirmation_summaries(root)
             lock = gates / ".validation-selection-round-1.lock"
-            lock.write_text("pid=other\n", encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "already in progress"):
-                freeze_validation_selection(
-                    round_id=1,
-                    results_root=root,
-                    screening_selection_path=screening_selection_path,
-                    output_dir=gates,
+            lock.write_text("stale\n", encoding="utf-8")
+
+            selection_path, _ = freeze_validation_selection(
+                round_id=1,
+                results_root=root,
+                screening_selection_path=screening_selection_path,
+                output_dir=gates,
+            )
+            self.assertTrue(selection_path.is_file())
+
+    @unittest.skipIf(fcntl is None, "POSIX advisory locking unavailable")
+    def test_validation_gate_rejects_live_concurrent_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "results"
+            gates = Path(tmp) / "gates"
+            screening_selection_path, _ = self._freeze_screening(
+                root,
+                gates,
+            )
+            self._write_quality_confirmation_summaries(root)
+            lock = gates / ".validation-selection-round-1.lock"
+
+            with lock.open("a+", encoding="utf-8") as handle:
+                fcntl.flock(
+                    handle.fileno(),
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
                 )
+                try:
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "already in progress",
+                    ):
+                        freeze_validation_selection(
+                            round_id=1,
+                            results_root=root,
+                            screening_selection_path=screening_selection_path,
+                            output_dir=gates,
+                        )
+                finally:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
             self.assertFalse(
                 (gates / "validation-selection-round-1.json").exists()
-            )
-            self.assertEqual(
-                lock.read_text(encoding="utf-8"),
-                "pid=other\n",
             )
 
     def test_validation_authorization_is_recomputed_from_confirmation_results(self):
