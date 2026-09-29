@@ -86,9 +86,19 @@ class ProcureHarnessDevelopmentEconomicsEvidenceTests(unittest.TestCase):
         self.assertEqual(loaded["freeze_commit"], freeze_commit)
 
     def test_efficiency_gate_result_matches_append_only_authorizations(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(
+            manifest["execution"],
+            {
+                "mode": "offline_deterministic_replay_and_economics",
+                "provider_calls": 0,
+            },
+        )
+
         gate_result = materializer._read_json(
             materializer.GATE_RESULT_REL
         )
+        self.assertEqual(gate_result["provider_calls"], 0)
         authorized = gate_result["authorized_candidate_ids"]
         rejected = gate_result["not_promoted_candidate_ids"]
         self.assertEqual(
