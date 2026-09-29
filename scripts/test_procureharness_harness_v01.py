@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+from pathlib import Path
+import tempfile
 import unittest
 
 from run_procureharness_search_v01 import (
@@ -12,6 +14,7 @@ from run_procureharness_search_v01 import (
     REASONING_EFFORT,
     TEMPERATURE,
     VALIDATION_EPISODES,
+    _assert_output_tree_fresh,
     _assert_phase_exposure,
     phase_plan,
     validate_phase_authorization,
@@ -111,7 +114,7 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
     def test_confirmation_requires_screening_selection(self):
         with self.assertRaisesRegex(
             ValueError,
-            "screening_selected",
+            "screening_selected_candidate_ids",
         ):
             validate_phase_authorization(
                 candidate_id="ph-r1-c01",
@@ -122,7 +125,30 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                     "round": 1,
                     "phase": "development_confirmation",
                     "approved": True,
-                    "screening_selected": False,
+                    "screening_complete": True,
+                    "screening_selected_candidate_ids": [],
+                    "selection_rule": "frozen_screening_selection_v0.1",
+                },
+            )
+
+    def test_confirmation_rejects_more_than_two_round_candidates(self):
+        with self.assertRaisesRegex(ValueError, "exceeds max 2"):
+            validate_phase_authorization(
+                candidate_id="ph-r2-c07",
+                phase="development_confirmation",
+                authorization={
+                    "protocol_id": "procureharness-architecture-search-v0.1",
+                    "candidate_id": "ph-r2-c07",
+                    "round": 2,
+                    "phase": "development_confirmation",
+                    "approved": True,
+                    "screening_complete": True,
+                    "screening_selected_candidate_ids": [
+                        "ph-r2-c07",
+                        "ph-r2-c08",
+                        "ph-r2-c09",
+                    ],
+                    "selection_rule": "frozen_screening_selection_v0.1",
                 },
             )
 
@@ -133,6 +159,7 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
             "round": 1,
             "phase": "validation",
             "approved": True,
+            "development_confirmation_complete": True,
         }
         with self.assertRaisesRegex(
             ValueError,
@@ -148,12 +175,113 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
             **base,
             "development_confirmation_floor_passed": True,
             "promotion_branch": "quality",
+            "validation_selected_candidate_ids": ["ph-r1-c01"],
+            "selection_rule": "frozen_validation_entry_lexicographic_v0.1",
         }
         validate_phase_authorization(
             candidate_id="ph-r1-c01",
             phase="validation",
             authorization=authorized,
         )
+
+    def test_validation_rejects_more_than_two_selected_candidates(self):
+        with self.assertRaisesRegex(ValueError, "exceeds max 2"):
+            validate_phase_authorization(
+                candidate_id="ph-r2-c07",
+                phase="validation",
+                authorization={
+                    "protocol_id": "procureharness-architecture-search-v0.1",
+                    "candidate_id": "ph-r2-c07",
+                    "round": 2,
+                    "phase": "validation",
+                    "approved": True,
+                    "development_confirmation_complete": True,
+                    "development_confirmation_floor_passed": True,
+                    "promotion_branch": "quality",
+                    "validation_selected_candidate_ids": [
+                        "ph-r2-c07",
+                        "ph-r2-c08",
+                        "ph-r2-c09",
+                    ],
+                    "selection_rule":
+                        "frozen_validation_entry_lexicographic_v0.1",
+                },
+            )
+
+    def test_later_round_screening_requires_prior_round_gate(self):
+        with self.assertRaisesRegex(ValueError, "requires --authorization-json"):
+            validate_phase_authorization(
+                candidate_id="ph-r2-c07",
+                phase="screening",
+                authorization=None,
+            )
+
+        validate_phase_authorization(
+            candidate_id="ph-r2-c07",
+            phase="screening",
+            authorization={
+                "protocol_id": "procureharness-architecture-search-v0.1",
+                "candidate_id": "ph-r2-c07",
+                "round": 2,
+                "phase": "screening",
+                "approved": True,
+                "round_candidate_ids": [
+                    "ph-r2-c07",
+                    "ph-r2-c08",
+                    "ph-r2-c09",
+                    "ph-r2-c10",
+                    "ph-r2-c11",
+                    "ph-r2-c12",
+                ],
+                "prior_round": 1,
+                "prior_round_validation_complete": True,
+                "plateau_stop_fired": False,
+                "search_budget_exhausted": False,
+            },
+        )
+
+    def test_later_round_screening_stops_when_plateau_fires(self):
+        with self.assertRaisesRegex(ValueError, "plateau_stop_fired=false"):
+            validate_phase_authorization(
+                candidate_id="ph-r2-c07",
+                phase="screening",
+                authorization={
+                    "protocol_id": "procureharness-architecture-search-v0.1",
+                    "candidate_id": "ph-r2-c07",
+                    "round": 2,
+                    "phase": "screening",
+                    "approved": True,
+                    "round_candidate_ids": [
+                        "ph-r2-c07",
+                        "ph-r2-c08",
+                        "ph-r2-c09",
+                        "ph-r2-c10",
+                        "ph-r2-c11",
+                        "ph-r2-c12",
+                    ],
+                    "prior_round": 1,
+                    "prior_round_validation_complete": True,
+                    "plateau_stop_fired": True,
+                    "search_budget_exhausted": False,
+                },
+            )
+
+    def test_candidate_phase_cannot_be_rerun_into_nonempty_output_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            phase_root = _assert_output_tree_fresh(
+                output_dir=root,
+                candidate_id="ph-r1-c01",
+                phase="screening",
+            )
+            phase_root.mkdir(parents=True)
+            (phase_root / "partial.json").write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Refusing to rerun"):
+                _assert_output_tree_fresh(
+                    output_dir=root,
+                    candidate_id="ph-r1-c01",
+                    phase="screening",
+                )
 
     def test_validation_rejects_wrong_candidate_authorization(self):
         with self.assertRaisesRegex(
