@@ -93,7 +93,7 @@
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
     "The validator is intentionally outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
     "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, and requirements.txt.",
-    "The executable runner enforces round progression, at-most-two confirmation/validation selections, plateau/budget authorization for later rounds, and refusal to rerun into a nonempty candidate/phase output tree.",
-    "The immutable behavior set includes both offline paid-run selectors; screening and validation ranking/gating changes require a new harness freeze."
+    "The immutable behavior set includes both offline paid-run selectors; screening and validation ranking/gating changes require a new harness freeze.",
+    "Harness v0.1 authorizes round-1 screening, evidence-derived development confirmation, and evidence-derived 031-040 validation; round-2/3 screening remains fail-closed until a frozen frontier/plateau progression gate is added."
   ]
 }
