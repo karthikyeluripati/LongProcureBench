@@ -1,0 +1,209 @@
+{
+  "baseline_report_bindings": {
+    "canonicalization": "json-sort-keys-compact-allow-nan-false-v1",
+    "coverage_repair_report_count": 60,
+    "coverage_repair_reports_sha256": "4665a69b72982cc2f3f45d70cab7cb70a5496acbe80383ed19c7d13b97272939",
+    "hash_algorithm": "sha256",
+    "react_report_count": 60,
+    "react_reports_sha256": "15028a88a4564669755251b75d132b148543f14f7eea0fe8aee2ac4f7d76c4ae"
+  },
+  "joint_regret_eligible_count": 48,
+  "reference_cohort_count": 48,
+  "run_keys": [
+    {
+      "episode_id": "electrical-barrie-transformer-005",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-barrie-transformer-005",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-barrie-transformer-005",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-bfar-generator-006",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-bfar-generator-006",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-bfar-generator-006",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-bongabon-generator-001",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-bongabon-generator-001",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-bongabon-generator-001",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-battery-charger-015",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-dla-battery-charger-015",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-dla-battery-charger-015",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-breaker-004",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-dla-breaker-004",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-dla-breaker-004",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-power-supply-016",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-dla-power-supply-016",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-dla-power-supply-016",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-qpl-breaker-017",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-dla-qpl-breaker-017",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-relay-012",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-dla-relay-012",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-dla-relay-012",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-dla-transformer-013",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-highpoint-transformer-009",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-highpoint-transformer-009",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-highpoint-transformer-009",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-national-museum-lighting-002",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-national-museum-lighting-002",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-national-museum-lighting-002",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-negros-wire-007",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-negros-wire-007",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-negros-wire-007",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-neust-cable-003",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-neust-cable-003",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-neust-cable-003",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-painesville-switchgear-010",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-painesville-switchgear-010",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-painesville-switchgear-010",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-sagada-generator-011",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-sagada-generator-011",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-sagada-generator-011",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-usaf-ups-019",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-usaf-ups-019",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-usaf-ups-019",
+      "repeat": 3
+    },
+    {
+      "episode_id": "electrical-vre-generator-020",
+      "repeat": 1
+    },
+    {
+      "episode_id": "electrical-vre-generator-020",
+      "repeat": 2
+    },
+    {
+      "episode_id": "electrical-vre-generator-020",
+      "repeat": 3
+    }
+  ],
+  "schema_version": "0.1.0",
+  "status": "available",
+  "zero_oracle_cost_run_count_outside_percentage_reference_cohort": 0
+}
