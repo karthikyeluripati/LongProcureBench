@@ -349,6 +349,9 @@ hidden facts, future events, oracle data, or evaluator labels."""
         super().reset(state)
         self._reset_controller()
 
+    def _prompt_state(self, state: dict[str, Any]) -> dict[str, Any]:
+        return compile_visible_state(state)
+
     def _record_model_metrics(
         self,
         metrics: dict[str, Any],
