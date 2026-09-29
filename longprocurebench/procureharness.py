@@ -491,6 +491,12 @@ hidden facts, future events, oracle data, or evaluator labels."""
         for offer in compiled.get("latest_offers") or []:
             if not isinstance(offer, dict):
                 continue
+            event_id = offer.get("event_id")
+            if (
+                isinstance(event_id, str)
+                and event_id in self._handled_event_ids
+            ):
+                continue
             supplier_id = offer.get("supplier_id")
             if (
                 isinstance(supplier_id, str)
