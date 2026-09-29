@@ -38,6 +38,8 @@ from select_procureharness_screening_v01 import (
     SCREENING_RANKING_PRIORITY,
 )
 from select_procureharness_validation_v01 import (
+    DEVELOPMENT_ECONOMICS_BINDING_PACKAGE,
+    EFFICIENCY_APPEND_POLICY,
     RULE_ID as VALIDATION_RULE_ID,
     VALIDATION_RANKING_PRIORITY,
 )
@@ -197,6 +199,32 @@ def validate_harness() -> dict[str, int]:
         raise ValueError(
             "validation selector ranking disagrees with frozen protocol"
         )
+
+    append_contract = validation_rule.get("efficiency_append_policy")
+    expected_append_contract = {
+        "base_selection_immutable": True,
+        "pending_candidates_reserve_validation_slots": True,
+        "append_mode": "separate_append_only_authorization",
+        "requires_frozen_development_economics_binding": True,
+        "economics_binding_package": DEVELOPMENT_ECONOMICS_BINDING_PACKAGE,
+    }
+    if append_contract != expected_append_contract:
+        raise ValueError("validation efficiency append contract changed")
+    if EFFICIENCY_APPEND_POLICY != (
+        "append_only_authorization_bound_to_immutable_base_selection"
+    ):
+        raise ValueError("validation efficiency append policy constant changed")
+
+    locking_contract = registry.get("gate_locking_contract")
+    if locking_contract != {
+        "mechanism": "posix_flock_nonblocking",
+        "stale_file_policy": (
+            "persistent lock files are harmless; OS releases advisory lock "
+            "on process death"
+        ),
+        "concurrent_same_round_policy": "fail_before_gate_write",
+    }:
+        raise ValueError("selector gate-locking contract changed")
 
     budget = registry.get("search_budget")
     if budget != {
