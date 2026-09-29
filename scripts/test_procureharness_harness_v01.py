@@ -190,7 +190,7 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
                 max_count=2,
             )
 
-    def test_later_round_screening_is_fail_closed_until_frontier_gate(self):
+    def test_later_round_screening_requires_bound_progression_gate(self):
         with self.assertRaisesRegex(ValueError, "requires --authorization-json"):
             validate_phase_authorization(
                 candidate_id="ph-r2-c07",
@@ -204,11 +204,18 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
             "round": 2,
             "phase": "screening",
             "approved": True,
-            "prior_round_validation_complete": True,
-            "plateau_stop_fired": False,
-            "search_budget_exhausted": False,
+            "selection_rule": "frozen_round_progression_v0.1",
+            "completed_round": 1,
+            "screening_authorized_candidate_ids": [
+                "ph-r2-c07",
+                "ph-r2-c08",
+                "ph-r2-c09",
+                "ph-r2-c10",
+                "ph-r2-c11",
+                "ph-r2-c12",
+            ],
         }
-        with self.assertRaisesRegex(ValueError, "fail-closed"):
+        with self.assertRaisesRegex(ValueError, "round_progression_path"):
             validate_phase_authorization(
                 candidate_id="ph-r2-c07",
                 phase="screening",

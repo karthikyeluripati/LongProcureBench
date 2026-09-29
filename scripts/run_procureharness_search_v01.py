@@ -272,11 +272,53 @@ def validate_phase_authorization(
         raise ValueError("authorization round mismatch")
 
     if phase == "screening":
-        raise ValueError(
-            "later-round screening is fail-closed in harness v0.1 until "
-            "a frozen frontier/plateau progression gate recomputes prior "
-            "validation and stop conditions from bound evidence"
+        if authorization.get("selection_rule") != (
+            "frozen_round_progression_v0.1"
+        ):
+            raise ValueError(
+                "later-round screening selection_rule mismatch"
+            )
+        authorized = _validate_selected_candidates(
+            authorization=authorization,
+            field="screening_authorized_candidate_ids",
+            candidate_id=candidate_id,
+            round_id=config.round,
+            max_count=6,
         )
+        progression = _load_bound_json_artifact(
+            authorization=authorization,
+            path_field="round_progression_path",
+            sha_field="round_progression_sha256",
+        )
+        from select_procureharness_round_progression_v01 import (
+            validate_frozen_round_progression,
+        )
+        validate_frozen_round_progression(progression)
+        if progression.get("protocol_id") != PROTOCOL_ID:
+            raise ValueError("round progression protocol mismatch")
+        if progression.get("rule_id") != (
+            "frozen_round_progression_v0.1"
+        ):
+            raise ValueError("round progression rule mismatch")
+        if progression.get("decision") != "advance":
+            raise ValueError("round progression does not authorize advance")
+        if progression.get("stop_search") is not False:
+            raise ValueError("round progression stop rule fired")
+        if progression.get("next_round") != config.round:
+            raise ValueError("round progression target round mismatch")
+        if progression.get(
+            "screening_authorized_candidate_ids"
+        ) != authorized:
+            raise ValueError(
+                "round progression artifact/authorization candidate mismatch"
+            )
+        if authorization.get("completed_round") != (
+            config.round - 1
+        ):
+            raise ValueError(
+                "round progression completed_round mismatch"
+            )
+        return
 
     if phase == "development_confirmation":
         if authorization.get("screening_complete") is not True:

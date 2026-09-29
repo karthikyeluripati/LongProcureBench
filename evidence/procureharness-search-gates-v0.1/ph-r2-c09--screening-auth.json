@@ -1,0 +1,20 @@
+{
+  "approved": true,
+  "candidate_id": "ph-r2-c09",
+  "completed_round": 1,
+  "phase": "screening",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "round": 2,
+  "round_progression_path": "evidence/procureharness-search-gates-v0.1/round-progression-after-round-1.json",
+  "round_progression_sha256": "35d2de0af9f58c67a2fc0480002aae450835854512d941e1260f9b1437fbe3a2",
+  "schema_version": "0.1.0",
+  "screening_authorized_candidate_ids": [
+    "ph-r2-c07",
+    "ph-r2-c08",
+    "ph-r2-c09",
+    "ph-r2-c10",
+    "ph-r2-c11",
+    "ph-r2-c12"
+  ],
+  "selection_rule": "frozen_round_progression_v0.1"
+}

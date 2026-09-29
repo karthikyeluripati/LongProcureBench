@@ -1,0 +1,54 @@
+{
+  "completed_round": 1,
+  "consecutive_no_new_frontier_rounds": 1,
+  "decision": "advance",
+  "evidence_bindings": {
+    "confirmation_manifest": {
+      "path": "evidence/procureharness-round1-confirmation-v0.1/manifest.json",
+      "sha256": "c04ed5d790e22340d322d6af979469395bcad3ab91743b8e73900f410df0662c"
+    },
+    "development_economics_manifest": {
+      "path": "evidence/procureharness-development-economics-v0.1/manifest.json",
+      "sha256": "85f113f459d27a384094d4fa104d0f4b90a19fae92f86307b414723bafad5add"
+    },
+    "efficiency_gate_result": {
+      "path": "evidence/procureharness-development-economics-v0.1/efficiency-gate-result.json",
+      "sha256": "ce7f4c06b4cf55d1af2ca9f0db02dfcc795e3212d7500afd1a251b7a399e83ea"
+    },
+    "screening_manifest": {
+      "path": "evidence/procureharness-round1-screening-v0.1/manifest.json",
+      "sha256": "02c6ab01c92db7e7af93c3d72e50f0bec04fdd5095f610df756b3dc7486ed85e"
+    },
+    "screening_selection": {
+      "path": "evidence/procureharness-search-gates-v0.1/screening-selection-round-1.json",
+      "sha256": "4a6e94adb9dad7dffb18507a966a70a379adca11aff3adcc1f10623a1200458e"
+    },
+    "validation_selection": {
+      "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-1.json",
+      "sha256": "3c12e87ae9a3a2f60f560fa2bfa92a4927a5476da0ce855b26b3f0e7fc1dc874"
+    }
+  },
+  "max_rounds_stop_fired": false,
+  "next_round": 2,
+  "plateau_stop_fired": false,
+  "plateau_stop_threshold": 2,
+  "prior_consecutive_no_new_frontier_rounds": 0,
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "round1_final_validation_candidate_ids": [],
+  "round_added_new_frontier_point": false,
+  "round_completion_status": "complete_no_validation_candidate",
+  "rule_id": "frozen_round_progression_v0.1",
+  "schema_version": "0.1.0",
+  "screened_unique_candidate_count": 6,
+  "screening_authorized_candidate_ids": [
+    "ph-r2-c07",
+    "ph-r2-c08",
+    "ph-r2-c09",
+    "ph-r2-c10",
+    "ph-r2-c11",
+    "ph-r2-c12"
+  ],
+  "stop_search": false,
+  "unique_candidate_budget_stop_fired": false,
+  "validation_execution_status": "not_run_no_authorized_round1_candidate"
+}
