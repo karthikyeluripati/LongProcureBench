@@ -1,5 +1,6 @@
 name: Freeze ProcureHarness Round 2 Plateau Stop v0.1
 
+# Offline retry after durable progression-audit import hardening.
 on:
   push:
     branches:
