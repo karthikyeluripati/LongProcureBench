@@ -536,6 +536,18 @@
         "direction": "asc"
       }
     ],
-    "missing_resource_values": "rank_last"
+    "missing_resource_values": "rank_last",
+    "efficiency_append_policy": {
+      "base_selection_immutable": true,
+      "pending_candidates_reserve_validation_slots": true,
+      "append_mode": "separate_append_only_authorization",
+      "requires_frozen_development_economics_binding": true,
+      "economics_binding_package": "procureharness-development-economics-v0.1"
+    }
+  },
+  "gate_locking_contract": {
+    "mechanism": "posix_flock_nonblocking",
+    "stale_file_policy": "persistent lock files are harmless; OS releases advisory lock on process death",
+    "concurrent_same_round_policy": "fail_before_gate_write"
   }
 }
