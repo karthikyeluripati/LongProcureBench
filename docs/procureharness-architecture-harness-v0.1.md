@@ -225,3 +225,20 @@ but the kernel releases the advisory lock when the process exits. A later
 selector can therefore acquire the existing file and proceed without manual
 cleanup, while a genuinely concurrent selector still fails before any frozen
 gate artifact is written.
+
+
+### Efficiency append identity and recovery
+
+A reserved efficiency candidate may be authorized later only from economics
+reports whose every row carries the exact frozen ProcureHarness policy ID:
+
+`procureharness--<candidate_id>--openai/gpt-5.6-sol`.
+
+The exact 001–020 ×3 run grid and report hashes are therefore insufficient on
+their own; candidate identity is bound explicitly before regret comparison.
+
+The efficiency addendum and its validation authorization form a recoverable
+immutable pair. If a process dies after finalizing only one file, a retry under
+the per-round advisory lock recomputes both artifacts, verifies any surviving
+file byte-for-byte, and writes only the missing counterpart. A mismatched
+surviving artifact fails closed rather than being overwritten.
