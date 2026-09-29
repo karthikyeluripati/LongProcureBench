@@ -1,8 +1,10 @@
 """Validate ProcureHarness architecture harness v0.1 against protocol #50."""
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +36,25 @@ from run_procureharness_search_v01 import (
 
 PROTOCOL_PATH = ROOT / "docs" / "procureharness-architecture-search-v0.1-protocol.json"
 REGISTRY_PATH = ROOT / "docs" / "procureharness-candidate-registry-v0.1.json"
+IMPLEMENTATION_MANIFEST_PATH = (
+    ROOT
+    / "evidence"
+    / "procureharness-architecture-harness-v0.1"
+    / "manifest.json"
+)
+EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
+    "67b5e1ba6d35489d1076ef93548f8f8bc12c4e4c"
+)
+EXPECTED_IMPLEMENTATION_BLOBS = {
+    "docs/procureharness-architecture-harness-v0.1.md":
+        "5560542d0b5113201ff0daa56f0cd17f876a5f72",
+    "docs/procureharness-candidate-registry-v0.1.json":
+        "53d09b8f2c1f1a4583c73623d4b5c730b7fbff9f",
+    "longprocurebench/procureharness.py":
+        "e3ce0e1c18f8cc36794da485bbeec98bae18e80b",
+    "scripts/run_procureharness_search_v01.py":
+        "406d17c2530a072727a0d50b5a0dbcf6b66d0643",
+}
 
 
 def _load(path: Path):
@@ -44,7 +65,83 @@ def _suffixes(episode_ids):
     return [int(e.rsplit("-", 1)[1]) for e in episode_ids]
 
 
+def git_blob_sha1(data: bytes) -> str:
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data).hexdigest()
+
+
+def frozen_blob_at_commit(commit: str, path: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", f"{commit}:{path}"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            f"Frozen implementation path missing at snapshot commit: {path}"
+        ) from exc
+    blob = result.stdout.strip()
+    if len(blob) != 40:
+        raise ValueError(
+            f"Invalid frozen implementation blob for {path}: {blob!r}"
+        )
+    return blob
+
+
+def validate_implementation_freeze(manifest=None) -> None:
+    manifest = (
+        _load(IMPLEMENTATION_MANIFEST_PATH)
+        if manifest is None
+        else manifest
+    )
+    if manifest.get("schema_version") != "0.1.0":
+        raise ValueError("implementation manifest schema version changed")
+    if manifest.get("package") != "procureharness-architecture-harness-v0.1":
+        raise ValueError("implementation manifest package identity changed")
+    if manifest.get("protocol_id") != "procureharness-architecture-search-v0.1":
+        raise ValueError("implementation manifest protocol identity changed")
+    if manifest.get("freeze_commit") != EXPECTED_IMPLEMENTATION_FREEZE_COMMIT:
+        raise ValueError("implementation freeze commit changed")
+    if manifest.get("freeze_status") != "implementation_frozen_no_model_runs":
+        raise ValueError("implementation freeze status changed")
+    if manifest.get("model_execution_status_at_freeze") != (
+        "no ProcureHarness model/provider search runs executed"
+    ):
+        raise ValueError("implementation pre-run status changed")
+
+    rows = manifest.get("frozen_files")
+    if not isinstance(rows, list):
+        raise ValueError("implementation frozen_files must be a list")
+    observed_map = {
+        row.get("path"): row.get("git_blob_sha1")
+        for row in rows
+        if isinstance(row, dict)
+    }
+    if observed_map != EXPECTED_IMPLEMENTATION_BLOBS:
+        raise ValueError("implementation manifest blob map changed")
+
+    for path, expected_blob in EXPECTED_IMPLEMENTATION_BLOBS.items():
+        immutable = frozen_blob_at_commit(
+            EXPECTED_IMPLEMENTATION_FREEZE_COMMIT,
+            path,
+        )
+        if immutable != expected_blob:
+            raise ValueError(
+                f"hard-coded implementation blob disagrees with snapshot: {path}"
+            )
+        current_path = ROOT / path
+        if not current_path.is_file():
+            raise ValueError(f"missing frozen implementation file: {path}")
+        current = git_blob_sha1(current_path.read_bytes())
+        if current != expected_blob:
+            raise ValueError(f"frozen implementation drift: {path}")
+
+
 def validate_harness() -> dict[str, int]:
+    validate_implementation_freeze()
     validate_candidate_registry()
     protocol = _load(PROTOCOL_PATH)
     registry = _load(REGISTRY_PATH)
