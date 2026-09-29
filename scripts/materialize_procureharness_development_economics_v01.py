@@ -487,10 +487,6 @@ def finalize(freeze_commit: str) -> None:
             "comparison": comparisons["candidates"][candidate_id],
         }
 
-    lock_path = ROOT / GATE_REL / ".validation-selection-round-1.lock"
-    if lock_path.exists():
-        lock_path.unlink()
-
     result = {
         "schema_version": "0.1.0",
         "protocol_id": PROTOCOL_ID,
