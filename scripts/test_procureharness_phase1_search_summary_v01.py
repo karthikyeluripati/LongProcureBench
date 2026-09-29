@@ -90,6 +90,15 @@ class ProcureHarnessPhase1SearchSummaryTests(unittest.TestCase):
         self.assertEqual(accounting["screened_candidates"], 12)
         self.assertEqual(accounting["development_confirmed_candidates"], 4)
         self.assertEqual(accounting["development_runs"], 480)
+        self.assertEqual(
+            accounting["total_tokens_across_executed_search_rows"],
+            1789236,
+        )
+        self.assertAlmostEqual(
+            accounting["known_cost_usd_across_executed_search_rows"],
+            7.7604622,
+            places=10,
+        )
         self.assertEqual(accounting["search_validation_031_040_runs"], 0)
         self.assertEqual(accounting["final_test_041_050_runs"], 0)
         self.assertFalse(accounting["round3_executed"])
