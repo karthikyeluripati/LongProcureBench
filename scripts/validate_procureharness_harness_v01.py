@@ -37,6 +37,9 @@ from select_procureharness_screening_v01 import (
     RULE_ID as SCREENING_RULE_ID,
     SCREENING_RANKING_PRIORITY,
 )
+from select_procureharness_round_progression_v01 import (
+    RULE_ID as ROUND_PROGRESSION_RULE_ID,
+)
 from select_procureharness_validation_v01 import (
     DEVELOPMENT_ECONOMICS_BINDING_PACKAGE,
     EFFICIENCY_APPEND_POLICY,
@@ -53,7 +56,7 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "c50c3ea6ee9c8cc8bc46a113fc4307921ba5d1c4"
+    "f4460b3d298125491b08112df0132dd95653e098"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
     "docs/procureharness-architecture-harness-v0.1.md": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1",
@@ -74,9 +77,10 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "schema/evaluation.schema.json": "031a8a72e68a904ba51054ff7db68ef4a513991c",
     "schema/initial-state.schema.json": "0b8269964b5d7c5d1a09e1fdf4091c4e7f8d9926",
     "schema/result.schema.json": "1c16655142c02eada9c045010b414bae207e1e1b",
-    "scripts/run_procureharness_search_v01.py": "6a436adbb5cc0528edcd37f1e0e16b0a7add6ef5",
+    "scripts/run_procureharness_search_v01.py": "883341ff8de12931a30a7e1ea5d7e46c81c0376e",
     "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
     "scripts/select_procureharness_validation_v01.py": "e587711d821d397a981c01e41341f7ae6be15ecc",
+    "scripts/select_procureharness_round_progression_v01.py": "643ccfd200df1f4f3afc6f56a6774dfca597c547",
 }
 
 
@@ -129,12 +133,13 @@ def validate_implementation_freeze(manifest=None) -> None:
     if manifest.get("freeze_commit") != EXPECTED_IMPLEMENTATION_FREEZE_COMMIT:
         raise ValueError("implementation freeze commit changed")
     if manifest.get("freeze_status") != (
-        "implementation_refrozen_after_offline_economics_binding_fix"
+        "implementation_refrozen_for_round2_progression_gate"
     ):
         raise ValueError("implementation freeze status changed")
     if manifest.get("model_execution_status_at_freeze") != (
-        "round-1 screening and development confirmation completed; "
-        "no ProcureHarness 031-040 validation or 041-050 final-method execution"
+        "round-1 search completed with no validation-authorized candidate; "
+        "no ProcureHarness 031-040 validation or 041-050 final-method execution; "
+        "round-2 screening not yet executed"
     ):
         raise ValueError("implementation refreeze execution status changed")
 
@@ -218,6 +223,8 @@ def validate_harness() -> dict[str, int]:
         "append_only_authorization_bound_to_immutable_base_selection"
     ):
         raise ValueError("validation efficiency append policy constant changed")
+    if ROUND_PROGRESSION_RULE_ID != "frozen_round_progression_v0.1":
+        raise ValueError("round progression rule_id changed")
 
     locking_contract = registry.get("gate_locking_contract")
     if locking_contract != {
