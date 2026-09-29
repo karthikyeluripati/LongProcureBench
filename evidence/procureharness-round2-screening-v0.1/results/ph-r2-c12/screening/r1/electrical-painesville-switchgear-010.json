@@ -1,0 +1,652 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-pain-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-pain-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-pain-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "lot-1",
+              "supplier_id": "syn-pain-b"
+            },
+            {
+              "quote_event_id": "e2",
+              "scope": "lot-2",
+              "supplier_id": "syn-pain-a"
+            }
+          ],
+          "reason": "Lowest-cost compliant combination: Supplier B's lot 1 and Supplier A's lot 2 total USD 820,000 and both meet the 240-day maximum lead time."
+        },
+        "supplier_id": null,
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-painesville-switchgear-010",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 2,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among feasible line assignments, prefer the combination with the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": null,
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 7
+    },
+    "episode_id": "electrical-painesville-switchgear-010",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": false,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 5,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "event_step=1, first_action_step=3",
+              "kind": "event_before_action",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Missing quantities/units and delivery must be clarified before RFQ.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "award item counts={'2': 1, '1': 1}, required=['1', '2'], optional=[]",
+              "kind": "award_scope_complete",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Award must cover both real public line items exactly once.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "lot-1 lots.1.lead_time_days=230 <= 240",
+              "kind": "award_quote_max",
+              "passed": true
+            },
+            {
+              "detail": "lot-2 lots.2.lead_time_days=210 <= 240",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Each awarded line must satisfy the clarified 240-day delivery ceiling.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "lot-1 lots.1.quantity=1 == 1",
+              "kind": "award_quote_equals",
+              "passed": true
+            },
+            {
+              "detail": "lot-2 lots.2.quantity=1 == 1",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Each awarded line must satisfy the clarified quantity of one unit.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e3, latest=e3; selected=e2, latest=e2",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c5",
+          "description": "Only the latest revealed revision for a supplier may support award.",
+          "passed": true
+        }
+      ],
+      "total": 5
+    },
+    "obligations": {
+      "actionable": 1,
+      "all_actionable_resolved": true,
+      "encountered": 1,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 1,
+      "resolution_rate": 1.0,
+      "resolved": 1,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "visible_from_initial_state",
+          "applicable": true,
+          "category": "starting_state_obligation",
+          "checkpoint": "resolve_requirement_gap",
+          "detail": "clarification_step=1, first_rfq_step=3",
+          "obligation_id": "resolve_requirement_gap:initial",
+          "resolution_step": 1,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": 0
+        },
+        {
+          "actionable": false,
+          "applicability_reason": "selected_path_does_not_require_revision",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "Selected award path is feasible without a quote revision.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 6,
+      "results": [
+        {
+          "checkpoint": "resolve_requirement_gap",
+          "complete": true,
+          "detail": "clarification_step=1, first_rfq_step=3",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 7
+    },
+    "terminal_outcome": {
+      "correct": false,
+      "detail": "Terminal decision or award set does not match any acceptable outcome.",
+      "matched_outcome_id": null
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c12--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 7,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 224,
+        "cost_usd": 0.005563200000000001,
+        "error": null,
+        "latency_ms": 5260.258106999999,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2681,
+        "success": true,
+        "total_tokens": 2905,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 224,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.005563200000000001,
+    "deterministic_action_fraction": 0.8571428571428571,
+    "deterministic_actions_accepted": 6,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 5260.258106999999,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 1,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "skill_reasoning_direct": 1
+    },
+    "model_calls": 1,
+    "model_calls_attempted": 1,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 1,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c12",
+      "fallback": "bounded_react_fallback",
+      "local_planning": "none",
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "round": 2,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 2681,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 2905,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c12--screening--electrical-painesville-switchgear-010--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [
+        {
+          "details": {
+            "max_lead_time_days": 240,
+            "quantities": {
+              "1": 1,
+              "2": 1
+            },
+            "units": {
+              "1": "EA",
+              "2": "EA"
+            }
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Synthetic benchmark clarification: quantity is 1 EA for each line and delivery must be no later than 240 days after award.",
+          "supplier_id": null,
+          "synthetic": true,
+          "trigger": {
+            "action_type": "request_buyer_clarification",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": null
+          },
+          "type": "buyer_clarification"
+        }
+      ],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": "syn-pain-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "1": {
+                "lead_time_days": 210,
+                "price": 600000,
+                "quantity": 1
+              },
+              "2": {
+                "lead_time_days": 210,
+                "price": 260000,
+                "quantity": 1
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier A quotes both lines: switchgear USD 600,000 and solar switches USD 260,000, each at 210-day delivery.",
+          "offer_scope": {
+            "item_ids": [
+              "1",
+              "2"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-pain-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-pain-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": "syn-pain-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "1": {
+                "lead_time_days": 230,
+                "price": 560000,
+                "quantity": 1
+              },
+              "2": null
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier B quotes only line 1 at USD 560,000 with 230-day delivery.",
+          "offer_scope": {
+            "item_ids": [
+              "1"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-pain-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-pain-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": "syn-pain-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lots": {
+              "1": null,
+              "2": {
+                "lead_time_days": 250,
+                "price": 230000,
+                "quantity": 1
+              }
+            },
+            "revision": 0
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier C quotes only line 2 at USD 230,000 but requires 250 days.",
+          "offer_scope": {
+            "item_ids": [
+              "2"
+            ],
+            "kind": "items"
+          },
+          "supplier_id": "syn-pain-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-pain-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e3",
+              "scope": "lot-1",
+              "supplier_id": "syn-pain-b"
+            },
+            {
+              "quote_event_id": "e2",
+              "scope": "lot-2",
+              "supplier_id": "syn-pain-a"
+            }
+          ],
+          "reason": "Lowest-cost compliant combination: Supplier B's lot 1 and Supplier A's lot 2 total USD 820,000 and both meet the 240-day maximum lead time."
+        },
+        "episode_id": "electrical-painesville-switchgear-010",
+        "supplier_id": null,
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 7
+    }
+  ]
+}

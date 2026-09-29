@@ -1,0 +1,603 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-qpl-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-qpl-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-qpl-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-qpl-a"
+            }
+          ]
+        },
+        "supplier_id": "syn-qpl-a",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-dla-qpl-breaker-017",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "validate_eligibility",
+            "complete": true,
+            "detail": "Eligibility rule passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 3
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among eligible QPL-qualified feasible offers, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": "o2",
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": false
+    },
+    "efficiency": {
+      "accepted_actions": 7
+    },
+    "episode_id": "electrical-dla-qpl-breaker-017",
+    "episode_success": false,
+    "episode_success_v02": false,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": true,
+    "feasible_process_success": false,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 5,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "syn-qpl-a eligibility_state='eligible' == 'eligible'",
+              "kind": "award_supplier_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Awarded supplier must satisfy the real total small-business set-aside.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package quantity=161 == 161",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Award must cover the real quantity of 161 breakers.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package qpl_qualified=True == True",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "Awarded item must satisfy the real Qualified Products List requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package lead_time_days=205 <= 210",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Delivery must satisfy the real 210-day ADO requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e1, latest=e1",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c5",
+          "description": "Only the latest revealed revision for a supplier may support award.",
+          "passed": true
+        }
+      ],
+      "total": 5
+    },
+    "obligations": {
+      "actionable": 0,
+      "all_actionable_resolved": true,
+      "encountered": 0,
+      "has_actionable_obligations": false,
+      "no_opportunity": 0,
+      "not_applicable": 2,
+      "resolution_rate": null,
+      "resolved": 0,
+      "results": [
+        {
+          "actionable": false,
+          "applicability_reason": "trigger_not_revealed",
+          "applicable": false,
+          "category": "event_obligation",
+          "checkpoint": "handle_supplier_question",
+          "detail": "No matching trigger event was revealed.",
+          "obligation_id": "handle_supplier_question:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        },
+        {
+          "actionable": false,
+          "applicability_reason": "selected_path_does_not_require_revision",
+          "applicable": false,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "Selected award path is feasible without a quote revision.",
+          "obligation_id": "request_quote_revision:na",
+          "resolution_step": null,
+          "resolved": null,
+          "status": "not_applicable",
+          "supplier_id": null,
+          "trigger_event_id": null,
+          "trigger_step": null
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": false,
+      "completed": 6,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "validate_eligibility",
+          "complete": true,
+          "detail": "Eligibility rule passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "handle_supplier_question",
+          "complete": false,
+          "detail": "No answer after supplier question",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": false,
+          "detail": "No quote revision request",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 8
+    },
+    "terminal_outcome": {
+      "correct": true,
+      "detail": "Terminal award set matches an acceptable outcome.",
+      "matched_outcome_id": "o2"
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r2-c10--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 7,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 143,
+        "cost_usd": 0.0035604000000000005,
+        "error": null,
+        "latency_ms": 3056.062784000005,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "local_planning",
+        "prompt_tokens": 1724,
+        "success": true,
+        "total_tokens": 1867,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 224,
+        "cost_usd": 0.013872000000000002,
+        "error": null,
+        "latency_ms": 4555.90714799996,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_mini_react",
+        "prompt_tokens": 1879,
+        "success": true,
+        "total_tokens": 2103,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 367,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.017432400000000004,
+    "deterministic_action_fraction": 0.8571428571428571,
+    "deterministic_actions_accepted": 6,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 7611.969931999965,
+    "local_plan_count": 1,
+    "max_model_calls_between_accepted_actions_observed": 2,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 1,
+    "model_call_purposes": {
+      "local_planning": 1,
+      "skill_reasoning_mini_react": 1
+    },
+    "model_calls": 2,
+    "model_calls_attempted": 2,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 2,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r2-c10",
+      "fallback": "none",
+      "local_planning": "bounded_local_plan",
+      "obligation_routing": "deterministic_priority",
+      "round": 2,
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 3603,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "quote_leveling": 1,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1
+    },
+    "temperature": null,
+    "total_tokens": 3970,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r2-c10--screening--electrical-dla-qpl-breaker-017--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": "syn-qpl-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 205,
+            "qpl_qualified": true,
+            "quantity": 161,
+            "revision": 0,
+            "total_price": 120000
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A quotes USD 120,000 for 161 QPL-qualified breakers with 205-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-qpl-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-qpl-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": "syn-qpl-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 190,
+            "qpl_qualified": true,
+            "quantity": 161,
+            "revision": 0,
+            "total_price": 100000
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B quotes USD 100,000 for 161 QPL-qualified breakers with 190-day delivery but is not small-business eligible.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-qpl-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-qpl-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": "syn-qpl-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 200,
+            "qpl_qualified": false,
+            "quantity": 161,
+            "revision": 0,
+            "total_price": 105000
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C quotes USD 105,000 for 161 breakers with 200-day delivery, but the offered item is not QPL-qualified.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-qpl-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-qpl-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e1",
+              "scope": "package",
+              "supplier_id": "syn-qpl-a"
+            }
+          ]
+        },
+        "episode_id": "electrical-dla-qpl-breaker-017",
+        "supplier_id": "syn-qpl-a",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 7
+    }
+  ]
+}
