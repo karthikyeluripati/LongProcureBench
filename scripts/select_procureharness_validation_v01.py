@@ -260,7 +260,12 @@ def _validate_economics_report_grid(
         if not isinstance(episode_id, str) or not isinstance(repeat, int):
             raise ValueError(f"{label} economics report has invalid run_key")
         keys.append((episode_id, repeat))
-    if keys != _expected_run_keys():
+    expected = _expected_run_keys()
+    if (
+        len(keys) != len(expected)
+        or len(keys) != len(set(keys))
+        or set(keys) != set(expected)
+    ):
         raise ValueError(
             f"{label} economics reports must cover exact 001-020 x3 grid"
         )
@@ -769,11 +774,9 @@ def evaluate_efficiency_promotion(
     base_selection: dict[str, Any],
     candidate_id: str,
     candidate_reports_path: str,
-    coverage_reports_path: str,
-    react_reports_path: str,
-    expected_hashes: dict[str, str] | None = None,
+    expected_candidate_sha256: str | None = None,
 ) -> dict[str, Any]:
-    """Recompute the frozen development efficiency branch from source reports."""
+    """Recompute the frozen development efficiency branch from bound evidence."""
     validate_frozen_validation_selection(base_selection)
 
     if candidate_id not in (
@@ -834,20 +837,23 @@ def evaluate_efficiency_promotion(
             "candidate fails efficiency known-cost reduction requirement"
         )
 
-    expected_hashes = expected_hashes or {}
+    economics_binding = _load_development_economics_binding()
+    coverage_binding = economics_binding["reports"]["coverage_repair"]
+    react_binding = economics_binding["reports"]["react"]
+
     candidate_reports, candidate_sha = _read_bound_report_list(
         path_value=candidate_reports_path,
-        expected_sha256=expected_hashes.get("candidate"),
+        expected_sha256=expected_candidate_sha256,
         label="candidate",
     )
     coverage_reports, coverage_sha = _read_bound_report_list(
-        path_value=coverage_reports_path,
-        expected_sha256=expected_hashes.get("coverage_repair"),
+        path_value=coverage_binding["path"],
+        expected_sha256=coverage_binding["sha256"],
         label="Coverage+Repair",
     )
     react_reports, react_sha = _read_bound_report_list(
-        path_value=react_reports_path,
-        expected_sha256=expected_hashes.get("react"),
+        path_value=react_binding["path"],
+        expected_sha256=react_binding["sha256"],
         label="ReAct",
     )
 
@@ -914,11 +920,20 @@ def evaluate_efficiency_promotion(
         "reference_cohort_count": candidate_comparison.get(
             "reference_cohort_count"
         ),
+        "development_economics_binding_path": str(
+            DEVELOPMENT_ECONOMICS_BINDING_PATH
+        ),
+        "development_economics_binding_sha256": economics_binding[
+            "manifest_sha256"
+        ],
+        "development_economics_binding_freeze_commit": economics_binding[
+            "freeze_commit"
+        ],
         "candidate_economics_reports_path": candidate_reports_path,
         "candidate_economics_reports_sha256": candidate_sha,
-        "coverage_repair_economics_reports_path": coverage_reports_path,
+        "coverage_repair_economics_reports_path": coverage_binding["path"],
         "coverage_repair_economics_reports_sha256": coverage_sha,
-        "react_economics_reports_path": react_reports_path,
+        "react_economics_reports_path": react_binding["path"],
         "react_economics_reports_sha256": react_sha,
         "candidate_comparison": candidate_comparison,
         "coverage_repair_comparison": coverage_comparison,
@@ -965,26 +980,15 @@ def validate_frozen_efficiency_addendum(
     if addendum.get("round") != base_selection.get("round"):
         raise ValueError("efficiency addendum round mismatch")
 
-    expected_hashes = {
-        "candidate": addendum.get(
-            "candidate_economics_reports_sha256"
-        ),
-        "coverage_repair": addendum.get(
-            "coverage_repair_economics_reports_sha256"
-        ),
-        "react": addendum.get("react_economics_reports_sha256"),
-    }
     recomputed = evaluate_efficiency_promotion(
         base_selection=base_selection,
         candidate_id=candidate_id,
         candidate_reports_path=addendum[
             "candidate_economics_reports_path"
         ],
-        coverage_reports_path=addendum[
-            "coverage_repair_economics_reports_path"
-        ],
-        react_reports_path=addendum["react_economics_reports_path"],
-        expected_hashes=expected_hashes,
+        expected_candidate_sha256=addendum.get(
+            "candidate_economics_reports_sha256"
+        ),
     )
     for key, value in recomputed.items():
         if addendum.get(key) != value:
@@ -998,8 +1002,6 @@ def freeze_efficiency_validation_authorization(
     base_selection_path: Path,
     candidate_id: str,
     candidate_reports_path: Path,
-    coverage_reports_path: Path,
-    react_reports_path: Path,
     output_dir: Path,
 ) -> tuple[Path, Path]:
     base_raw = base_selection_path.read_bytes()
@@ -1028,8 +1030,6 @@ def freeze_efficiency_validation_authorization(
             base_selection=base_selection,
             candidate_id=candidate_id,
             candidate_reports_path=str(candidate_reports_path),
-            coverage_reports_path=str(coverage_reports_path),
-            react_reports_path=str(react_reports_path),
         )
         addendum = {
             **promotion,
