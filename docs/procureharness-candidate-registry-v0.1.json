@@ -479,5 +479,63 @@
       }
     ],
     "missing_resource_values": "rank_last"
+  },
+  "validation_selection_rule": {
+    "rule_id": "frozen_validation_entry_lexicographic_v0.1",
+    "purpose": "choose at most two development-confirmed candidates per round for 031-040 x3 validation",
+    "requires_complete_development_confirmation": true,
+    "max_selected_candidates": 2,
+    "development_confirmation_floor": {
+      "feasible_obligation_success_min": 47,
+      "strict_v02_min": 27,
+      "economic_objective_min": 27
+    },
+    "quality_promotion": {
+      "comparison": "coverage_repair",
+      "baseline": {
+        "feasible_obligation_success": 50,
+        "strict_v02": 30,
+        "economic_objective": 30
+      },
+      "improve_any_metric_by_runs": 3,
+      "max_deficit_runs_on_other_mandatory_success_metrics": 3,
+      "max_known_cost_usd": 7.9842032
+    },
+    "efficiency_promotion": {
+      "status": "requires_frozen_economic_comparison_gate",
+      "note": "The selector refuses to freeze an efficiency-only promotion without a separately frozen economics comparison artifact."
+    },
+    "method": "lexicographic",
+    "priority": [
+      {
+        "metric": "feasible_obligation_success",
+        "direction": "desc"
+      },
+      {
+        "metric": "strict_v02",
+        "direction": "desc"
+      },
+      {
+        "metric": "economic_objective",
+        "direction": "desc"
+      },
+      {
+        "metric": "obligation_resolution_rate",
+        "direction": "desc"
+      },
+      {
+        "metric": "known_cost_usd",
+        "direction": "asc"
+      },
+      {
+        "metric": "total_tokens",
+        "direction": "asc"
+      },
+      {
+        "metric": "candidate_id",
+        "direction": "asc"
+      }
+    ],
+    "missing_resource_values": "rank_last"
   }
 }
