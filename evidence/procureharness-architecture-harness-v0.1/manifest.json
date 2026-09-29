@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.1.0",
+  "package": "procureharness-architecture-harness-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "freeze_commit": "67b5e1ba6d35489d1076ef93548f8f8bc12c4e4c",
+  "freeze_status": "implementation_frozen_no_model_runs",
+  "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
+  "frozen_files": [
+    {
+      "path": "docs/procureharness-architecture-harness-v0.1.md",
+      "git_blob_sha1": "5560542d0b5113201ff0daa56f0cd17f876a5f72"
+    },
+    {
+      "path": "docs/procureharness-candidate-registry-v0.1.json",
+      "git_blob_sha1": "53d09b8f2c1f1a4583c73623d4b5c730b7fbff9f"
+    },
+    {
+      "path": "longprocurebench/procureharness.py",
+      "git_blob_sha1": "e3ce0e1c18f8cc36794da485bbeec98bae18e80b"
+    },
+    {
+      "path": "scripts/run_procureharness_search_v01.py",
+      "git_blob_sha1": "406d17c2530a072727a0d50b5a0dbcf6b66d0643"
+    },
+    {
+      "path": "scripts/validate_procureharness_harness_v01.py",
+      "git_blob_sha1": "fc639d7f4e58eb36c47bdfc675efd912a4e8f320"
+    }
+  ],
+  "notes": [
+    "This freeze predates any paid/model-backed ProcureHarness architecture-search execution.",
+    "Any controller/config/runner change requires a new harness version and a new freeze commit.",
+    "Episodes 041-050 remain non-executable in the architecture-search runner."
+  ]
+}
