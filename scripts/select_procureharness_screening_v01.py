@@ -8,6 +8,7 @@ authorizations. It makes no model/provider calls.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 from hashlib import sha256
 import json
 import math
@@ -43,6 +44,39 @@ SCREENING_RANKING_PRIORITY = [
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+@contextmanager
+def _exclusive_gate_lock(
+    output_dir: Path,
+    *,
+    gate_name: str,
+    round_id: int,
+):
+    """Serialize one gate freeze and fail closed on concurrent invocation."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = output_dir / f".{gate_name}-round-{round_id}.lock"
+    try:
+        fd = os.open(
+            lock_path,
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o644,
+        )
+    except FileExistsError as exc:
+        raise ValueError(
+            f"{gate_name} round {round_id} freeze is already in progress: "
+            f"{lock_path}"
+        ) from exc
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(f"pid={os.getpid()}\n")
+        yield lock_path
+    finally:
+        try:
+            lock_path.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -359,100 +393,109 @@ def freeze_selection(
     results_root: Path,
     output_dir: Path,
 ) -> tuple[Path, list[Path]]:
-    selection = select_screening_round(
-        round_id=round_id,
-        results_root=results_root,
-    )
-    validate_frozen_screening_selection(selection)
-
     output_dir.mkdir(parents=True, exist_ok=True)
-    selection_path = output_dir / f"screening-selection-round-{round_id}.json"
-    selection_encoded = (
-        json.dumps(
-            selection,
-            indent=2,
-            sort_keys=True,
-            allow_nan=False,
+    with _exclusive_gate_lock(
+        output_dir,
+        gate_name="screening-selection",
+        round_id=round_id,
+    ):
+        selection = select_screening_round(
+            round_id=round_id,
+            results_root=results_root,
         )
-        + "\n"
-    ).encode("utf-8")
-    selection_sha = _sha256_bytes(selection_encoded)
+        validate_frozen_screening_selection(selection)
 
-    authorization_payloads = []
-    for candidate_id in selection["selected_candidate_ids"]:
-        authorization = {
-            "schema_version": "0.1.0",
-            "protocol_id": PROTOCOL_ID,
-            "candidate_id": candidate_id,
-            "round": round_id,
-            "phase": "development_confirmation",
-            "approved": True,
-            "screening_complete": True,
-            "screening_selected_candidate_ids": list(
-                selection["selected_candidate_ids"]
-            ),
-            "selection_rule": RULE_ID,
-            "screening_selection_path": str(selection_path),
-            "screening_selection_sha256": selection_sha,
-        }
-        path = output_dir / (
-            f"{candidate_id}--development-confirmation-auth.json"
+        selection_path = (
+            output_dir / f"screening-selection-round-{round_id}.json"
         )
-        encoded = (
+        selection_encoded = (
             json.dumps(
-                authorization,
+                selection,
                 indent=2,
                 sort_keys=True,
                 allow_nan=False,
             )
             + "\n"
         ).encode("utf-8")
-        authorization_payloads.append((path, encoded))
+        selection_sha = _sha256_bytes(selection_encoded)
 
-    final_paths = [
-        selection_path,
-        *[path for path, _ in authorization_payloads],
-    ]
-    existing = [path for path in final_paths if path.exists()]
-    if existing:
-        raise ValueError(
-            "refusing to overwrite frozen screening gate artifact(s): "
-            + ", ".join(str(path) for path in existing)
+        authorization_payloads = []
+        for candidate_id in selection["selected_candidate_ids"]:
+            authorization = {
+                "schema_version": "0.1.0",
+                "protocol_id": PROTOCOL_ID,
+                "candidate_id": candidate_id,
+                "round": round_id,
+                "phase": "development_confirmation",
+                "approved": True,
+                "screening_complete": True,
+                "screening_selected_candidate_ids": list(
+                    selection["selected_candidate_ids"]
+                ),
+                "selection_rule": RULE_ID,
+                "screening_selection_path": str(selection_path),
+                "screening_selection_sha256": selection_sha,
+            }
+            auth_path = output_dir / (
+                f"{candidate_id}--development-confirmation-auth.json"
+            )
+            encoded = (
+                json.dumps(
+                    authorization,
+                    indent=2,
+                    sort_keys=True,
+                    allow_nan=False,
+                )
+                + "\n"
+            ).encode("utf-8")
+            authorization_payloads.append((auth_path, encoded))
+
+        final_paths = [
+            selection_path,
+            *[auth_path for auth_path, _ in authorization_payloads],
+        ]
+        existing = [path for path in final_paths if path.exists()]
+        if existing:
+            raise ValueError(
+                "refusing to overwrite frozen screening gate artifact(s): "
+                + ", ".join(str(path) for path in existing)
+            )
+
+        committed: list[Path] = []
+        try:
+            with tempfile.TemporaryDirectory(
+                dir=output_dir,
+                prefix=".screening-gate-",
+            ) as staging_dir:
+                staging = Path(staging_dir)
+                staged = []
+
+                selection_stage = staging / selection_path.name
+                selection_stage.write_bytes(selection_encoded)
+                staged.append((selection_stage, selection_path))
+
+                for auth_path, encoded in authorization_payloads:
+                    stage = staging / auth_path.name
+                    stage.write_bytes(encoded)
+                    staged.append((stage, auth_path))
+
+                for stage, final in staged:
+                    # The exclusive lock ensures another compliant selector
+                    # cannot race this finalization and overwrite frozen files.
+                    os.replace(stage, final)
+                    committed.append(final)
+        except Exception:
+            for committed_path in reversed(committed):
+                try:
+                    committed_path.unlink()
+                except FileNotFoundError:
+                    pass
+            raise
+
+        return (
+            selection_path,
+            [auth_path for auth_path, _ in authorization_payloads],
         )
-
-    committed: list[Path] = []
-    try:
-        with tempfile.TemporaryDirectory(
-            dir=output_dir,
-            prefix=".screening-gate-",
-        ) as staging_dir:
-            staging = Path(staging_dir)
-            staged = []
-
-            selection_stage = staging / selection_path.name
-            selection_stage.write_bytes(selection_encoded)
-            staged.append((selection_stage, selection_path))
-
-            for path, encoded in authorization_payloads:
-                stage = staging / path.name
-                stage.write_bytes(encoded)
-                staged.append((stage, path))
-
-            for stage, final in staged:
-                os.replace(stage, final)
-                committed.append(final)
-    except Exception:
-        for path in reversed(committed):
-            try:
-                path.unlink()
-            except FileNotFoundError:
-                pass
-        raise
-
-    return (
-        selection_path,
-        [path for path, _ in authorization_payloads],
-    )
 
 
 def main() -> None:
