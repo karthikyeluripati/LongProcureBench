@@ -4,8 +4,13 @@ from __future__ import annotations
 from copy import deepcopy
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
 
 from run_procureharness_search_v01 import (
     round_candidate_ids,
@@ -18,7 +23,10 @@ from select_procureharness_round_progression_v01 import (
     _recompute_efficiency_gate,
     _validate_manifest_entries,
     compute_round1_progression,
+    compute_round2_progression,
     freeze_round1_progression,
+    freeze_round2_progression,
+    validate_frozen_round2_progression,
     validate_frozen_round_progression,
 )
 
@@ -193,6 +201,137 @@ class ProcureHarnessRoundProgressionTests(unittest.TestCase):
                 )
             self.assertEqual(observed, expected)
 
+    def test_round2_economics_baseline_provenance_is_bound(self):
+        economics_manifest = progression_selector._load_json(
+            progression_selector.ROUND2_ECONOMICS_MANIFEST_PATH
+        )
+        progression_selector._validate_round2_economics_baseline_provenance(
+            economics_manifest
+        )
+
+        cases = [
+            (
+                "baseline_economics_manifest",
+                "sha256",
+                "0" * 64,
+                "baseline manifest binding drift",
+            ),
+            (
+                "baseline_reference_cohort",
+                "sha256",
+                "0" * 64,
+                "reference-cohort binding drift",
+            ),
+        ]
+        for field, key, value, pattern in cases:
+            mutated = deepcopy(economics_manifest)
+            mutated[field][key] = value
+            with self.subTest(field=field), self.assertRaisesRegex(
+                ValueError,
+                pattern,
+            ):
+                progression_selector._validate_round2_economics_baseline_provenance(
+                    mutated
+                )
+
+        mutated = deepcopy(economics_manifest)
+        mutated["baseline_freeze_commit"] = "0" * 40
+        with self.assertRaisesRegex(
+            ValueError,
+            "baseline freeze commit drift",
+        ):
+            progression_selector._validate_round2_economics_baseline_provenance(
+                mutated
+            )
+
+    def test_round2_progression_fires_two_round_plateau_stop(self):
+        progression = compute_round2_progression()
+        self.assertEqual(progression["completed_round"], 2)
+        self.assertFalse(progression["round_added_new_frontier_point"])
+        self.assertEqual(
+            progression["prior_consecutive_no_new_frontier_rounds"],
+            1,
+        )
+        self.assertEqual(
+            progression["consecutive_no_new_frontier_rounds"],
+            2,
+        )
+        self.assertEqual(progression["plateau_stop_threshold"], 2)
+        self.assertTrue(progression["plateau_stop_fired"])
+        self.assertFalse(progression["max_rounds_stop_fired"])
+        self.assertFalse(
+            progression["unique_candidate_budget_stop_fired"]
+        )
+        self.assertTrue(progression["stop_search"])
+        self.assertEqual(progression["decision"], "stop")
+        self.assertEqual(
+            progression["stop_reason"],
+            "two_consecutive_no_new_frontier_rounds",
+        )
+        self.assertIsNone(progression["next_round"])
+        self.assertEqual(
+            progression["screening_authorized_candidate_ids"],
+            [],
+        )
+        self.assertEqual(
+            progression["round2_final_validation_candidate_ids"],
+            [],
+        )
+        self.assertEqual(
+            progression["screened_unique_candidate_count"],
+            12,
+        )
+
+    def test_round2_progression_validator_rejects_mutation(self):
+        progression = compute_round2_progression()
+        validate_frozen_round2_progression(progression)
+
+        mutated = deepcopy(progression)
+        mutated["plateau_stop_fired"] = False
+        with self.assertRaisesRegex(
+            ValueError,
+            "does not match recomputed frozen Round-2 evidence",
+        ):
+            validate_frozen_round2_progression(mutated)
+
+    def test_round2_stop_freeze_is_retry_recoverable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            path = freeze_round2_progression(
+                output_dir=output_dir,
+            )
+            first = path.read_bytes()
+
+            recovered = freeze_round2_progression(
+                output_dir=output_dir,
+            )
+            self.assertEqual(recovered, path)
+            self.assertEqual(path.read_bytes(), first)
+
+            path.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "does not match recomputed frozen content",
+            ):
+                freeze_round2_progression(
+                    output_dir=output_dir,
+                )
+
+    def test_round2_stop_emits_no_round3_authorization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            path = freeze_round2_progression(
+                output_dir=output_dir,
+            )
+            progression = json.loads(
+                path.read_text(encoding="utf-8")
+            )
+            validate_frozen_round2_progression(progression)
+            self.assertEqual(
+                list(output_dir.glob("ph-r3-*-screening-auth.json")),
+                [],
+            )
+
     def test_committed_progression_artifact_recomputes_if_present(self):
         gate = (
             Path(__file__).resolve().parents[1]
@@ -224,6 +363,40 @@ class ProcureHarnessRoundProgressionTests(unittest.TestCase):
                 phase="screening",
                 authorization=authorization,
             )
+
+        round2_path = gate / "round-progression-after-round-2.json"
+        if round2_path.is_file():
+            round2 = json.loads(
+                round2_path.read_text(encoding="utf-8")
+            )
+            validate_frozen_round2_progression(round2)
+            self.assertTrue(round2["plateau_stop_fired"])
+            self.assertEqual(round2["decision"], "stop")
+            self.assertEqual(
+                round2["screening_authorized_candidate_ids"],
+                [],
+            )
+            self.assertEqual(
+                set(round2["evidence_bindings"]),
+                {
+                    "prior_round_progression",
+                    "screening_manifest",
+                    "screening_selection",
+                    "confirmation_manifest",
+                    "validation_selection",
+                    "round2_economics_manifest",
+                    "efficiency_gate_result",
+                },
+            )
+            for candidate_id in round_candidate_ids(3):
+                self.assertFalse(
+                    (
+                        gate
+                        / f"{candidate_id}--screening-auth.json"
+                    ).exists(),
+                    f"Round-3 auth must not exist after plateau stop: "
+                    f"{candidate_id}",
+                )
 
 
 if __name__ == "__main__":

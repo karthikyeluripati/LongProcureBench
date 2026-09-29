@@ -2,9 +2,9 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "5827d2a4ad8ffae193d78570119b2cc74487987a",
-  "freeze_status": "implementation_refrozen_for_round2_progression_gate",
-  "model_execution_status_at_freeze": "round-1 search completed with no validation-authorized candidate; no ProcureHarness 031-040 validation or 041-050 final-method execution; round-2 screening not yet executed",
+  "freeze_commit": "1307765352782bb32417f980a3311506756bc293",
+  "freeze_status": "implementation_refrozen_for_round2_plateau_stop_gate",
+  "model_execution_status_at_freeze": "round-1 and round-2 development search completed with no validation-authorized candidate; no ProcureHarness 031-040 validation or 041-050 final-method execution; round-3 screening not executed",
   "frozen_files": [
     {
       "path": "docs/procureharness-architecture-harness-v0.1.md",
@@ -92,24 +92,21 @@
     },
     {
       "path": "scripts/select_procureharness_round_progression_v01.py",
-      "git_blob_sha1": "8d3e958ad6a8cf8784a9bb4d4d4957bff675ff04"
+      "git_blob_sha1": "efd42cb463fcb98bedda9c6dc7c10d69a2503f83"
     }
   ],
   "notes": [
-    "This refreeze occurs after the complete Round-1 development search and offline economics gate; no Round-1 candidate was authorized for 031-040 validation.",
-    "No ProcureHarness 031-040 validation or 041-050 final-method model-backed run has executed at this refreeze, and Round-2 screening has not yet executed.",
-    "The controller, candidate configs, prompts, evaluator, model settings, benchmark, and economics rules are unchanged; the search runner changes only to accept a bound later-round screening authorization from the offline progression selector.",
-    "The hardened Round-1 -> Round-2 progression selector verifies exact screening/confirmation manifest source and gate file sets, hashes and byte counts, links every summary row back to its raw result, and recomputes the efficiency outcome from the frozen economics reports rather than trusting the recorded gate result.",
-    "Progression publication is retry-recoverable: exact surviving progression/auth files are reused after interruption and only missing files are created; mismatched survivors fail closed.",
-    "The progression gate observes zero Round-1 validation-authorized candidates, records one consecutive no-new-frontier round, applies the frozen two-round plateau stop rule, and authorizes exactly the six preregistered Round-2 candidates when no stop condition fires.",
-    "Round-3 screening remains fail-closed until a subsequent frozen progression/frontier gate recomputes all completed evidence and stop conditions.",
+    "This refreeze occurs after complete Round-1 and Round-2 development search plus their offline economics gates; neither round produced a candidate authorized for 031-040 validation.",
+    "No ProcureHarness 031-040 validation or 041-050 final-method model-backed run has executed, and Round-3 screening has not executed.",
+    "The controller, candidate configs, prompts, evaluator, model settings, benchmark, economics thresholds, frontier dimensions, and plateau threshold are unchanged.",
+    "The offline progression selector supports the completed Round-2 stop computation while preserving the previously frozen Round-1 -> Round-2 progression behavior.",
+    "The hardened Round-2 stop gate validates the Round-2 economics package's baseline economics manifest binding, frozen reference-cohort binding, and baseline freeze commit before recording the stop decision.",
+    "The Round-2 stop gate also revalidates Round-1 progression, exact Round-2 screening/confirmation manifests and raw-result summaries, the immutable Round-2 validation-entry selection, and recomputes the Round-2 efficiency decisions from bound economics reports.",
+    "Under the frozen ceiling rule, Round 1 and Round 2 each add no validation frontier point, so the consecutive no-new-frontier counter reaches 2 and the plateau stop fires before any Round-3 screening.",
+    "A stop decision emits no Round-3 screening authorization.",
+    "Progression publication is retry-recoverable: exact surviving artifacts are reused and mismatched survivors fail closed.",
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
     "The validator remains outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
-    "The freeze includes transitive execution dependencies: context compilation, base reactive/action schema, LiteLLM adapter, runner, runtime, evaluator, initial-state validation, JSON schemas, requirements.txt, and all three offline search selectors.",
-    "Validation selections reserve pending efficiency slots immutably; late efficiency qualification remains append-only and cannot rewrite the base selection.",
-    "Selector/progression locking uses persistent POSIX flock files; killed processes release advisory locks automatically without requiring lock-file deletion.",
-    "The behavior freeze includes economics.py because late efficiency authorization recomputes regret from bound economics reports.",
-    "Late efficiency promotion candidate economics reports remain bound to the exact frozen ProcureHarness candidate policy_id, grid, and file hash.",
-    "No promotion threshold, ranking priority, cost rule, regret rule, frontier dimension, plateau threshold, or candidate design was changed by this refreeze."
+    "No promotion threshold, ranking priority, cost rule, regret rule, frontier dimension, search budget, or candidate design was changed by this refreeze."
   ]
 }

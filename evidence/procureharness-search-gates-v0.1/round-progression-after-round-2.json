@@ -1,0 +1,52 @@
+{
+  "completed_round": 2,
+  "consecutive_no_new_frontier_rounds": 2,
+  "decision": "stop",
+  "evidence_bindings": {
+    "confirmation_manifest": {
+      "path": "evidence/procureharness-round2-confirmation-v0.1/manifest.json",
+      "sha256": "3f6a3e42150ce10234fb6c7380071fcbeb7bb035e9c969a1e8ac824817df5dec"
+    },
+    "efficiency_gate_result": {
+      "path": "evidence/procureharness-round2-economics-v0.1/efficiency-gate-result.json",
+      "sha256": "db6f1d33f0be3a2f74102549b88a22f196711f3cfd7cb1a9cb2a72d2b655ec36"
+    },
+    "prior_round_progression": {
+      "path": "evidence/procureharness-search-gates-v0.1/round-progression-after-round-1.json",
+      "sha256": "35d2de0af9f58c67a2fc0480002aae450835854512d941e1260f9b1437fbe3a2"
+    },
+    "round2_economics_manifest": {
+      "path": "evidence/procureharness-round2-economics-v0.1/manifest.json",
+      "sha256": "43b0c0cdb4c11bcdffbafb823a5de222a3f65ab88181471711cbae560b2bdbb7"
+    },
+    "screening_manifest": {
+      "path": "evidence/procureharness-round2-screening-v0.1/manifest.json",
+      "sha256": "db95c223e6f65f9b5b26bd25ea871fcff953a03b1b31f4a1fc07d72345de36ca"
+    },
+    "screening_selection": {
+      "path": "evidence/procureharness-search-gates-v0.1/screening-selection-round-2.json",
+      "sha256": "0fc3c38727c3e511567e05cb520871bb85c769eb316e14a1bce6efc6cfab5476"
+    },
+    "validation_selection": {
+      "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-2.json",
+      "sha256": "823c2e65f8c40789b7a4dfb8684c6683d719f66518c5b76a8e63dd65385c026c"
+    }
+  },
+  "max_rounds_stop_fired": false,
+  "next_round": null,
+  "plateau_stop_fired": true,
+  "plateau_stop_threshold": 2,
+  "prior_consecutive_no_new_frontier_rounds": 1,
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "round2_final_validation_candidate_ids": [],
+  "round_added_new_frontier_point": false,
+  "round_completion_status": "complete_no_validation_candidate",
+  "rule_id": "frozen_round_progression_v0.1",
+  "schema_version": "0.1.0",
+  "screened_unique_candidate_count": 12,
+  "screening_authorized_candidate_ids": [],
+  "stop_reason": "two_consecutive_no_new_frontier_rounds",
+  "stop_search": true,
+  "unique_candidate_budget_stop_fired": false,
+  "validation_execution_status": "not_run_no_authorized_round2_candidate"
+}

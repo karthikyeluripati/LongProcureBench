@@ -56,7 +56,7 @@ IMPLEMENTATION_MANIFEST_PATH = (
     / "manifest.json"
 )
 EXPECTED_IMPLEMENTATION_FREEZE_COMMIT = (
-    "5827d2a4ad8ffae193d78570119b2cc74487987a"
+    "1307765352782bb32417f980a3311506756bc293"
 )
 EXPECTED_IMPLEMENTATION_BLOBS = {
     "docs/procureharness-architecture-harness-v0.1.md": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1",
@@ -80,7 +80,7 @@ EXPECTED_IMPLEMENTATION_BLOBS = {
     "scripts/run_procureharness_search_v01.py": "883341ff8de12931a30a7e1ea5d7e46c81c0376e",
     "scripts/select_procureharness_screening_v01.py": "f91868d70d13a2e1a3dc03e9ab87d4570bee9901",
     "scripts/select_procureharness_validation_v01.py": "e587711d821d397a981c01e41341f7ae6be15ecc",
-    "scripts/select_procureharness_round_progression_v01.py": "8d3e958ad6a8cf8784a9bb4d4d4957bff675ff04",
+    "scripts/select_procureharness_round_progression_v01.py": "efd42cb463fcb98bedda9c6dc7c10d69a2503f83",
 }
 
 
@@ -133,13 +133,14 @@ def validate_implementation_freeze(manifest=None) -> None:
     if manifest.get("freeze_commit") != EXPECTED_IMPLEMENTATION_FREEZE_COMMIT:
         raise ValueError("implementation freeze commit changed")
     if manifest.get("freeze_status") != (
-        "implementation_refrozen_for_round2_progression_gate"
+        "implementation_refrozen_for_round2_plateau_stop_gate"
     ):
         raise ValueError("implementation freeze status changed")
     if manifest.get("model_execution_status_at_freeze") != (
-        "round-1 search completed with no validation-authorized candidate; "
-        "no ProcureHarness 031-040 validation or 041-050 final-method execution; "
-        "round-2 screening not yet executed"
+        "round-1 and round-2 development search completed with no "
+        "validation-authorized candidate; no ProcureHarness 031-040 "
+        "validation or 041-050 final-method execution; round-3 screening "
+        "not executed"
     ):
         raise ValueError("implementation refreeze execution status changed")
 
