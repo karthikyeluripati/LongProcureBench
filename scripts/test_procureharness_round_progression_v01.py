@@ -94,16 +94,36 @@ class ProcureHarnessRoundProgressionTests(unittest.TestCase):
             self.assertEqual(observed, expected)
 
     def test_committed_progression_artifact_recomputes_if_present(self):
-        path = (
+        gate = (
             Path(__file__).resolve().parents[1]
             / "evidence"
             / "procureharness-search-gates-v0.1"
-            / "round-progression-after-round-1.json"
         )
+        path = gate / "round-progression-after-round-1.json"
         if not path.is_file():
             self.skipTest("Round-2 progression artifact not materialized yet")
         progression = json.loads(path.read_text(encoding="utf-8"))
         validate_frozen_round_progression(progression)
+
+        expected = round_candidate_ids(2)
+        self.assertEqual(
+            progression["screening_authorized_candidate_ids"],
+            expected,
+        )
+        for candidate_id in expected:
+            auth_path = gate / f"{candidate_id}--screening-auth.json"
+            self.assertTrue(
+                auth_path.is_file(),
+                f"missing committed Round-2 screening auth: {auth_path}",
+            )
+            authorization = json.loads(
+                auth_path.read_text(encoding="utf-8")
+            )
+            validate_phase_authorization(
+                candidate_id=candidate_id,
+                phase="screening",
+                authorization=authorization,
+            )
 
 
 if __name__ == "__main__":
