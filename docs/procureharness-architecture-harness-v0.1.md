@@ -133,3 +133,53 @@ existing protocol:
 5. recompute the cumulative admissible Pareto frontier and stop under the
    frozen plateau/budget rule;
 6. freeze a winner (or no-winner result) **before any model call on 041–050**.
+
+
+## Evidence-derived selection gates
+
+Paid phases are authorized from recomputed frozen artifacts, not from trusted
+booleans in an authorization JSON.
+
+### Screening → development confirmation
+
+`scripts/select_procureharness_screening_v01.py`:
+
+- requires all six 001-020 x1 screening summaries for the round;
+- verifies the exact 20-run grid and clean execution;
+- aggregates quality, obligation, token, and cost metrics;
+- applies the registry-frozen lexicographic ranking;
+- selects at most two candidates;
+- binds every source summary by SHA-256;
+- writes the selection and per-candidate authorizations atomically after
+  preflighting every target path.
+
+The runner revalidates the frozen selection from the bound summaries before a
+development-confirmation run can start.
+
+### Development confirmation → 031-040 validation
+
+`scripts/select_procureharness_validation_v01.py`:
+
+- revalidates the screening selection;
+- requires each selected candidate's complete 001-020 x3 confirmation summary;
+- recomputes the 47/60 feasible, 27/60 strict, and 27/60 economic floor;
+- recomputes the frozen quality-promotion branch against Coverage+Repair;
+- applies the protocol's validation-entry lexicographic ranking;
+- selects at most two candidates and binds all confirmation summaries by hash.
+
+The runner revalidates this artifact before any 031-040 model call. An
+authorization cannot manufacture completion, floor passage, promotion, or
+selection.
+
+The efficiency-only promotion branch is deliberately fail-closed until a
+separately frozen economic-comparison gate supplies the required full-cohort
+regret evidence. This avoids treating an unverified boolean as economic
+evidence.
+
+### Later search rounds
+
+Round-2/3 screening is deliberately fail-closed in harness v0.1 until a frozen
+frontier/plateau progression gate recomputes prior-round validation,
+nondominance, plateau state, and budget state from bound evidence. Claimed
+`prior_round_validation_complete`, `plateau_stop_fired`, or
+`search_budget_exhausted` fields cannot unlock paid runs.
