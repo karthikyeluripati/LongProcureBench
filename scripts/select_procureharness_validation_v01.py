@@ -1231,21 +1231,68 @@ def freeze_validation_selection(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--round", type=int, choices=(1, 2, 3), required=True)
+    parser.add_argument("--round", type=int, choices=(1, 2, 3))
     parser.add_argument(
         "--results-root",
         default="results/procureharness-architecture-search-v0.1",
     )
     parser.add_argument(
         "--screening-selection-json",
-        required=True,
     )
     parser.add_argument(
         "--output-dir",
         default="evidence/procureharness-search-gates-v0.1",
     )
     parser.add_argument("--preview", action="store_true")
+    parser.add_argument(
+        "--append-efficiency-candidate",
+        help=(
+            "Append an efficiency-qualified validation authorization into a "
+            "slot reserved by an immutable base validation selection."
+        ),
+    )
+    parser.add_argument(
+        "--base-validation-selection-json",
+    )
+    parser.add_argument(
+        "--candidate-economics-json",
+    )
     args = parser.parse_args()
+
+    if args.append_efficiency_candidate:
+        if not args.base_validation_selection_json:
+            parser.error(
+                "--base-validation-selection-json is required for "
+                "--append-efficiency-candidate"
+            )
+        if not args.candidate_economics_json:
+            parser.error(
+                "--candidate-economics-json is required for "
+                "--append-efficiency-candidate"
+            )
+        addendum_path, authorization_path = (
+            freeze_efficiency_validation_authorization(
+                base_selection_path=Path(
+                    args.base_validation_selection_json
+                ),
+                candidate_id=args.append_efficiency_candidate,
+                candidate_reports_path=Path(
+                    args.candidate_economics_json
+                ),
+                output_dir=Path(args.output_dir),
+            )
+        )
+        print(f"addendum={addendum_path}")
+        print(f"authorization={authorization_path}")
+        return
+
+    if args.round is None:
+        parser.error("--round is required for base validation selection")
+    if not args.screening_selection_json:
+        parser.error(
+            "--screening-selection-json is required for base "
+            "validation selection"
+        )
 
     if args.preview:
         payload = select_validation_round(
