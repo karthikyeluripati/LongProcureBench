@@ -1,0 +1,728 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 2,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 3,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-relay-a",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 4,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-relay-b",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 5,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-relay-c",
+        "type": "send_rfq"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 6,
+      "decision": {
+        "arguments": {},
+        "supplier_id": "syn-relay-c",
+        "type": "send_follow_up"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 7,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 8,
+      "decision": {
+        "arguments": {
+          "reason": "Supplier B withdrew, and Supplier C's active quote covers only 22 of the required 24 relays. Request a revised quote for the full 24-unit package while maintaining delivery within the 46-day requirement."
+        },
+        "supplier_id": "syn-relay-c",
+        "type": "request_quote_revision"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 9,
+      "decision": {
+        "arguments": {},
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "error": null
+    },
+    {
+      "accepted": true,
+      "attempt": 10,
+      "decision": {
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e6",
+              "scope": "package",
+              "supplier_id": "syn-relay-c"
+            }
+          ],
+          "reason": "Supplier C's revised quote covers all 24 required relays, meets the 46-day delivery requirement with a 45-day lead time, and at USD 47,000 is lower than Supplier A's compliant offer. Supplier B withdrew before award."
+        },
+        "supplier_id": "syn-relay-c",
+        "type": "award_supplier"
+      },
+      "error": null
+    }
+  ],
+  "benchmark": {
+    "name": "LongProcureBench",
+    "runner_version": "0.1.0"
+  },
+  "episode_id": "electrical-dla-relay-012",
+  "error": null,
+  "evaluation": {
+    "checkpoint_diagnostics": {
+      "procedural": {
+        "all_completed": true,
+        "completed": 3,
+        "results": [
+          {
+            "checkpoint": "solicit_competition",
+            "complete": true,
+            "detail": "RFQs sent to 3 suppliers",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "evaluate_quotes",
+            "complete": true,
+            "detail": "Quote evaluation action observed",
+            "evidence_mode": "direct"
+          },
+          {
+            "checkpoint": "award_or_recommend",
+            "complete": true,
+            "detail": "Terminal decision reached",
+            "evidence_mode": "direct"
+          }
+        ],
+        "total": 3
+      },
+      "proxy": {
+        "all_completed": true,
+        "completed": 2,
+        "results": [
+          {
+            "checkpoint": "normalize_quotes",
+            "complete": true,
+            "detail": "Evaluation occurred with 3 revealed quotes",
+            "evidence_mode": "proxy"
+          },
+          {
+            "checkpoint": "validate_compliance",
+            "complete": true,
+            "detail": "Hard constraints passed with evaluate_quotes",
+            "evidence_mode": "proxy"
+          }
+        ],
+        "total": 2
+      }
+    },
+    "constraint_violations": [],
+    "economic_objective": {
+      "description": "Among remaining feasible active offers, prefer the lowest total awarded price.",
+      "kind": "minimize_total_price",
+      "matched_outcome_id": "o1",
+      "preferred_outcome_ids": [
+        "o1"
+      ],
+      "satisfied": true
+    },
+    "efficiency": {
+      "accepted_actions": 10
+    },
+    "episode_id": "electrical-dla-relay-012",
+    "episode_success": true,
+    "episode_success_v02": true,
+    "evaluation_version": "0.2.0",
+    "feasible_obligation_success": true,
+    "feasible_process_success": true,
+    "hard_constraints": {
+      "all_passed": true,
+      "passed": 4,
+      "results": [
+        {
+          "checks": [
+            {
+              "detail": "package quantity=24 == 24",
+              "kind": "award_quote_equals",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c1",
+          "description": "Award must cover the real quantity of 24 relays.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "package lead_time_days=45 <= 46",
+              "kind": "award_quote_max",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c2",
+          "description": "Delivery must satisfy the real 46-day ADO requirement.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "syn-relay-c withdrawn=False",
+              "kind": "award_supplier_not_withdrawn",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c3",
+          "description": "A withdrawn supplier cannot receive award.",
+          "passed": true
+        },
+        {
+          "checks": [
+            {
+              "detail": "selected=e6, latest=e6",
+              "kind": "award_quote_latest",
+              "passed": true
+            }
+          ],
+          "constraint_id": "c4",
+          "description": "Only the latest revealed revision for a supplier may support award.",
+          "passed": true
+        }
+      ],
+      "total": 4
+    },
+    "obligations": {
+      "actionable": 3,
+      "all_actionable_resolved": true,
+      "encountered": 3,
+      "has_actionable_obligations": true,
+      "no_opportunity": 0,
+      "not_applicable": 0,
+      "resolution_rate": 1.0,
+      "resolved": 3,
+      "results": [
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "follow_up_nonresponse",
+          "detail": "Follow-up after non-response from syn-relay-c.",
+          "obligation_id": "follow_up_nonresponse:e3",
+          "resolution_step": 6,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-relay-c",
+          "trigger_event_id": "e3",
+          "trigger_step": 5
+        },
+        {
+          "actionable": true,
+          "applicability_reason": "matching_event_revealed",
+          "applicable": true,
+          "category": "event_obligation",
+          "checkpoint": "recover_from_withdrawal",
+          "detail": "Terminal decision restored a feasible hard-constraint-satisfying path without awarding the withdrawn supplier.",
+          "obligation_id": "recover_from_withdrawal:e4",
+          "resolution_step": 10,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-relay-b",
+          "trigger_event_id": "e4",
+          "trigger_step": 7
+        },
+        {
+          "actionable": true,
+          "applicability_reason": "selected_award_uses_revision",
+          "applicable": true,
+          "category": "branch_conditional",
+          "checkpoint": "request_quote_revision",
+          "detail": "selected_events=['e6'], request_step=8, selected_path_repaired=True",
+          "obligation_id": "request_quote_revision:syn-relay-c",
+          "resolution_step": 8,
+          "resolved": true,
+          "status": "resolved",
+          "supplier_id": "syn-relay-c",
+          "trigger_event_id": null,
+          "trigger_step": 6
+        }
+      ],
+      "unresolved": 0,
+      "version": "0.2.0"
+    },
+    "required_checkpoints": {
+      "all_completed": true,
+      "completed": 8,
+      "results": [
+        {
+          "checkpoint": "solicit_competition",
+          "complete": true,
+          "detail": "RFQs sent to 3 suppliers",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "follow_up_nonresponse",
+          "complete": true,
+          "detail": "Followed up syn-relay-c after non-response",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "recover_from_withdrawal",
+          "complete": true,
+          "detail": "withdrawal_step=7, replacement_quote=e6@8, reevaluation_step=9",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "request_quote_revision",
+          "complete": true,
+          "detail": "Quote revision request observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "normalize_quotes",
+          "complete": true,
+          "detail": "Evaluation occurred with 3 revealed quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "validate_compliance",
+          "complete": true,
+          "detail": "Hard constraints passed with evaluate_quotes",
+          "evidence_mode": "proxy"
+        },
+        {
+          "checkpoint": "evaluate_quotes",
+          "complete": true,
+          "detail": "Quote evaluation action observed",
+          "evidence_mode": "direct"
+        },
+        {
+          "checkpoint": "award_or_recommend",
+          "complete": true,
+          "detail": "Terminal decision reached",
+          "evidence_mode": "direct"
+        }
+      ],
+      "total": 8
+    },
+    "terminal_outcome": {
+      "correct": true,
+      "detail": "Terminal award set matches an acceptable outcome.",
+      "matched_outcome_id": "o1"
+    },
+    "terminated": true
+  },
+  "evaluation_error": null,
+  "max_actions": 50,
+  "policy": {
+    "policy_id": "procureharness--ph-r1-c02--openai/gpt-5.6-sol",
+    "policy_kind": "procureharness_architecture_candidate"
+  },
+  "policy_metrics": {
+    "accepted_actions_seen": 10,
+    "agent_pattern": "event_driven_obligation_centric_hierarchical_skill_graph_v0.1",
+    "calls": [
+      {
+        "completion_tokens": 188,
+        "cost_usd": 0.013657000000000002,
+        "error": null,
+        "latency_ms": 3932.067286000006,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 1980,
+        "success": true,
+        "total_tokens": 2168,
+        "usage_available": true
+      },
+      {
+        "completion_tokens": 103,
+        "cost_usd": 0.012812,
+        "error": null,
+        "latency_ms": 3806.9381200000125,
+        "model": "openai/gpt-5.6-sol",
+        "procureharness_call_purpose": "skill_reasoning_direct",
+        "prompt_tokens": 2151,
+        "success": true,
+        "total_tokens": 2254,
+        "usage_available": true
+      }
+    ],
+    "completion_tokens": 291,
+    "context_strategy": "factual_compiled_v0.1",
+    "cost_usd": 0.026469000000000003,
+    "deterministic_action_fraction": 0.8,
+    "deterministic_actions_accepted": 8,
+    "fallback_actions_accepted": 0,
+    "fallback_actions_used": 0,
+    "hard_complexity_limits": {
+      "max_local_plan_steps": 4,
+      "max_model_calls_between_accepted_actions": 3,
+      "max_react_fallback_actions": 3,
+      "multi_agent": false,
+      "persistent_cross_episode_memory": false
+    },
+    "latency_ms": 7739.005406000018,
+    "local_plan_count": 0,
+    "max_model_calls_between_accepted_actions_observed": 1,
+    "model": "openai/gpt-5.6-sol",
+    "model_actions_accepted": 2,
+    "model_call_purposes": {
+      "skill_reasoning_direct": 2
+    },
+    "model_calls": 2,
+    "model_calls_attempted": 2,
+    "model_calls_failed": 0,
+    "model_calls_succeeded": 2,
+    "procureharness_candidate": {
+      "candidate_id": "ph-r1-c02",
+      "fallback": "none",
+      "local_planning": "none",
+      "obligation_routing": "deterministic_priority",
+      "round": 1,
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants"
+    },
+    "procurement_skills": [
+      "resolve_requirement_gap",
+      "supplier_discovery",
+      "rfq_coverage",
+      "nonresponse_followup",
+      "supplier_question_handling",
+      "amendment_handling",
+      "quote_revision",
+      "withdrawal_recovery",
+      "quote_leveling",
+      "terminal_decision"
+    ],
+    "prompt_tokens": 4131,
+    "reasoning_effort": "medium",
+    "required_core": [
+      "obligation_router",
+      "procurement_skill_graph",
+      "event_interrupt_control",
+      "deterministic_forced_transitions"
+    ],
+    "skill_counts": {
+      "nonresponse_followup": 1,
+      "quote_leveling": 2,
+      "resolve_requirement_gap": 1,
+      "rfq_coverage": 3,
+      "supplier_discovery": 1,
+      "terminal_decision": 1,
+      "withdrawal_recovery": 1
+    },
+    "temperature": null,
+    "total_tokens": 4422,
+    "usage_incomplete": false
+  },
+  "run_id": "ph-r1-c02--screening--electrical-dla-relay-012--r1",
+  "schema_version": "0.1.0",
+  "status": "completed",
+  "trajectory": [
+    {
+      "action": {
+        "action_id": "a1",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": null,
+        "type": "request_buyer_clarification"
+      },
+      "observations": [],
+      "step": 1
+    },
+    {
+      "action": {
+        "action_id": "a2",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": null,
+        "type": "identify_suppliers"
+      },
+      "observations": [],
+      "step": 2
+    },
+    {
+      "action": {
+        "action_id": "a3",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-a",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 45,
+            "quantity": 24,
+            "revision": 0,
+            "total_price": 48000
+          },
+          "emission_policy": "once",
+          "event_id": "e1",
+          "observation": "Supplier A quotes USD 48,000 for 24 relays with 45-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-relay-a",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-relay-a"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 3
+    },
+    {
+      "action": {
+        "action_id": "a4",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-b",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 42,
+            "quantity": 24,
+            "revision": 0,
+            "total_price": 44000
+          },
+          "emission_policy": "once",
+          "event_id": "e2",
+          "observation": "Supplier B quotes USD 44,000 for 24 relays with 42-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-relay-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-relay-b"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 4
+    },
+    {
+      "action": {
+        "action_id": "a5",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-c",
+        "type": "send_rfq"
+      },
+      "observations": [
+        {
+          "details": {
+            "status": "no_response"
+          },
+          "emission_policy": "once",
+          "event_id": "e3",
+          "observation": "Supplier C does not respond during the initial quotation window.",
+          "supplier_id": "syn-relay-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_rfq",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-relay-c"
+          },
+          "type": "supplier_non_response"
+        }
+      ],
+      "step": 5
+    },
+    {
+      "action": {
+        "action_id": "a6",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-c",
+        "type": "send_follow_up"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 44,
+            "quantity": 22,
+            "revision": 0,
+            "total_price": 43000
+          },
+          "emission_policy": "once",
+          "event_id": "e5",
+          "observation": "After follow-up, Supplier C quotes USD 43,000 with 44-day delivery but only 22 relays.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-relay-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "send_follow_up",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-relay-c"
+          },
+          "type": "quote_received"
+        }
+      ],
+      "step": 6
+    },
+    {
+      "action": {
+        "action_id": "a7",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [
+        {
+          "details": {
+            "status": "withdrawn"
+          },
+          "emission_policy": "once",
+          "event_id": "e4",
+          "observation": "Supplier B withdraws its quotation before award.",
+          "supplier_id": "syn-relay-b",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "evaluate_quotes",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": null
+          },
+          "type": "supplier_withdrawal"
+        }
+      ],
+      "step": 7
+    },
+    {
+      "action": {
+        "action_id": "a8",
+        "arguments": {
+          "reason": "Supplier B withdrew, and Supplier C's active quote covers only 22 of the required 24 relays. Request a revised quote for the full 24-unit package while maintaining delivery within the 46-day requirement."
+        },
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-c",
+        "type": "request_quote_revision"
+      },
+      "observations": [
+        {
+          "details": {
+            "currency": "USD",
+            "lead_time_days": 45,
+            "quantity": 24,
+            "revision": 1,
+            "total_price": 47000
+          },
+          "emission_policy": "once",
+          "event_id": "e6",
+          "observation": "Supplier C revises to 24 relays at USD 47,000 with 45-day delivery.",
+          "offer_scope": {
+            "kind": "package"
+          },
+          "supplier_id": "syn-relay-c",
+          "synthetic": true,
+          "trigger": {
+            "action_type": "request_quote_revision",
+            "kind": "after_action",
+            "step": null,
+            "supplier_id": "syn-relay-c"
+          },
+          "type": "quote_revision"
+        }
+      ],
+      "step": 8
+    },
+    {
+      "action": {
+        "action_id": "a9",
+        "arguments": {},
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": null,
+        "type": "evaluate_quotes"
+      },
+      "observations": [],
+      "step": 9
+    },
+    {
+      "action": {
+        "action_id": "a10",
+        "arguments": {
+          "awards": [
+            {
+              "quote_event_id": "e6",
+              "scope": "package",
+              "supplier_id": "syn-relay-c"
+            }
+          ],
+          "reason": "Supplier C's revised quote covers all 24 required relays, meets the 46-day delivery requirement with a 45-day lead time, and at USD 47,000 is lower than Supplier A's compliant offer. Supplier B withdrew before award."
+        },
+        "episode_id": "electrical-dla-relay-012",
+        "supplier_id": "syn-relay-c",
+        "type": "award_supplier"
+      },
+      "observations": [],
+      "step": 10
+    }
+  ]
+}
