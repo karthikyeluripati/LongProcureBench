@@ -866,7 +866,10 @@ class FreshScriptedReferencePolicy:
 
     @classmethod
     def episode_ids(cls) -> list[str]:
-        return sorted(FRESH_REFERENCE_DECISIONS)
+        return sorted(
+            FRESH_REFERENCE_DECISIONS,
+            key=lambda episode_id: int(episode_id.rsplit("-", 1)[1]),
+        )
 
     def reset(self, state: dict[str, Any]) -> None:
         episode_id = state["episode_id"]
