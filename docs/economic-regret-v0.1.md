@@ -52,11 +52,12 @@ arithmetic divides before multiplying by 100 to avoid intermediate overflow
 when the mathematically correct percentage is still representable; any truly
 non-finite ratio/percentage is rejected before JSON serialization.
 
-Aggregate percentage means use max-magnitude scaling before summation, so a
-representable mean is not rejected merely because the raw sum of several large
-finite percentages would overflow. Signed native-savings totals use the same
-scaled summation strategy, allowing large gains and losses to cancel before the
-final finite total is materialized.
+Aggregate percentage means are computed by converting each finite IEEE-754
+input to its exact rational value, summing/averaging exactly, and rounding once
+at the end. Signed native-savings totals use the same exact-value summation.
+This avoids raw-sum overflow while also preserving small residuals after
+catastrophic cancellation (for example, approximately
+`1e308 + (-1e308) + 1 -> 1`).
 
 ## Matched reference cohort
 
