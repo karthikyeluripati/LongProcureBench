@@ -89,9 +89,21 @@ Executable phases are intentionally limited to:
 **041–050 are not an executable architecture-search phase.** They remain
 untouched until a validation winner is frozen under the final-method protocol.
 
-Development confirmation requires a frozen screening-selection authorization.
-Validation requires a frozen authorization recording the development floor and
-the quality/efficiency promotion branch.
+Round-1 screening needs no prior authorization. Round-2/3 screening requires
+a frozen prior-round authorization proving that validation for the preceding
+round is complete, the two-round plateau stop has not fired, and the search
+budget is not exhausted.
+
+Development confirmation requires a frozen round selection containing the
+candidate and **at most two candidates total**. Validation likewise requires a
+single frozen **at-most-two-candidate** round selection, development-confirmation
+completion, the confirmation floor, and the quality/efficiency promotion
+branch. The validation selection rule is explicitly bound to the frozen
+lexicographic entry rule.
+
+A candidate/phase output tree must be empty before execution. The runner refuses
+a second invocation into an existing result tree, preventing accidental paid
+reruns from silently exceeding the search budget.
 
 ## Candidate registry
 
