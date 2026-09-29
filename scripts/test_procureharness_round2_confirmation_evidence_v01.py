@@ -250,6 +250,14 @@ class ProcureHarnessRound2ConfirmationEvidenceTests(unittest.TestCase):
             selection["screening_selected_candidate_ids"],
             list(CANDIDATES),
         )
+        self.assertEqual(
+            self.manifest["validation_selected_candidate_ids"],
+            selection["validation_selected_candidate_ids"],
+        )
+        self.assertEqual(
+            self.manifest["pending_efficiency_candidate_ids"],
+            selection["pending_efficiency_candidate_ids"],
+        )
 
         expected_gate_paths = {
             str(VALIDATION_SELECTION_PATH.relative_to(ROOT)),
