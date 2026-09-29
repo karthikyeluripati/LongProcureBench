@@ -8,6 +8,7 @@ savings without changing benchmark success semantics.
 from __future__ import annotations
 
 from pathlib import Path
+from fractions import Fraction
 from typing import Any, Iterable, Mapping
 import hashlib
 import json
@@ -81,59 +82,57 @@ def _safe_percent(
     return percent
 
 
-def _finite_scaled_sum(values: Iterable[float], *, label: str) -> float:
-    """Sum finite signed floats without avoidable intermediate overflow."""
+def _exact_float_fraction(value: float, *, label: str) -> Fraction:
+    if not _is_number(value):
+        raise EconomicsError(f"{label} contains non-finite values")
+    numerator, denominator = float(value).as_integer_ratio()
+    return Fraction(numerator, denominator)
+
+
+def _finite_exact_sum(values: Iterable[float], *, label: str) -> float:
+    """Exactly sum the input IEEE-754 values, then round once to float."""
     numeric = [float(value) for value in values]
     if not numeric:
         raise EconomicsError(f"{label} requires at least one value")
-    if not all(math.isfinite(value) for value in numeric):
-        raise EconomicsError(f"{label} contains non-finite values")
 
-    scale = max(abs(value) for value in numeric)
-    if scale == 0:
-        return 0.0
+    total = Fraction(0, 1)
+    for value in numeric:
+        total += _exact_float_fraction(value, label=label)
 
-    scaled = [value / scale for value in numeric]
     try:
-        scaled_total = math.fsum(scaled)
+        result = float(total)
     except OverflowError as exc:
         raise EconomicsError(
-            f"{label} scaled accumulation overflowed"
+            f"{label} final sum is not representable as a finite float"
         ) from exc
-    if not math.isfinite(scaled_total):
-        raise EconomicsError(f"{label} scaled accumulation is non-finite")
-
-    total = scale * scaled_total
-    if not math.isfinite(total):
-        raise EconomicsError(f"{label} final sum is non-finite")
-    return total
+    if not math.isfinite(result):
+        raise EconomicsError(
+            f"{label} final sum is not representable as a finite float"
+        )
+    return result
 
 
 def _finite_mean(values: Iterable[float], *, label: str) -> float:
-    """Mean finite floats without requiring their raw sum to be representable."""
+    """Exactly average the input IEEE-754 values, then round once to float."""
     numeric = [float(value) for value in values]
     if not numeric:
         raise EconomicsError(f"{label} requires at least one value")
-    if not all(math.isfinite(value) for value in numeric):
-        raise EconomicsError(f"{label} contains non-finite values")
 
-    scale = max(abs(value) for value in numeric)
-    if scale == 0:
-        return 0.0
+    total = Fraction(0, 1)
+    for value in numeric:
+        total += _exact_float_fraction(value, label=label)
+    mean_fraction = total / len(numeric)
 
-    scaled = [value / scale for value in numeric]
     try:
-        scaled_mean = math.fsum(scaled) / len(numeric)
+        mean = float(mean_fraction)
     except OverflowError as exc:
         raise EconomicsError(
-            f"{label} scaled mean accumulation overflowed"
+            f"{label} mean is not representable as a finite float"
         ) from exc
-    if not math.isfinite(scaled_mean):
-        raise EconomicsError(f"{label} scaled mean is non-finite")
-
-    mean = scale * scaled_mean
     if not math.isfinite(mean):
-        raise EconomicsError(f"{label} mean is non-finite")
+        raise EconomicsError(
+            f"{label} mean is not representable as a finite float"
+        )
     return mean
 
 
@@ -875,7 +874,7 @@ def compare_candidate_on_reference_cohort(
 
         for currency, values in native_values_by_currency.items():
             by_currency[currency]["sum_paired_savings_native"] = (
-                _finite_scaled_sum(
+                _finite_exact_sum(
                     values,
                     label=f"{label} {currency} native savings",
                 )
