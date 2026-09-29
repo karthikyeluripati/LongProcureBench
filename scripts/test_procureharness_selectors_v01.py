@@ -594,7 +594,7 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
         self,
     ):
         descriptor_path = (
-            Path.cwd()
+            validation_selector.ROOT
             / REAL_ECONOMICS_BINDING_FIXTURE_ROOT
             / "binding-mismatched-report.json"
         )
