@@ -78,6 +78,14 @@ class ProcureHarnessRound2EconomicsEvidenceTests(unittest.TestCase):
                 "provider_calls": 0,
             },
         )
+        self.assertEqual(
+            manifest["baseline_freeze_commit"],
+            "7b101f08eb2ad2ca33df628e30fd3c3173befc32",
+        )
+        self.assertEqual(
+            self.gate_result["round2_economics_manifest_sha256"],
+            materializer._sha256_path(materializer.MANIFEST_REL),
+        )
 
         bindings = [
             manifest["comparisons"],
