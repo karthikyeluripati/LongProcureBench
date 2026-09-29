@@ -198,3 +198,30 @@ can pass independent existence checks. After acquiring the lock, each selector
 preflights all final paths, stages every artifact, and only then finalizes the
 selection and authorizations. A pre-existing target leaves no partial selection
 behind.
+
+
+### Reserved efficiency validation slots
+
+A base validation selection never needs to be overwritten to accommodate an
+efficiency-qualified peer. Candidates that pass the development floor but do
+not yet satisfy the quality branch are recorded in
+`pending_efficiency_candidate_ids` and, while capacity remains, in
+`validation_slot_candidate_ids`. Those slots are part of the immutable base
+selection.
+
+After the development economics evidence is frozen under
+`procureharness-development-economics-v0.1`, the validation selector can issue
+a separate append-only efficiency addendum and authorization. It recomputes the
+efficiency branch from the exact 001-020 x3 candidate economics reports and the
+Git-frozen Coverage+Repair/ReAct economics reports. The original validation
+selection is never rewritten. Until that economics binding exists, the append
+path fails closed.
+
+### Crash-safe selector locking
+
+Gate selectors use non-blocking POSIX advisory locks (`flock`) on their
+per-round lock files. The filesystem entry may remain after a crash or kill,
+but the kernel releases the advisory lock when the process exits. A later
+selector can therefore acquire the existing file and proceed without manual
+cleanup, while a genuinely concurrent selector still fails before any frozen
+gate artifact is written.
