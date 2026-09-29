@@ -53,6 +53,12 @@ PROTOCOL_PATH = (
 )
 RULE_ID = "frozen_validation_entry_lexicographic_v0.1"
 EFFICIENCY_RULE_ID = "frozen_development_efficiency_promotion_v0.1"
+EFFICIENCY_APPEND_POLICY = (
+    "append_only_authorization_bound_to_immutable_base_selection"
+)
+DEVELOPMENT_ECONOMICS_BINDING_PACKAGE = (
+    "procureharness-development-economics-v0.1"
+)
 DEVELOPMENT_ECONOMICS_BINDING_PATH = (
     ROOT
     / "evidence"
@@ -183,9 +189,7 @@ def _load_development_economics_binding() -> dict[str, Any]:
         raise ValueError("development economics binding schema changed")
     if manifest.get("protocol_id") != PROTOCOL_ID:
         raise ValueError("development economics binding protocol mismatch")
-    if manifest.get("package") != (
-        "procureharness-development-economics-v0.1"
-    ):
+    if manifest.get("package") != DEVELOPMENT_ECONOMICS_BINDING_PACKAGE:
         raise ValueError("development economics binding package changed")
 
     freeze_commit = manifest.get("freeze_commit")
@@ -577,9 +581,7 @@ def select_validation_round(
             if pending_efficiency
             else "complete"
         ),
-        "efficiency_append_policy": (
-            "append_only_authorization_bound_to_immutable_base_selection"
-        ),
+        "efficiency_append_policy": EFFICIENCY_APPEND_POLICY,
         "ranking": eligible,
         "confirmation_rows": rows,
         "promotion_branch_by_candidate": {
@@ -698,9 +700,7 @@ def validate_frozen_validation_selection(
     )
     if selection.get("selection_status") != expected_status:
         raise ValueError("validation selection status changed")
-    if selection.get("efficiency_append_policy") != (
-        "append_only_authorization_bound_to_immutable_base_selection"
-    ):
+    if selection.get("efficiency_append_policy") != EFFICIENCY_APPEND_POLICY:
         raise ValueError("validation efficiency append policy changed")
 
     eligible = [
