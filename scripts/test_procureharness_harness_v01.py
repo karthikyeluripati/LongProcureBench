@@ -1,6 +1,8 @@
 """Tests for guarded ProcureHarness architecture-search execution."""
 from __future__ import annotations
 
+from copy import deepcopy
+import json
 import unittest
 
 from run_procureharness_search_v01 import (
@@ -14,7 +16,11 @@ from run_procureharness_search_v01 import (
     phase_plan,
     validate_phase_authorization,
 )
-from validate_procureharness_harness_v01 import validate_harness
+from validate_procureharness_harness_v01 import (
+    IMPLEMENTATION_MANIFEST_PATH,
+    validate_harness,
+    validate_implementation_freeze,
+)
 
 
 class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
@@ -22,6 +28,33 @@ class ProcureHarnessHarnessProtocolTests(unittest.TestCase):
         summary = validate_harness()
         self.assertEqual(summary["candidates"], 18)
         self.assertEqual(summary["final_episodes_exposed"], 0)
+
+    def test_implementation_freeze_is_bound_to_snapshot(self):
+        validate_implementation_freeze()
+
+    def test_manifest_blob_map_cannot_be_rewritten(self):
+        manifest = json.loads(
+            IMPLEMENTATION_MANIFEST_PATH.read_text(encoding="utf-8")
+        )
+        mutated = deepcopy(manifest)
+        mutated["frozen_files"][0]["git_blob_sha1"] = "0" * 40
+        with self.assertRaisesRegex(
+            ValueError,
+            "implementation manifest blob map changed",
+        ):
+            validate_implementation_freeze(mutated)
+
+    def test_implementation_freeze_commit_cannot_change(self):
+        manifest = json.loads(
+            IMPLEMENTATION_MANIFEST_PATH.read_text(encoding="utf-8")
+        )
+        mutated = deepcopy(manifest)
+        mutated["freeze_commit"] = "0" * 40
+        with self.assertRaisesRegex(
+            ValueError,
+            "implementation freeze commit changed",
+        ):
+            validate_implementation_freeze(mutated)
 
     def test_frozen_phase_run_counts(self):
         self.assertEqual(
