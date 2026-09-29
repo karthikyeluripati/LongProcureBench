@@ -393,6 +393,7 @@ def execute_candidate(
             execution_failures += 1
         completed += 1
         metrics = result.get("policy_metrics") or {}
+        obligations = evaluation.get("obligations") or {}
         summary = {
             "episode_id": episode_id,
             "repeat": repeat,
@@ -405,6 +406,9 @@ def execute_candidate(
             "economic_objective": bool(
                 (evaluation.get("economic_objective") or {}).get("satisfied")
             ),
+            "obligation_resolved": obligations.get("resolved"),
+            "obligation_actionable": obligations.get("actionable"),
+            "obligation_resolution_rate": obligations.get("resolution_rate"),
             "accepted_actions": (
                 (evaluation.get("efficiency") or {}).get("accepted_actions")
             ),
@@ -440,6 +444,7 @@ def execute_candidate(
             "freeze_commit"
         ],
         "candidate_id": candidate_id,
+        "round": get_candidate(candidate_id).round,
         "phase": phase,
         "model": MODEL,
         "reasoning_effort": REASONING_EFFORT,
@@ -454,7 +459,12 @@ def execute_candidate(
     summary_path = phase_root / "summary.json"
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(
-        json.dumps(summary_payload, indent=2, sort_keys=True) + "\n",
+        json.dumps(
+            summary_payload,
+            indent=2,
+            sort_keys=True,
+            allow_nan=False,
+        ) + "\n",
         encoding="utf-8",
     )
     return summary_payload
