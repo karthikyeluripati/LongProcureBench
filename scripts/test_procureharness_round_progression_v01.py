@@ -333,6 +333,18 @@ class ProcureHarnessRoundProgressionTests(unittest.TestCase):
                 round2["screening_authorized_candidate_ids"],
                 [],
             )
+            self.assertEqual(
+                set(round2["evidence_bindings"]),
+                {
+                    "prior_round_progression",
+                    "screening_manifest",
+                    "screening_selection",
+                    "confirmation_manifest",
+                    "validation_selection",
+                    "round2_economics_manifest",
+                    "efficiency_gate_result",
+                },
+            )
             for candidate_id in round_candidate_ids(3):
                 self.assertFalse(
                     (
