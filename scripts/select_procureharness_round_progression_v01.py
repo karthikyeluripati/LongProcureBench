@@ -104,6 +104,14 @@ ROUND2_EFFICIENCY_GATE_RESULT_PATH = (
     ROOT / "evidence" / "procureharness-round2-economics-v0.1"
     / "efficiency-gate-result.json"
 )
+BASELINE_ECONOMICS_MANIFEST_PATH = (
+    ROOT / "evidence" / "procureharness-development-economics-v0.1"
+    / "manifest.json"
+)
+BASELINE_REFERENCE_COHORT_PATH = (
+    ROOT / "evidence" / "procureharness-development-economics-v0.1"
+    / "reference-cohort.json"
+)
 
 
 def _load_json(path: Path) -> Any:
@@ -1001,6 +1009,83 @@ def freeze_round1_progression(
         return progression_path, [path for path, _ in auth_payloads]
 
 
+def _validate_round2_economics_baseline_provenance(
+    economics_manifest: dict[str, Any],
+) -> None:
+    baseline_manifest_binding = economics_manifest.get(
+        "baseline_economics_manifest"
+    )
+    if not isinstance(baseline_manifest_binding, dict):
+        raise ValueError(
+            "Round-2 economics baseline manifest binding missing"
+        )
+    if (
+        baseline_manifest_binding.get("path")
+        != _repo_rel(BASELINE_ECONOMICS_MANIFEST_PATH)
+        or baseline_manifest_binding.get("sha256")
+        != _sha256_path(BASELINE_ECONOMICS_MANIFEST_PATH)
+    ):
+        raise ValueError(
+            "Round-2 economics baseline manifest binding drift"
+        )
+
+    baseline_manifest = _load_json(BASELINE_ECONOMICS_MANIFEST_PATH)
+    if (
+        baseline_manifest.get("schema_version") != "0.1.0"
+        or baseline_manifest.get("protocol_id") != PROTOCOL_ID
+        or baseline_manifest.get("package")
+        != "procureharness-development-economics-v0.1"
+    ):
+        raise ValueError("baseline economics manifest identity changed")
+
+    baseline_reference_binding = economics_manifest.get(
+        "baseline_reference_cohort"
+    )
+    if not isinstance(baseline_reference_binding, dict):
+        raise ValueError(
+            "Round-2 economics reference-cohort binding missing"
+        )
+    if (
+        baseline_reference_binding.get("path")
+        != _repo_rel(BASELINE_REFERENCE_COHORT_PATH)
+        or baseline_reference_binding.get("sha256")
+        != _sha256_path(BASELINE_REFERENCE_COHORT_PATH)
+    ):
+        raise ValueError(
+            "Round-2 economics reference-cohort binding drift"
+        )
+
+    baseline_manifest_reference = baseline_manifest.get(
+        "reference_cohort"
+    )
+    if not isinstance(baseline_manifest_reference, dict):
+        raise ValueError(
+            "baseline economics manifest reference-cohort binding missing"
+        )
+    if (
+        baseline_manifest_reference.get("path")
+        != _repo_rel(BASELINE_REFERENCE_COHORT_PATH)
+        or baseline_manifest_reference.get("sha256")
+        != _sha256_path(BASELINE_REFERENCE_COHORT_PATH)
+    ):
+        raise ValueError(
+            "baseline economics manifest reference-cohort binding drift"
+        )
+
+    baseline_binding = _load_development_economics_binding()
+    baseline_freeze_commit = economics_manifest.get(
+        "baseline_freeze_commit"
+    )
+    if (
+        not isinstance(baseline_freeze_commit, str)
+        or baseline_freeze_commit != baseline_manifest.get("freeze_commit")
+        or baseline_freeze_commit != baseline_binding.get("freeze_commit")
+    ):
+        raise ValueError(
+            "Round-2 economics baseline freeze commit drift"
+        )
+
+
 def _validate_round2_inputs() -> dict[str, Any]:
     protocol = _load_json(PROTOCOL_PATH)
     if protocol.get("protocol_id") != PROTOCOL_ID:
@@ -1213,6 +1298,10 @@ def _validate_round2_inputs() -> dict[str, Any]:
         }
     ):
         raise ValueError("Round-2 economics manifest identity changed")
+
+    _validate_round2_economics_baseline_provenance(
+        economics_manifest
+    )
 
     base_binding = economics_manifest.get("base_validation_selection")
     if not isinstance(base_binding, dict):
