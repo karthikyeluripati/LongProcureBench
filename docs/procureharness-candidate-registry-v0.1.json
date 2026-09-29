@@ -440,5 +440,44 @@
   "lineage_contract": {
     "semantics": "parent_candidates list conceptual source candidates; each module_delta is defined relative to the first parent candidate, or null for the seed candidate",
     "requirement": "every candidate records parent_candidates and explicit module deltas"
+  },
+  "screening_selection_rule": {
+    "rule_id": "frozen_screening_selection_v0.1",
+    "purpose": "choose at most two candidates per round for 001-020 x3 development confirmation",
+    "requires_complete_round_screening": true,
+    "required_candidates_per_round": 6,
+    "max_selected_candidates": 2,
+    "method": "lexicographic",
+    "priority": [
+      {
+        "metric": "feasible_obligation_success",
+        "direction": "desc"
+      },
+      {
+        "metric": "strict_v02",
+        "direction": "desc"
+      },
+      {
+        "metric": "economic_objective",
+        "direction": "desc"
+      },
+      {
+        "metric": "obligation_resolution_rate",
+        "direction": "desc"
+      },
+      {
+        "metric": "known_cost_usd",
+        "direction": "asc"
+      },
+      {
+        "metric": "total_tokens",
+        "direction": "asc"
+      },
+      {
+        "metric": "candidate_id",
+        "direction": "asc"
+      }
+    ],
+    "missing_resource_values": "rank_last"
   }
 }
