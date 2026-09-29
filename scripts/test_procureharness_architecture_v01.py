@@ -164,6 +164,47 @@ class ProcureHarnessArchitectureTests(unittest.TestCase):
             (len(actions) - 1) / len(actions),
         )
 
+    def test_withdrawal_recovery_is_model_reasoned_not_forced(self):
+        policy = ProcureHarnessPolicy(
+            "fake/test-model",
+            config="ph-r1-c02",
+            client=SequenceStructuredClient([]),
+        )
+        pending = policy._candidate(
+            skill="withdrawal_recovery",
+            supplier_id="syn-a",
+            reason="visible withdrawal",
+            forced=False,
+            event_id="w1",
+        )
+        compiled = {
+            "visible_suppliers": [
+                {"supplier_id": "syn-a"},
+                {"supplier_id": "syn-b"},
+                {"supplier_id": "syn-c"},
+            ],
+            "event_history": [
+                {
+                    "event_id": "w1",
+                    "type": "supplier_withdrawal",
+                    "supplier_id": "syn-a",
+                }
+            ],
+            "latest_offers": [
+                {"event_id": "q-b", "supplier_id": "syn-b", "details": {}},
+                {"event_id": "q-c", "supplier_id": "syn-c", "details": {}},
+            ],
+        }
+        candidate = policy._withdrawal_recovery_candidate(
+            pending,
+            compiled,
+        )
+        self.assertFalse(candidate["forced"])
+        self.assertIsNone(candidate["supplier_id"])
+        self.assertIsNone(
+            policy._deterministic_action(candidate, compiled)
+        )
+
     def test_quote_revision_attempt_is_one_shot_per_visible_offer(self):
         policy = ProcureHarnessPolicy(
             "fake/test-model",
