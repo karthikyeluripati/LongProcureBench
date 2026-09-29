@@ -6,7 +6,8 @@ on:
       - 'codex/procureharness-round1-screening-v0.1'
     paths:
       - '.github/workflows/procureharness-round1-screening-v0.1.yml'
-  workflow_dispatch:
+  # Intentionally no workflow_dispatch: Round 1 screening is a one-time,
+  # preregistered paid execution. The successful run is frozen by #55.
 
 permissions:
   contents: read
@@ -33,6 +34,19 @@ jobs:
 
       - name: Install declared dependencies
         run: python -m pip install -r requirements.txt
+
+      - name: Refuse execution after Round 1 is frozen
+        shell: bash
+        run: |
+          set -euo pipefail
+          selection="evidence/procureharness-search-gates-v0.1/screening-selection-round-1.json"
+          manifest="evidence/procureharness-round1-screening-v0.1/manifest.json"
+          if [ -e "$selection" ] || [ -e "$manifest" ]; then
+            echo "Round 1 screening is already frozen; refusing any rerun before paid execution."
+            echo "selection=$selection"
+            echo "manifest=$manifest"
+            exit 1
+          fi
 
       - name: Validate immutable ProcureHarness implementation freeze
         run: python scripts/validate_procureharness_harness_v01.py
