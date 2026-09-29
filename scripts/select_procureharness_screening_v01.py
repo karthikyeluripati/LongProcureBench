@@ -11,8 +11,10 @@ import argparse
 from hashlib import sha256
 import json
 import math
+import os
 from pathlib import Path
 import sys
+import tempfile
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +30,15 @@ from run_procureharness_search_v01 import (
 
 REGISTRY_PATH = ROOT / "docs" / "procureharness-candidate-registry-v0.1.json"
 RULE_ID = "frozen_screening_selection_v0.1"
+SCREENING_RANKING_PRIORITY = [
+    {"metric": "feasible_obligation_success", "direction": "desc"},
+    {"metric": "strict_v02", "direction": "desc"},
+    {"metric": "economic_objective", "direction": "desc"},
+    {"metric": "obligation_resolution_rate", "direction": "desc"},
+    {"metric": "known_cost_usd", "direction": "asc"},
+    {"metric": "total_tokens", "direction": "asc"},
+    {"metric": "candidate_id", "direction": "asc"},
+]
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -165,25 +176,44 @@ def _aggregate_candidate(
     }
 
 
+def _ranking_value(
+    row: dict[str, Any],
+    *,
+    metric: str,
+    direction: str,
+):
+    if metric == "known_cost_usd":
+        value = (
+            float(row["known_cost_usd"])
+            if row["known_cost_complete"]
+            else math.inf
+        )
+    elif metric == "total_tokens":
+        value = (
+            int(row["total_tokens"])
+            if row["total_tokens_complete"]
+            else math.inf
+        )
+    else:
+        value = row[metric]
+
+    if metric == "candidate_id":
+        if direction != "asc":
+            raise ValueError("candidate_id ranking must remain ascending")
+        return str(value)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"non-numeric screening ranking metric: {metric}")
+    return -value if direction == "desc" else value
+
+
 def _ranking_key(row: dict[str, Any]):
-    cost = (
-        float(row["known_cost_usd"])
-        if row["known_cost_complete"]
-        else math.inf
-    )
-    tokens = (
-        int(row["total_tokens"])
-        if row["total_tokens_complete"]
-        else math.inf
-    )
-    return (
-        -row["feasible_obligation_success"],
-        -row["strict_v02"],
-        -row["economic_objective"],
-        -row["obligation_resolution_rate"],
-        cost,
-        tokens,
-        row["candidate_id"],
+    return tuple(
+        _ranking_value(
+            row,
+            metric=entry["metric"],
+            direction=entry["direction"],
+        )
+        for entry in SCREENING_RANKING_PRIORITY
     )
 
 
@@ -207,6 +237,8 @@ def select_screening_round(
         raise ValueError("screening selection method changed")
     if rule.get("missing_resource_values") != "rank_last":
         raise ValueError("screening missing-resource policy changed")
+    if rule.get("priority") != SCREENING_RANKING_PRIORITY:
+        raise ValueError("screening ranking priority changed")
 
     candidate_ids = round_candidate_ids(round_id)
     if len(candidate_ids) != 6:
@@ -250,6 +282,77 @@ def select_screening_round(
     }
 
 
+def validate_frozen_screening_selection(
+    selection: dict[str, Any],
+) -> None:
+    if selection.get("schema_version") != "0.1.0":
+        raise ValueError("screening selection schema version changed")
+    if selection.get("protocol_id") != PROTOCOL_ID:
+        raise ValueError("screening selection protocol mismatch")
+    if selection.get("rule_id") != RULE_ID:
+        raise ValueError("screening selection rule mismatch")
+
+    round_id = selection.get("round")
+    if round_id not in (1, 2, 3):
+        raise ValueError("screening selection round is invalid")
+    candidate_ids = round_candidate_ids(round_id)
+    if selection.get("candidate_ids") != candidate_ids:
+        raise ValueError("screening selection candidate grid changed")
+
+    ranking = selection.get("ranking")
+    if not isinstance(ranking, list) or len(ranking) != 6:
+        raise ValueError("screening selection must contain six ranking rows")
+
+    recomputed = []
+    for row in ranking:
+        if not isinstance(row, dict):
+            raise ValueError("screening ranking row must be an object")
+        candidate_id = row.get("candidate_id")
+        if candidate_id not in candidate_ids:
+            raise ValueError("screening ranking contains unknown candidate")
+        path_value = row.get("screening_summary_path")
+        expected_sha = row.get("screening_summary_sha256")
+        if not isinstance(path_value, str) or not path_value:
+            raise ValueError("screening ranking row lacks summary path")
+        if not isinstance(expected_sha, str) or len(expected_sha) != 64:
+            raise ValueError("screening ranking row lacks summary SHA-256")
+        summary_path = Path(path_value)
+        if not summary_path.is_absolute():
+            summary_path = ROOT / summary_path
+        if not summary_path.is_file():
+            raise ValueError(
+                f"bound screening summary missing: {summary_path}"
+            )
+        raw = summary_path.read_bytes()
+        if _sha256_bytes(raw) != expected_sha:
+            raise ValueError(
+                f"bound screening summary hash mismatch: {summary_path}"
+            )
+        aggregate = _aggregate_candidate(
+            candidate_id=candidate_id,
+            round_id=round_id,
+            summary_path=Path(path_value),
+        )
+        if aggregate != row:
+            raise ValueError(
+                f"screening ranking row does not match bound summary: "
+                f"{candidate_id}"
+            )
+        recomputed.append(aggregate)
+
+    if len({row["candidate_id"] for row in recomputed}) != 6:
+        raise ValueError("screening ranking candidate IDs are not unique")
+    recomputed.sort(key=_ranking_key)
+    if recomputed != ranking:
+        raise ValueError("screening ranking order changed")
+    expected_selected = [
+        row["candidate_id"]
+        for row in recomputed[:2]
+    ]
+    if selection.get("selected_candidate_ids") != expected_selected:
+        raise ValueError("screening selected candidates changed")
+
+
 def freeze_selection(
     *,
     round_id: int,
@@ -260,9 +363,11 @@ def freeze_selection(
         round_id=round_id,
         results_root=results_root,
     )
+    validate_frozen_screening_selection(selection)
+
     output_dir.mkdir(parents=True, exist_ok=True)
     selection_path = output_dir / f"screening-selection-round-{round_id}.json"
-    encoded = (
+    selection_encoded = (
         json.dumps(
             selection,
             indent=2,
@@ -271,14 +376,9 @@ def freeze_selection(
         )
         + "\n"
     ).encode("utf-8")
-    if selection_path.exists():
-        raise ValueError(
-            f"refusing to overwrite frozen screening selection: {selection_path}"
-        )
-    selection_path.write_bytes(encoded)
-    selection_sha = _sha256_bytes(encoded)
+    selection_sha = _sha256_bytes(selection_encoded)
 
-    authorization_paths = []
+    authorization_payloads = []
     for candidate_id in selection["selected_candidate_ids"]:
         authorization = {
             "schema_version": "0.1.0",
@@ -295,24 +395,64 @@ def freeze_selection(
             "screening_selection_path": str(selection_path),
             "screening_selection_sha256": selection_sha,
         }
-        path = output_dir / f"{candidate_id}--development-confirmation-auth.json"
-        if path.exists():
-            raise ValueError(
-                f"refusing to overwrite frozen authorization: {path}"
-            )
-        path.write_text(
+        path = output_dir / (
+            f"{candidate_id}--development-confirmation-auth.json"
+        )
+        encoded = (
             json.dumps(
                 authorization,
                 indent=2,
                 sort_keys=True,
                 allow_nan=False,
             )
-            + "\n",
-            encoding="utf-8",
-        )
-        authorization_paths.append(path)
+            + "\n"
+        ).encode("utf-8")
+        authorization_payloads.append((path, encoded))
 
-    return selection_path, authorization_paths
+    final_paths = [
+        selection_path,
+        *[path for path, _ in authorization_payloads],
+    ]
+    existing = [path for path in final_paths if path.exists()]
+    if existing:
+        raise ValueError(
+            "refusing to overwrite frozen screening gate artifact(s): "
+            + ", ".join(str(path) for path in existing)
+        )
+
+    committed: list[Path] = []
+    try:
+        with tempfile.TemporaryDirectory(
+            dir=output_dir,
+            prefix=".screening-gate-",
+        ) as staging_dir:
+            staging = Path(staging_dir)
+            staged = []
+
+            selection_stage = staging / selection_path.name
+            selection_stage.write_bytes(selection_encoded)
+            staged.append((selection_stage, selection_path))
+
+            for path, encoded in authorization_payloads:
+                stage = staging / path.name
+                stage.write_bytes(encoded)
+                staged.append((stage, path))
+
+            for stage, final in staged:
+                os.replace(stage, final)
+                committed.append(final)
+    except Exception:
+        for path in reversed(committed):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
+        raise
+
+    return (
+        selection_path,
+        [path for path, _ in authorization_payloads],
+    )
 
 
 def main() -> None:
