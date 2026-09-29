@@ -238,7 +238,7 @@ class EpisodeValidationTests(unittest.TestCase):
         ):
             validate_episode(record)
 
-    def test_suite_has_twenty_development_plus_ten_heldout_states(self):
+    def test_suite_has_fifty_distinct_real_starting_states(self):
         paths = sorted(
             (ROOT / "data/episodes/electrical").glob("*.json")
         )
@@ -246,26 +246,27 @@ class EpisodeValidationTests(unittest.TestCase):
             json.loads(path.read_text(encoding="utf-8"))
             for path in paths
         ]
-        self.assertEqual(len(records), 30)
+        self.assertEqual(len(records), 50)
         self.assertEqual(
             len({
                 record["initial_state_ref"]["package_id"]
                 for record in records
             }),
-            30,
+            50,
         )
-        development = [
-            record
-            for record in records
-            if int(record["episode_id"].rsplit("-", 1)[1]) <= 20
-        ]
-        heldout = [
-            record
-            for record in records
-            if int(record["episode_id"].rsplit("-", 1)[1]) >= 21
-        ]
+
+        def suffix(record):
+            return int(record["episode_id"].rsplit("-", 1)[1])
+
+        development = [r for r in records if suffix(r) <= 20]
+        prior_heldout = [r for r in records if 21 <= suffix(r) <= 30]
+        validation = [r for r in records if 31 <= suffix(r) <= 40]
+        final = [r for r in records if 41 <= suffix(r) <= 50]
+
         self.assertEqual(len(development), 20)
-        self.assertEqual(len(heldout), 10)
+        self.assertEqual(len(prior_heldout), 10)
+        self.assertEqual(len(validation), 10)
+        self.assertEqual(len(final), 10)
 
     def test_suite_rejects_duplicate_real_initial_state(self):
         records = [
