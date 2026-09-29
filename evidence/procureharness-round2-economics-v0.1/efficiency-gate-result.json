@@ -1,0 +1,50 @@
+{
+  "authorized_candidate_ids": [],
+  "base_validation_selection_path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-2.json",
+  "base_validation_selection_sha256": "823c2e65f8c40789b7a4dfb8684c6683d719f66518c5b76a8e63dd65385c026c",
+  "not_promoted_candidate_ids": [
+    "ph-r2-c12",
+    "ph-r2-c09"
+  ],
+  "outcomes": {
+    "ph-r2-c09": {
+      "approved": false,
+      "candidate_id": "ph-r2-c09",
+      "comparison": {
+        "candidate_regret_eligibility_rate_on_reference_cohort": 0.875,
+        "candidate_regret_eligible_count_on_reference_cohort": 42,
+        "mean_feasible_price_regret_pct_on_reference_cohort": null,
+        "paired_savings": null,
+        "reference_cohort_count": 48,
+        "regret_comparable": false,
+        "schema_version": "0.1.0",
+        "status": "not_comparable_incomplete_candidate_cohort"
+      },
+      "reason": "candidate lacks full frozen regret reference-cohort comparability",
+      "status": "not_promoted"
+    },
+    "ph-r2-c12": {
+      "approved": false,
+      "candidate_id": "ph-r2-c12",
+      "comparison": {
+        "candidate_regret_eligibility_rate_on_reference_cohort": 0.875,
+        "candidate_regret_eligible_count_on_reference_cohort": 42,
+        "mean_feasible_price_regret_pct_on_reference_cohort": null,
+        "paired_savings": null,
+        "reference_cohort_count": 48,
+        "regret_comparable": false,
+        "schema_version": "0.1.0",
+        "status": "not_comparable_incomplete_candidate_cohort"
+      },
+      "reason": "candidate lacks full frozen regret reference-cohort comparability",
+      "status": "not_promoted"
+    }
+  },
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "provider_calls": 0,
+  "round": 2,
+  "round2_economics_manifest_path": "evidence/procureharness-round2-economics-v0.1/manifest.json",
+  "round2_economics_manifest_sha256": "43b0c0cdb4c11bcdffbafb823a5de222a3f65ab88181471711cbae560b2bdbb7",
+  "rule": "frozen_development_efficiency_promotion_v0.1",
+  "schema_version": "0.1.0"
+}
