@@ -87,7 +87,6 @@ FORCED_SKILLS = {
     "nonresponse_followup",
     "supplier_question_handling",
     "amendment_handling",
-    "withdrawal_recovery",
     "quote_leveling",
 }
 
@@ -521,29 +520,22 @@ hidden facts, future events, oracle data, or evaluator labels."""
         pending: dict[str, Any],
         compiled: dict[str, Any],
     ) -> dict[str, Any]:
-        withdrawn = _withdrawn_supplier_ids(compiled)
+        withdrawn = sorted(_withdrawn_supplier_ids(compiled))
         active = [
             supplier_id
             for supplier_id in _visible_supplier_ids(compiled)
-            if supplier_id not in withdrawn
+            if supplier_id not in set(withdrawn)
         ]
-        offers = {
-            row.get("supplier_id"): row
-            for row in (compiled.get("latest_offers") or [])
-            if isinstance(row, dict)
-            and isinstance(row.get("supplier_id"), str)
-            and row.get("supplier_id") not in withdrawn
-        }
-        supplier_id = next(
-            (sid for sid in active if sid in offers),
-            next(iter(active), None),
-        )
         return {
             **pending,
-            "supplier_id": supplier_id,
+            "supplier_id": None,
+            "forced": False,
             "candidate_id": (
-                f"withdrawal_recovery:{supplier_id or '-'}:"
-                f"{pending.get('event_id') or '-'}"
+                f"withdrawal_recovery:-:{pending.get('event_id') or '-'}"
+            ),
+            "reason": (
+                "visible supplier withdrawal requires choosing a recovery "
+                f"action among active suppliers {active}"
             ),
         }
 
@@ -841,23 +833,9 @@ hidden facts, future events, oracle data, or evaluator labels."""
         if skill == "quote_leveling":
             return {"type": "evaluate_quotes", "supplier_id": None, "arguments": {}}
         if skill == "withdrawal_recovery":
-            if isinstance(supplier_id, str):
-                offer_suppliers = {
-                    row.get("supplier_id")
-                    for row in (compiled.get("latest_offers") or [])
-                    if isinstance(row, dict)
-                }
-                if supplier_id in offer_suppliers:
-                    return {
-                        "type": "request_quote_revision",
-                        "supplier_id": supplier_id,
-                        "arguments": {},
-                    }
-                return {
-                    "type": "send_rfq",
-                    "supplier_id": supplier_id,
-                    "arguments": {},
-                }
+            # Recovery supplier/action choice is intentionally model-reasoned:
+            # the visible state may contain eligibility, delivery, or quote
+            # facts that make a deterministic alphabetical choice unsafe.
             return None
         return None
 
