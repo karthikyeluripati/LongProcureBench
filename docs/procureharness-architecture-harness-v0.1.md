@@ -50,8 +50,12 @@ The frozen 18-candidate registry spans the five preregistered axes:
 - fallback: none / bounded ReAct fallback.
 
 Candidates are arranged as **6 per round × 3 rounds**. Round 1 emphasizes
-single-axis ablations; rounds 2–3 recombine the same frozen modules. This is a
-bounded architecture search, not a claim of global optimality.
+single-axis ablations; rounds 2–3 recombine the same frozen modules. Every
+candidate records its conceptual parent candidate(s) and explicit module delta
+relative to the first parent, so the search lineage is auditable rather than
+name-driven. CI reconstructs each child configuration from that lineage and
+rejects missing, cyclic/out-of-order, or inconsistent deltas. This is a bounded
+architecture search, not a claim of global optimality.
 
 ## Complexity limits
 
