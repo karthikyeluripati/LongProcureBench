@@ -4,7 +4,12 @@ from __future__ import annotations
 from hashlib import sha256
 import json
 from pathlib import Path
+import sys
 import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
 
 from run_procureharness_search_v01 import (
     DEVELOPMENT_EPISODES,
@@ -20,7 +25,6 @@ from select_procureharness_screening_v01 import (
     validate_frozen_screening_selection,
 )
 
-ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = (
     ROOT / "evidence" / "procureharness-round2-screening-v0.1"
 )
@@ -69,12 +73,25 @@ def _expected_summary_row(
     }
 
 
-@unittest.skipUnless(
-    MANIFEST_PATH.is_file(),
-    "Round-2 screening evidence has not been materialized yet",
-)
 class ProcureHarnessRound2ScreeningEvidenceTests(unittest.TestCase):
     def setUp(self):
+        manifest_exists = MANIFEST_PATH.is_file()
+        selection_exists = SELECTION_PATH.is_file()
+
+        if not manifest_exists and not selection_exists:
+            self.skipTest(
+                "Round-2 screening evidence has not been materialized yet"
+            )
+
+        self.assertTrue(
+            manifest_exists,
+            "Round-2 screening selection exists but evidence manifest is missing",
+        )
+        self.assertTrue(
+            selection_exists,
+            "Round-2 evidence manifest exists but screening selection is missing",
+        )
+
         self.manifest = _load(MANIFEST_PATH)
         self.candidates = round_candidate_ids(2)
 
