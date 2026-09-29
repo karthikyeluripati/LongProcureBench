@@ -1069,6 +1069,7 @@ def freeze_efficiency_validation_authorization(
             "approved": True,
             "selection_rule": RULE_ID,
             "promotion_branch": "efficiency",
+            "promotion_rule": EFFICIENCY_RULE_ID,
             "validation_selection_path": str(base_selection_path),
             "validation_selection_sha256": base_sha,
             "validation_slot_candidate_ids": list(
