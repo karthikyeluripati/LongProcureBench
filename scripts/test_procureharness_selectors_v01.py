@@ -158,6 +158,150 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                 "{}\n",
             )
 
+    def test_screening_gate_rejects_concurrent_freeze_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "results"
+            gates = Path(tmp) / "gates"
+            self._write_screening_summaries(root)
+            gates.mkdir(parents=True, exist_ok=True)
+            lock = gates / ".screening-selection-round-1.lock"
+            lock.write_text("pid=other\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "already in progress"):
+                freeze_selection(
+                    round_id=1,
+                    results_root=root,
+                    output_dir=gates,
+                )
+
+            self.assertFalse(
+                (gates / "screening-selection-round-1.json").exists()
+            )
+            self.assertEqual(
+                lock.read_text(encoding="utf-8"),
+                "pid=other\n",
+            )
+
+    def test_quality_candidate_advances_while_peer_waits_for_efficiency_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "results"
+            gates = Path(tmp) / "gates"
+            screening_selection_path, _ = self._freeze_screening(
+                root,
+                gates,
+            )
+
+            specs = {
+                "ph-r1-c01": (53, 30, 30),
+                "ph-r1-c02": (47, 27, 27),
+            }
+            for candidate_id, (feasible, strict, economic) in specs.items():
+                path = (
+                    root
+                    / candidate_id
+                    / "development_confirmation"
+                    / "summary.json"
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(
+                    json.dumps(
+                        _confirmation_summary(
+                            candidate_id,
+                            feasible=feasible,
+                            strict=strict,
+                            economic=economic,
+                        ),
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+
+            validation_path, auth_paths = freeze_validation_selection(
+                round_id=1,
+                results_root=root,
+                screening_selection_path=screening_selection_path,
+                output_dir=gates,
+            )
+            selection = json.loads(
+                validation_path.read_text(encoding="utf-8")
+            )
+            validate_frozen_validation_selection(selection)
+
+            self.assertEqual(
+                selection["validation_selected_candidate_ids"],
+                ["ph-r1-c01"],
+            )
+            self.assertEqual(
+                selection["pending_efficiency_candidate_ids"],
+                ["ph-r1-c02"],
+            )
+            self.assertEqual(len(auth_paths), 1)
+
+            authorization = json.loads(
+                auth_paths[0].read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                authorization["candidate_id"],
+                "ph-r1-c01",
+            )
+            validate_phase_authorization(
+                candidate_id="ph-r1-c01",
+                phase="validation",
+                authorization=authorization,
+            )
+
+    def test_validation_gate_rejects_concurrent_freeze_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "results"
+            gates = Path(tmp) / "gates"
+            screening_selection_path, _ = self._freeze_screening(
+                root,
+                gates,
+            )
+
+            for candidate_id in ("ph-r1-c01", "ph-r1-c02"):
+                path = (
+                    root
+                    / candidate_id
+                    / "development_confirmation"
+                    / "summary.json"
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(
+                    json.dumps(
+                        _confirmation_summary(
+                            candidate_id,
+                            feasible=53,
+                            strict=30,
+                            economic=30,
+                        ),
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+
+            lock = gates / ".validation-selection-round-1.lock"
+            lock.write_text("pid=other\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "already in progress"):
+                freeze_validation_selection(
+                    round_id=1,
+                    results_root=root,
+                    screening_selection_path=screening_selection_path,
+                    output_dir=gates,
+                )
+
+            self.assertFalse(
+                (gates / "validation-selection-round-1.json").exists()
+            )
+            self.assertEqual(
+                lock.read_text(encoding="utf-8"),
+                "pid=other\n",
+            )
+
     def test_validation_authorization_is_recomputed_from_confirmation_results(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "results"
