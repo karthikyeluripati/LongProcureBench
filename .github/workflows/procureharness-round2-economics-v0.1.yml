@@ -74,8 +74,7 @@ jobs:
           shopt -s nullglob
           gate_files=(
             evidence/procureharness-search-gates-v0.1/validation-efficiency-addendum-round-2--*.json
-            evidence/procureharness-search-gates-v0.1/ph-r2-c09--validation-efficiency-auth.json
-            evidence/procureharness-search-gates-v0.1/ph-r2-c12--validation-efficiency-auth.json
+            evidence/procureharness-search-gates-v0.1/ph-r2-c??--validation-efficiency-auth.json
           )
           if [ ${#gate_files[@]} -gt 0 ]; then
             git add "${gate_files[@]}"
