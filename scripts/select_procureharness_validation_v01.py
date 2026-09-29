@@ -351,7 +351,7 @@ def select_validation_round(
         raise ValueError("screening selection exceeds two candidates")
 
     rows = []
-    unresolved_efficiency = []
+    pending_efficiency = []
     for candidate_id in selected_screening:
         config = get_candidate(candidate_id)
         if config.round != round_id:
@@ -377,14 +377,7 @@ def select_validation_round(
             aggregate["development_confirmation_floor_passed"]
             and not aggregate["quality_promotion_passed"]
         ):
-            unresolved_efficiency.append(candidate_id)
-
-    if unresolved_efficiency:
-        raise ValueError(
-            "cannot freeze validation selection while efficiency-only "
-            "promotion remains unresolved; require frozen economic comparison "
-            "gate for: " + ", ".join(unresolved_efficiency)
-        )
+            pending_efficiency.append(candidate_id)
 
     eligible = [
         row for row in rows
@@ -393,6 +386,13 @@ def select_validation_round(
     ]
     eligible.sort(key=_ranking_key)
     selected = [row["candidate_id"] for row in eligible[:2]]
+
+    if not selected and pending_efficiency:
+        raise ValueError(
+            "no quality-qualified validation candidate is available yet; "
+            "require frozen economic comparison gate for: "
+            + ", ".join(pending_efficiency)
+        )
 
     return {
         "schema_version": "0.1.0",
@@ -404,6 +404,7 @@ def select_validation_round(
         "screening_selection_sha256": screening_sha,
         "screening_selected_candidate_ids": selected_screening,
         "validation_selected_candidate_ids": selected,
+        "pending_efficiency_candidate_ids": pending_efficiency,
         "ranking": eligible,
         "confirmation_rows": rows,
         "promotion_branch_by_candidate": {
@@ -487,7 +488,7 @@ def validate_frozen_validation_selection(
             )
         recomputed.append(aggregate)
 
-    unresolved = [
+    pending_efficiency = [
         row["candidate_id"]
         for row in recomputed
         if (
@@ -495,9 +496,9 @@ def validate_frozen_validation_selection(
             and not row["quality_promotion_passed"]
         )
     ]
-    if unresolved:
+    if selection.get("pending_efficiency_candidate_ids") != pending_efficiency:
         raise ValueError(
-            "validation selection improperly bypasses unresolved efficiency gate"
+            "validation pending-efficiency candidate set changed"
         )
 
     eligible = [
@@ -510,6 +511,10 @@ def validate_frozen_validation_selection(
         raise ValueError("validation ranking order changed")
 
     selected = [row["candidate_id"] for row in eligible[:2]]
+    if not selected and pending_efficiency:
+        raise ValueError(
+            "validation selection froze before required economic gate"
+        )
     if selection.get("validation_selected_candidate_ids") != selected:
         raise ValueError("validation selected candidates changed")
     expected_branches = {
