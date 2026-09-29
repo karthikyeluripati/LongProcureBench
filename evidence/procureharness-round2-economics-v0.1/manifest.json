@@ -1,0 +1,54 @@
+{
+  "base_validation_selection": {
+    "bytes": 2775,
+    "path": "evidence/procureharness-search-gates-v0.1/validation-selection-round-2.json",
+    "sha256": "823c2e65f8c40789b7a4dfb8684c6683d719f66518c5b76a8e63dd65385c026c"
+  },
+  "baseline_economics_manifest": {
+    "bytes": 2658,
+    "path": "evidence/procureharness-development-economics-v0.1/manifest.json",
+    "sha256": "85f113f459d27a384094d4fa104d0f4b90a19fae92f86307b414723bafad5add"
+  },
+  "baseline_freeze_commit": "7b101f08eb2ad2ca33df628e30fd3c3173befc32",
+  "baseline_reference_cohort": {
+    "bytes": 4724,
+    "path": "evidence/procureharness-development-economics-v0.1/reference-cohort.json",
+    "sha256": "14f1cacc75f88f9e3068b93e84d4360d2586fee3992438396b463e51720e8e7a"
+  },
+  "candidate_ids": [
+    "ph-r2-c12",
+    "ph-r2-c09"
+  ],
+  "candidate_reports": {
+    "ph-r2-c09": {
+      "bytes": 43073,
+      "path": "evidence/procureharness-round2-economics-v0.1/ph-r2-c09-reports.json",
+      "policy_id": "procureharness--ph-r2-c09--openai/gpt-5.6-sol",
+      "sha256": "9061e2116eea37081590a60f524e29d4b16a7d042c732c3893571952a1554886"
+    },
+    "ph-r2-c12": {
+      "bytes": 43107,
+      "path": "evidence/procureharness-round2-economics-v0.1/ph-r2-c12-reports.json",
+      "policy_id": "procureharness--ph-r2-c12--openai/gpt-5.6-sol",
+      "sha256": "989f50e3cfe9246e335f57f2436e8ee11168305c362b3fedf3594d125865dc2c"
+    }
+  },
+  "comparisons": {
+    "bytes": 49273,
+    "path": "evidence/procureharness-round2-economics-v0.1/comparisons.json",
+    "sha256": "58e9cdf3705a1251f4f795abd5683520542a0c1a78ee04fb2de95b6748d96a78"
+  },
+  "execution": {
+    "mode": "offline_deterministic_economics",
+    "provider_calls": 0
+  },
+  "package_id": "procureharness-round2-economics-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "round": 2,
+  "schema_version": "0.1.0",
+  "source_confirmation_manifest": {
+    "bytes": 34025,
+    "path": "evidence/procureharness-round2-confirmation-v0.1/manifest.json",
+    "sha256": "3f6a3e42150ce10234fb6c7380071fcbeb7bb035e9c969a1e8ac824817df5dec"
+  }
+}
