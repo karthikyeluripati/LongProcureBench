@@ -2,13 +2,13 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "0bcd459d346487bc9eabcec082e5ddb9989d6056",
+  "freeze_commit": "f4d2759880d2bfc078874db456ed8c96dfb712c6",
   "freeze_status": "implementation_frozen_no_model_runs",
   "model_execution_status_at_freeze": "no ProcureHarness model/provider search runs executed",
   "frozen_files": [
     {
       "path": "docs/procureharness-architecture-harness-v0.1.md",
-      "git_blob_sha1": "cb1e4b7e84311f3ba41631ffa4ab0ff250931868"
+      "git_blob_sha1": "988d8d0fb069ceba87882c0a2334f9e0686ce5a1"
     },
     {
       "path": "docs/procureharness-candidate-registry-v0.1.json",
@@ -88,7 +88,7 @@
     },
     {
       "path": "scripts/select_procureharness_validation_v01.py",
-      "git_blob_sha1": "46a4c5efd04544683142ae611dc3a9ede739befa"
+      "git_blob_sha1": "a38332aeb3e628c353a582625f3a78ca3c0de709"
     }
   ],
   "notes": [
@@ -101,6 +101,8 @@
     "Harness v0.1 authorizes round-1 screening, evidence-derived development confirmation, and evidence-derived 031-040 validation; round-2/3 screening remains fail-closed until a frozen frontier/plateau progression gate is added.",
     "Validation selections reserve pending efficiency slots immutably; later efficiency qualification is append-only and cannot rewrite the base selection.",
     "Selector locking uses POSIX flock, so a killed process releases the lock automatically even if the lock-file entry remains.",
-    "The behavior freeze now includes economics.py because the late efficiency authorization recomputes regret from bound economics reports."
+    "The behavior freeze now includes economics.py because the late efficiency authorization recomputes regret from bound economics reports.",
+    "Late efficiency promotion candidate economics reports are bound to the exact frozen ProcureHarness candidate policy_id, not only the 001-020 x3 grid and file hash.",
+    "Efficiency addendum/authorization writes are retry-recoverable: an exact surviving half is reused and only the missing counterpart is created; mismatched survivors fail closed."
   ]
 }
