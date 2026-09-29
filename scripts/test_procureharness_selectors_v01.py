@@ -69,6 +69,7 @@ def _confirmation_summary(
     feasible: int,
     strict: int,
     economic: int,
+    known_cost_usd: float = 0.05,
 ) -> dict:
     rows = []
     index = 0
@@ -89,7 +90,7 @@ def _confirmation_summary(
                 "model_calls": 2,
                 "total_tokens": 100,
                 "latency_ms": 10.0,
-                "known_cost_usd": 0.05,
+                "known_cost_usd": known_cost_usd,
                 "deterministic_action_fraction": 0.75,
             })
             index += 1
@@ -257,6 +258,11 @@ class ProcureHarnessSelectorTests(unittest.TestCase):
                             feasible=feasible,
                             strict=strict,
                             economic=economic,
+                            known_cost_usd=(
+                                0.03
+                                if candidate_id == "ph-r1-c02"
+                                else 0.05
+                            ),
                         ),
                         indent=2,
                         sort_keys=True,
