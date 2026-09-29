@@ -2,7 +2,7 @@
   "schema_version": "0.1.0",
   "package": "procureharness-architecture-harness-v0.1",
   "protocol_id": "procureharness-architecture-search-v0.1",
-  "freeze_commit": "f4460b3d298125491b08112df0132dd95653e098",
+  "freeze_commit": "5827d2a4ad8ffae193d78570119b2cc74487987a",
   "freeze_status": "implementation_refrozen_for_round2_progression_gate",
   "model_execution_status_at_freeze": "round-1 search completed with no validation-authorized candidate; no ProcureHarness 031-040 validation or 041-050 final-method execution; round-2 screening not yet executed",
   "frozen_files": [
@@ -92,14 +92,16 @@
     },
     {
       "path": "scripts/select_procureharness_round_progression_v01.py",
-      "git_blob_sha1": "643ccfd200df1f4f3afc6f56a6774dfca597c547"
+      "git_blob_sha1": "8d3e958ad6a8cf8784a9bb4d4d4957bff675ff04"
     }
   ],
   "notes": [
     "This refreeze occurs after the complete Round-1 development search and offline economics gate; no Round-1 candidate was authorized for 031-040 validation.",
     "No ProcureHarness 031-040 validation or 041-050 final-method model-backed run has executed at this refreeze, and Round-2 screening has not yet executed.",
-    "The controller, candidate configs, prompts, evaluator, model settings, benchmark, and economics rules are unchanged; the search runner changes only to accept a bound later-round screening authorization from the new offline progression selector.",
-    "The Round-1 -> Round-2 progression selector recomputes the completed Round-1 evidence bindings, observes zero authorized validation candidates, records one consecutive no-new-frontier round, applies the frozen two-round plateau stop rule, and authorizes exactly the six preregistered Round-2 candidates when no stop condition fires.",
+    "The controller, candidate configs, prompts, evaluator, model settings, benchmark, and economics rules are unchanged; the search runner changes only to accept a bound later-round screening authorization from the offline progression selector.",
+    "The hardened Round-1 -> Round-2 progression selector verifies exact screening/confirmation manifest source and gate file sets, hashes and byte counts, links every summary row back to its raw result, and recomputes the efficiency outcome from the frozen economics reports rather than trusting the recorded gate result.",
+    "Progression publication is retry-recoverable: exact surviving progression/auth files are reused after interruption and only missing files are created; mismatched survivors fail closed.",
+    "The progression gate observes zero Round-1 validation-authorized candidates, records one consecutive no-new-frontier round, applies the frozen two-round plateau stop rule, and authorizes exactly the six preregistered Round-2 candidates when no stop condition fires.",
     "Round-3 screening remains fail-closed until a subsequent frozen progression/frontier gate recomputes all completed evidence and stop conditions.",
     "Episodes 041-050 remain non-executable in the architecture-search runner.",
     "The validator remains outside the frozen behavior set so it can enforce the immutable snapshot commit without creating a self-referential hash.",
