@@ -1,0 +1,209 @@
+{
+  "schema_version": "0.1.0",
+  "registry_id": "procureharness-candidate-registry-v0.1",
+  "protocol_id": "procureharness-architecture-search-v0.1",
+  "status": "implementation_frozen_no_model_runs",
+  "search_budget": {
+    "max_rounds": 3,
+    "max_new_candidates_per_round": 6,
+    "max_unique_candidates": 18
+  },
+  "hard_complexity_limits": {
+    "max_model_calls_between_accepted_actions": 3,
+    "max_local_plan_steps": 4,
+    "max_react_fallback_actions": 3,
+    "multi_agent": false,
+    "persistent_cross_episode_memory": false
+  },
+  "deferred_axes": [
+    "persistent_memory_or_AWM",
+    "knowledge_graph_or_GraphRAG",
+    "cross_episode_self_improvement",
+    "dynamic_model_routing_or_Jev",
+    "forecasting_tools",
+    "multi_agent_orchestration",
+    "long_running_checkpoint_rehydration"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "ph-r1-c01",
+      "round": 1,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "none",
+      "fallback": "none",
+      "rationale": "Minimal obligation/skill-graph skeleton; establishes deterministic-controller floor."
+    },
+    {
+      "candidate_id": "ph-r1-c02",
+      "round": 1,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Adds visible-state verification only."
+    },
+    {
+      "candidate_id": "ph-r1-c03",
+      "round": 1,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Isolates hybrid routing tie-breaks."
+    },
+    {
+      "candidate_id": "ph-r1-c04",
+      "round": 1,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Isolates bounded local planning."
+    },
+    {
+      "candidate_id": "ph-r1-c05",
+      "round": 1,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Isolates bounded mini-ReAct skill reasoning."
+    },
+    {
+      "candidate_id": "ph-r1-c06",
+      "round": 1,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "single_terminal_llm_critique",
+      "fallback": "none",
+      "rationale": "Isolates one terminal LLM critique."
+    },
+    {
+      "candidate_id": "ph-r2-c07",
+      "round": 2,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "bounded_react_fallback",
+      "rationale": "Adds bounded ReAct fallback to the deterministic-verified skeleton."
+    },
+    {
+      "candidate_id": "ph-r2-c08",
+      "round": 2,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Recombines routing and local planning."
+    },
+    {
+      "candidate_id": "ph-r2-c09",
+      "round": 2,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "none",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Recombines routing and mini-ReAct skill reasoning."
+    },
+    {
+      "candidate_id": "ph-r2-c10",
+      "round": 2,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Recombines local planning and mini-ReAct."
+    },
+    {
+      "candidate_id": "ph-r2-c11",
+      "round": 2,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "single_terminal_llm_critique",
+      "fallback": "none",
+      "rationale": "Pairs hybrid routing with terminal critique."
+    },
+    {
+      "candidate_id": "ph-r2-c12",
+      "round": 2,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "none",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "bounded_react_fallback",
+      "rationale": "Pairs hybrid routing with bounded fallback."
+    },
+    {
+      "candidate_id": "ph-r3-c13",
+      "round": 3,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "direct_action",
+      "verification": "single_terminal_llm_critique",
+      "fallback": "none",
+      "rationale": "Planning plus terminal critique within the three-call bound."
+    },
+    {
+      "candidate_id": "ph-r3-c14",
+      "round": 3,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "none",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "single_terminal_llm_critique",
+      "fallback": "none",
+      "rationale": "Mini-ReAct plus terminal critique."
+    },
+    {
+      "candidate_id": "ph-r3-c15",
+      "round": 3,
+      "obligation_routing": "deterministic_priority",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "direct_action",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "bounded_react_fallback",
+      "rationale": "Planning plus deterministic verification/fallback."
+    },
+    {
+      "candidate_id": "ph-r3-c16",
+      "round": 3,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "none",
+      "rationale": "Full routing/planning/reasoning stack without fallback."
+    },
+    {
+      "candidate_id": "ph-r3-c17",
+      "round": 3,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "none",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "deterministic_visible_invariants",
+      "fallback": "bounded_react_fallback",
+      "rationale": "Hybrid routing + mini-ReAct + fallback."
+    },
+    {
+      "candidate_id": "ph-r3-c18",
+      "round": 3,
+      "obligation_routing": "hybrid_llm_tiebreak",
+      "local_planning": "bounded_local_plan",
+      "skill_reasoning": "bounded_mini_react",
+      "verification": "single_terminal_llm_critique",
+      "fallback": "none",
+      "rationale": "Highest-reasoning candidate without fallback; terminal path remains within three calls."
+    }
+  ]
+}
