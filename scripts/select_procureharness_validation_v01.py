@@ -22,6 +22,11 @@ import sys
 import tempfile
 from typing import Any
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - non-POSIX local environments
+    fcntl = None
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -76,30 +81,50 @@ def _exclusive_gate_lock(
     gate_name: str,
     round_id: int,
 ):
-    """Serialize one gate freeze and fail closed on concurrent invocation."""
+    """Serialize one gate freeze with an OS lock released on process death."""
+    if fcntl is None:
+        raise RuntimeError(
+            "ProcureHarness gate freezing requires POSIX advisory file locks"
+        )
+
     output_dir.mkdir(parents=True, exist_ok=True)
     lock_path = output_dir / f".{gate_name}-round-{round_id}.lock"
+    handle = lock_path.open("a+", encoding="utf-8")
     try:
-        fd = os.open(
-            lock_path,
-            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-            0o644,
-        )
-    except FileExistsError as exc:
-        raise ValueError(
-            f"{gate_name} round {round_id} freeze is already in progress: "
-            f"{lock_path}"
-        ) from exc
+        try:
+            fcntl.flock(
+                handle.fileno(),
+                fcntl.LOCK_EX | fcntl.LOCK_NB,
+            )
+        except BlockingIOError as exc:
+            raise ValueError(
+                f"{gate_name} round {round_id} freeze is already in progress: "
+                f"{lock_path}"
+            ) from exc
 
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            handle.write(f"pid={os.getpid()}\n")
+        # The lock file may outlive a killed process. Once the OS advisory lock
+        # is acquired, stale contents are harmless and can be replaced.
+        handle.seek(0)
+        handle.truncate()
+        handle.write(
+            json.dumps(
+                {
+                    "pid": os.getpid(),
+                    "gate_name": gate_name,
+                    "round": round_id,
+                },
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        handle.flush()
+        os.fsync(handle.fileno())
         yield lock_path
     finally:
         try:
-            lock_path.unlink()
-        except FileNotFoundError:
-            pass
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            handle.close()
 
 
 def _sha256_bytes(data: bytes) -> str:
