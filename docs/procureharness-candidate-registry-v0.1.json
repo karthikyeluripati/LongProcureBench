@@ -33,7 +33,40 @@
       "skill_reasoning": "direct_action",
       "verification": "none",
       "fallback": "none",
-      "rationale": "Minimal obligation/skill-graph skeleton; establishes deterministic-controller floor."
+      "rationale": "Minimal obligation/skill-graph skeleton; establishes deterministic-controller floor.",
+      "parent_candidates": [],
+      "module_deltas": [
+        {
+          "relative_to": null,
+          "axis": "obligation_routing",
+          "from": null,
+          "to": "deterministic_priority"
+        },
+        {
+          "relative_to": null,
+          "axis": "local_planning",
+          "from": null,
+          "to": "none"
+        },
+        {
+          "relative_to": null,
+          "axis": "skill_reasoning",
+          "from": null,
+          "to": "direct_action"
+        },
+        {
+          "relative_to": null,
+          "axis": "verification",
+          "from": null,
+          "to": "none"
+        },
+        {
+          "relative_to": null,
+          "axis": "fallback",
+          "from": null,
+          "to": "none"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r1-c02",
@@ -43,7 +76,18 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Adds visible-state verification only."
+      "rationale": "Adds visible-state verification only.",
+      "parent_candidates": [
+        "ph-r1-c01"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c01",
+          "axis": "verification",
+          "from": "none",
+          "to": "deterministic_visible_invariants"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r1-c03",
@@ -53,7 +97,18 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Isolates hybrid routing tie-breaks."
+      "rationale": "Isolates hybrid routing tie-breaks.",
+      "parent_candidates": [
+        "ph-r1-c02"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c02",
+          "axis": "obligation_routing",
+          "from": "deterministic_priority",
+          "to": "hybrid_llm_tiebreak"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r1-c04",
@@ -63,7 +118,18 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Isolates bounded local planning."
+      "rationale": "Isolates bounded local planning.",
+      "parent_candidates": [
+        "ph-r1-c02"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c02",
+          "axis": "local_planning",
+          "from": "none",
+          "to": "bounded_local_plan"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r1-c05",
@@ -73,7 +139,18 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Isolates bounded mini-ReAct skill reasoning."
+      "rationale": "Isolates bounded mini-ReAct skill reasoning.",
+      "parent_candidates": [
+        "ph-r1-c02"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c02",
+          "axis": "skill_reasoning",
+          "from": "direct_action",
+          "to": "bounded_mini_react"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r1-c06",
@@ -83,7 +160,18 @@
       "skill_reasoning": "direct_action",
       "verification": "single_terminal_llm_critique",
       "fallback": "none",
-      "rationale": "Isolates one terminal LLM critique."
+      "rationale": "Isolates one terminal LLM critique.",
+      "parent_candidates": [
+        "ph-r1-c01"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c01",
+          "axis": "verification",
+          "from": "none",
+          "to": "single_terminal_llm_critique"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c07",
@@ -93,7 +181,18 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "bounded_react_fallback",
-      "rationale": "Adds bounded ReAct fallback to the deterministic-verified skeleton."
+      "rationale": "Adds bounded ReAct fallback to the deterministic-verified skeleton.",
+      "parent_candidates": [
+        "ph-r1-c02"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c02",
+          "axis": "fallback",
+          "from": "none",
+          "to": "bounded_react_fallback"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c08",
@@ -103,7 +202,19 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Recombines routing and local planning."
+      "rationale": "Recombines routing and local planning.",
+      "parent_candidates": [
+        "ph-r1-c03",
+        "ph-r1-c04"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c03",
+          "axis": "local_planning",
+          "from": "none",
+          "to": "bounded_local_plan"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c09",
@@ -113,7 +224,19 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Recombines routing and mini-ReAct skill reasoning."
+      "rationale": "Recombines routing and mini-ReAct skill reasoning.",
+      "parent_candidates": [
+        "ph-r1-c03",
+        "ph-r1-c05"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c03",
+          "axis": "skill_reasoning",
+          "from": "direct_action",
+          "to": "bounded_mini_react"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c10",
@@ -123,7 +246,19 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Recombines local planning and mini-ReAct."
+      "rationale": "Recombines local planning and mini-ReAct.",
+      "parent_candidates": [
+        "ph-r1-c04",
+        "ph-r1-c05"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c04",
+          "axis": "skill_reasoning",
+          "from": "direct_action",
+          "to": "bounded_mini_react"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c11",
@@ -133,7 +268,19 @@
       "skill_reasoning": "direct_action",
       "verification": "single_terminal_llm_critique",
       "fallback": "none",
-      "rationale": "Pairs hybrid routing with terminal critique."
+      "rationale": "Pairs hybrid routing with terminal critique.",
+      "parent_candidates": [
+        "ph-r1-c03",
+        "ph-r1-c06"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c03",
+          "axis": "verification",
+          "from": "deterministic_visible_invariants",
+          "to": "single_terminal_llm_critique"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r2-c12",
@@ -143,7 +290,19 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "bounded_react_fallback",
-      "rationale": "Pairs hybrid routing with bounded fallback."
+      "rationale": "Pairs hybrid routing with bounded fallback.",
+      "parent_candidates": [
+        "ph-r1-c03",
+        "ph-r2-c07"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c03",
+          "axis": "fallback",
+          "from": "none",
+          "to": "bounded_react_fallback"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c13",
@@ -153,7 +312,19 @@
       "skill_reasoning": "direct_action",
       "verification": "single_terminal_llm_critique",
       "fallback": "none",
-      "rationale": "Planning plus terminal critique within the three-call bound."
+      "rationale": "Planning plus terminal critique within the three-call bound.",
+      "parent_candidates": [
+        "ph-r1-c04",
+        "ph-r1-c06"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c04",
+          "axis": "verification",
+          "from": "deterministic_visible_invariants",
+          "to": "single_terminal_llm_critique"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c14",
@@ -163,7 +334,19 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "single_terminal_llm_critique",
       "fallback": "none",
-      "rationale": "Mini-ReAct plus terminal critique."
+      "rationale": "Mini-ReAct plus terminal critique.",
+      "parent_candidates": [
+        "ph-r1-c05",
+        "ph-r1-c06"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c05",
+          "axis": "verification",
+          "from": "deterministic_visible_invariants",
+          "to": "single_terminal_llm_critique"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c15",
@@ -173,7 +356,19 @@
       "skill_reasoning": "direct_action",
       "verification": "deterministic_visible_invariants",
       "fallback": "bounded_react_fallback",
-      "rationale": "Planning plus deterministic verification/fallback."
+      "rationale": "Planning plus deterministic verification/fallback.",
+      "parent_candidates": [
+        "ph-r1-c04",
+        "ph-r2-c07"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r1-c04",
+          "axis": "fallback",
+          "from": "none",
+          "to": "bounded_react_fallback"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c16",
@@ -183,7 +378,19 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "deterministic_visible_invariants",
       "fallback": "none",
-      "rationale": "Full routing/planning/reasoning stack without fallback."
+      "rationale": "Full routing/planning/reasoning stack without fallback.",
+      "parent_candidates": [
+        "ph-r2-c08",
+        "ph-r2-c09"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r2-c08",
+          "axis": "skill_reasoning",
+          "from": "direct_action",
+          "to": "bounded_mini_react"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c17",
@@ -193,7 +400,19 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "deterministic_visible_invariants",
       "fallback": "bounded_react_fallback",
-      "rationale": "Hybrid routing + mini-ReAct + fallback."
+      "rationale": "Hybrid routing + mini-ReAct + fallback.",
+      "parent_candidates": [
+        "ph-r2-c09",
+        "ph-r2-c12"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r2-c09",
+          "axis": "fallback",
+          "from": "none",
+          "to": "bounded_react_fallback"
+        }
+      ]
     },
     {
       "candidate_id": "ph-r3-c18",
@@ -203,7 +422,23 @@
       "skill_reasoning": "bounded_mini_react",
       "verification": "single_terminal_llm_critique",
       "fallback": "none",
-      "rationale": "Highest-reasoning candidate without fallback; terminal path remains within three calls."
+      "rationale": "Highest-reasoning candidate without fallback; terminal path remains within three calls.",
+      "parent_candidates": [
+        "ph-r3-c16",
+        "ph-r2-c11"
+      ],
+      "module_deltas": [
+        {
+          "relative_to": "ph-r3-c16",
+          "axis": "verification",
+          "from": "deterministic_visible_invariants",
+          "to": "single_terminal_llm_critique"
+        }
+      ]
     }
-  ]
+  ],
+  "lineage_contract": {
+    "semantics": "parent_candidates list conceptual source candidates; each module_delta is defined relative to the first parent candidate, or null for the seed candidate",
+    "requirement": "every candidate records parent_candidates and explicit module deltas"
+  }
 }
