@@ -189,6 +189,24 @@ class ProcureHarnessRound2ScreeningEvidenceTests(unittest.TestCase):
                 )
             self.assertEqual(summary["rows"], expected_rows)
 
+    def test_manifest_binds_all_six_input_screening_authorizations(self):
+        expected_paths = {
+            str(
+                (
+                    GATE_ROOT / f"{candidate_id}--screening-auth.json"
+                ).relative_to(ROOT)
+            )
+            for candidate_id in self.candidates
+        }
+        rows = self.manifest["input_authorization_files"]
+        self.assertEqual(len(rows), 6)
+        self.assertEqual({row["path"] for row in rows}, expected_paths)
+        for row in rows:
+            path = ROOT / row["path"]
+            raw = path.read_bytes()
+            self.assertEqual(len(raw), row["bytes"])
+            self.assertEqual(sha256(raw).hexdigest(), row["sha256"])
+
     def test_frozen_selection_and_gate_files_are_exact(self):
         selection = _load(SELECTION_PATH)
         validate_frozen_screening_selection(selection)
