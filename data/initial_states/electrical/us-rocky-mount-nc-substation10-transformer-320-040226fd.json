@@ -1,0 +1,142 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-rocky-mount-nc-substation10-transformer-320-040226fd",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "City of Rocky Mount",
+    "project_name": "Substation 10 Transformer Upgrade",
+    "project_description": "Replacement of an existing 18 MVA, 69/15 kV transformer with associated breaker relocation, switch-stand replacement, foundations, containment, cable trench, and substation structural work.",
+    "location": "Rocky Mount, North Carolina, USA"
+  },
+  "package_subscope": "Substation 10 transformer replacement and associated substation electrical/structural modifications.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-08-27",
+    "boundary": "Buyer-authored solicitation facts visible on the cited official public notice only; excludes supplier responses, offered prices, negotiations, awards, later amendments/results, and all synthetic episode facts."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Substation 10 transformer replacement and associated substation electrical/structural modifications.",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "Replace one existing 18 MVA, 69/15 kV transformer and install the new transformer with associated breaker, switching, foundations, containment, and cable-trench work.",
+          "verbatim_excerpt": null,
+          "source_locator": "Official solicitation page > Description / project scope"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-10-01 2:00 AM"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "City of Rocky Mount Bid 320-040226FD - Substation 10 Transformer Upgrade",
+      "url": "https://www.rockymountnc.gov/bids.aspx?bidID=140",
+      "document_type": "notice_html",
+      "issued_date": "2026-08-27",
+      "retrieved_date": "2026-09-28",
+      "sha256": null,
+      "snapshot_policy": "Official public notice URL and retrieval date retained. Raw source bytes are not committed in this collection pass; the notice is used only to reconstruct the pre-response requirement boundary."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation page > header, dates, and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited official buyer notice. The single benchmark line item is a curator representation of the solicitation package scope; no supplier outcome information is included."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/unit",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured in this collection pass; checksum intentionally omitted."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-danvers-ma-transformers-2026-31",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Town of Danvers",
+    "project_name": "Purchase of Pole-Mount and Pad-Mount Transformers",
+    "project_description": "Town procurement for pole-mounted and pad-mounted distribution transformers.",
+    "location": "Danvers, Massachusetts, USA"
+  },
+  "package_subscope": "Purchase of pole-mount and pad-mount transformers for the Town of Danvers.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-06-18",
+    "boundary": "Buyer-authored solicitation facts visible on the cited official public notice only; excludes supplier responses, offered prices, negotiations, awards, later amendments/results, and all synthetic episode facts."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "Purchase of pole-mount and pad-mount transformers for the Town of Danvers.",
+      "quantity": null,
+      "quantity_basis": null,
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "Purchase of both pole-mount and pad-mount transformers; detailed sizes and quantities are in the bid specifications.",
+          "verbatim_excerpt": null,
+          "source_locator": "Official solicitation page > Description / project scope"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": null,
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-07-16 11:00 AM"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Town of Danvers Bid 2026-31 - Purchase of Pole-Mount and Pad-Mount Transformers",
+      "url": "https://www.danversma.gov/bids.aspx?PRINT=YES&bidID=126",
+      "document_type": "notice_html",
+      "issued_date": "2026-06-18",
+      "retrieved_date": "2026-09-28",
+      "sha256": null,
+      "snapshot_policy": "Official public notice URL and retrieval date retained. Raw source bytes are not committed in this collection pass; the notice is used only to reconstruct the pre-response requirement boundary."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation page > header, dates, and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited official buyer notice. The single benchmark line item is a curator representation of the solicitation package scope; no supplier outcome information is included."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/quantity",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/quantity_basis",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/unit",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/need_by_date",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured in this collection pass; checksum intentionally omitted."
+    }
+  ]
+}

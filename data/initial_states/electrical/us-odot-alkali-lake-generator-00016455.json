@@ -1,0 +1,138 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "us-odot-alkali-lake-generator-00016455",
+  "procurement_category": "electrical",
+  "project": {
+    "source_organization": "Oregon Department of Transportation",
+    "project_name": "Alkali Lake MS - Replace Main Shop Backup Generator Project",
+    "project_description": "Supply and installation of a new 40 kW propane emergency generator, concrete pad, automatic transfer switch, underground gas/electrical utilities, and connection to the existing power distribution system.",
+    "location": "Lakeview, Oregon, USA"
+  },
+  "package_subscope": "40 kW propane emergency-generator replacement with ATS and associated site/electrical utilities.",
+  "initial_state": {
+    "basis": "reconstructed_from_solicitation",
+    "source_issue_date": "2026-04-02",
+    "boundary": "Buyer-authored solicitation facts visible on the cited official public notice only; excludes supplier responses, offered prices, negotiations, awards, later amendments/results, and all synthetic episode facts."
+  },
+  "line_items": [
+    {
+      "item_id": "1",
+      "description": "40 kW propane emergency-generator replacement with ATS and associated site/electrical utilities.",
+      "quantity": 1,
+      "quantity_basis": "specified",
+      "unit": null,
+      "technical_specifications": [
+        {
+          "summary": "Supply and install one new 40 kW propane-gas emergency generator with concrete pad, automatic transfer switch, underground utilities, and connection to existing distribution.",
+          "verbatim_excerpt": null,
+          "source_locator": "Official solicitation page > Description / project scope"
+        }
+      ],
+      "manufacturer": null,
+      "model": null,
+      "acceptable_alternates": null,
+      "estimated_unit_cost": null,
+      "estimated_total_cost": null
+    }
+  ],
+  "total_estimated_budget": null,
+  "schedule": {
+    "need_by_date": "2027-06-30",
+    "delivery_requirement": null,
+    "bid_submission_deadline": "2026-04-29 2:30 PM"
+  },
+  "supplier_eligibility_constraints": null,
+  "certifications_compliance": null,
+  "supporting_documents": [
+    {
+      "document_id": "source-1",
+      "title": "Oregon DOT Solicitation S-73000-00016455 - Alkali Lake Backup Generator",
+      "url": "https://oregonbuys.gov/bso/external/bidDetail.sda?docId=S-73000-00016455",
+      "document_type": "notice_html",
+      "issued_date": "2026-04-02",
+      "retrieved_date": "2026-09-28",
+      "sha256": null,
+      "snapshot_policy": "Official public notice URL and retrieval date retained. Raw source bytes are not committed in this collection pass; the notice is used only to reconstruct the pre-response requirement boundary."
+    }
+  ],
+  "source_provenance": [
+    {
+      "field_paths": [
+        "/project/source_organization",
+        "/project/project_name",
+        "/project/project_description",
+        "/project/location",
+        "/package_subscope",
+        "/initial_state/source_issue_date",
+        "/line_items/0/item_id",
+        "/line_items/0/description",
+        "/line_items/0/quantity",
+        "/line_items/0/quantity_basis",
+        "/line_items/0/technical_specifications/0/summary",
+        "/line_items/0/technical_specifications/0/source_locator",
+        "/schedule/need_by_date",
+        "/schedule/bid_submission_deadline"
+      ],
+      "document_id": "source-1",
+      "locator": "Official solicitation page > header, dates, and description",
+      "interpretation": "Direct extraction or conservative paraphrase from the cited official buyer notice. The single benchmark line item is a curator representation of the solicitation package scope; no supplier outcome information is included."
+    }
+  ],
+  "missing_information": [
+    {
+      "field_path": "/line_items/0/unit",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/manufacturer",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/model",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/acceptable_alternates",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_unit_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/line_items/0/estimated_total_cost",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/total_estimated_budget",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/schedule/delivery_requirement",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supplier_eligibility_constraints",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/certifications_compliance",
+      "reason": "not_stated",
+      "detail": "Not stated in the reviewed public notice; no value inferred."
+    },
+    {
+      "field_path": "/supporting_documents/0/sha256",
+      "reason": "source_snapshot_unavailable",
+      "detail": "Raw source bytes were not captured in this collection pass; checksum intentionally omitted."
+    }
+  ]
+}
